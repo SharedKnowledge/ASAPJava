@@ -8,9 +8,8 @@ import net.sharksystem.asp3.ASP3Exception;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 
-
 /**
- *
+ * Here are some basic tests and usage examples.
  * @author thsc
  */
 public class BasicTests {
