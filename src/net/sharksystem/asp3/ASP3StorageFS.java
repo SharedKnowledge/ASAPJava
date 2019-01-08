@@ -85,6 +85,8 @@ class ASP3StorageFS implements ASP3Storage {
         List<ASP3Chunk> chunkList = new ArrayList<>();
         
         File dir = new File(this.getPath(era));
+        
+        // can be null!
         File[] contentFileList = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String fileName) {
@@ -92,15 +94,17 @@ class ASP3StorageFS implements ASP3Storage {
                 }
             });
 
-        for (int i = 0; i < contentFileList.length; i++) {
-            String name = contentFileList[i].getName();
-            
-            // cut extension
-            int index = name.lastIndexOf('.');
-            if(index != -1) {
-                String chunkName = name.substring(0, index);
-                String fName = this.getFullFileNameByChunkName(era, chunkName);
-                chunkList.add(new ASP3ChunkFS(this, fName));
+        if(contentFileList != null) {
+            for (int i = 0; i < contentFileList.length; i++) {
+                String name = contentFileList[i].getName();
+
+                // cut extension
+                int index = name.lastIndexOf('.');
+                if(index != -1) {
+                    String chunkName = name.substring(0, index);
+                    String fName = this.getFullFileNameByChunkName(era, chunkName);
+                    chunkList.add(new ASP3ChunkFS(this, fName));
+                }
             }
         }
         

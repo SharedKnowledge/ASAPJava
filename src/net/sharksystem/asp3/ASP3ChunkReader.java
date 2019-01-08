@@ -42,7 +42,7 @@ class ASP3ChunkReader implements Runnable {
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
             b.append(this.getLogStart());
-            b.append("read chunk URL: ");
+            b.append("read chunkURI: ");
             b.append(chunkUrl);
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug

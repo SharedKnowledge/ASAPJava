@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sharksystem.asp3.ASP3Engine;
 import net.sharksystem.asp3.ASP3EngineFS;
 import net.sharksystem.asp3.ASP3Exception;
@@ -103,7 +101,7 @@ public class BasicTests {
        
        bobEngine.handleConnection(bobChannel.getInputStream(), bobChannel.getOutputStream());
        
-       Thread.sleep(2000);
+       Thread.sleep(10000);
        
         // check received message
         List<String> messages = aliceReader.getMessages();

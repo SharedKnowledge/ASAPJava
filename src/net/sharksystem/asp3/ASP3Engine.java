@@ -149,10 +149,13 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
+            // era we are about to transmit
             int workingEra = this.getEraStartSync(peer);
+            
+            // newest era (which is not necessarily highest number!!)
             int currentEra = this.era;
             
-            // we start a conversation - increase era
+            // we start a conversation - increase era for newly produced messages
             this.incrementEra();
 
             //<<<<<<<<<<<<<<<<<<debug
@@ -175,9 +178,22 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
             b.append("memento saved");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
+            
+            /*
+            There is a little challenge: era uses a circle of numbers
+            We cannot say: higher number, later era. That rule does *not*
+            apply. We can calculate next era, though. 
 
+            That loop has to be re-entered as long as working era has not 
+            yet reached currentEra. In other words: lastRound is reached whenever
+            workingEra == currentEra. Processing currentEra is the last round
+            We at at least one round!
+            */
+
+            boolean lastRound = false; // assume more than one round
             do {
-
+                lastRound = workingEra == currentEra;
+                
                 List<ASP3Chunk> chunks = this.chunkStorage.getChunks(workingEra);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
@@ -211,6 +227,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
                     b = new StringBuilder();
                     b.append(this.getLogStart());
                     b.append("send chunk");
+                    System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
                     this.sendChunk(chunk, dos);
 
@@ -219,15 +236,18 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
                     b.append(this.getLogStart());
-                    b.append("removed recipient");
+                    b.append("removed recipient ");
                     b.append(peer);
+                    System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
                     // empty?
                     if(chunk.getRecipients().isEmpty()) {
                         chunk.drop();
                         //<<<<<<<<<<<<<<<<<<debug
+                        b = new StringBuilder();
                         b.append(this.getLogStart());
                         b.append("chunk dropped");
+                        System.out.println(b.toString());
                     }
                 }
 
@@ -240,8 +260,8 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
                 // next era which isn't necessarilly workingEra++ 
                 workingEra = this.getNextEra(workingEra);
 
-                // until served era we came in in the first place
-            } while(workingEra != currentEra);
+                // as long as not already performed last round
+            } while(!lastRound);
             
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
@@ -379,6 +399,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
             b.append(")");
             b.append("read message: ");
             b.append(message);
+            System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
             
             dos.writeUTF((String) message);
@@ -390,6 +411,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
             b.append(")");
             b.append("wrote message: ");
             b.append(message);
+            System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
         }
@@ -399,7 +421,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
         b.append(this.owner);
         b.append(")");
         b.append("stop iterating messages ");
-        
+        System.out.println(b.toString());
     }
 
     /**
