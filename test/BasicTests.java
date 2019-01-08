@@ -50,6 +50,8 @@ public class BasicTests {
         
     @Test
     public void usage() throws IOException, ASP3Exception, InterruptedException {
+        
+        
        // create folder
        this.removeDirectory(ALICE_FOLDER); // clean previous version before
        File folder = new File(ALICE_FOLDER);
