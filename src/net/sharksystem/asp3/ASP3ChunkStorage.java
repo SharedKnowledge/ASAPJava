@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author thsc
  */
-public interface ASP3Writer {
+public interface ASP3ChunkStorage extends ASP3Storage {
     
     public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
     public void setRecipients(CharSequence urlTarget, List<CharSequence> recipients) throws IOException;
@@ -20,4 +20,5 @@ public interface ASP3Writer {
     public int getOldestEra();
     public int getEra();
     public int getNextEra(int era);
+    public int getPreviousEra(int era);
 }

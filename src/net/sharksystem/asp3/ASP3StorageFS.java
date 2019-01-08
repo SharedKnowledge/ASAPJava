@@ -111,7 +111,15 @@ class ASP3StorageFS implements ASP3Storage {
     public void dropChunks(int era) throws IOException {
         Path dir = Paths.get(this.rootDirectory + "/" + Integer.toString(era));
         
-        DirectoryStream<Path> entries = Files.newDirectoryStream(dir);
+        DirectoryStream<Path> entries = null;
+        try {
+            entries = Files.newDirectoryStream(dir);
+        }
+        catch(IOException ioe) {
+            // directory does not exist - ok, nothing to drop
+            return;
+        }
+        
         for (Path path : entries) {
             File file = path.toFile();
             file.delete();

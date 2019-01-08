@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author thsc
  */
-interface ASP3Chunk {
+public interface ASP3Chunk {
    
     /**
      * 

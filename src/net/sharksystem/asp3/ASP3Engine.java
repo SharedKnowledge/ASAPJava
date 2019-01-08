@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author thsc
  */
-public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
+public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -71,12 +71,36 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
         
         chunk.add(message);
     }
+    
+    @Override
+    public ASP3Chunk getChunk(CharSequence urlTarget, int era) throws IOException {
+        return this.chunkStorage.getChunk(urlTarget, era);
+    }
+
+    @Override
+    public List<ASP3Chunk> getChunks(int era) throws IOException {
+        return this.chunkStorage.getChunks(era);
+    }
+
+    @Override
+    public void dropChunks(int era) throws IOException {
+        this.chunkStorage.dropChunks(era);
+    }
 
     //////////////////////////////////////////////////////////////////////
     //                       ProtocolEngine                             //
     //////////////////////////////////////////////////////////////////////
     
     List<String> activePeers = new ArrayList<>();
+    
+    private String getLogStart() {
+        StringBuilder b = new StringBuilder();
+        b.append("ASP3Engine (");
+        b.append(this.owner);
+        b.append(") ");
+
+        return b.toString();
+    } 
     
     @Override
     public void handleConnection(InputStream is, OutputStream os) {
@@ -94,9 +118,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("read Peer: ");
             b.append(peer);
             System.out.println(b.toString());
@@ -110,23 +132,19 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             }
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("permission ok");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
             
             // start reading from remote peer
             Thread readerThread = new Thread(
-                    new ASP3ChunkReader(this.reader, dis, peer));
+                    new ASP3ChunkReader(this.reader, dis, this.owner, peer));
             
             readerThread.start();
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("chunk reader started");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
@@ -139,9 +157,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
 
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("working era: ");
             b.append(workingEra);
             b.append(" / current era: ");
@@ -155,9 +171,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             if(this.memento != null) this.memento.save(this);
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("memento saved");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
@@ -167,9 +181,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
                 List<ASP3Chunk> chunks = this.chunkStorage.getChunks(workingEra);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
-                b.append("ASP3Engine (");
-                b.append(this.owner);
-                b.append(")");
+                b.append(this.getLogStart());
                 b.append("start iterating chunks with working Era: ");
                 b.append(workingEra);
                 System.out.println(b.toString());
@@ -178,9 +190,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
                 for(ASP3Chunk chunk : chunks) {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASP3Engine (");
-                    b.append(this.owner);
-                    b.append(")");
+                    b.append(this.getLogStart());
                     b.append("chunkUrl: ");
                     b.append(chunk.getUri());
                     b.append(" / isPublic: ");
@@ -199,9 +209,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
 
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASP3Engine (");
-                    b.append(this.owner);
-                    b.append(")");
+                    b.append(this.getLogStart());
                     b.append("send chunk");
                     //>>>>>>>>>>>>>>>>>>>debug
                     this.sendChunk(chunk, dos);
@@ -210,9 +218,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
                     chunk.removeRecipient(peer);
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASP3Engine (");
-                    b.append(this.owner);
-                    b.append(")");
+                    b.append(this.getLogStart());
                     b.append("removed recipient");
                     b.append(peer);
                     //>>>>>>>>>>>>>>>>>>>debug
@@ -220,10 +226,7 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
                     if(chunk.getRecipients().isEmpty()) {
                         chunk.drop();
                         //<<<<<<<<<<<<<<<<<<debug
-                        b = new StringBuilder();
-                        b.append("ASP3Engine (");
-                        b.append(this.owner);
-                        b.append(")");
+                        b.append(this.getLogStart());
                         b.append("chunk dropped");
                     }
                 }
@@ -242,19 +245,17 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
+            b.append(this.getLogStart());
             b.append("ended iterating chunks");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
-
             // TODO IMPORTANT!!!
-            // sync current keystrokes...
+            // sync incomming messagea as long as connected
         }
         catch(IOException ioe) {
             // TODO
+            System.err.println("ioe: " + ioe.getLocalizedMessage());
         }
         finally {
             try {
@@ -275,8 +276,19 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             return 0;
         }
         
-        return workingEra++;
+        return workingEra+1;
     }
+    
+    @Override
+    public int getPreviousEra(int workingEra) {
+        if(workingEra == 0) {
+            return Integer.MAX_VALUE;
+        }
+        
+        return workingEra-1;
+    }
+    
+    
 
     private int getEraStartSync(String peer) {
         Integer lastEra = this.lastSeen.get(peer);
@@ -291,10 +303,12 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
         this.lastSeen.put(peer, era);
     }
 
+    @Override
     public int getOldestEra() {
         return this.oldestEra;
     }
     
+    @Override
     public int getEra() {
         return this.era;
     }
@@ -404,62 +418,6 @@ public class ASP3Engine implements ASP3Writer, ASP3ProtocolEngine {
             this.incrementEra();
         } catch (IOException ex) {
             // TODO
-        }
-    }
-    
-    private class ASP3ChunkReader implements Runnable {
-        ASP3Reader reader;
-        private final DataInputStream dis;
-        private final String peer;
-        
-        ASP3ChunkReader(ASP3Reader reader, DataInputStream dis, String peer) {
-            this.reader = reader;
-            this.dis = dis;
-            this.peer = peer;
-        }
-
-        @Override
-        public void run() {
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append("ChunkReader connected to (");
-            b.append(this.peer);
-            b.append("): ");
-            b.append("start reading ");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-            try {
-                String chunkUrl = dis.readUTF();
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append("ChunkReader connected to (");
-                b.append(this.peer);
-                b.append("): ");
-                b.append("read chunk URL: ");
-                b.append(chunkUrl);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-                for(;;) {
-                    // escapes with IOException
-                    String message = dis.readUTF();
-                    //<<<<<<<<<<<<<<<<<<debug
-                    b = new StringBuilder();
-                    b.append("ChunkReader connected to (");
-                    b.append(this.peer);
-                    b.append("): ");
-                    b.append("read message: ");
-                    b.append(message);
-                    System.out.println(b.toString());
-                    //>>>>>>>>>>>>>>>>>>>debug
-                    
-                    if(this.reader != null) {
-                        this.reader.read(chunkUrl, peer, message);
-                    }
-                }
-            } catch (IOException ex) {
-                // done
-            }
         }
     }
 }

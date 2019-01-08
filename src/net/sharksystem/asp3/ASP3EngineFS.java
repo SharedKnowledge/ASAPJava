@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * @author thsc
@@ -22,14 +21,14 @@ public class ASP3EngineFS extends ASP3Engine {
         super(new ASP3StorageFS(rootDirectory), reader);
     }
     
-    public static ASP3Writer getASP3Writer(String owner, String rootDirectory) 
+    public static ASP3ChunkStorage getASP3ChunkStorage(String owner, String rootDirectory) 
             throws IOException, ASP3Exception {
         
         return ASP3EngineFS.getASP3Engine(owner, rootDirectory, null);
         
     }
     
-    public static ASP3Writer getASP3Writer(String rootDirectory) 
+    public static ASP3ChunkStorage getASP3ChunkStorage(String rootDirectory) 
             throws IOException, ASP3Exception {
         
         return ASP3EngineFS.getASP3Engine(ASP3EngineFS.DEFAULT_OWNER, rootDirectory, null);
