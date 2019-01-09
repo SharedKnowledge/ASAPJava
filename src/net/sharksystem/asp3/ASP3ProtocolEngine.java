@@ -8,7 +8,7 @@ import java.io.OutputStream;
  *
  * @author thsc
  */
-public interface ASP3ProtocolEngine {
+interface ASP3ProtocolEngine {
     public void handleConnection(InputStream is, OutputStream os) 
             throws IOException;
 }
