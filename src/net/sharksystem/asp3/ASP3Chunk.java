@@ -5,10 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A chunk represent a set of messages which are issued to a 
- * topic (described by an UIR).
+ * A chunk represents a set of messages addressed by an URI. 
+ *  
  * 
  * @author thsc
+ * @see ASPChunkStorage for more details
  */
 public interface ASP3Chunk {
    
