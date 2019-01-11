@@ -50,8 +50,6 @@ public class BasicTests {
         
     @Test
     public void usage() throws IOException, ASP3Exception, InterruptedException {
-        
-        
        // create folder
        this.removeDirectory(ALICE_FOLDER); // clean previous version before
        File folder = new File(ALICE_FOLDER);
@@ -64,13 +62,13 @@ public class BasicTests {
        TestReader aliceReader = new TestReader("Alice");
        TestReader bobReader = new TestReader("Bob");
 
-       ASP3ChunkStorage aliceWriter = ASP3EngineFS.getASP3Engine("Alice", ALICE_FOLDER, aliceReader);
+       ASP3ChunkStorage aliceWriter = ASP3EngineFS.getASP3ChunkStorage("Alice", ALICE_FOLDER);
 
        String messageAlice2Bob = "hallo Bob";
        aliceWriter.add(ALICE_BOB_CHAT_URL, messageAlice2Bob);
 
 
-       ASP3ChunkStorage bobWriter = ASP3EngineFS.getASP3Engine("Bob", BOB_FOLDER, bobReader);
+       ASP3ChunkStorage bobWriter = ASP3EngineFS.getASP3ChunkStorage("Bob", BOB_FOLDER);
 
        String messageBob2Alice = "hi Alice";
        bobWriter.add(ALICE_BOB_CHAT_URL, messageBob2Alice);
