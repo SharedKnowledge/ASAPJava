@@ -17,7 +17,19 @@ package net.sharksystem.asp3;
  * @author thsc
  */
 public interface ASP3Reader {
+    
+    /**
+     * called when a new sender was detected. Following read message are
+     * produced by this sender.
+     * 
+     * @param sender 
+     */
+    public void newSender(String sender);
+    
+    /**
+     * a new message was read from an external sender
+     * @param urlTarget
+     * @param message 
+     */
     public void read(String urlTarget, String message);
-
-    public void read(String urlTarget, String peer, String message);
 }

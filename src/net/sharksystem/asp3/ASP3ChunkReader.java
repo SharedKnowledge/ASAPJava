@@ -36,7 +36,8 @@ class ASP3ChunkReader implements Runnable {
         b.append("start reading ");
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
-
+        
+        this.reader.newSender(peer);
         try {
             String chunkUrl = dis.readUTF();
             //<<<<<<<<<<<<<<<<<<debug
@@ -58,7 +59,7 @@ class ASP3ChunkReader implements Runnable {
                 //>>>>>>>>>>>>>>>>>>>debug
 
                 if(this.reader != null) {
-                    this.reader.read(chunkUrl, peer, message);
+                    this.reader.read(chunkUrl, message);
                 }
             }
         } catch (IOException ex) {

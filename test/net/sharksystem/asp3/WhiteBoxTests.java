@@ -20,7 +20,7 @@ public class WhiteBoxTests {
         TestReader bobReader = new TestReader("Bob");
         ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("bob", bobReader);
         
-        List<ASP3Chunk> chunks = bobEngine.chunkStorage.getChunks(0);
+        List<ASP3Chunk2Send> chunks = bobEngine.getStorage().getChunks(0);
         Iterator<CharSequence> messages = chunks.iterator().next().getMessages();
         while(messages.hasNext()) {
             CharSequence message = messages.next();

@@ -24,7 +24,7 @@ class ASP3StorageFS implements ASP3Storage {
     }
 
     @Override
-    public ASP3Chunk getChunk(CharSequence uriTarget, int era) throws IOException {
+    public ASP3Chunk2Send getChunk(CharSequence uriTarget, int era) throws IOException {
         return new ASP3ChunkFS(this, (String) uriTarget, era);
     }
     
@@ -81,8 +81,8 @@ class ASP3StorageFS implements ASP3Storage {
     }
 
     @Override
-    public List<ASP3Chunk> getChunks(int era) throws IOException {
-        List<ASP3Chunk> chunkList = new ArrayList<>();
+    public List<ASP3Chunk2Send> getChunks(int era) throws IOException {
+        List<ASP3Chunk2Send> chunkList = new ArrayList<>();
         
         File dir = new File(this.getPath(era));
         

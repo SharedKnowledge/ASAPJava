@@ -22,6 +22,8 @@ public class BasicTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String ALICE_FOLDER = "alice";
     public static final String BOB_FOLDER = "bob";
+    public static final String ALICE2BOB_MESSAGE = "Hi Bob";
+    public static final String BOB2ALICE_MESSAGE = "Hi Alice";
     
     private void removeDirectory(String dirname) {
         Path dir = Paths.get(dirname);
@@ -119,5 +121,42 @@ public class BasicTests {
             // must be one 
             Assert.assertEquals(messageAlice2Bob, message);
         }
+    }
+    
+    @Test
+    public void androidUsage() throws IOException, ASP3Exception {
+       this.removeDirectory(ALICE_FOLDER); // clean previous version before
+       this.removeDirectory(BOB_FOLDER); // clean previous version before
+       
+        // alice writes a message into chunkStorage
+        ASP3ChunkStorage aliceStorage = 
+                ASP3EngineFS.getASP3ChunkStorage(ALICE_FOLDER);
+        
+        aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
+        
+        // bob does the same
+        ASP3ChunkStorage bobStorage = 
+                ASP3EngineFS.getASP3ChunkStorage(BOB_FOLDER);
+        
+        aliceStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
+        
+        // now set up both engines / use default reader
+        ASP3Engine aliceEngine = ASP3EngineFS.getASP3Engine("Alice", ALICE_FOLDER);
+        
+        ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("Bob", BOB_FOLDER);
+        
+        /*
+        TCPChannel aliceChannel = new TCPChannel(7777, true, "a2b");
+        TCPChannel bobChannel = new TCPChannel(7777, false, "b2a");
+
+        aliceChannel.start();
+        bobChannel.start();
+
+        aliceChannel.waitForConnection();
+        bobChannel.waitForConnection();
+*/
+       
+       
+        
     }
 }

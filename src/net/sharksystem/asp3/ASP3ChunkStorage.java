@@ -46,7 +46,8 @@ import java.util.List;
  * 
  * @author thsc
  */
-public interface ASP3ChunkStorage extends ASP3Storage {
+public interface ASP3ChunkStorage /*extends ASP3Storage */{
+
     
     /**
      * Adds a recipient to chunk recipient list.
@@ -119,4 +120,6 @@ public interface ASP3ChunkStorage extends ASP3Storage {
      * @return 
      */
     public int getPreviousEra(int era);
+    
+    public ASP3Storage getReceivedChunkStorage(CharSequence sender);
 }

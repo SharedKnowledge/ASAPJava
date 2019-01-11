@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  *
  * @author thsc
  */
-class ASP3ChunkFS implements ASP3Chunk {
+class ASP3ChunkFS implements ASP3Chunk2Send, ASP3ChunkReceived {
     public static final String META_DATA_EXTENSION = "meta";
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
@@ -29,11 +29,19 @@ class ASP3ChunkFS implements ASP3Chunk {
     private File messageFile;
     
     private int numberMessage = 0;
+    private int era;
+    private String sender;
     
     
     ASP3ChunkFS(ASP3StorageFS storage, String targetUri, int era) throws IOException {
+        this(storage, targetUri, era, null);
+    }
+
+    ASP3ChunkFS(ASP3StorageFS storage, String targetUri, int era, String sender) throws IOException {
         this.storage = storage;
         this.uri = targetUri;
+        this.era = era;
+        this.sender = sender;
         
         String trunkName = this.storage.getFullFileName(era, targetUri);
         
@@ -192,6 +200,21 @@ class ASP3ChunkFS implements ASP3Chunk {
     @Override
     public int getNumberMessage() {
         return this.numberMessage;
+    }
+
+    @Override
+    public int getEra() throws IOException {
+        return this.era;
+    }
+
+    @Override
+    public CharSequence getSender() throws IOException {
+        return this.sender;
+    }
+
+    @Override
+    public void addReceivedMessage(CharSequence message) throws IOException {
+        this.add(message);
     }
 
     private class MessageIter implements Iterator {

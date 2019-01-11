@@ -14,12 +14,16 @@ import java.util.HashMap;
  */
 public class ASP3EngineFS extends ASP3Engine {
     public static final String MEMENTO_FILENAME = "asp3CurrentAttributes";
+    private final String rootDirectory;
+    private ASP3StorageFS chunkStorageFS;
     
     private ASP3EngineFS(String rootDirectory,
-            ASP3Storage chunkStorage, ASP3Reader reader) 
+            ASP3StorageFS chunkStorage, ASP3Reader reader) 
         throws ASP3Exception, IOException {
         
         super(new ASP3StorageFS(rootDirectory), reader);
+        
+        this.rootDirectory = rootDirectory;
     }
     
     public static ASP3ChunkStorage getASP3ChunkStorage(String owner, String rootDirectory) 
@@ -39,6 +43,18 @@ public class ASP3EngineFS extends ASP3Engine {
             throws IOException, ASP3Exception {
         
         return ASP3EngineFS.getASP3ChunkStorage(ASP3EngineFS.DEFAULT_OWNER, rootDirectory);
+        
+    }
+    
+    public static ASP3Engine getASP3Engine(String owner, String rootDirectory) 
+            throws IOException, ASP3Exception {
+        
+        ASP3DefaultReader reader = new ASP3DefaultReader();
+        ASP3Engine engine = ASP3EngineFS.getASP3Engine(owner, rootDirectory, reader);
+        
+        reader.setEngine(engine);
+        
+        return engine;
         
     }
     
@@ -89,6 +105,13 @@ public class ASP3EngineFS extends ASP3Engine {
     
     private ASP3EngineFS.ASP3MementoFS getMemento(String rootDirectory) {
         return new ASP3MementoFS(new File(rootDirectory));
+    }
+    
+    private HashMap<CharSequence, ASP3Storage> storageList = new HashMap<>();
+
+    @Override
+    public ASP3Storage getReceivedChunkStorage(CharSequence sender) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     class ASP3MementoFS implements ASP3Memento {

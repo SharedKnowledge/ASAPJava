@@ -18,7 +18,7 @@ import java.util.List;
  * @see ASP3Reader
  * @author thsc
  */
-public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
+public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -31,9 +31,9 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
     protected ASP3Memento memento = null;
     
     private final ASP3Reader reader;
-    /* private */ final ASP3Storage chunkStorage;
+    /* private */ final private ASP3Storage chunkStorage;
 
-    ASP3Engine(ASP3Storage chunkStorage, ASP3Reader reader) 
+    protected ASP3Engine(ASP3Storage chunkStorage, ASP3Reader reader) 
             throws ASP3Exception, IOException {
         
         this.chunkStorage = chunkStorage;
@@ -45,9 +45,9 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
         }
         */
     }
-
-    ASP3Engine(ASP3Storage chunkStorage) throws ASP3Exception, IOException {
-                this(chunkStorage, null);
+    
+    ASP3Storage getStorage() {
+        return this.chunkStorage;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -71,26 +71,11 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
 
     @Override
     public void add(CharSequence urlTarget, CharSequence message) throws IOException {
-        ASP3Chunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
+        ASP3Chunk2Send chunk = this.chunkStorage.getChunk(urlTarget, this.era);
         
         chunk.add(message);
     }
     
-    @Override
-    public ASP3Chunk getChunk(CharSequence urlTarget, int era) throws IOException {
-        return this.chunkStorage.getChunk(urlTarget, era);
-    }
-
-    @Override
-    public List<ASP3Chunk> getChunks(int era) throws IOException {
-        return this.chunkStorage.getChunks(era);
-    }
-
-    @Override
-    public void dropChunks(int era) throws IOException {
-        this.chunkStorage.dropChunks(era);
-    }
-
     //////////////////////////////////////////////////////////////////////
     //                       ProtocolEngine                             //
     //////////////////////////////////////////////////////////////////////
@@ -198,7 +183,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
             do {
                 lastRound = workingEra == currentEra;
                 
-                List<ASP3Chunk> chunks = this.chunkStorage.getChunks(workingEra);
+                List<ASP3Chunk2Send> chunks = this.chunkStorage.getChunks(workingEra);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
@@ -207,7 +192,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
-                for(ASP3Chunk chunk : chunks) {
+                for(ASP3Chunk2Send chunk : chunks) {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
                     b.append(this.getLogStart());
@@ -369,7 +354,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
         this.chunkStorage.dropChunks(this.era); 
     }
     
-    private void sendChunk(ASP3Chunk chunk, DataOutputStream dos) 
+    private void sendChunk(ASP3Chunk2Send chunk, DataOutputStream dos) 
             throws IOException {
         
         //<<<<<<<<<<<<<<<<<<debug
@@ -434,7 +419,7 @@ public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
      * @param chunk
      * @return 
      */
-    private boolean isPublic(ASP3Chunk chunk) {
+    private boolean isPublic(ASP3Chunk2Send chunk) {
         return chunk.getRecipients().isEmpty();
     }
 

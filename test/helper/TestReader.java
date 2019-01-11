@@ -38,8 +38,15 @@ public class TestReader implements ASP3Reader {
     }
 
     @Override
-    public void read(String urlTarget, String peer, String message) {
-        this.read(urlTarget, message);
+    public void newSender(String sender) {
+        StringBuilder b = new StringBuilder();
+        b.append("TestReader (");
+        b.append(this.ownerName).append(") ");
+        b.append("start reading from sender: ");
+        b.append(sender);
+        b.append("\n");
+        
+        System.out.println(b.toString());
     }
     
 }
