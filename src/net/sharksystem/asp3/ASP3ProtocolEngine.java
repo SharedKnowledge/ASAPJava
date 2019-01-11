@@ -9,6 +9,6 @@ import java.io.OutputStream;
  * @author thsc
  */
 interface ASP3ProtocolEngine {
-    public void handleConnection(InputStream is, OutputStream os) 
-            throws IOException;
+    public void handleConnection(InputStream is, OutputStream os,
+            ASP3ReceivedChunkListener listener) throws IOException;
 }

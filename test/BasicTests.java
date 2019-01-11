@@ -6,12 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import net.sharksystem.asp3.ASP3Chunk2Send;
 import net.sharksystem.asp3.ASP3Engine;
 import net.sharksystem.asp3.ASP3EngineFS;
 import net.sharksystem.asp3.ASP3Exception;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import net.sharksystem.asp3.ASP3ChunkStorage;
+import net.sharksystem.asp3.ASP3ReceivedChunkListener;
+import net.sharksystem.asp3.ASP3Storage;
 import org.junit.Assert;
 
 /**
@@ -94,14 +97,15 @@ public class BasicTests {
        aliceChannel.waitForConnection();
        bobChannel.waitForConnection();
        
-       // twist and run
+       // run
        ASP3EngineThread aliceEngineThread = new ASP3EngineThread(aliceEngine, 
                aliceChannel.getInputStream(),
-               aliceChannel.getOutputStream());
+               aliceChannel.getOutputStream(), null);
 
        aliceEngineThread.start();
        
-       bobEngine.handleConnection(bobChannel.getInputStream(), bobChannel.getOutputStream());
+       bobEngine.handleConnection(bobChannel.getInputStream(), 
+               bobChannel.getOutputStream(), null);
        
        Thread.sleep(10000);
        
@@ -124,7 +128,7 @@ public class BasicTests {
     }
     
     @Test
-    public void androidUsage() throws IOException, ASP3Exception {
+    public void androidUsage() throws IOException, ASP3Exception, InterruptedException {
        this.removeDirectory(ALICE_FOLDER); // clean previous version before
        this.removeDirectory(BOB_FOLDER); // clean previous version before
        
@@ -145,18 +149,63 @@ public class BasicTests {
         
         ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("Bob", BOB_FOLDER);
         
-        /*
+        ASP3ChunkReceiverTester aliceListener = new ASP3ChunkReceiverTester();
+        ASP3ChunkReceiverTester bobListener = new ASP3ChunkReceiverTester();
+
+        // create connections for both sides
         TCPChannel aliceChannel = new TCPChannel(7777, true, "a2b");
         TCPChannel bobChannel = new TCPChannel(7777, false, "b2a");
 
         aliceChannel.start();
         bobChannel.start();
 
+        // wait to connect
         aliceChannel.waitForConnection();
         bobChannel.waitForConnection();
-*/
-       
-       
         
+        // run engine as thread
+        ASP3EngineThread aliceEngineThread = new ASP3EngineThread(aliceEngine, 
+                aliceChannel.getInputStream(),
+                aliceChannel.getOutputStream(),
+                aliceListener);
+
+        aliceEngineThread.start();
+
+        // and better debugging - no new thread
+        bobEngine.handleConnection(bobChannel.getInputStream(), 
+                bobChannel.getOutputStream(), bobListener);
+
+        // wait until communication end
+        Thread.sleep(10000);
+        
+        // listener must have been informed about new messages
+        Assert.assertTrue(aliceListener.chunkReceived());
+        Assert.assertTrue(bobListener.chunkReceived());
+
+        // get message alice received
+        ASP3Storage aliceSenderStored = 
+                aliceStorage.getReceivedChunkStorage(aliceListener.getSender());
+        
+        ASP3Chunk2Send aliceReceivedChunk = 
+                aliceSenderStored.getChunk(aliceListener.getUri(), 
+                        aliceListener.getEra());
+        
+        CharSequence aliceReceivedMessage = 
+                aliceReceivedChunk.getMessages().next();
+        
+        Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
+       
+        // get message bob received
+        ASP3Storage bobSenderStored = 
+                bobStorage.getReceivedChunkStorage(bobListener.getSender());
+        
+        ASP3Chunk2Send bobReceivedChunk = 
+                bobSenderStored.getChunk(bobListener.getUri(), 
+                        bobListener.getEra());
+        
+        CharSequence bobReceivedMessage = 
+                bobReceivedChunk.getMessages().next();
+        
+        Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
     }
 }

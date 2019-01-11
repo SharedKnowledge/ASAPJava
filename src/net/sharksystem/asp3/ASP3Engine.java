@@ -92,7 +92,8 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
     } 
     
     @Override
-    public void handleConnection(InputStream is, OutputStream os) {
+    public void handleConnection(InputStream is, OutputStream os,
+            ASP3ReceivedChunkListener listener) {
         
         DataInputStream dis = new DataInputStream(is);
         DataOutputStream dos = new DataOutputStream(os);
