@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author thsc
  */
-public interface ASP3Storage {
+interface ASP3Storage {
 
     public ASP3Chunk getChunk(CharSequence urlTarget, int era) throws IOException;
 

@@ -11,7 +11,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * That ASP3Engine manages exchange of stored messages with peers.
+ * See ASPChunkStorage for details.
+ * 
+ * @see ASP3ChunkStorage
+ * @see ASP3Reader
  * @author thsc
  */
 public class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {

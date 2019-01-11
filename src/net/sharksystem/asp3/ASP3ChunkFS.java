@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  *
  * @author thsc
  */
-public class ASP3ChunkFS implements ASP3Chunk {
+class ASP3ChunkFS implements ASP3Chunk {
     public static final String META_DATA_EXTENSION = "meta";
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
+ * ASP3Engine that stores data in file system.
  * @author thsc
  */
 public class ASP3EngineFS extends ASP3Engine {
