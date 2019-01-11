@@ -24,6 +24,12 @@ public class ASP3EngineFS extends ASP3Engine {
     public static ASP3ChunkStorage getASP3ChunkStorage(String owner, String rootDirectory) 
             throws IOException, ASP3Exception {
         
+        // check if root directory already exists. If not srt it up
+        File root = new File(rootDirectory);
+        if(!root.exists()) {
+            root.mkdirs();
+        }
+        
         return ASP3EngineFS.getASP3Engine(owner, rootDirectory, null);
         
     }
@@ -31,12 +37,18 @@ public class ASP3EngineFS extends ASP3Engine {
     public static ASP3ChunkStorage getASP3ChunkStorage(String rootDirectory) 
             throws IOException, ASP3Exception {
         
-        return ASP3EngineFS.getASP3Engine(ASP3EngineFS.DEFAULT_OWNER, rootDirectory, null);
+        return ASP3EngineFS.getASP3ChunkStorage(ASP3EngineFS.DEFAULT_OWNER, rootDirectory);
         
     }
     
     public static ASP3Engine getASP3Engine(String owner, String rootDirectory, 
             ASP3Reader reader) throws IOException, ASP3Exception {
+        
+        // root directory must exist when setting up an engine
+        File root = new File(rootDirectory);
+        if(!root.exists() || !root.isDirectory()) {
+            throw new ASP3Exception("chunk root directory must exist when creating an ASP3Engine");
+        }
         
         ASP3EngineFS engine = new ASP3EngineFS(
                 rootDirectory, 
