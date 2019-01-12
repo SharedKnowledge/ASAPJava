@@ -1,6 +1,5 @@
 package net.sharksystem.asp3;
 
-import helper.TestReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +16,7 @@ public class WhiteBoxTests {
     
     @Test
     public void chunksIter() throws IOException, ASP3Exception {
-        TestReader bobReader = new TestReader("Bob");
-        ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("bob", bobReader);
+        ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("bob");
         
         List<ASP3Chunk2Send> chunks = bobEngine.getStorage().getChunks(0);
         Iterator<CharSequence> messages = chunks.iterator().next().getMessages();

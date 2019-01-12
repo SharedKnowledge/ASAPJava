@@ -1,4 +1,3 @@
-import helper.TestReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -52,80 +51,6 @@ public class BasicTests {
         // finally remove directory itself
         dir.toFile().delete();
     }
-        
-    @Test
-    public void usage() throws IOException, ASP3Exception, InterruptedException {
-       // create folder
-       this.removeDirectory(ALICE_FOLDER); // clean previous version before
-       File folder = new File(ALICE_FOLDER);
-       folder.mkdir();
-       
-       this.removeDirectory(BOB_FOLDER);
-       folder = new File(BOB_FOLDER);
-       folder.mkdir();
-
-       TestReader aliceReader = new TestReader("Alice");
-       TestReader bobReader = new TestReader("Bob");
-
-       ASP3ChunkStorage aliceWriter = ASP3EngineFS.getASP3ChunkStorage("Alice", ALICE_FOLDER);
-
-       String messageAlice2Bob = "hallo Bob";
-       aliceWriter.add(ALICE_BOB_CHAT_URL, messageAlice2Bob);
-
-
-       ASP3ChunkStorage bobWriter = ASP3EngineFS.getASP3ChunkStorage("Bob", BOB_FOLDER);
-
-       String messageBob2Alice = "hi Alice";
-       bobWriter.add(ALICE_BOB_CHAT_URL, messageBob2Alice);
-
-       // sync
-       ASP3Engine aliceEngine = ASP3EngineFS.getASP3Engine(ALICE_FOLDER, aliceReader);
-       ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine(BOB_FOLDER, bobReader);
-
-       // create shared buffer
-       /*
-       BufferedStream alice2bob = new BufferedStream("a2b");
-       BufferedStream bob2alice = new BufferedStream("b2a");
-        */
-
-       TCPChannel aliceChannel = new TCPChannel(7777, true, "a2b");
-       TCPChannel bobChannel = new TCPChannel(7777, false, "b2a");
-       
-       aliceChannel.start();
-       bobChannel.start();
-       
-       aliceChannel.waitForConnection();
-       bobChannel.waitForConnection();
-       
-       // run
-       ASP3EngineThread aliceEngineThread = new ASP3EngineThread(aliceEngine, 
-               aliceChannel.getInputStream(),
-               aliceChannel.getOutputStream(), null);
-
-       aliceEngineThread.start();
-       
-       bobEngine.handleConnection(bobChannel.getInputStream(), 
-               bobChannel.getOutputStream(), null);
-       
-       Thread.sleep(10000);
-       
-        // check received message
-        List<String> messages = aliceReader.getMessages();
-        Assert.assertEquals(1, messages.size());
-        
-        for(String message : messages) {
-            // must be one 
-            Assert.assertEquals(messageBob2Alice, message);
-        }
-
-        messages = bobReader.getMessages();
-        Assert.assertEquals(1, messages.size());
-        
-        for(String message : bobReader.getMessages()) {
-            // must be one 
-            Assert.assertEquals(messageAlice2Bob, message);
-        }
-    }
     
     @Test
     public void androidUsage() throws IOException, ASP3Exception, InterruptedException {
@@ -142,7 +67,7 @@ public class BasicTests {
         ASP3ChunkStorage bobStorage = 
                 ASP3EngineFS.getASP3ChunkStorage(BOB_FOLDER);
         
-        aliceStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
+        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         
         // now set up both engines / use default reader
         ASP3Engine aliceEngine = ASP3EngineFS.getASP3Engine("Alice", ALICE_FOLDER);

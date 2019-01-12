@@ -30,20 +30,12 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
     protected HashMap<String, Integer> lastSeen = new HashMap<>();
     protected ASP3Memento memento = null;
     
-    private final ASP3Reader reader;
     /* private */ final private ASP3Storage chunkStorage;
 
-    protected ASP3Engine(ASP3Storage chunkStorage, ASP3Reader reader) 
+    protected ASP3Engine(ASP3Storage chunkStorage) 
             throws ASP3Exception, IOException {
         
         this.chunkStorage = chunkStorage;
-        this.reader = reader;
-
-/*        
-        if(reader == null) {
-            throw new ASP3Exception("reader must not be null");
-        }
-        */
     }
     
     ASP3Storage getStorage() {
@@ -129,7 +121,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             
             // start reading from remote peer
             Thread readerThread = new Thread(
-                    new ASP3ChunkReader(this.reader, dis, this.owner, peer));
+                    new ASP3ChunkReader(dis, this.owner, peer, this));
             
             readerThread.start();
             //<<<<<<<<<<<<<<<<<<debug
@@ -219,7 +211,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
                     b.append("send chunk");
                     System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
-                    this.sendChunk(chunk, dos);
+                    ASP3ChunkSerialization.sendChunk(chunk, dos);
 
                     // remember sent
                     chunk.removeRecipient(peer);
@@ -355,65 +347,6 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
         this.chunkStorage.dropChunks(this.era); 
     }
     
-    private void sendChunk(ASP3Chunk2Send chunk, DataOutputStream dos) 
-            throws IOException {
-        
-        //<<<<<<<<<<<<<<<<<<debug
-        StringBuilder b = new StringBuilder();
-        b.append("ASP3Engine (");
-        b.append(this.owner);
-        b.append(")");
-        b.append("send chunk url: ");
-        b.append(chunk.getUri());
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
-        
-        // send url
-        dos.writeUTF(chunk.getUri());
-
-        Iterator<CharSequence> messages = chunk.getMessages();
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append("ASP3Engine (");
-        b.append(this.owner);
-        b.append(")");
-        b.append("iterate messages ");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
-        while(messages.hasNext()) {
-            CharSequence message = messages.next();
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
-            b.append("read message: ");
-            b.append(message);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-            
-            dos.writeUTF((String) message);
-
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append("ASP3Engine (");
-            b.append(this.owner);
-            b.append(")");
-            b.append("wrote message: ");
-            b.append(message);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-        }
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append("ASP3Engine (");
-        b.append(this.owner);
-        b.append(")");
-        b.append("stop iterating messages ");
-        System.out.println(b.toString());
-    }
-
     /**
      * We interpret an existing chunk with *no* recipients as
      * public chunk

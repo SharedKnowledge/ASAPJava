@@ -18,10 +18,10 @@ public class ASP3EngineFS extends ASP3Engine {
     private ASP3StorageFS chunkStorageFS;
     
     private ASP3EngineFS(String rootDirectory,
-            ASP3StorageFS chunkStorage, ASP3Reader reader) 
+            ASP3StorageFS chunkStorage) 
         throws ASP3Exception, IOException {
         
-        super(new ASP3StorageFS(rootDirectory), reader);
+        super(new ASP3StorageFS(rootDirectory));
         
         this.rootDirectory = rootDirectory;
     }
@@ -35,7 +35,7 @@ public class ASP3EngineFS extends ASP3Engine {
             root.mkdirs();
         }
         
-        return ASP3EngineFS.getASP3Engine(owner, rootDirectory, null);
+        return ASP3EngineFS.getASP3Engine(owner, rootDirectory);
         
     }
     
@@ -49,18 +49,6 @@ public class ASP3EngineFS extends ASP3Engine {
     public static ASP3Engine getASP3Engine(String owner, String rootDirectory) 
             throws IOException, ASP3Exception {
         
-        ASP3DefaultReader reader = new ASP3DefaultReader();
-        ASP3Engine engine = ASP3EngineFS.getASP3Engine(owner, rootDirectory, reader);
-        
-        reader.setEngine(engine);
-        
-        return engine;
-        
-    }
-    
-    public static ASP3Engine getASP3Engine(String owner, String rootDirectory, 
-            ASP3Reader reader) throws IOException, ASP3Exception {
-        
         // root directory must exist when setting up an engine
         File root = new File(rootDirectory);
         if(!root.exists() || !root.isDirectory()) {
@@ -69,8 +57,7 @@ public class ASP3EngineFS extends ASP3Engine {
         
         ASP3EngineFS engine = new ASP3EngineFS(
                 rootDirectory, 
-                new ASP3StorageFS(rootDirectory),
-                reader);
+                new ASP3StorageFS(rootDirectory));
 
         
         ASP3EngineFS.ASP3MementoFS mementoFS = engine.getMemento(rootDirectory);
@@ -96,10 +83,10 @@ public class ASP3EngineFS extends ASP3Engine {
         return engine;
     }
 
-    public static ASP3Engine getASP3Engine(String rootDirectory, ASP3Reader reader) 
+    public static ASP3Engine getASP3Engine(String rootDirectory) 
             throws IOException, ASP3Exception {
             
-        return ASP3EngineFS.getASP3Engine(null, rootDirectory, reader);
+        return ASP3EngineFS.getASP3Engine(null, rootDirectory);
 
     }
     
@@ -111,7 +98,8 @@ public class ASP3EngineFS extends ASP3Engine {
 
     @Override
     public ASP3Storage getReceivedChunkStorage(CharSequence sender) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String dir = this.rootDirectory + "/" + sender;
+        return new ASP3StorageFS(dir);
     }
 
     class ASP3MementoFS implements ASP3Memento {
