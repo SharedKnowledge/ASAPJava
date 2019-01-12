@@ -2,6 +2,8 @@ package net.sharksystem.asp3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class ASP3ChunkReader implements Runnable {
     private final DataInputStream dis;
@@ -47,66 +49,16 @@ class ASP3ChunkReader implements Runnable {
         b.append("got received chunk storage ");
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
-       
+        
         try {
-            String uri = dis.readUTF();
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("read chunkURI: ");
-            b.append(uri);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-            ASP3Chunk2Send chunk = 
-                    peerStorage.getChunk(uri, storage.getEra());
-            
-            if(chunk != null) {
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("got chunk: ");
-                b.append(uri);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-            } else {
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("ERROR: no chunk found for sender/uri: ");
-                b.append(peer);
-                b.append(" / ");
-                b.append(uri);
-                System.err.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-            }
-
-            ASP3ChunkSerialization.readChunk(chunk, dis);
-            
-            for(;;) {
-                // escapes with IOException
-                String message = dis.readUTF();
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("read message: ");
-                b.append(message);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("going to write to received chunk: ");
-                b.append(uri);
-                b.append(" / era: ");
-                b.append(storage.getEra());
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
-                chunk.add(message);
-            }
+            ASP3ChunkSerialization.readChunk(this.storage, peerStorage, dis);
         } catch (IOException ex) {
-            // done
+            try {
+                // give up
+                dis.close();
+            } catch (IOException ex1) {
+                // ignore
+            }
         }
     }
 }

@@ -4,15 +4,13 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import net.sharksystem.asp3.ASP3Chunk2Send;
+import net.sharksystem.asp3.ASP3Chunk;
 import net.sharksystem.asp3.ASP3Engine;
 import net.sharksystem.asp3.ASP3EngineFS;
 import net.sharksystem.asp3.ASP3Exception;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import net.sharksystem.asp3.ASP3ChunkStorage;
-import net.sharksystem.asp3.ASP3ReceivedChunkListener;
 import net.sharksystem.asp3.ASP3Storage;
 import org.junit.Assert;
 
@@ -111,7 +109,7 @@ public class BasicTests {
         ASP3Storage aliceSenderStored = 
                 aliceStorage.getReceivedChunkStorage(aliceListener.getSender());
         
-        ASP3Chunk2Send aliceReceivedChunk = 
+        ASP3Chunk aliceReceivedChunk = 
                 aliceSenderStored.getChunk(aliceListener.getUri(), 
                         aliceListener.getEra());
         
@@ -124,7 +122,7 @@ public class BasicTests {
         ASP3Storage bobSenderStored = 
                 bobStorage.getReceivedChunkStorage(bobListener.getSender());
         
-        ASP3Chunk2Send bobReceivedChunk = 
+        ASP3Chunk bobReceivedChunk = 
                 bobSenderStored.getChunk(bobListener.getUri(), 
                         bobListener.getEra());
         
