@@ -121,7 +121,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             
             // start reading from remote peer
             Thread readerThread = new Thread(
-                    new ASP3ChunkReader(dis, this.owner, peer, this));
+                    new ASP3ChunkReader(dis, this.owner, peer, this, listener));
             
             readerThread.start();
             //<<<<<<<<<<<<<<<<<<debug

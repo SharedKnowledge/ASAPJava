@@ -60,60 +60,90 @@ abstract class ASP3ChunkSerialization {
         System.out.println(b.toString());
     }
     
-    static void readChunk(ASP3ChunkStorage chunkStorage, ASP3Storage storage, 
-            DataInputStream dis) throws IOException {
+    /**
+     * This methods reads until an IOException notifies closed connection.
+     * It expects serialized chunks (plural!) which are written to received
+     * message storage.
+     * 
+     * @param chunkStorage where the received chunks are stored
+     * @param storage that looks like a design glitch TODO
+     * @param dis input stream to read serialized chunks
+     * @param listener to be notified about a successfully deserialized chunk
+     * @throws IOException 
+     */
+    static void readChunks(String sender, ASP3ChunkStorage chunkStorage, 
+            ASP3Storage storage, DataInputStream dis, 
+            ASP3ReceivedChunkListener listener) throws IOException {
         
         try {
-            // read URI
-            String uri = dis.readUTF();
-            
-            // read number of messages
-            int number = dis.readInt();
-            
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append("read chunkURI / #messages ");
-            b.append(uri);
-            b.append(" / ");
-            b.append(number);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-            ASP3Chunk chunk = 
-                    storage.getChunk(uri, chunkStorage.getEra());
-            
-            if(chunk != null) {
+            while(true) { // until IOException informs end of communication
+                // read URI
+                String uri = dis.readUTF();
+
+                // read number of messages
+                int number = dis.readInt();
+
                 //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append("got chunk: ");
+                StringBuilder b = new StringBuilder();
+                b.append("ASPChunkDeserialization: ");
+                b.append("read chunkURI / #messages / sender");
                 b.append(uri);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-            } else {
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append("ERROR: no chunk found for sender/uri: ");
                 b.append(" / ");
-                b.append(uri);
-                System.err.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-                throw new IOException("couldn't create local chunk storage - give up");
-            }
-
-            for(;number > 0; number--) {
-                // escapes with IOException
-                String message = dis.readUTF();
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append("chunk deserialisation read message: ");
-                b.append(message);
+                b.append(number);
+                b.append(" / ");
+                b.append(sender);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
+                ASP3Chunk chunk = 
+                        storage.getChunk(uri, chunkStorage.getEra());
 
-                chunk.add(message);
+                if(chunk != null) {
+                    //<<<<<<<<<<<<<<<<<<debug
+                    b = new StringBuilder();
+                    b.append("ASPChunkDeserialization: ");
+                    b.append("got chunk: ");
+                    b.append(uri);
+                    System.out.println(b.toString());
+                    //>>>>>>>>>>>>>>>>>>>debug
+                } else {
+                    //<<<<<<<<<<<<<<<<<<debug
+                    b = new StringBuilder();
+                    b.append("ASPChunkDeserialization: ");
+                    b.append("ERROR: no chunk found for sender/uri: ");
+                    b.append(" / ");
+                    b.append(uri);
+                    System.err.println(b.toString());
+                    //>>>>>>>>>>>>>>>>>>>debug
+                    throw new IOException("couldn't create local chunk storage - give up");
+                }
+
+                for(;number > 0; number--) {
+                    // escapes with IOException
+                    String message = dis.readUTF();
+                    //<<<<<<<<<<<<<<<<<<debug
+                    b = new StringBuilder();
+                    b.append("ASPChunkDeserialization: ");
+                    b.append("read message: ");
+                    b.append(message);
+                    System.out.println(b.toString());
+                    //>>>>>>>>>>>>>>>>>>>debug
+
+                    chunk.add(message);
+                }
+                
+                // read all messages
+                listener.chunkReceived(sender, uri, chunkStorage.getEra());
             }
             
         } catch (IOException ex) {
-            // done
+            // done - connection closed
+            
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append("ASPChunkDeserialization: ");
+            b.append("connection close - done");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
         }
     }
 }

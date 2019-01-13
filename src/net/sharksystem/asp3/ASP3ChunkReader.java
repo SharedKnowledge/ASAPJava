@@ -2,21 +2,22 @@ package net.sharksystem.asp3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 class ASP3ChunkReader implements Runnable {
     private final DataInputStream dis;
     private final String peer;
     private final String owner;
     private final ASP3ChunkStorage storage;
+    private final ASP3ReceivedChunkListener listener;
 
     ASP3ChunkReader(DataInputStream dis, String owner, 
-            String peer, ASP3ChunkStorage storage) {
+            String peer, ASP3ChunkStorage storage, 
+            ASP3ReceivedChunkListener listener) {
         this.dis = dis;
         this.peer = peer;
         this.owner = owner;
         this.storage = storage;
+        this.listener = listener;
     }
 
     private String getLogStart() {
@@ -51,7 +52,8 @@ class ASP3ChunkReader implements Runnable {
         //>>>>>>>>>>>>>>>>>>>debug
         
         try {
-            ASP3ChunkSerialization.readChunk(this.storage, peerStorage, dis);
+            ASP3ChunkSerialization.readChunks(peer, this.storage, 
+                    peerStorage, dis, listener);
         } catch (IOException ex) {
             try {
                 // give up
