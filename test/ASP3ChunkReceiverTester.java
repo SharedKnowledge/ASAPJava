@@ -12,7 +12,7 @@ public class ASP3ChunkReceiverTester implements ASP3ReceivedChunkListener {
 
     @Override
     public void chunkReceived(String sender, String uri, int era) {
-        System.out.println("ChunkReceiverTester.chunkReceived called" + 
+        System.out.println("ChunkReceiverTester.chunkReceived called: (sender/uri/era) " + 
                 sender +
                 " / " + 
                 uri +

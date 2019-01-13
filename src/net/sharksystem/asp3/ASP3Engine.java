@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,6 +21,13 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
+    
+    /**
+     * that engine transmitts serialized chunks to another peer.
+     * After transmission that channel is closed. In immediate closure would
+     * result in an IOException on the other side
+     */
+    private int sleepBeforeConnectionClosed = 5000; 
     
     protected String owner = ANONYMOUS_OWNER;
     
@@ -251,20 +257,33 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             b.append("ended iterating chunks");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
-
-            // TODO IMPORTANT!!!
-            // sync incomming messagea as long as connected
         }
         catch(IOException ioe) {
-            // TODO
-            System.err.println("ioe: " + ioe.getLocalizedMessage());
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("IOEXception: ");
+            b.append(ioe.getLocalizedMessage());
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
         }
         finally {
             try {
                 // remember that we drop conversation with that peer
                 this.activePeers.remove(peer);
                 
-                dis.close();
+                //<<<<<<<<<<<<<<<<<<debug
+                StringBuilder b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("about closing output stream");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+                try {
+                    Thread.sleep(sleepBeforeConnectionClosed);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+                //dis.close();
                 dos.close();
             } catch (IOException ex) {
                 // ignore

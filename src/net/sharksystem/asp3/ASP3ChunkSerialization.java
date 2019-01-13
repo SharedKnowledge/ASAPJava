@@ -75,6 +75,13 @@ abstract class ASP3ChunkSerialization {
             ASP3Storage storage, DataInputStream dis, 
             ASP3ReceivedChunkListener listener) throws IOException {
         
+        StringBuilder b = new StringBuilder();
+        b.append("ASPChunkSerialization.readChunks (sender: ");
+        b.append(sender);
+        b.append(") ");
+        
+        String logStart = b.toString();
+        
         try {
             while(true) { // until IOException informs end of communication
                 // read URI
@@ -84,8 +91,8 @@ abstract class ASP3ChunkSerialization {
                 int number = dis.readInt();
 
                 //<<<<<<<<<<<<<<<<<<debug
-                StringBuilder b = new StringBuilder();
-                b.append("ASPChunkDeserialization: ");
+                b = new StringBuilder();
+                b.append(logStart);
                 b.append("read chunkURI / #messages / sender");
                 b.append(uri);
                 b.append(" / ");
@@ -100,7 +107,7 @@ abstract class ASP3ChunkSerialization {
                 if(chunk != null) {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASPChunkDeserialization: ");
+                    b.append(logStart);
                     b.append("got chunk: ");
                     b.append(uri);
                     System.out.println(b.toString());
@@ -108,7 +115,7 @@ abstract class ASP3ChunkSerialization {
                 } else {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASPChunkDeserialization: ");
+                    b.append(logStart);
                     b.append("ERROR: no chunk found for sender/uri: ");
                     b.append(" / ");
                     b.append(uri);
@@ -122,7 +129,7 @@ abstract class ASP3ChunkSerialization {
                     String message = dis.readUTF();
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
-                    b.append("ASPChunkDeserialization: ");
+                    b.append(logStart);
                     b.append("read message: ");
                     b.append(message);
                     System.out.println(b.toString());
@@ -139,8 +146,8 @@ abstract class ASP3ChunkSerialization {
             // done - connection closed
             
             //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append("ASPChunkDeserialization: ");
+            b = new StringBuilder();
+            b.append(logStart);
             b.append("connection close - done");
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
