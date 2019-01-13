@@ -100,8 +100,15 @@ public class BasicTests {
         bobEngine.handleConnection(bobChannel.getInputStream(), 
                 bobChannel.getOutputStream(), bobListener);
 
-        // wait until communication end
+        // wait until communication probably ends
         Thread.sleep(10000);
+        
+        // close connections: note ASP3Engine does NOT close any connection!!
+        aliceChannel.close();
+        bobChannel.close();
+        Thread.sleep(1000);
+        
+        // check results
         
         // listener must have been informed about new messages
         Assert.assertTrue(aliceListener.chunkReceived());

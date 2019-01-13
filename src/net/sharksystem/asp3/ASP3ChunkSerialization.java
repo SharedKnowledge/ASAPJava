@@ -93,7 +93,7 @@ abstract class ASP3ChunkSerialization {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(logStart);
-                b.append("read chunkURI / #messages / sender");
+                b.append("read chunkURI / #messages / sender: ");
                 b.append(uri);
                 b.append(" / ");
                 b.append(number);

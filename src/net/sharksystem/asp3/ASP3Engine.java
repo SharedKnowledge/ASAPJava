@@ -267,28 +267,29 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
         }
-        finally {
-            try {
-                // remember that we drop conversation with that peer
-                this.activePeers.remove(peer);
-                
-                //<<<<<<<<<<<<<<<<<<debug
-                StringBuilder b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("about closing output stream");
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-                try {
-                    Thread.sleep(sleepBeforeConnectionClosed);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-                //dis.close();
-                dos.close();
-            } catch (IOException ex) {
-                // ignore
-            }
-        }
+        // connections are NOT close within that module but from caller!
+//        finally {
+//            try {
+//                // remember that we drop conversation with that peer
+//                this.activePeers.remove(peer);
+//                
+//                //<<<<<<<<<<<<<<<<<<debug
+//                StringBuilder b = new StringBuilder();
+//                b.append(this.getLogStart());
+//                b.append("about closing output stream");
+//                System.out.println(b.toString());
+//                //>>>>>>>>>>>>>>>>>>>debug
+//                try {
+//                    Thread.sleep(sleepBeforeConnectionClosed);
+//                } catch (InterruptedException ex) {
+//                    // ignore
+//                }
+//                //dis.close();
+//                dos.close();
+//            } catch (IOException ex) {
+//                // ignore
+//            }
+//        }
     }
 
     @Override
