@@ -75,6 +75,10 @@ class ASP3ChunkFS implements ASP3Chunk {
         }
     }
     
+    private void saveStatus() throws IOException {
+        this.writeMetaData(this.metaFile);
+    }
+    
     @Override
     public List<CharSequence> getRecipients() {
         return this.recipients;
@@ -116,6 +120,8 @@ class ASP3ChunkFS implements ASP3Chunk {
         
         dos.writeUTF((String) message);
         this.numberMessage++;
+        // keep message counter
+        this.saveStatus();
     }
 
     @Override
