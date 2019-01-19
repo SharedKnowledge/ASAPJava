@@ -43,13 +43,18 @@ public class BasicTests {
             File file = path.toFile();
             if(file.isDirectory()) {
                 this.removeDirectory(file.getAbsolutePath());
+                boolean deleted = file.delete();
             } else {
-                file.delete();
+                boolean deleted = file.delete();
             }
         }
-
+        
         // finally remove directory itself
-        dir.toFile().delete();
+        File dirFile = new File(dirname);
+        if(dirFile.exists()) {
+            boolean deleted = dirFile.delete();
+            int i = 42;
+        }
     }
     
     @Test
