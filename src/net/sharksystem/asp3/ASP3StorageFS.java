@@ -113,6 +113,13 @@ class ASP3StorageFS implements ASP3Storage {
 
     @Override
     public void dropChunks(int era) throws IOException {
+        // here comes a Java 6 compatible version - fits to android SDK 23
+        String eraPathName = this.rootDirectory + "/" + Integer.toString(era); 
+        File dir = new File(eraPathName);
+        
+        String[] dirEntries = dir.list();
+        
+        /*
         Path dir = Paths.get(this.rootDirectory + "/" + Integer.toString(era));
         
         DirectoryStream<Path> entries = null;
@@ -128,9 +135,24 @@ class ASP3StorageFS implements ASP3Storage {
             File file = path.toFile();
             file.delete();
         }
+*/
+        if(dirEntries != null) {
+            for(String fileName : dirEntries) {
+                File fileInDir = new File(eraPathName + "/" + fileName);
+                try {
+                    fileInDir.delete();
+                }
+                catch(RuntimeException e) {
+                    System.err.println("AASPStorageFS: cannot remove old file:" + e.getLocalizedMessage());
+                    // try next
+                }
+            }
+        }
         
         // finally remove directory itself
-        dir.toFile().delete();
+//        dir.toFile().delete();
+
+        dir.delete();
     }
 
     String getRootPath() {
