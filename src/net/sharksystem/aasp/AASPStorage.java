@@ -25,7 +25,7 @@ import java.util.List;
  * 
  * <pre>
  * AASPReader reader = ...;
- * AASPChunkStorage myStorage = AASPEngineFS.getAASPEngine("EngineName", "ChunkStorageRootFolder", reader);
+ * AASPStorage myStorage = AASPEngineFS.getAASPEngine("EngineName", "ChunkStorageRootFolder", reader);
  * </pre>
  * 
  * An AASPReader must be implemented prior using that framework. Objects of
