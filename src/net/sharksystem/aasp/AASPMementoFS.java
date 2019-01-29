@@ -9,18 +9,19 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- *
+ * Engine memento implementation in filesystem.
+ * 
  * @author local
  */
-class ASP3MementoFS implements ASP3Memento {
+class AASPMementoFS implements AASPMemento {
     private final File rootDirectory;
 
-    public ASP3MementoFS(File rootDirectory) {
+    public AASPMementoFS(File rootDirectory) {
         this.rootDirectory = rootDirectory;
     }
 
     @Override
-    public void save(ASP3Engine engine) throws IOException {
+    public void save(AASPEngine engine) throws IOException {
         String fName = this.getMementoFileName();
 
         File file = new File(fName);
@@ -49,15 +50,15 @@ class ASP3MementoFS implements ASP3Memento {
         }
     }
 
-    private void setDefaults(ASP3Engine engine) {
+    private void setDefaults(AASPEngine engine) {
         // set defaults
-        engine.owner = ASP3Engine.DEFAULT_OWNER;
-        engine.era = ASP3Engine.DEFAULT_INIT_ERA;
-        engine.oldestEra = ASP3Engine.DEFAULT_INIT_ERA;
+        engine.owner = AASPEngine.DEFAULT_OWNER;
+        engine.era = AASPEngine.DEFAULT_INIT_ERA;
+        engine.oldestEra = AASPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
     }
 
-    public void restore(ASP3Engine engine) throws IOException {
+    public void restore(AASPEngine engine) throws IOException {
         String fName = this.getMementoFileName();
 
         File file = new File(fName);
@@ -97,6 +98,6 @@ class ASP3MementoFS implements ASP3Memento {
     }
 
     private String getMementoFileName() {
-        return this.rootDirectory + "/" + ASP3EngineFS.MEMENTO_FILENAME;
+        return this.rootDirectory + "/" + AASPEngineFS.MEMENTO_FILENAME;
     }
 }

@@ -24,29 +24,29 @@ import java.util.List;
  * Create a ASP3Engine like this
  * 
  * <pre>
- * ASP3Reader reader = ...;
- * ASP3ChunkStorage myStorage = ASP3EngineFS.getASP3Engine("EngineName", "ChunkStorageRootFolder", reader);
+ * AASPReader reader = ...;
+ * AASPChunkStorage myStorage = AASPEngineFS.getAASPEngine("EngineName", "ChunkStorageRootFolder", reader);
  * </pre>
  * 
- * An ASP3Reader must be implemented prior using that framework. Objects of
+ * An AASPReader must be implemented prior using that framework. Objects of
  * that class are called whenever another peer transmits messages to the
- * local peer. @seeASP3Reader
+ * local peer. @see AASPReader
  * 
  * Chunks are structured by eras. In most cases, application developers don't 
  * have to care about era management at all. If so, take care. Eras are usually 
- * changed by the ASPEngine whenever a peer (re-) connects. In that case, the
+ * changed by the AASPEngine whenever a peer (re-) connects. In that case, the
  * current era is declared to be finished and an new era is opened. 
- * Any new message is now tagged as message from that new era. The ASP3Engine
+ * Any new message is now tagged as message from that new era. The AASPEngine
  * transmitts all message to the peer which are stored after the final 
  * encounter. If no encounter ever happend - all avaiable messages are 
  * transmitted. 
  *
- * @see ASPEngine
- * @see ASP3Reader
+ * @see AASPEngine
+ * @see AASPReader
  * 
  * @author thsc
  */
-public interface ASP3ChunkStorage /*extends ASP3Storage */{
+public interface AASPStorage {
 
     
     /**
@@ -121,5 +121,5 @@ public interface ASP3ChunkStorage /*extends ASP3Storage */{
      */
     public int getPreviousEra(int era);
     
-    public ASP3Storage getReceivedChunkStorage(CharSequence sender);
+    public AASPChunkStorage getReceivedChunkStorage(CharSequence sender);
 }

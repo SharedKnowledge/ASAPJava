@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.sharksystem.aasp;
 
 import java.io.IOException;
@@ -10,10 +5,24 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * An AASP chunk contains messages regarding a topic described by an
+ * uri. Messages are completly opaque to AASP, they are the payload
+ * of that protocol. Of course, that protocol was created with ASIP in mind.
+ * 
+ * Most developers will not work directly with that interface. If so: Take care!
+ * 
+ * Each chunk has an era. The era number space is a circle with 
+ * a definition of proceeding and suceeding era, @see AASPEngine for details.
+ * 
+ * Each chunk can have a number of recipients. Note: That list can be 
+ * changed by an application as long as that chunk is filled. The AASPEngine
+ * changes that list when meeting other peers. Actually, it removes any peer
+ * with whom it got synchronized.
+ * 
+ * 
  * @author thsc
  */
-public interface ASP3Chunk {
+public interface AASPChunk {
     /**
      * 
      * @return number of message in that chunk

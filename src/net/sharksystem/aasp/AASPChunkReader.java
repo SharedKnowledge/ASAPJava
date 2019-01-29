@@ -3,16 +3,21 @@ package net.sharksystem.aasp;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-class ASP3ChunkReader implements Runnable {
+/**
+ * Implements the chunk exchange step in the AAS protocol.
+ * @author local
+ */
+
+class AASPChunkReader implements Runnable {
     private final DataInputStream dis;
     private final String peer;
     private final String owner;
-    private final ASP3ChunkStorage storage;
-    private final ASP3ReceivedChunkListener listener;
+    private final AASPStorage storage;
+    private final AASPReceivedChunkListener listener;
 
-    ASP3ChunkReader(DataInputStream dis, String owner, 
-            String peer, ASP3ChunkStorage storage, 
-            ASP3ReceivedChunkListener listener) {
+    AASPChunkReader(DataInputStream dis, String owner, 
+            String peer, AASPStorage storage, 
+            AASPReceivedChunkListener listener) {
         this.dis = dis;
         this.peer = peer;
         this.owner = owner;
@@ -40,7 +45,7 @@ class ASP3ChunkReader implements Runnable {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
         
-        ASP3Storage peerStorage = null;
+        AASPChunkStorage peerStorage = null;
         
         // get received storage
         peerStorage = this.storage.getReceivedChunkStorage(peer);
@@ -52,7 +57,7 @@ class ASP3ChunkReader implements Runnable {
         //>>>>>>>>>>>>>>>>>>>debug
         
         try {
-            ASP3ChunkSerialization.readChunks(peer, this.storage, 
+            AASPChunkSerialization.readChunks(peer, this.storage, 
                     peerStorage, dis, listener);
         } catch (IOException ex) {
             try {

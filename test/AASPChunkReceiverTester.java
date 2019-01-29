@@ -1,11 +1,11 @@
 
-import net.sharksystem.aasp.ASP3ReceivedChunkListener;
+import net.sharksystem.aasp.AASPReceivedChunkListener;
 
 /**
  *
  * @author thsc
  */
-public class ASP3ChunkReceiverTester implements ASP3ReceivedChunkListener {
+public class AASPChunkReceiverTester implements AASPReceivedChunkListener {
     private String sender = null;
     private String uri = null;
     private int era;

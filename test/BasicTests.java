@@ -4,15 +4,15 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import net.sharksystem.aasp.ASP3Chunk;
-import net.sharksystem.aasp.ASP3Engine;
-import net.sharksystem.aasp.ASP3EngineFS;
-import net.sharksystem.aasp.ASP3Exception;
+import net.sharksystem.aasp.AASPEngine;
+import net.sharksystem.aasp.AASPEngineFS;
+import net.sharksystem.aasp.AASPException;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
-import net.sharksystem.aasp.ASP3ChunkStorage;
-import net.sharksystem.aasp.ASP3Storage;
 import org.junit.Assert;
+import net.sharksystem.aasp.AASPChunk;
+import net.sharksystem.aasp.AASPStorage;
+import net.sharksystem.aasp.AASPChunkStorage;
 
 /**
  * Here are some basic tests and usage examples.
@@ -58,29 +58,29 @@ public class BasicTests {
     }
     
     @Test
-    public void androidUsage() throws IOException, ASP3Exception, InterruptedException {
+    public void androidUsage() throws IOException, AASPException, InterruptedException {
        this.removeDirectory(ALICE_FOLDER); // clean previous version before
        this.removeDirectory(BOB_FOLDER); // clean previous version before
        
         // alice writes a message into chunkStorage
-        ASP3ChunkStorage aliceStorage = 
-                ASP3EngineFS.getASP3ChunkStorage(ALICE_FOLDER);
+        AASPStorage aliceStorage = 
+                AASPEngineFS.getASP3ChunkStorage(ALICE_FOLDER);
         
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         
         // bob does the same
-        ASP3ChunkStorage bobStorage = 
-                ASP3EngineFS.getASP3ChunkStorage(BOB_FOLDER);
+        AASPStorage bobStorage = 
+                AASPEngineFS.getASP3ChunkStorage(BOB_FOLDER);
         
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         
         // now set up both engines / use default reader
-        ASP3Engine aliceEngine = ASP3EngineFS.getASP3Engine("Alice", ALICE_FOLDER);
+        AASPEngine aliceEngine = AASPEngineFS.getASP3Engine("Alice", ALICE_FOLDER);
         
-        ASP3Engine bobEngine = ASP3EngineFS.getASP3Engine("Bob", BOB_FOLDER);
+        AASPEngine bobEngine = AASPEngineFS.getASP3Engine("Bob", BOB_FOLDER);
         
-        ASP3ChunkReceiverTester aliceListener = new ASP3ChunkReceiverTester();
-        ASP3ChunkReceiverTester bobListener = new ASP3ChunkReceiverTester();
+        AASPChunkReceiverTester aliceListener = new AASPChunkReceiverTester();
+        AASPChunkReceiverTester bobListener = new AASPChunkReceiverTester();
 
         // create connections for both sides
         TCPChannel aliceChannel = new TCPChannel(7777, true, "a2b");
@@ -94,7 +94,7 @@ public class BasicTests {
         bobChannel.waitForConnection();
         
         // run engine as thread
-        ASP3EngineThread aliceEngineThread = new ASP3EngineThread(aliceEngine, 
+        AASPEngineThread aliceEngineThread = new AASPEngineThread(aliceEngine, 
                 aliceChannel.getInputStream(),
                 aliceChannel.getOutputStream(),
                 aliceListener);
@@ -120,10 +120,10 @@ public class BasicTests {
         Assert.assertTrue(bobListener.chunkReceived());
 
         // get message alice received
-        ASP3Storage aliceSenderStored = 
+        AASPChunkStorage aliceSenderStored = 
                 aliceStorage.getReceivedChunkStorage(aliceListener.getSender());
         
-        ASP3Chunk aliceReceivedChunk = 
+        AASPChunk aliceReceivedChunk = 
                 aliceSenderStored.getChunk(aliceListener.getUri(), 
                         aliceListener.getEra());
         
@@ -133,10 +133,10 @@ public class BasicTests {
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
        
         // get message bob received
-        ASP3Storage bobSenderStored = 
+        AASPChunkStorage bobSenderStored = 
                 bobStorage.getReceivedChunkStorage(bobListener.getSender());
         
-        ASP3Chunk bobReceivedChunk = 
+        AASPChunk bobReceivedChunk = 
                 bobSenderStored.getChunk(bobListener.getUri(), 
                         bobListener.getEra());
         

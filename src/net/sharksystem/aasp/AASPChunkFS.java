@@ -18,11 +18,11 @@ import java.util.StringTokenizer;
  *
  * @author thsc
  */
-class ASP3ChunkFS implements ASP3Chunk {
+class AASPChunkFS implements AASPChunk {
     public static final String META_DATA_EXTENSION = "meta";
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
-    private final ASP3StorageFS storage;
+    private final AASPChunkStorageFS storage;
     private String uri = DEFAULT_URL;
     private ArrayList<CharSequence> recipients;
     private File metaFile;
@@ -33,11 +33,11 @@ class ASP3ChunkFS implements ASP3Chunk {
     private String sender;
     
     
-    ASP3ChunkFS(ASP3StorageFS storage, String targetUri, int era) throws IOException {
+    AASPChunkFS(AASPChunkStorageFS storage, String targetUri, int era) throws IOException {
         this(storage, targetUri, era, null);
     }
 
-    ASP3ChunkFS(ASP3StorageFS storage, String targetUri, int era, String sender) throws IOException {
+    AASPChunkFS(AASPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
         this.storage = storage;
         this.uri = targetUri;
         this.era = era;
@@ -49,9 +49,9 @@ class ASP3ChunkFS implements ASP3Chunk {
         this.initFiles(trunkName);
     }
 
-    ASP3ChunkFS(ASP3StorageFS storage, String trunkName) throws IOException {
+    AASPChunkFS(AASPChunkStorageFS storage, String trunkName) throws IOException {
         this.storage = storage;
-        this.uri = ASP3ChunkFS.DEFAULT_URL;
+        this.uri = AASPChunkFS.DEFAULT_URL;
         
         this.initFiles(trunkName);
     }

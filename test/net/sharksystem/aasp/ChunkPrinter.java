@@ -1,20 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.sharksystem.aasp;
 
-import net.sharksystem.aasp.ASP3Exception;
-import net.sharksystem.aasp.ASP3ChunkFS;
+import net.sharksystem.aasp.AASPChunkFS;
 import java.io.IOException;
 import java.util.Iterator;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import net.sharksystem.aasp.AASPException;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -23,13 +13,13 @@ import static org.junit.Assert.*;
 public class ChunkPrinter {
     
     @Test
-    public void printChunk() throws IOException, ASP3Exception {
+    public void printChunk() throws IOException, AASPException {
         String chunkTrunkName = "bob/0/content%3A%2F%2FaliceAndBob.talk";
         
         System.out.println("going to print content of chunk " + chunkTrunkName);
         
         try {
-        ASP3ChunkFS chunk = new ASP3ChunkFS(null, chunkTrunkName);
+        AASPChunkFS chunk = new AASPChunkFS(null, chunkTrunkName);
         
             System.out.println("url: " + chunk.getUri());
             

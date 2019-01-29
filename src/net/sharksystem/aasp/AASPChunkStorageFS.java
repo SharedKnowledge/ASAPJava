@@ -3,29 +3,25 @@ package net.sharksystem.aasp;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import static net.sharksystem.aasp.ASP3ChunkFS.DATA_EXTENSION;
+import static net.sharksystem.aasp.AASPChunkFS.DATA_EXTENSION;
 
 /**
  *
  * @author thsc
  */
-class ASP3StorageFS implements ASP3Storage {
+class AASPChunkStorageFS implements AASPChunkStorage {
 
     private final String rootDirectory;
 
-    ASP3StorageFS(String rootDirectory) {
+    AASPChunkStorageFS(String rootDirectory) {
         this.rootDirectory = rootDirectory;
     }
 
     @Override
-    public ASP3Chunk getChunk(CharSequence uriTarget, int era) throws IOException {
-        return new ASP3ChunkFS(this, (String) uriTarget, era);
+    public AASPChunk getChunk(CharSequence uriTarget, int era) throws IOException {
+        return new AASPChunkFS(this, (String) uriTarget, era);
     }
     
     String url2FileName(String url) {
@@ -81,8 +77,8 @@ class ASP3StorageFS implements ASP3Storage {
     }
 
     @Override
-    public List<ASP3Chunk> getChunks(int era) throws IOException {
-        List<ASP3Chunk> chunkList = new ArrayList<>();
+    public List<AASPChunk> getChunks(int era) throws IOException {
+        List<AASPChunk> chunkList = new ArrayList<>();
         
         File dir = new File(this.getPath(era));
         
@@ -103,7 +99,7 @@ class ASP3StorageFS implements ASP3Storage {
                 if(index != -1) {
                     String chunkName = name.substring(0, index);
                     String fName = this.getFullFileNameByChunkName(era, chunkName);
-                    chunkList.add(new ASP3ChunkFS(this, fName));
+                    chunkList.add(new AASPChunkFS(this, fName));
                 }
             }
         }

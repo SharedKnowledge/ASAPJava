@@ -13,11 +13,11 @@ import java.util.List;
  * That ASP3Engine manages exchange of stored messages with peers.
  * See ASPChunkStorage for details.
  * 
- * @see ASP3ChunkStorage
+ * @see AASPStorage
  * @see ASP3Reader
  * @author thsc
  */
-public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine {
+public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -34,17 +34,17 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
     protected int era = 0;
     protected int oldestEra = 0;
     protected HashMap<String, Integer> lastSeen = new HashMap<>();
-    protected ASP3Memento memento = null;
+    protected AASPMemento memento = null;
     
-    /* private */ final private ASP3Storage chunkStorage;
+    /* private */ final private AASPChunkStorage chunkStorage;
 
-    protected ASP3Engine(ASP3Storage chunkStorage) 
-            throws ASP3Exception, IOException {
+    protected AASPEngine(AASPChunkStorage chunkStorage) 
+            throws AASPException, IOException {
         
         this.chunkStorage = chunkStorage;
     }
     
-    ASP3Storage getStorage() {
+    AASPChunkStorage getStorage() {
         return this.chunkStorage;
     }
 
@@ -69,7 +69,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
 
     @Override
     public void add(CharSequence urlTarget, CharSequence message) throws IOException {
-        ASP3Chunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
+        AASPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
         
         chunk.add(message);
     }
@@ -91,7 +91,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
     
     @Override
     public void handleConnection(InputStream is, OutputStream os,
-            ASP3ReceivedChunkListener listener) {
+            AASPReceivedChunkListener listener) {
         
         DataInputStream dis = new DataInputStream(is);
         DataOutputStream dos = new DataOutputStream(os);
@@ -127,7 +127,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             
             // start reading from remote peer
             Thread readerThread = new Thread(
-                    new ASP3ChunkReader(dis, this.owner, peer, this, listener));
+                    new AASPChunkReader(dis, this.owner, peer, this, listener));
             
             readerThread.start();
             //<<<<<<<<<<<<<<<<<<debug
@@ -182,7 +182,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
             do {
                 lastRound = workingEra == currentEra;
                 
-                List<ASP3Chunk> chunks = this.chunkStorage.getChunks(workingEra);
+                List<AASPChunk> chunks = this.chunkStorage.getChunks(workingEra);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
@@ -191,7 +191,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
-                for(ASP3Chunk chunk : chunks) {
+                for(AASPChunk chunk : chunks) {
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
                     b.append(this.getLogStart());
@@ -217,7 +217,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
                     b.append("send chunk");
                     System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
-                    ASP3ChunkSerialization.sendChunk(chunk, dos);
+                    AASPChunkSerialization.sendChunk(chunk, dos);
 
                     // remember sent
                     chunk.removeRecipient(peer);
@@ -373,7 +373,7 @@ public abstract class ASP3Engine implements ASP3ChunkStorage, ASP3ProtocolEngine
      * @param chunk
      * @return 
      */
-    private boolean isPublic(ASP3Chunk chunk) {
+    private boolean isPublic(AASPChunk chunk) {
         return chunk.getRecipients().isEmpty();
     }
 

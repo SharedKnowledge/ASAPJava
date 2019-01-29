@@ -4,13 +4,13 @@ package net.sharksystem.aasp;
  *
  * @author thsc
  */
-public class ASP3Exception extends Exception {
+public class AASPException extends Exception {
     
-    public ASP3Exception() {
+    public AASPException() {
         super();
     }
     
-    public ASP3Exception(String message) {
+    public AASPException(String message) {
         super(message);
     }
     

@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- *
+ * Implements parts of the AAS protocol.
  * @author thsc
  */
-abstract class ASP3ChunkSerialization {
-    static void sendChunk(ASP3Chunk chunk, DataOutputStream dos)
+abstract class AASPChunkSerialization {
+    static void sendChunk(AASPChunk chunk, DataOutputStream dos)
             throws IOException {
         
         //<<<<<<<<<<<<<<<<<<debug
@@ -71,9 +71,9 @@ abstract class ASP3ChunkSerialization {
      * @param listener to be notified about a successfully deserialized chunk
      * @throws IOException 
      */
-    static void readChunks(String sender, ASP3ChunkStorage chunkStorage, 
-            ASP3Storage storage, DataInputStream dis, 
-            ASP3ReceivedChunkListener listener) throws IOException {
+    static void readChunks(String sender, AASPStorage chunkStorage, 
+            AASPChunkStorage storage, DataInputStream dis, 
+            AASPReceivedChunkListener listener) throws IOException {
         
         StringBuilder b = new StringBuilder();
         b.append("ASPChunkSerialization.readChunks (sender: ");
@@ -101,7 +101,7 @@ abstract class ASP3ChunkSerialization {
                 b.append(sender);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
-                ASP3Chunk chunk = 
+                AASPChunk chunk = 
                         storage.getChunk(uri, chunkStorage.getEra());
 
                 if(chunk != null) {
