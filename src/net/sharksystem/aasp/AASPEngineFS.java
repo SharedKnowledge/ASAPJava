@@ -13,6 +13,8 @@ public class AASPEngineFS extends AASPEngine {
     private final String rootDirectory;
     private AASPChunkStorageFS chunkStorageFS;
     
+    public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_AASP";
+    
     private AASPEngineFS(String rootDirectory,
             AASPChunkStorageFS chunkStorage) 
         throws AASPException, IOException {
@@ -98,4 +100,8 @@ public class AASPEngineFS extends AASPEngine {
         return new AASPChunkStorageFS(dir);
     }
 
+    @Override
+    public AASPChunkStorage getChunkStorage() {
+        return this.chunkStorageFS;
+    }
 }

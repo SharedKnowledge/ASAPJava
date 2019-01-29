@@ -121,5 +121,20 @@ public interface AASPStorage {
      */
     public int getPreviousEra(int era);
     
+    /**
+     * Default behaviour of AASPEngine: Each peer / communication partner
+     * gets its own chunk storage. That storage is filled during aasp 
+     * synchronization. That storage can be retrieved with this command.
+     * 
+     * @param sender
+     * @return 
+     */
     public AASPChunkStorage getReceivedChunkStorage(CharSequence sender);
+    
+    /**
+     * 
+     * @return The local chunk storage that is meant to be used by the local
+     * app. Note: That storage is changed during an AASP session.
+     */
+    public AASPChunkStorage getChunkStorage();
 }
