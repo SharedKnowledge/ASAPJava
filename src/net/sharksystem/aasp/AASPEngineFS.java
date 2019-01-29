@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * ASP3Engine that stores data in file system.
+ * AASPEngine that stores data in file system.
  * @author thsc
  */
 public class AASPEngineFS extends AASPEngine {
-    public static final String MEMENTO_FILENAME = "asp3CurrentAttributes";
+    public static final String MEMENTO_FILENAME = "aaspCurrentAttributes";
     private final String rootDirectory;
     private AASPChunkStorageFS chunkStorageFS;
     
@@ -22,7 +22,7 @@ public class AASPEngineFS extends AASPEngine {
         this.rootDirectory = rootDirectory;
     }
     
-    public static AASPStorage getASP3ChunkStorage(String owner, String rootDirectory) 
+    public static AASPStorage getAASPChunkStorage(String owner, String rootDirectory) 
             throws IOException, AASPException {
         
         // check if root directory already exists. If not srt it up
@@ -31,24 +31,24 @@ public class AASPEngineFS extends AASPEngine {
             root.mkdirs();
         }
         
-        return AASPEngineFS.getASP3Engine(owner, rootDirectory);
+        return AASPEngineFS.getAASPEngine(owner, rootDirectory);
         
     }
     
-    public static AASPStorage getASP3ChunkStorage(String rootDirectory) 
+    public static AASPStorage getAASPChunkStorage(String rootDirectory) 
             throws IOException, AASPException {
         
-        return AASPEngineFS.getASP3ChunkStorage(AASPEngineFS.DEFAULT_OWNER, rootDirectory);
+        return AASPEngineFS.getAASPChunkStorage(AASPEngineFS.DEFAULT_OWNER, rootDirectory);
         
     }
     
-    public static AASPEngine getASP3Engine(String owner, String rootDirectory) 
+    public static AASPEngine getAASPEngine(String owner, String rootDirectory) 
             throws IOException, AASPException {
         
         // root directory must exist when setting up an engine
         File root = new File(rootDirectory);
         if(!root.exists() || !root.isDirectory()) {
-            throw new AASPException("chunk root directory must exist when creating an ASP3Engine");
+            throw new AASPException("chunk root directory must exist when creating an AASPEngine");
         }
         
         AASPEngineFS engine = new AASPEngineFS(
@@ -79,10 +79,10 @@ public class AASPEngineFS extends AASPEngine {
         return engine;
     }
 
-    public static AASPEngine getASP3Engine(String rootDirectory) 
+    public static AASPEngine getAASPEngine(String rootDirectory) 
             throws IOException, AASPException {
             
-        return AASPEngineFS.getASP3Engine(null, rootDirectory);
+        return AASPEngineFS.getAASPEngine(null, rootDirectory);
 
     }
     

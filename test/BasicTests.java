@@ -64,20 +64,20 @@ public class BasicTests {
        
         // alice writes a message into chunkStorage
         AASPStorage aliceStorage = 
-                AASPEngineFS.getASP3ChunkStorage(ALICE_FOLDER);
+                AASPEngineFS.getAASPChunkStorage(ALICE_FOLDER);
         
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         
         // bob does the same
         AASPStorage bobStorage = 
-                AASPEngineFS.getASP3ChunkStorage(BOB_FOLDER);
+                AASPEngineFS.getAASPChunkStorage(BOB_FOLDER);
         
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         
         // now set up both engines / use default reader
-        AASPEngine aliceEngine = AASPEngineFS.getASP3Engine("Alice", ALICE_FOLDER);
+        AASPEngine aliceEngine = AASPEngineFS.getAASPEngine("Alice", ALICE_FOLDER);
         
-        AASPEngine bobEngine = AASPEngineFS.getASP3Engine("Bob", BOB_FOLDER);
+        AASPEngine bobEngine = AASPEngineFS.getAASPEngine("Bob", BOB_FOLDER);
         
         AASPChunkReceiverTester aliceListener = new AASPChunkReceiverTester();
         AASPChunkReceiverTester bobListener = new AASPChunkReceiverTester();
@@ -108,7 +108,7 @@ public class BasicTests {
         // wait until communication probably ends
         Thread.sleep(10000);
         
-        // close connections: note ASP3Engine does NOT close any connection!!
+        // close connections: note AASPEngine does NOT close any connection!!
         aliceChannel.close();
         bobChannel.close();
         Thread.sleep(1000);

@@ -27,7 +27,7 @@ class AASPChunkReader implements Runnable {
 
     private String getLogStart() {
         StringBuilder b = new StringBuilder();
-        b.append("ASP3ChunkReader (");
+        b.append("AASPChunkReader (");
         b.append(this.owner);
         b.append(") connected to (");
         b.append(this.peer);

@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * That ASP3Engine manages exchange of stored messages with peers.
+ * That AASPEngine manages exchange of stored messages with peers.
  * See ASPChunkStorage for details.
  * 
  * @see AASPStorage
- * @see ASP3Reader
+ * @see AASPReader
  * @author thsc
  */
 public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {

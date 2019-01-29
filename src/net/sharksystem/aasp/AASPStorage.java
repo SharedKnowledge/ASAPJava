@@ -9,19 +9,19 @@ import java.util.List;
  * That chunk storage is meant to keep messages which are produced by an
  * app for later transmission.
  * 
- * Messages which cannot be sent to their recipients can be stored in ASP3 chunks.
+ * Messages which cannot be sent to their recipients can be stored in AASP chunks.
  * Each chunk is addressed with an URI (comparable to URIs e.g. in Android
  * Content Provider)
  * 
  * Applications can easlily store their messages by calling add(URI, message).
  * That message is stored in a chunk addressed by the URI. 
  * 
- * Each chunk has a recipient list which can be changed anytime. The ASP3Engine
+ * Each chunk has a recipient list which can be changed anytime. The AASPEngine
  * uses those information for sending such stored messages whenever a peer
  * establishes a connection.
  * 
- * It is recommended to use ASP3EngineFS to set up that framework.
- * Create a ASP3Engine like this
+ * It is recommended to use AASPEngineFS to set up that framework.
+ * Create a AASPEngine like this
  * 
  * <pre>
  * AASPReader reader = ...;
