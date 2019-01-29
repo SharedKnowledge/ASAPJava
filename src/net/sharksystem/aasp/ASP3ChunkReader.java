@@ -1,4 +1,4 @@
-package net.sharksystem.asp3;
+package net.sharksystem.aasp;
 
 import java.io.DataInputStream;
 import java.io.IOException;

@@ -4,14 +4,14 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import net.sharksystem.asp3.ASP3Chunk;
-import net.sharksystem.asp3.ASP3Engine;
-import net.sharksystem.asp3.ASP3EngineFS;
-import net.sharksystem.asp3.ASP3Exception;
+import net.sharksystem.aasp.ASP3Chunk;
+import net.sharksystem.aasp.ASP3Engine;
+import net.sharksystem.aasp.ASP3EngineFS;
+import net.sharksystem.aasp.ASP3Exception;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
-import net.sharksystem.asp3.ASP3ChunkStorage;
-import net.sharksystem.asp3.ASP3Storage;
+import net.sharksystem.aasp.ASP3ChunkStorage;
+import net.sharksystem.aasp.ASP3Storage;
 import org.junit.Assert;
 
 /**

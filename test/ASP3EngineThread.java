@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.sharksystem.asp3.ASP3Engine;
-import net.sharksystem.asp3.ASP3ReceivedChunkListener;
+import net.sharksystem.aasp.ASP3Engine;
+import net.sharksystem.aasp.ASP3ReceivedChunkListener;
 
 /**
  *
