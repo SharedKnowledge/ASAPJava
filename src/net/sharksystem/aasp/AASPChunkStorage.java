@@ -15,9 +15,20 @@ import java.util.List;
  */
 public interface AASPChunkStorage {
 
-    public AASPChunk getChunk(CharSequence urlTarget, int era) throws IOException;
+    public AASPChunk getChunk(CharSequence uri, int era) throws IOException;
 
     public List<AASPChunk> getChunks(int era) throws IOException;
 
     public void dropChunks(int era) throws IOException;
+    
+    /**
+     * 
+     * @param uri chunk storage uri
+     * @param fromEra oldest era
+     * @param toEra youngest era
+     * @return a chunk cache which hides details of era
+     * @throws IOException 
+     */
+    public AASPChunkCache getAASPChunkCache(CharSequence uri, int fromEra, 
+            int toEra) throws IOException;
 }

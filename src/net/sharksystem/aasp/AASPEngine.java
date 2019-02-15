@@ -297,8 +297,7 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
 //        }
     }
 
-    @Override
-    public int getNextEra(int workingEra) {
+    static int nextEra(int workingEra) {
         if(workingEra == Integer.MAX_VALUE) {
             return 0;
         }
@@ -307,7 +306,11 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
     }
     
     @Override
-    public int getPreviousEra(int workingEra) {
+    public int getNextEra(int workingEra) {
+        return AASPEngine.nextEra(workingEra);
+    }
+
+    static int previousEra(int workingEra) {
         if(workingEra == 0) {
             return Integer.MAX_VALUE;
         }
@@ -315,7 +318,10 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
         return workingEra-1;
     }
     
-    
+    @Override
+    public int getPreviousEra(int workingEra) {
+        return AASPEngine.previousEra(workingEra);
+    }
 
     private int getEraStartSync(String peer) {
         Integer lastEra = this.lastSeen.get(peer);

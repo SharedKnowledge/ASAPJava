@@ -154,4 +154,10 @@ class AASPChunkStorageFS implements AASPChunkStorage {
     String getRootPath() {
         return this.rootDirectory;
     }
+
+    @Override
+    public AASPChunkCache getAASPChunkCache(CharSequence uri, int fromEra, 
+            int toEra) throws IOException {
+        return new AASPInMemoChunkCache(this, uri, fromEra, toEra);
+    }
 }
