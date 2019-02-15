@@ -14,9 +14,16 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     private final AASPChunkStorageFS chunkStorage;
     private final int fromEra;
     private final int toEra;
-    
+
     private List<AASPChunk> chunkList;
-    private int size = 0;
+
+    /** the internal message Cache */
+    private List<CharSequence> messageCache;
+    private int firstIndexMessageCache = -1;
+    private int lastIndexMessageCache = -1;
+    private int maxCacheLen = 1000;
+
+    private int numberOfMessages = 0;
 
     public AASPInMemoChunkCache(AASPChunkStorageFS chunkStorage, 
             CharSequence uri, int fromEra, int toEra) {
@@ -32,9 +39,8 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     private void initialize() throws IOException {
         if(!initialized) {
             this.syncChunkList();
+            this.initialized = true;
         }
-        
-        this.initialized = true;
     }
     
     private void syncChunkList() throws IOException {
@@ -55,7 +61,7 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         do {
             AASPChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
             this.chunkList.add(chunk);
-            this.size += chunk.getNumberMessage();
+            this.numberOfMessages += chunk.getNumberMessage();
                 
             if (anotherLoop) {
                 if (finalLoop) {
@@ -72,7 +78,7 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     @Override
     public int getNumberMessage() throws IOException {
         this.initialize();
-        return this.size;
+        return this.numberOfMessages;
     }
 
     @Override
@@ -82,6 +88,8 @@ class AASPInMemoChunkCache implements AASPChunkCache {
 
     @Override
     public Iterator<CharSequence> getMessages(boolean chronologically) throws IOException {
+        this.initialize();
+
         List<CharSequence> dummyList = new ArrayList<>();
         
         dummyList.add("dummy entry 1");
@@ -93,49 +101,65 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     @Override
     public CharSequence getMessage(int position, boolean chronologically) 
             throws AASPException, IOException {
-        
-        if(position > this.size) 
+
+        this.initialize();
+
+        if(position > this.numberOfMessages)
             throw new AASPException("Position exceeds number of message");
 
-        // we want to turn around message list - newest first
-        position = this.size-1 - position; //
-
-        /*
-        if(bubbleList != null && position >= cachedFirstIndex && position <= cachedLastIndex) {
-            return this.bubbleList.get(position - cachedFirstIndex); // TODO calculation correct?
+        if(!chronologically) {
+            // invert position - first becomes last etc.
+            position = this.numberOfMessages - 1 - position;
         }
 
-        // not yet in cache - find chunk
-        int cachedFirstIndex = 0;
+        if(this.messageCache != null && position >= this.firstIndexMessageCache && position <= this.lastIndexMessageCache) {
+            return this.messageCache.get(position - this.firstIndexMessageCache); // TODO calculation correct?
+        }
 
-        // TODO assumed temporal sorted list
+        // not yet in cache - find chunk with required message
+        int firstIndex = 0; // absolut index of first message in current chunk
+        int lastIndex = 0; // absolut index of last message in current chunk
+
         boolean found = false;
         AASPChunk fittingChunk = null;
-        for(AASPChunk chunk : this.chunkList) {
-            this.cachedLastIndex = this.cachedFirstIndex + chunk.getNumberMessage() - 1;
+        int fittingChunkIndex = 0;
 
-            if(position >= cachedFirstIndex && position <= cachedLastIndex) {
+        for(AASPChunk chunk : this.chunkList) {
+            lastIndex = firstIndex + chunk.getNumberMessage();
+
+            if(position >= firstIndex && position <= lastIndex) {
+                // we have got our chunk
                 fittingChunk = chunk;
                 break;
             }
 
-            this.cachedFirstIndex += chunk.getNumberMessage() - 1;
+            fittingChunkIndex++;
         }
 
-        // chunk found - copy to memory
-        this.bubbleList = new ArrayList<>();
-        Iterator<CharSequence> messageIter = fittingChunk.getMessages();
-        while(messageIter.hasNext()) {
-            CharSequence message = messageIter.next();
-
-            BubbleMessageInMemo bubbleMessage = new BubbleMessageInMemo(this.topic, message);
-            this.bubbleList.add(bubbleMessage);
+        if(fittingChunk == null) {
+            throw new AASPException("internal failure - wrong calculation in chunk cache");
         }
 
-        // cache filled - try again
-        return this.getMessage(position);
-*/
-        return "dummy";
+        // we can fill our cache right now
+
+        // reset cache
+        this.messageCache = new ArrayList<>();
+
+        // simple approach in that first implementation ... we keep fitting chunk in memory
+        Iterator<CharSequence> messages = fittingChunk.getMessages();
+        this.firstIndexMessageCache = firstIndex;
+
+        int counter = 0;
+        while(messages.hasNext()) {
+            this.messageCache.add(messages.next());
+            counter++;
+            if(counter > this.maxCacheLen) break;
+        }
+
+        this.lastIndexMessageCache = this.firstIndexMessageCache + counter - 1;
+
+        // cache filled - call again
+        return this.getMessage(position, chronologically);
     }
 
     @Override
@@ -144,3 +168,4 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
+

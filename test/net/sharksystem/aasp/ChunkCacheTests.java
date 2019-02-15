@@ -38,14 +38,23 @@ public class ChunkCacheTests {
 
         AASPChunkCache aaspChunkCache = chunkStorage.getAASPChunkCache(TEST_URI, era, newEra);
 
+        // position test
+        CharSequence message = aaspChunkCache.getMessage(0, false);
+        Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_TWO));
+
+        message = aaspChunkCache.getMessage(1, false);
+        Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_ONE));
+
         Iterator<CharSequence> messages = aaspChunkCache.getMessages(true);
 
+        // Iterator test
         Assert.assertTrue(messages.hasNext());
-        CharSequence message = messages.next();
+        message = messages.next();
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_ONE));
 
         message = messages.next();
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_TWO));
+
 
     }
 }
