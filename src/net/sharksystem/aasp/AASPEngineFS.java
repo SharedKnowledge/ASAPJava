@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class AASPEngineFS extends AASPEngine {
     public static final String MEMENTO_FILENAME = "aaspCurrentAttributes";
     private final String rootDirectory;
-    private AASPChunkStorageFS chunkStorageFS;
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_AASP";
     
@@ -98,10 +97,5 @@ public class AASPEngineFS extends AASPEngine {
     public AASPChunkStorage getReceivedChunkStorage(CharSequence sender) {
         String dir = this.rootDirectory + "/" + sender;
         return new AASPChunkStorageFS(dir);
-    }
-
-    @Override
-    public AASPChunkStorage getChunkStorage() {
-        return this.chunkStorageFS;
     }
 }

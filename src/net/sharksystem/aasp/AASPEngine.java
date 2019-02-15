@@ -44,6 +44,11 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
         this.chunkStorage = chunkStorage;
     }
     
+    @Override
+    public AASPChunkStorage getChunkStorage() {
+        return this.chunkStorage;
+    }
+    
     AASPChunkStorage getStorage() {
         return this.chunkStorage;
     }
