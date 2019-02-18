@@ -30,6 +30,8 @@ class AASPChunkStorageFS implements AASPChunkStorage {
         see https://en.wikipedia.org/wiki/Percent-encoding
         \ - %5C, / - %2F, : - %3A, ? - %3F," - %22,< - %3C,> - %3E,| - %7C
         */
+
+        if(url == null) return null; // to be safe
         
         String newString = url.replace("\\", "%5C");
         newString = newString.replace("/", "%2F");

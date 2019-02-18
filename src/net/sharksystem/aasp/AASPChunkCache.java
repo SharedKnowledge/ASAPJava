@@ -54,15 +54,14 @@ public interface AASPChunkCache {
             throws AASPException, IOException;
     
     /**
-     * Add a message. Implementations are free to simply delegate that method to 
-     * the underlying chunk storage. They can also decide to keep the cache in
-     * sync. That could be useful if only one application uses the chunk storage.
-     * It's up to implementation and using application to clarify semantics
-     * of this method.
-     * 
-     * @param message
-     * @throws IOException 
+     * Synchronizes cache. It is up to real implemenations what really
+     * happens. That method is meant to be called whenever the underlying
+     * chunk storage has been changed. After that call, cache and storage are
+     * in sync agin. Implemenations whoch don't have an internal cache don't
+     * have to do anything.
+     *
+     * @throws IOException
      */
-    void add(CharSequence message) throws IOException;
+    void sync() throws IOException;
 
 }

@@ -12,6 +12,7 @@ public class ChunkCacheTests {
     private static final String MESSAGE_TWO = "message two";
     private static final String MESSAGE_THREE = "message three";
     private static final String MESSAGE_FOUR = "message four";
+    private static final String MESSAGE_FIVE = "message five";
 
     @Test
     public void chunkTest1() throws IOException, AASPException {
@@ -30,20 +31,21 @@ public class ChunkCacheTests {
         AASPChunk chunk = chunkStorage.getChunk(TEST_URI, era);
 
         chunk.add(MESSAGE_ONE);
-        storage.newEra();
+        storage.newEra(); // finish chunk one
         int newEra = storage.getEra();
 
+        // start chunk two
         Assert.assertEquals(AASPEngine.nextEra(era), newEra);
         chunk = chunkStorage.getChunk(TEST_URI, newEra);
         chunk.add(MESSAGE_TWO);
 
-        Assert.assertEquals(AASPEngine.nextEra(era), newEra);
-        chunk = chunkStorage.getChunk(TEST_URI, newEra);
         chunk.add(MESSAGE_THREE);
-        chunk = chunkStorage.getChunk(TEST_URI, newEra);
+
         chunk.add(MESSAGE_FOUR);
 
         AASPChunkCache aaspChunkCache = chunkStorage.getAASPChunkCache(TEST_URI, era, newEra);
+
+        // add message after getting cache
 
         // position test - chronological order
         CharSequence message = aaspChunkCache.getMessage(0, true);
@@ -59,6 +61,12 @@ public class ChunkCacheTests {
         message = aaspChunkCache.getMessage(1, false);
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_THREE));
 
+        chunk.add(MESSAGE_FIVE);
+
+        aaspChunkCache.sync();
+        message = aaspChunkCache.getMessage(4, true);
+        Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_FIVE));
+
         Iterator<CharSequence> messages = aaspChunkCache.getMessages();
 
         // Iterator test
@@ -71,6 +79,8 @@ public class ChunkCacheTests {
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_THREE));
         message = messages.next();
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_FOUR));
+        message = messages.next();
+        Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_FIVE));
 
         Assert.assertFalse(messages.hasNext());
 

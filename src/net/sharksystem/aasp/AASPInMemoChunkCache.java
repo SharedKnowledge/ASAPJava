@@ -204,11 +204,17 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         return this.getMessage(position, true);
     }
 
-    @Override
-    public void add(CharSequence message) throws IOException {
-        // TODO
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void sync() throws IOException {
+        this.initialized = false;
+        this.firstIndexMessageCache = -1;
+        this.lastIndexMessageCache = -1;
+        this.numberOfMessages = 0;
+        this.messageCache = null;
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                          helper: message iterator implementation                     //
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     private class ChunkListMessageIterator implements Iterator<CharSequence> {
 

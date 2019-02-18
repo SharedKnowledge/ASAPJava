@@ -39,7 +39,9 @@ class AASPChunkFS implements AASPChunk {
 
     AASPChunkFS(AASPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
         this.storage = storage;
-        this.uri = targetUri;
+        if(targetUri != null) {
+            this.uri = targetUri;
+        }
         this.era = era;
         this.sender = sender;
         
