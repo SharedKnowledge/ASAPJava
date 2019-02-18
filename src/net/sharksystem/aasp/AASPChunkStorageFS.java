@@ -64,7 +64,6 @@ class AASPChunkStorageFS implements AASPChunkStorage {
     /**
      * 
      * @param era
-     * @param fileName
      * @return full name (path/name) of that given url and target. Directories
      * are expected to be existent
      */
@@ -110,45 +109,10 @@ class AASPChunkStorageFS implements AASPChunkStorage {
     @Override
     public void dropChunks(int era) throws IOException {
         // here comes a Java 6 compatible version - fits to android SDK 23
-        String eraPathName = this.rootDirectory + "/" + Integer.toString(era); 
-        File dir = new File(eraPathName);
-        
-        String[] dirEntries = dir.list();
-        
-        /*
-        Path dir = Paths.get(this.rootDirectory + "/" + Integer.toString(era));
-        
-        DirectoryStream<Path> entries = null;
-        try {
-            entries = Files.newDirectoryStream(dir);
-        }
-        catch(IOException ioe) {
-            // directory does not exist - ok, nothing to drop
-            return;
-        }
-        
-        for (Path path : entries) {
-            File file = path.toFile();
-            file.delete();
-        }
-*/
-        if(dirEntries != null) {
-            for(String fileName : dirEntries) {
-                File fileInDir = new File(eraPathName + "/" + fileName);
-                try {
-                    fileInDir.delete();
-                }
-                catch(RuntimeException e) {
-                    System.err.println("AASPStorageFS: cannot remove old file:" + e.getLocalizedMessage());
-                    // try next
-                }
-            }
-        }
-        
-        // finally remove directory itself
-//        dir.toFile().delete();
+        String eraPathName = this.rootDirectory + "/" + Integer.toString(era);
 
-        dir.delete();
+        AASPEngineFS.removeFolder(eraPathName);
+
     }
 
     String getRootPath() {

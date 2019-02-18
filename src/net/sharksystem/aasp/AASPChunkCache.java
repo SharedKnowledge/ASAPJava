@@ -34,12 +34,11 @@ public interface AASPChunkCache {
     
     /**
      * 
-     * @param chronologically in chronological order: true: oldest message comes
      * first, false: newest message comes first
      * @return iterator of all messages in that chunk cache
      * @throws IOException 
      */
-    Iterator<CharSequence> getMessages(boolean chronologically) throws IOException;
+    Iterator<CharSequence> getMessages() throws IOException;
     
     /**
      * Returns a message with a given position

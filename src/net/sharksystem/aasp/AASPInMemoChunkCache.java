@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  *
  * @author thsc
  */
 class AASPInMemoChunkCache implements AASPChunkCache {
+    public static final int DEFAULT_MAX_CACHE_SIZE = 1000;
     private final CharSequence uri;
     private final AASPChunkStorageFS chunkStorage;
     private final int fromEra;
@@ -21,19 +23,26 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     private List<CharSequence> messageCache;
     private int firstIndexMessageCache = -1;
     private int lastIndexMessageCache = -1;
-    private int maxCacheLen = 1000;
+    private int maxCacheLen;
 
     private int numberOfMessages = 0;
 
-    public AASPInMemoChunkCache(AASPChunkStorageFS chunkStorage, 
-            CharSequence uri, int fromEra, int toEra) {
-        
+    public AASPInMemoChunkCache(AASPChunkStorageFS chunkStorage,
+                                CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
+
         this.uri = uri;
         this.chunkStorage = chunkStorage;
         this.fromEra = fromEra;
         this.toEra = toEra;
+        this.maxCacheLen = maxCacheLen;
     }
-    
+
+    public AASPInMemoChunkCache(AASPChunkStorageFS chunkStorage,
+                                CharSequence uri, int fromEra, int toEra) {
+
+        this(chunkStorage, uri, fromEra, toEra, DEFAULT_MAX_CACHE_SIZE);
+    }
+
     private boolean initialized = false;
     
     private void initialize() throws IOException {
@@ -87,15 +96,10 @@ class AASPInMemoChunkCache implements AASPChunkCache {
     }
 
     @Override
-    public Iterator<CharSequence> getMessages(boolean chronologically) throws IOException {
+    public Iterator<CharSequence> getMessages() throws IOException {
         this.initialize();
 
-        List<CharSequence> dummyList = new ArrayList<>();
-        
-        dummyList.add("dummy entry 1");
-        dummyList.add("dummy entry 2");
-        
-        return dummyList.iterator();
+        return new ChunkListMessageIterator(this.chunkList);
     }
 
     @Override
@@ -104,7 +108,7 @@ class AASPInMemoChunkCache implements AASPChunkCache {
 
         this.initialize();
 
-        if(position > this.numberOfMessages)
+        if(position >= this.numberOfMessages)
             throw new AASPException("Position exceeds number of message");
 
         if(!chronologically) {
@@ -125,7 +129,7 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         int fittingChunkIndex = 0;
 
         for(AASPChunk chunk : this.chunkList) {
-            lastIndex = firstIndex + chunk.getNumberMessage();
+            lastIndex = firstIndex + chunk.getNumberMessage() - 1;
 
             if(position >= firstIndex && position <= lastIndex) {
                 // we have got our chunk
@@ -133,6 +137,7 @@ class AASPInMemoChunkCache implements AASPChunkCache {
                 break;
             }
 
+            firstIndex += chunk.getNumberMessage();
             fittingChunkIndex++;
         }
 
@@ -145,8 +150,39 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         // reset cache
         this.messageCache = new ArrayList<>();
 
+        /////////////////////////////////////////////////////////////////
         // simple approach in that first implementation ... we keep fitting chunk in memory
+        /////////////////////////////////////////////////////////////////
+
         Iterator<CharSequence> messages = fittingChunk.getMessages();
+
+        // chunk bigger than max cache size?
+        int chunkSize = fittingChunk.getNumberMessage();
+        if(chunkSize > this.maxCacheLen) {
+            // calculate how many messages to skip before caching
+
+            /*
+            situation:
+            chunk head |................position...........................| tail
+            cache head |................| tail
+
+            solution: put position in middle of the cache
+            chunk |................position...........................|
+            planned cache |........position........|
+            skipLen...|
+             */
+
+            int skipLen = position - (this.maxCacheLen / 2);
+
+            // first index in cache will be this one:
+            firstIndex += skipLen;
+
+            // skip
+            for(;skipLen > 0; skipLen--) {
+                this.messageCache.add(messages.next());
+            }
+        }
+
         this.firstIndexMessageCache = firstIndex;
 
         int counter = 0;
@@ -159,7 +195,13 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         this.lastIndexMessageCache = this.firstIndexMessageCache + counter - 1;
 
         // cache filled - call again
-        return this.getMessage(position, chronologically);
+        /* not: it is always chronologically true!!
+        a) we already came in with true -> it remains true
+        b) we came with false -> we have already recalculated that position, we would
+        move it around again with that call - keep position unchanged: true!
+         */
+
+        return this.getMessage(position, true);
     }
 
     @Override
@@ -167,5 +209,69 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         // TODO
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-}
 
+    private class ChunkListMessageIterator implements Iterator<CharSequence> {
+
+        private final List<AASPChunk> chunkList;
+        private AASPChunk currentChunk;
+        private int nextIndex;
+        private Iterator<CharSequence> currentIterator;
+        private CharSequence messageAhead;
+
+        public ChunkListMessageIterator(List<AASPChunk> chunkList) throws IOException {
+            this.chunkList = chunkList;
+            this.currentChunk = null;
+            this.nextIndex = 0;
+            this.messageAhead = null; // mark as empty
+            this.readAhead(); // init cache
+        }
+
+        /**
+         * read next message in field messageAhead.
+         */
+        private void readAhead() {
+            if (this.currentIterator != null) {
+                if (this.currentIterator.hasNext()) {
+                    // 'normal' case: we read next message
+                    this.messageAhead = this.currentIterator.next();
+                    return; // done
+                }
+            }
+            // no more messages in that iterator / chunk
+            if (this.chunkList == null || nextIndex >= this.chunkList.size() ) {
+                return; // there is no list at all or we are already through with it
+            }
+
+            // open next chunk / iterator
+            this.currentChunk = this.chunkList.get(this.nextIndex++);
+            try {
+                this.currentIterator = this.currentChunk.getMessages();
+                this.readAhead(); // next try
+            } catch (IOException e) {
+                // cannot recover from that problem
+                return;
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.messageAhead != null;
+        }
+
+        @Override
+        public CharSequence next() {
+            if(this.messageAhead == null) {
+                throw new NoSuchElementException("list empty or already reached end");
+            }
+
+            // remove that single message cache
+            CharSequence retMessage = this.messageAhead;
+            this.messageAhead = null;
+
+            // read ahead - if possible
+            this.readAhead();
+
+            return retMessage;
+        }
+    }
+}

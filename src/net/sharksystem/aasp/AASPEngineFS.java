@@ -98,4 +98,33 @@ public class AASPEngineFS extends AASPEngine {
         String dir = this.rootDirectory + "/" + sender;
         return new AASPChunkStorageFS(dir);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    //                                         helper                                     //
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    static void removeFolder(String eraPathName) {
+        File dir = new File(eraPathName);
+
+        String[] dirEntries = dir.list();
+
+        if(dirEntries != null) {
+            for(String fileName : dirEntries) {
+                File fileInDir = new File(eraPathName + "/" + fileName);
+                if(fileInDir.isDirectory()) {
+                    AASPEngineFS.removeFolder(fileInDir.getAbsolutePath());
+                } else {
+                    try {
+                        fileInDir.delete();
+                    } catch (RuntimeException e) {
+                        System.err.println("AASPEngineFS: cannot file:" + e.getLocalizedMessage());
+                        // try next
+                    }
+                }
+            }
+        }
+
+        dir.delete();
+    }
+
 }
