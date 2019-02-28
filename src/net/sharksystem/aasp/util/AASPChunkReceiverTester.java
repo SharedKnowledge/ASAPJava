@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.aasp.util;
 
 import net.sharksystem.aasp.AASPReceivedChunkListener;
 
@@ -28,15 +28,15 @@ public class AASPChunkReceiverTester implements AASPReceivedChunkListener {
         return this.sender != null;
     }
 
-    String getSender() {
+    public String getSender() {
         return this.sender;
     }
-    
-    String getUri() {
+
+    public String getUri() {
         return this.uri;
     }
-    
-    int getEra() {
+
+    public int getEra() {
         return this.era;
     }
 }

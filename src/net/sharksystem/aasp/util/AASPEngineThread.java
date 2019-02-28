@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.aasp.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,7 +16,7 @@ public class AASPEngineThread extends Thread {
     private final OutputStream os;
     private AASPReceivedChunkListener listener;
     
-    AASPEngineThread(AASPEngine engine, InputStream is, 
+    public AASPEngineThread(AASPEngine engine, InputStream is,
             OutputStream os, AASPReceivedChunkListener listener) {
         
         this.engine = engine;
