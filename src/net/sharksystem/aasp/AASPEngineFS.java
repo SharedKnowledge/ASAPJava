@@ -2,7 +2,9 @@ package net.sharksystem.aasp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * AASPEngine that stores data in file system.
@@ -94,9 +96,38 @@ public class AASPEngineFS extends AASPEngine {
     private HashMap<CharSequence, AASPChunkStorage> storageList = new HashMap<>();
 
     @Override
-    public AASPChunkStorage getReceivedChunkStorage(CharSequence sender) {
+    public AASPChunkStorage getIncomingChunkStorage(CharSequence sender) {
         String dir = this.rootDirectory + "/" + sender;
         return new AASPChunkStorageFS(dir);
+    }
+
+    @Override
+    public List<CharSequence> getSender() {
+        List<CharSequence> senderList = new ArrayList<>();
+
+        File dir = new File(this.rootDirectory);
+
+        String[] dirEntries = dir.list();
+
+        if (dirEntries != null) {
+            for (String fileName : dirEntries) {
+                // era folder?
+                try {
+                    Integer.parseInt(fileName);
+                    // a number. It is a era folder go ahead
+                    continue;
+                } catch (NumberFormatException e) {
+                    // no number - that's ok!
+                }
+
+                File fileInDir = new File(this.rootDirectory + "/" + fileName);
+                if (fileInDir.isDirectory()) {
+                    senderList.add(fileName);
+                }
+            }
+        }
+
+        return senderList;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -126,5 +157,4 @@ public class AASPEngineFS extends AASPEngine {
 
         dir.delete();
     }
-
 }

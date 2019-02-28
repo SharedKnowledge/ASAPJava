@@ -48,7 +48,7 @@ class AASPChunkReader implements Runnable {
         AASPChunkStorage peerStorage = null;
         
         // get received storage
-        peerStorage = this.storage.getReceivedChunkStorage(peer);
+        peerStorage = this.storage.getIncomingChunkStorage(peer);
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());

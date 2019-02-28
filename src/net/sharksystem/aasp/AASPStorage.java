@@ -129,8 +129,14 @@ public interface AASPStorage {
      * @param sender
      * @return 
      */
-    public AASPChunkStorage getReceivedChunkStorage(CharSequence sender);
-    
+    public AASPChunkStorage getIncomingChunkStorage(CharSequence sender);
+
+    /**
+     *
+     * @return list of peers with an incoming chunk storage
+     */
+    public List<CharSequence> getSender();
+
     /**
      * 
      * @return The local chunk storage that is meant to be used by the local

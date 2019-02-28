@@ -6,6 +6,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
@@ -24,40 +25,10 @@ public class BasicTests {
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
     
-    private void removeDirectory(String dirname) {
-        Path dir = Paths.get(dirname);
-        
-        DirectoryStream<Path> entries = null;
-        try {
-            entries = Files.newDirectoryStream(dir);
-        }
-        catch(IOException ioe) {
-            // directory does not exist - ok, nothing to drop
-            return;
-        }
-
-        for (Path path : entries) {
-            File file = path.toFile();
-            if(file.isDirectory()) {
-                this.removeDirectory(file.getAbsolutePath());
-                boolean deleted = file.delete();
-            } else {
-                boolean deleted = file.delete();
-            }
-        }
-        
-        // finally remove directory itself
-        File dirFile = new File(dirname);
-        if(dirFile.exists()) {
-            boolean deleted = dirFile.delete();
-            int i = 42;
-        }
-    }
-    
     @Test
     public void androidUsage() throws IOException, AASPException, InterruptedException {
-       this.removeDirectory(ALICE_FOLDER); // clean previous version before
-       this.removeDirectory(BOB_FOLDER); // clean previous version before
+        AASPEngineFS.removeFolder(ALICE_FOLDER); // clean previous version before
+        AASPEngineFS.removeFolder(BOB_FOLDER); // clean previous version before
        
         // alice writes a message into chunkStorage
         AASPStorage aliceStorage = 
@@ -118,7 +89,7 @@ public class BasicTests {
 
         // get message alice received
         AASPChunkStorage aliceSenderStored = 
-                aliceStorage.getReceivedChunkStorage(aliceListener.getSender());
+                aliceStorage.getIncomingChunkStorage(aliceListener.getSender());
         
         AASPChunk aliceReceivedChunk = 
                 aliceSenderStored.getChunk(aliceListener.getUri(), 
@@ -131,7 +102,7 @@ public class BasicTests {
        
         // get message bob received
         AASPChunkStorage bobSenderStored = 
-                bobStorage.getReceivedChunkStorage(bobListener.getSender());
+                bobStorage.getIncomingChunkStorage(bobListener.getSender());
         
         AASPChunk bobReceivedChunk = 
                 bobSenderStored.getChunk(bobListener.getUri(), 
@@ -141,5 +112,10 @@ public class BasicTests {
                 bobReceivedChunk.getMessages().next();
         
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
+
+        List<CharSequence> senderList = aliceStorage.getSender();
+        // expect bob
+        Assert.assertEquals(1, senderList.size());
+        Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
     }
 }
