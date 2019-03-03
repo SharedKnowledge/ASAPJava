@@ -17,6 +17,8 @@ public interface AASPChunkStorage {
 
     public AASPChunk getChunk(CharSequence uri, int era) throws IOException;
 
+    public boolean existsChunk(CharSequence uri, int era) throws IOException;
+
     public List<AASPChunk> getChunks(int era) throws IOException;
 
     public void dropChunks(int era) throws IOException;
@@ -24,11 +26,9 @@ public interface AASPChunkStorage {
     /**
      * 
      * @param uri chunk storage uri
-     * @param fromEra oldest era
-     * @param toEra youngest era
+     * @param toEra newest era
      * @return a chunk cache which hides details of era
      * @throws IOException 
      */
-    public AASPChunkCache getAASPChunkCache(CharSequence uri, int fromEra, 
-            int toEra) throws IOException;
+    public AASPChunkCache getAASPChunkCache(CharSequence uri, int toEra) throws IOException;
 }

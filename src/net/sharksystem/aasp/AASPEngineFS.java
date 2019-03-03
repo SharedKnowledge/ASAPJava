@@ -66,7 +66,10 @@ public class AASPEngineFS extends AASPEngine {
         
         // reset owner?
         if(owner != null && engine.owner != null
-                && !engine.owner.equalsIgnoreCase(AASPEngine.ANONYMOUS_OWNER) 
+                && !engine.owner.equalsIgnoreCase(AASPEngine.ANONYMOUS_OWNER)
+                && !engine.owner.equalsIgnoreCase(AASPEngine.DEFAULT_OWNER)
+                && !owner.equalsIgnoreCase(AASPEngine.ANONYMOUS_OWNER)
+                && !owner.equalsIgnoreCase(AASPEngine.DEFAULT_OWNER)
                 && !owner.equalsIgnoreCase(engine.owner)) {
             
                     throw new AASPException("cannot overwrite folder of a "
@@ -74,7 +77,10 @@ public class AASPEngineFS extends AASPEngine {
         } 
         
         // replacing owner could be done
-        if(owner != null) {
+        if(owner != null
+                && !owner.equalsIgnoreCase(AASPEngine.ANONYMOUS_OWNER)
+                && !owner.equalsIgnoreCase(AASPEngine.DEFAULT_OWNER)
+        ) {
             engine.owner = owner;
             mementoFS.save(engine);
         }

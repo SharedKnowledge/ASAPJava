@@ -43,7 +43,7 @@ public class ChunkCacheTests {
 
         chunk.add(MESSAGE_FOUR);
 
-        AASPChunkCache aaspChunkCache = chunkStorage.getAASPChunkCache(TEST_URI, era, newEra);
+        AASPChunkCache aaspChunkCache = chunkStorage.getAASPChunkCache(TEST_URI, storage.getEra());
 
         // add message after getting cache
 

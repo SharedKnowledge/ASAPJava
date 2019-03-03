@@ -23,7 +23,22 @@ class AASPChunkStorageFS implements AASPChunkStorage {
     public AASPChunk getChunk(CharSequence uriTarget, int era) throws IOException {
         return new AASPChunkFS(this, (String) uriTarget, era);
     }
-    
+
+    @Override
+    public boolean existsChunk(CharSequence uri, int era) throws IOException {
+        String fullContentFileName = this.getChunkContentFilename(era, uri);
+
+        return(new File(fullContentFileName).exists());
+    }
+
+    String getChunkContentFilename(int era, CharSequence uri) {
+        return this.getChunkFileTrunkname(era, uri.toString()) + "." +  DATA_EXTENSION;
+    }
+
+    String getChunkFileTrunkname(int era, String uri) {
+        return this.getPath(era) + "/" + this.url2FileName(uri);
+    }
+
     String url2FileName(String url) {
         // escape:
         /*
@@ -52,8 +67,8 @@ class AASPChunkStorageFS implements AASPChunkStorage {
      * @return full name (path/name) of that given url and target. Directories
      * are created if necessary.
      */
-    String getFullFileName(int era, String targetUrl) {
-        String eraFolderString = this.getRootPath() + "/" + Integer.toString(era);
+    String setupChunkFolder(int era, String targetUrl) {
+        String eraFolderString = this.getPath(era);
         File eraFolder = new File(eraFolderString);
         if(!eraFolder.exists()) {
             eraFolder.mkdirs();
@@ -62,15 +77,15 @@ class AASPChunkStorageFS implements AASPChunkStorage {
         String fileName = eraFolderString + "/" + this.url2FileName(targetUrl);
         return fileName;
     }
-    
+
     /**
      * 
      * @param era
      * @return full name (path/name) of that given url and target. Directories
      * are expected to be existent
      */
-    String getFullFileNameByChunkName(int era, String contentName) {
-        return this.getPath(era) + "/" + contentName;
+    String getFileNameByUri(int era, String uri) {
+        return this.getPath(era) + "/" + uri;
     }
     
     private String getPath(int era) {
@@ -99,7 +114,7 @@ class AASPChunkStorageFS implements AASPChunkStorage {
                 int index = name.lastIndexOf('.');
                 if(index != -1) {
                     String chunkName = name.substring(0, index);
-                    String fName = this.getFullFileNameByChunkName(era, chunkName);
+                    String fName = this.getFileNameByUri(era, chunkName);
                     chunkList.add(new AASPChunkFS(this, fName));
                 }
             }
@@ -117,13 +132,18 @@ class AASPChunkStorageFS implements AASPChunkStorage {
 
     }
 
-    String getRootPath() {
-        return this.rootDirectory;
-    }
-
     @Override
-    public AASPChunkCache getAASPChunkCache(CharSequence uri, int fromEra, 
-            int toEra) throws IOException {
-        return new AASPInMemoChunkCache(this, uri, fromEra, toEra);
+    public AASPChunkCache getAASPChunkCache(CharSequence uri, int toEra) throws IOException {
+        // go back 1000 eras
+        int fromEra = toEra;
+        for(int i = 0; i < 1000; i++) {
+            fromEra = AASPEngine.previousEra(fromEra);
+        }
+
+        return new AASPInMemoChunkCache(this,
+                uri,
+                fromEra, // set starting era
+                toEra // anything before
+        );
     }
 }

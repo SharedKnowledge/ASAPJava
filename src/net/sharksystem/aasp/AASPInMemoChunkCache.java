@@ -68,10 +68,14 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         this.chunkList = new ArrayList<>();
         
         do {
-            AASPChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
-            this.chunkList.add(chunk);
-            this.numberOfMessages += chunk.getNumberMessage();
-                
+            // check if chunk exists - don't create on
+            if(this.chunkStorage.existsChunk(this.uri, thisEra)) {
+                // is there - get it
+                AASPChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
+                this.chunkList.add(chunk);
+                this.numberOfMessages += chunk.getNumberMessage();
+            }
+
             if (anotherLoop) {
                 if (finalLoop) {
                     anotherLoop = false;
@@ -81,7 +85,6 @@ class AASPInMemoChunkCache implements AASPChunkCache {
                 }
             }
         } while (anotherLoop);
-        
     }
     
     @Override

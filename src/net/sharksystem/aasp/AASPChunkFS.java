@@ -45,7 +45,7 @@ class AASPChunkFS implements AASPChunk {
         this.era = era;
         this.sender = sender;
         
-        String trunkName = this.storage.getFullFileName(era, targetUri);
+        String trunkName = this.storage.setupChunkFolder(era, targetUri);
         
         // init
         this.initFiles(trunkName);
@@ -57,7 +57,7 @@ class AASPChunkFS implements AASPChunk {
         
         this.initFiles(trunkName);
     }
-    
+
     private void initFiles(String trunkName) throws IOException {
         String messageFileName = trunkName + "." +  DATA_EXTENSION;
         String metaFileName = trunkName + "." + META_DATA_EXTENSION;
