@@ -14,7 +14,6 @@ import java.util.List;
  * See ASPChunkStorage for details.
  * 
  * @see AASPStorage
- * @see AASPReader
  * @author thsc
  */
 public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
@@ -37,6 +36,7 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
     protected AASPMemento memento = null;
     
     /* private */ final private AASPChunkStorage chunkStorage;
+    private boolean dropDeliveredChunks = false;
 
     protected AASPEngine(AASPChunkStorage chunkStorage) 
             throws AASPException, IOException {
@@ -87,7 +87,7 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
     
     private String getLogStart() {
         StringBuilder b = new StringBuilder();
-        b.append("ASP3Engine (");
+        b.append("AASPEngine (");
         b.append(this.owner);
         b.append(") ");
 
@@ -208,10 +208,10 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
                     //>>>>>>>>>>>>>>>>>>>debug
 
                     // is not a public chunk
-                    if(!this.isPublic(chunk)) {
+                    if (!this.isPublic(chunk)) {
                         List<CharSequence> recipients = chunk.getRecipients();
 
-                        if(!recipients.contains(peer)) {
+                        if (!recipients.contains(peer)) {
                             continue;
                         }
                     }
@@ -234,13 +234,20 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
                     System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
                     // empty?
-                    if(chunk.getRecipients().isEmpty()) {
-                        chunk.drop();
-                        //<<<<<<<<<<<<<<<<<<debug
-                        b = new StringBuilder();
-                        b.append(this.getLogStart());
-                        b.append("chunk dropped");
-                        System.out.println(b.toString());
+                    if (chunk.getRecipients().isEmpty()) {
+                        if (this.isDropDeliveredChunks()) {
+                            chunk.drop();
+                            //<<<<<<<<<<<<<<<<<<debug
+                            b = new StringBuilder();
+                            b.append(this.getLogStart());
+                            b.append("chunk dropped");
+                            System.out.println(b.toString());
+                        } else {
+                            b = new StringBuilder();
+                            b.append(this.getLogStart());
+                            b.append("drop flag set false - engine does not remove delivered chunks");
+                            System.out.println(b.toString());
+                        }
                     }
                 }
 
@@ -295,6 +302,14 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
 //                // ignore
 //            }
 //        }
+    }
+
+    private boolean isDropDeliveredChunks() {
+        return this.dropDeliveredChunks;
+    }
+
+    public void setDropDeliveredChunks(boolean drop) {
+        this.dropDeliveredChunks = drop;
     }
 
     static int nextEra(int workingEra) {
@@ -375,7 +390,10 @@ public abstract class AASPEngine implements AASPStorage, AASPProtocolEngine {
         this.era = this.getNextEra(this.era);
         
         // drop very very old chunks - if available
-        this.chunkStorage.dropChunks(this.era); 
+        this.chunkStorage.dropChunks(this.era);
+
+        // persistent values
+        if(this.memento != null) this.memento.save(this);
     }
     
     /**

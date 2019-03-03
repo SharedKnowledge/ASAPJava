@@ -29,13 +29,13 @@ public class BasicTests {
        
         // alice writes a message into chunkStorage
         AASPStorage aliceStorage = 
-                AASPEngineFS.getAASPChunkStorage(ALICE_FOLDER);
+                AASPEngineFS.getAASPChunkStorage(ALICE, ALICE_FOLDER);
         
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         
         // bob does the same
         AASPStorage bobStorage = 
-                AASPEngineFS.getAASPChunkStorage(BOB_FOLDER);
+                AASPEngineFS.getAASPChunkStorage(BOB, BOB_FOLDER);
         
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         
@@ -71,7 +71,7 @@ public class BasicTests {
                 bobChannel.getOutputStream(), bobListener);
 
         // wait until communication probably ends
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         
         // close connections: note AASPEngine does NOT close any connection!!
         aliceChannel.close();
@@ -114,5 +114,10 @@ public class BasicTests {
         // expect bob
         Assert.assertEquals(1, senderList.size());
         Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
+
+        // simulate a sync
+        bobStorage = AASPEngineFS.getAASPChunkStorage(BOB, BOB_FOLDER);
+        Assert.assertEquals(1, bobStorage.getEra());
+        Assert.assertEquals(bobEngine.getEra(), bobStorage.getEra());
     }
 }
