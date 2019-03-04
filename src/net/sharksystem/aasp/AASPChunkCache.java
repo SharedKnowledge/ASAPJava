@@ -64,4 +64,6 @@ public interface AASPChunkCache {
      */
     void sync() throws IOException;
 
+    int size();
+
 }

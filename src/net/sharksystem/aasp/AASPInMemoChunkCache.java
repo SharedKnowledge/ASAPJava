@@ -283,4 +283,8 @@ class AASPInMemoChunkCache implements AASPChunkCache {
             return retMessage;
         }
     }
+
+    public int size() {
+        return this.numberOfMessages;
+    }
 }
