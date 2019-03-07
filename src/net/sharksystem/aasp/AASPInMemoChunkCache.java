@@ -284,7 +284,8 @@ class AASPInMemoChunkCache implements AASPChunkCache {
         }
     }
 
-    public int size() {
+    public int size() throws IOException {
+        this.initialize();
         return this.numberOfMessages;
     }
 }
