@@ -9,14 +9,14 @@ import net.sharksystem.asap.ASAPReceivedChunkListener;
  *
  * @author thsc
  */
-public class AASPEngineThread extends Thread {
+public class ASAPEngineThread extends Thread {
 
     private final ASAPEngine engine;
     private final InputStream is;
     private final OutputStream os;
     private ASAPReceivedChunkListener listener;
     
-    public AASPEngineThread(ASAPEngine engine, InputStream is,
+    public ASAPEngineThread(ASAPEngine engine, InputStream is,
                             OutputStream os, ASAPReceivedChunkListener listener) {
         
         this.engine = engine;

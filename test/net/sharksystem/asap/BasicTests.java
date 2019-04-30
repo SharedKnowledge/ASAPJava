@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import net.sharksystem.asap.util.ASAPChunkReceiverTester;
-import net.sharksystem.asap.util.AASPEngineThread;
+import net.sharksystem.asap.util.ASAPEngineThread;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
@@ -29,20 +29,20 @@ public class BasicTests {
        
         // alice writes a message into chunkStorage
         ASAPStorage aliceStorage =
-                ASAPEngineFS.getAASPChunkStorage(ALICE, ALICE_FOLDER);
+                ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER);
         
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         
         // bob does the same
         ASAPStorage bobStorage =
-                ASAPEngineFS.getAASPChunkStorage(BOB, BOB_FOLDER);
+                ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER);
         
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         
         // now set up both engines / use default reader
-        ASAPEngine aliceEngine = ASAPEngineFS.getAASPEngine("Alice", ALICE_FOLDER);
+        ASAPEngine aliceEngine = ASAPEngineFS.getASAPEngine("Alice", ALICE_FOLDER);
         
-        ASAPEngine bobEngine = ASAPEngineFS.getAASPEngine("Bob", BOB_FOLDER);
+        ASAPEngine bobEngine = ASAPEngineFS.getASAPEngine("Bob", BOB_FOLDER);
         
         ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
@@ -59,7 +59,7 @@ public class BasicTests {
         bobChannel.waitForConnection();
         
         // run engine as thread
-        AASPEngineThread aliceEngineThread = new AASPEngineThread(aliceEngine,
+        ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
                 aliceChannel.getInputStream(),
                 aliceChannel.getOutputStream(),
                 aliceListener);
@@ -116,7 +116,7 @@ public class BasicTests {
         Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
 
         // simulate a sync
-        bobStorage = ASAPEngineFS.getAASPChunkStorage(BOB, BOB_FOLDER);
+        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER);
         Assert.assertEquals(1, bobStorage.getEra());
         Assert.assertEquals(bobEngine.getEra(), bobStorage.getEra());
     }

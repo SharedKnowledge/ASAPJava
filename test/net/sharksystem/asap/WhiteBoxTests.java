@@ -17,7 +17,7 @@ public class WhiteBoxTests {
     
     @Test
     public void chunksIter() throws IOException, ASAPException {
-        ASAPEngine bobEngine = ASAPEngineFS.getAASPEngine("bob");
+        ASAPEngine bobEngine = ASAPEngineFS.getASAPEngine("bob");
         
         List<ASAPChunk> chunks = bobEngine.getStorage().getChunks(0);
         Iterator<CharSequence> messages = chunks.iterator().next().getMessages();

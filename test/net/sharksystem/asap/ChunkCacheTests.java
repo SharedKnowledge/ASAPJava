@@ -22,7 +22,7 @@ public class ChunkCacheTests {
         ASAPEngineFS.removeFolder(rootDirectory);
 
         // open a fresh chunk storage
-        ASAPStorage storage = ASAPEngineFS.getAASPChunkStorage(rootDirectory);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(rootDirectory);
 
         int era = storage.getEra();
 
@@ -43,7 +43,7 @@ public class ChunkCacheTests {
 
         chunk.add(MESSAGE_FOUR);
 
-        ASAPChunkCache ASAPChunkCache = chunkStorage.getAASPChunkCache(TEST_URI, storage.getEra());
+        ASAPChunkCache ASAPChunkCache = chunkStorage.getASAPChunkCache(TEST_URI, storage.getEra());
 
         // add message after getting cache
 

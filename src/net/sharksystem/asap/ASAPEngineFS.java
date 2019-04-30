@@ -25,7 +25,7 @@ public class ASAPEngineFS extends ASAPEngine {
         this.rootDirectory = rootDirectory;
     }
     
-    public static ASAPStorage getAASPChunkStorage(String owner, String rootDirectory)
+    public static ASAPStorage getASAPStorage(String owner, String rootDirectory)
             throws IOException, ASAPException {
         
         // check if root directory already exists. If not srt it up
@@ -34,18 +34,18 @@ public class ASAPEngineFS extends ASAPEngine {
             root.mkdirs();
         }
         
-        return ASAPEngineFS.getAASPEngine(owner, rootDirectory);
+        return ASAPEngineFS.getASAPEngine(owner, rootDirectory);
         
     }
     
-    public static ASAPStorage getAASPChunkStorage(String rootDirectory)
+    public static ASAPStorage getASAPStorage(String rootDirectory)
             throws IOException, ASAPException {
         
-        return ASAPEngineFS.getAASPChunkStorage(DEFAULT_OWNER, rootDirectory);
+        return ASAPEngineFS.getASAPStorage(DEFAULT_OWNER, rootDirectory);
         
     }
     
-    public static ASAPEngine getAASPEngine(String owner, String rootDirectory)
+    public static ASAPEngine getASAPEngine(String owner, String rootDirectory)
             throws IOException, ASAPException {
         
         // root directory must exist when setting up an engine
@@ -88,10 +88,10 @@ public class ASAPEngineFS extends ASAPEngine {
         return engine;
     }
 
-    public static ASAPEngine getAASPEngine(String rootDirectory)
+    public static ASAPEngine getASAPEngine(String rootDirectory)
             throws IOException, ASAPException {
             
-        return ASAPEngineFS.getAASPEngine(null, rootDirectory);
+        return ASAPEngineFS.getASAPEngine(null, rootDirectory);
 
     }
     
