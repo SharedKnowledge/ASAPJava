@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,11 +18,11 @@ import java.util.StringTokenizer;
  *
  * @author thsc
  */
-class AASPChunkFS implements AASPChunk {
+class ASAPChunkFS implements ASAPChunk {
     public static final String META_DATA_EXTENSION = "meta";
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
-    private final AASPChunkStorageFS storage;
+    private final ASAPChunkStorageFS storage;
     private String uri = DEFAULT_URL;
     private ArrayList<CharSequence> recipients;
     private File metaFile;
@@ -33,11 +33,11 @@ class AASPChunkFS implements AASPChunk {
     private String sender;
     
     
-    AASPChunkFS(AASPChunkStorageFS storage, String targetUri, int era) throws IOException {
+    ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era) throws IOException {
         this(storage, targetUri, era, null);
     }
 
-    AASPChunkFS(AASPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
+    ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
         this.storage = storage;
         if(targetUri != null) {
             this.uri = targetUri;
@@ -51,9 +51,9 @@ class AASPChunkFS implements AASPChunk {
         this.initFiles(trunkName);
     }
 
-    AASPChunkFS(AASPChunkStorageFS storage, String trunkName) throws IOException {
+    ASAPChunkFS(ASAPChunkStorageFS storage, String trunkName) throws IOException {
         this.storage = storage;
-        this.uri = AASPChunkFS.DEFAULT_URL;
+        this.uri = ASAPChunkFS.DEFAULT_URL;
         
         this.initFiles(trunkName);
     }

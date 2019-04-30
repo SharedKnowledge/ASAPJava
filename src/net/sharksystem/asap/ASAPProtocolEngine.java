@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,9 +8,9 @@ import java.io.OutputStream;
  *
  * @author thsc
  */
-interface AASPProtocolEngine {
+interface ASAPProtocolEngine {
     public void handleConnection(InputStream is, OutputStream os,
-            AASPReceivedChunkListener listener) throws IOException;
+            ASAPReceivedChunkListener listener) throws IOException;
 
     /**
      * Chunks are (tried to be) delivered to their recipients during each encounter

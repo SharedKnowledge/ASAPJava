@@ -1,9 +1,9 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
-import net.sharksystem.aasp.AASPChunkFS;
+import net.sharksystem.asap.ASAPChunkFS;
 import java.io.IOException;
 import java.util.Iterator;
-import net.sharksystem.aasp.AASPException;
+
 import org.junit.Test;
 
 /**
@@ -13,13 +13,13 @@ import org.junit.Test;
 public class ChunkPrinter {
     
     @Test
-    public void printChunk() throws IOException, AASPException {
+    public void printChunk() throws IOException, ASAPException {
         String chunkTrunkName = "bob/0/content%3A%2F%2FaliceAndBob.talk";
         
         System.out.println("going to print content of chunk " + chunkTrunkName);
         
         try {
-        AASPChunkFS chunk = new AASPChunkFS(null, chunkTrunkName);
+        ASAPChunkFS chunk = new ASAPChunkFS(null, chunkTrunkName);
         
             System.out.println("url: " + chunk.getUri());
             

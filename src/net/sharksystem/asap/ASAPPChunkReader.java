@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -8,16 +8,16 @@ import java.io.IOException;
  * @author local
  */
 
-class AASPChunkReader implements Runnable {
+class ASAPPChunkReader implements Runnable {
     private final DataInputStream dis;
     private final String peer;
     private final String owner;
-    private final AASPStorage storage;
-    private final AASPReceivedChunkListener listener;
+    private final ASAPStorage storage;
+    private final ASAPReceivedChunkListener listener;
 
-    AASPChunkReader(DataInputStream dis, String owner, 
-            String peer, AASPStorage storage, 
-            AASPReceivedChunkListener listener) {
+    ASAPPChunkReader(DataInputStream dis, String owner,
+                     String peer, ASAPStorage storage,
+                     ASAPReceivedChunkListener listener) {
         this.dis = dis;
         this.peer = peer;
         this.owner = owner;
@@ -27,7 +27,7 @@ class AASPChunkReader implements Runnable {
 
     private String getLogStart() {
         StringBuilder b = new StringBuilder();
-        b.append("AASPChunkReader (");
+        b.append("ASAPPChunkReader (");
         b.append(this.owner);
         b.append(") connected to (");
         b.append(this.peer);
@@ -45,7 +45,7 @@ class AASPChunkReader implements Runnable {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
         
-        AASPChunkStorage peerStorage = null;
+        ASAPChunkStorage peerStorage = null;
         
         // get received storage
         peerStorage = this.storage.getIncomingChunkStorage(peer);
@@ -57,7 +57,7 @@ class AASPChunkReader implements Runnable {
         //>>>>>>>>>>>>>>>>>>>debug
         
         try {
-            AASPChunkSerialization.readChunks(peer, this.storage, 
+            ASAPChunkSerialization.readChunks(peer, this.storage,
                     peerStorage, dis, listener);
         } catch (IOException ex) {
             try {

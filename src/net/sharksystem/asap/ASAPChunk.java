@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -12,17 +12,17 @@ import java.util.List;
  * Most developers will not work directly with that interface. If so: Take care!
  * 
  * Each chunk has an era. The era number space is a circle with 
- * a definition of proceeding and suceeding era, @see AASPEngine for details.
+ * a definition of proceeding and suceeding era, @see ASAPEngine for details.
  * 
  * Each chunk can have a number of recipients. Note: That list can be 
- * changed by an application as long as that chunk is filled. The AASPEngine
+ * changed by an application as long as that chunk is filled. The ASAPEngine
  * changes that list when meeting other peers. Actually, it removes any peer
  * with whom it got synchronized.
  * 
  * 
  * @author thsc
  */
-public interface AASPChunk {
+public interface ASAPChunk {
     /**
      * 
      * @return number of message in that chunk

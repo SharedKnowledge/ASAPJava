@@ -1,9 +1,9 @@
-package net.sharksystem.aasp.util;
+package net.sharksystem.asap.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import net.sharksystem.aasp.AASPEngine;
-import net.sharksystem.aasp.AASPReceivedChunkListener;
+import net.sharksystem.asap.ASAPEngine;
+import net.sharksystem.asap.ASAPReceivedChunkListener;
 
 /**
  *
@@ -11,13 +11,13 @@ import net.sharksystem.aasp.AASPReceivedChunkListener;
  */
 public class AASPEngineThread extends Thread {
 
-    private final AASPEngine engine;
+    private final ASAPEngine engine;
     private final InputStream is;
     private final OutputStream os;
-    private AASPReceivedChunkListener listener;
+    private ASAPReceivedChunkListener listener;
     
-    public AASPEngineThread(AASPEngine engine, InputStream is,
-            OutputStream os, AASPReceivedChunkListener listener) {
+    public AASPEngineThread(ASAPEngine engine, InputStream is,
+                            OutputStream os, ASAPReceivedChunkListener listener) {
         
         this.engine = engine;
         this.is = is;

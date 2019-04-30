@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,16 +16,16 @@ import java.util.List;
  * Applications can easlily store their messages by calling add(URI, message).
  * That message is stored in a chunk addressed by the URI. 
  * 
- * Each chunk has a recipient list which can be changed anytime. The AASPEngine
+ * Each chunk has a recipient list which can be changed anytime. The ASAPEngine
  * uses those information for sending such stored messages whenever a peer
  * establishes a connection.
  * 
- * It is recommended to use AASPEngineFS to set up that framework.
- * Create a AASPEngine like this
+ * It is recommended to use ASAPEngineFS to set up that framework.
+ * Create a ASAPEngine like this
  * 
  * <pre>
  * AASPReader reader = ...;
- * AASPStorage myStorage = AASPEngineFS.getAASPEngine("EngineName", "ChunkStorageRootFolder", reader);
+ * ASAPStorage myStorage = ASAPEngineFS.getAASPEngine("EngineName", "ChunkStorageRootFolder", reader);
  * </pre>
  * 
  * An AASPReader must be implemented prior using that framework. Objects of
@@ -34,19 +34,18 @@ import java.util.List;
  * 
  * Chunks are structured by eras. In most cases, application developers don't 
  * have to care about era management at all. If so, take care. Eras are usually 
- * changed by the AASPEngine whenever a peer (re-) connects. In that case, the
+ * changed by the ASAPEngine whenever a peer (re-) connects. In that case, the
  * current era is declared to be finished and an new era is opened. 
- * Any new message is now tagged as message from that new era. The AASPEngine
+ * Any new message is now tagged as message from that new era. The ASAPEngine
  * transmitts all message to the peer which are stored after the final 
  * encounter. If no encounter ever happend - all avaiable messages are 
  * transmitted. 
  *
- * @see AASPEngine
- * @see AASPReader
- * 
+ * @see ASAPEngine
+ *
  * @author thsc
  */
-public interface AASPStorage {
+public interface ASAPStorage {
 
     
     /**
@@ -122,14 +121,14 @@ public interface AASPStorage {
     public int getPreviousEra(int era);
     
     /**
-     * Default behaviour of AASPEngine: Each peer / communication partner
-     * gets its own chunk storage. That storage is filled during aasp 
+     * Default behaviour of ASAPEngine: Each peer / communication partner
+     * gets its own chunk storage. That storage is filled during asap
      * synchronization. That storage can be retrieved with this command.
      * 
      * @param sender
      * @return 
      */
-    public AASPChunkStorage getIncomingChunkStorage(CharSequence sender);
+    public ASAPChunkStorage getIncomingChunkStorage(CharSequence sender);
 
     /**
      *
@@ -142,5 +141,5 @@ public interface AASPStorage {
      * @return The local chunk storage that is meant to be used by the local
      * app. Note: That storage is changed during an AASP session.
      */
-    public AASPChunkStorage getChunkStorage();
+    public ASAPChunkStorage getChunkStorage();
 }

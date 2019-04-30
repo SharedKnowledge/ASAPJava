@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,15 +13,15 @@ import java.util.HashMap;
  * 
  * @author local
  */
-class AASPMementoFS implements AASPMemento {
+class ASAPMementoFS implements ASAPMemento {
     private final File rootDirectory;
 
-    public AASPMementoFS(File rootDirectory) {
+    public ASAPMementoFS(File rootDirectory) {
         this.rootDirectory = rootDirectory;
     }
 
     @Override
-    public void save(AASPEngine engine) throws IOException {
+    public void save(ASAPEngine engine) throws IOException {
         String fName = this.getMementoFileName();
 
         File file = new File(fName);
@@ -50,15 +50,15 @@ class AASPMementoFS implements AASPMemento {
         }
     }
 
-    private void setDefaults(AASPEngine engine) {
+    private void setDefaults(ASAPEngine engine) {
         // set defaults
-        engine.owner = AASPEngine.DEFAULT_OWNER;
-        engine.era = AASPEngine.DEFAULT_INIT_ERA;
-        engine.oldestEra = AASPEngine.DEFAULT_INIT_ERA;
+        engine.owner = ASAPEngine.DEFAULT_OWNER;
+        engine.era = ASAPEngine.DEFAULT_INIT_ERA;
+        engine.oldestEra = ASAPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
     }
 
-    public void restore(AASPEngine engine) throws IOException {
+    public void restore(ASAPEngine engine) throws IOException {
         String fName = this.getMementoFileName();
 
         File file = new File(fName);
@@ -98,6 +98,6 @@ class AASPMementoFS implements AASPMemento {
     }
 
     private String getMementoFileName() {
-        return this.rootDirectory + "/" + AASPEngineFS.MEMENTO_FILENAME;
+        return this.rootDirectory + "/" + ASAPEngineFS.MEMENTO_FILENAME;
     }
 }

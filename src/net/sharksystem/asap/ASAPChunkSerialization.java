@@ -1,4 +1,4 @@
-package net.sharksystem.aasp;
+package net.sharksystem.asap;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,8 +9,8 @@ import java.util.Iterator;
  * Implements parts of the AAS protocol.
  * @author thsc
  */
-abstract class AASPChunkSerialization {
-    static void sendChunk(AASPChunk chunk, DataOutputStream dos)
+abstract class ASAPChunkSerialization {
+    static void sendChunk(ASAPChunk chunk, DataOutputStream dos)
             throws IOException {
         
         //<<<<<<<<<<<<<<<<<<debug
@@ -71,9 +71,9 @@ abstract class AASPChunkSerialization {
      * @param listener to be notified about a successfully deserialized chunk
      * @throws IOException 
      */
-    static void readChunks(String sender, AASPStorage chunkStorage, 
-            AASPChunkStorage storage, DataInputStream dis, 
-            AASPReceivedChunkListener listener) throws IOException {
+    static void readChunks(String sender, ASAPStorage chunkStorage,
+                           ASAPChunkStorage storage, DataInputStream dis,
+                           ASAPReceivedChunkListener listener) throws IOException {
         
         StringBuilder b = new StringBuilder();
         b.append("ASPChunkSerialization.readChunks (sender: ");
@@ -101,7 +101,7 @@ abstract class AASPChunkSerialization {
                 b.append(sender);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
-                AASPChunk chunk = 
+                ASAPChunk chunk =
                         storage.getChunk(uri, chunkStorage.getEra());
 
                 if(chunk != null) {
