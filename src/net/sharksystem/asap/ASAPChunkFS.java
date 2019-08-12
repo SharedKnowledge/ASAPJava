@@ -22,7 +22,6 @@ class ASAPChunkFS implements ASAPChunk {
     private File metaFile;
     private File messageFile;
     
-    private int numberMessage = 0;
     private int era;
     private String sender;
     
@@ -113,13 +112,7 @@ class ASAPChunkFS implements ASAPChunk {
 
     @Override
     public void addMessage(CharSequence message) throws IOException {
-        DataOutputStream dos;
-        dos = new DataOutputStream(new FileOutputStream(this.messageFile, true));
-        
-        dos.writeUTF((String) message);
-        this.numberMessage++;
-        // keep message counter
-        this.saveStatus();
+        this.addMessage(message.toString().getBytes());
     }
 
     @Override
@@ -145,6 +138,10 @@ class ASAPChunkFS implements ASAPChunk {
 
     @Override
     public Iterator<byte[]> getMessagesAsBytes() throws IOException {
+        return this.getMessagesAsBytesList().iterator();
+    }
+
+    private List<byte[]> getMessagesAsBytesList() throws IOException {
         List<byte[]> byteMessageList = new ArrayList<>();
 
         if(this.messageFile.length() > 0) {
@@ -178,13 +175,13 @@ class ASAPChunkFS implements ASAPChunk {
             byteMessageList.add(messageBytes);
         }
 
-        return byteMessageList.iterator();
+        return byteMessageList;
     }
 
     @Override
     public Iterator<CharSequence> getMessages() throws IOException {
         try {
-            return new MessageIter(this.messageFile);
+            return new MessageIter(this.getMessagesAsBytesList());
         } catch (FileNotFoundException ex) {
             throw new IOException(ex.getLocalizedMessage());
         }
@@ -205,7 +202,6 @@ class ASAPChunkFS implements ASAPChunk {
 
         try {
             this.uri = dis.readUTF();
-            this.numberMessage = dis.readInt();
         }
         catch(EOFException eof) {
             // file empty
@@ -242,7 +238,6 @@ class ASAPChunkFS implements ASAPChunk {
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(metaFile));
         
         dos.writeUTF(this.uri);
-        dos.writeInt(this.numberMessage);
         StringBuilder b = new StringBuilder();
         
         boolean first = true;
@@ -298,7 +293,9 @@ class ASAPChunkFS implements ASAPChunk {
 
     @Override
     public int getNumberMessage() {
-        return this.numberMessage;
+        if(this.messageFile.length() == 0) return 0;
+
+        return this.messageStartOffsets.size() + 1;
     }
 
     @Override
@@ -307,40 +304,28 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     private class MessageIter implements Iterator {
-
-        private final DataInputStream dis;
+        private final List<byte[]> byteMessages;
+        private int nextIndex;
         private String nextString;
         
         
-        MessageIter(File messageFile) throws FileNotFoundException {
-            this.dis = new DataInputStream(new FileInputStream(messageFile));
-            
-            this.lookahead();
+        MessageIter(List<byte[]> byteMessages) throws FileNotFoundException {
+            this.byteMessages = byteMessages;
+            this.nextIndex = 0;
         }
         
-        private void lookahead() {
-            try {
-                this.nextString = this.dis.readUTF();
-            } catch (IOException ex) {
-                // empty
-                this.nextString = null;
-            }
-        }
-
         @Override
         public boolean hasNext() {
-            return this.nextString != null;
+            return this.byteMessages.size() <= nextIndex;
         }
 
         @Override
         public String next() {
-            if(this.nextString != null) {
-                String s = this.nextString;
-                this.lookahead();
-                return s;
+            if(!this.hasNext()) {
+                throw new NoSuchElementException("no more messages");
             }
-            
-            throw new NoSuchElementException("no more messages");
+
+            return new String(this.byteMessages.get(nextIndex++));
         }
     }
 }
