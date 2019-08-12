@@ -15,22 +15,10 @@ public class WhiteBoxTests {
     
     public WhiteBoxTests() {
     }
-    
-    //@Test
-    public void chunksIter() throws IOException, ASAPException {
-        ASAPEngine bobEngine = ASAPEngineFS.getASAPEngine("bob");
-        
-        List<ASAPChunk> chunks = bobEngine.getStorage().getChunks(0);
-        Iterator<CharSequence> messages = chunks.iterator().next().getMessages();
-        while(messages.hasNext()) {
-            CharSequence message = messages.next();
-            System.out.println(message);
-        }
-    }
 
-    @Test
+    //@Test
     public void writeReadByteMessages() throws IOException, ASAPException {
-        String folder = "writeReadByteMessagesTest";
+        String folder = "tests/writeReadByteMessagesTest";
         String uri = "test://anURI";
         String firstMessage = "first message";
         String secondMessage = "second message";
@@ -53,6 +41,27 @@ public class WhiteBoxTests {
 
         messageBytes = byteArrayIter.next();
         message = new String(messageBytes);
+        Assert.assertTrue(message.equals(secondMessage));
+    }
+
+    @Test
+    public void writeReadStringMessages() throws IOException, ASAPException {
+        String folder = "tests/writeReadStringMessagesTest";
+        String uri = "test://anURI";
+        String firstMessage = "first message";
+        String secondMessage = "second message";
+
+        ASAPEngineFS.removeFolder(folder);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(folder);
+
+        storage.add(uri, firstMessage);
+        storage.add(uri, secondMessage);
+
+        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessages();
+        String message = messageIter.next().toString();
+        Assert.assertTrue(message.equals(firstMessage));
+
+        message = messageIter.next().toString();
         Assert.assertTrue(message.equals(secondMessage));
     }
 }

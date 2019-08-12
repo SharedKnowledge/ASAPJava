@@ -316,7 +316,7 @@ class ASAPChunkFS implements ASAPChunk {
         
         @Override
         public boolean hasNext() {
-            return this.byteMessages.size() <= nextIndex;
+            return this.byteMessages.size() > nextIndex;
         }
 
         @Override
