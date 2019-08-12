@@ -37,11 +37,18 @@ public interface ASAPChunk {
     String getUri() throws IOException;
 
     /**
-     * 
+     *
      * @return iterator of all messages in the chunk
-     * @throws IOException 
+     * @throws IOException
      */
     Iterator<CharSequence> getMessages() throws IOException;
+
+    /**
+     *
+     * @return iterator of all messages in the chunk
+     * @throws IOException
+     */
+    Iterator<byte[]> getMessagesAsBytes() throws IOException;
 
     /**
      * remove that chunk.. drop all object references after
@@ -84,5 +91,7 @@ public interface ASAPChunk {
      * @param message
      * @throws IOException 
      */
-    void add(CharSequence message) throws IOException;
+    void addMessage(CharSequence message) throws IOException;
+
+    void addMessage(byte[] messageAsBytes) throws IOException;
 }

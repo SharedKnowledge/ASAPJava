@@ -76,9 +76,16 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     public void add(CharSequence urlTarget, CharSequence message) throws IOException {
         ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
         
-        chunk.add(message);
+        chunk.addMessage(message);
     }
-    
+
+    @Override
+    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException {
+        ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
+
+        chunk.addMessage(messageAsBytes);
+    }
+
     //////////////////////////////////////////////////////////////////////
     //                       ProtocolEngine                             //
     //////////////////////////////////////////////////////////////////////

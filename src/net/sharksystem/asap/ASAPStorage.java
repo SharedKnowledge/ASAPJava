@@ -81,7 +81,9 @@ public interface ASAPStorage {
      * @throws IOException 
      */
     public void add(CharSequence urlTarget, CharSequence message) throws IOException;
-    
+
+    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException;
+
     /**
      * Create a new era
      */

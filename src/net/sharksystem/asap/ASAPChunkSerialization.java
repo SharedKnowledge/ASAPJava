@@ -135,7 +135,7 @@ abstract class ASAPChunkSerialization {
                     System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
 
-                    chunk.add(message);
+                    chunk.addMessage(message);
                 }
                 
                 // read all messages

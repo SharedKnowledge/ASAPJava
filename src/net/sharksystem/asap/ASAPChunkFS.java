@@ -1,13 +1,6 @@
 package net.sharksystem.asap;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +17,8 @@ class ASAPChunkFS implements ASAPChunk {
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
     private final ASAPChunkStorageFS storage;
     private String uri = DEFAULT_URL;
-    private ArrayList<CharSequence> recipients;
+    private List<CharSequence> recipients;
+    private List<Long> messageStartOffsets = new ArrayList<>();
     private File metaFile;
     private File messageFile;
     
@@ -69,11 +63,13 @@ class ASAPChunkFS implements ASAPChunk {
         if(!this.metaFile.exists()) {
             this.metaFile.createNewFile();
         }
-        
+
+        // try to read existing meta data
         if(!this.readMetaData(this.metaFile)) {
-            // no metadate to be read - set
+            // no metadate to be read - set defaults
             this.writeMetaData(this.metaFile);
             this.recipients = new ArrayList<>();
+            this.messageStartOffsets = new ArrayList<>();
         }
     }
     
@@ -116,7 +112,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     @Override
-    public void add(CharSequence message) throws IOException {
+    public void addMessage(CharSequence message) throws IOException {
         DataOutputStream dos;
         dos = new DataOutputStream(new FileOutputStream(this.messageFile, true));
         
@@ -124,6 +120,65 @@ class ASAPChunkFS implements ASAPChunk {
         this.numberMessage++;
         // keep message counter
         this.saveStatus();
+    }
+
+    @Override
+    public void addMessage(byte[] messageAsBytes) throws IOException {
+        if(messageAsBytes.length > Integer.MAX_VALUE) {
+            throw new IOException("message must not be longer than Integer.MAXVALUE");
+        }
+
+        long offset = this.messageFile.length();
+
+        OutputStream os = new FileOutputStream(this.messageFile, true);
+
+        os.write(messageAsBytes);
+
+        os.close();
+
+        // remember offset if not 0
+        if(offset > 0) {
+            this.messageStartOffsets.add(offset);
+            this.saveStatus();
+        }
+    }
+
+    @Override
+    public Iterator<byte[]> getMessagesAsBytes() throws IOException {
+        List<byte[]> byteMessageList = new ArrayList<>();
+
+        if(this.messageFile.length() > 0) {
+            InputStream is = new FileInputStream((this.messageFile));
+            long offset = 0;
+            for(Long nextOffset : this.messageStartOffsets) {
+                long messageLenLong = nextOffset.longValue() - offset;
+                if(messageLenLong > Integer.MAX_VALUE) {
+                    throw new IOException("message longer than Integer.MAXVALUE");
+                }
+
+                int messageLen = (int) messageLenLong;
+                byte[] messageBytes = new byte[messageLen];
+
+                is.read(messageBytes);
+
+                byteMessageList.add(messageBytes);
+
+                offset = nextOffset;
+            }
+
+            // read last one
+            long messageLenLong = this.messageFile.length() - offset;
+            if(messageLenLong > Integer.MAX_VALUE) {
+                throw new IOException("message longer than Integer.MAXVALUE");
+            }
+
+            int messageLen = (int) messageLenLong;
+            byte[] messageBytes = new byte[messageLen];
+            is.read(messageBytes);
+            byteMessageList.add(messageBytes);
+        }
+
+        return byteMessageList.iterator();
     }
 
     @Override
@@ -168,6 +223,9 @@ class ASAPChunkFS implements ASAPChunk {
             while(t.hasMoreTokens()) {
                 this.recipients.add(t.nextToken());
             }
+            // finally read offset list
+            String offsetList = dis.readUTF();
+            this.messageStartOffsets = this.messageOffsetString2List(offsetList);
         }
         catch(IOException ioe) {
             // no more data - ok
@@ -180,7 +238,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
     
     private void writeMetaData(File metaFile) throws IOException {
-        // read data from metafile
+        // write data to metafile
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(metaFile));
         
         dos.writeUTF(this.uri);
@@ -201,8 +259,41 @@ class ASAPChunkFS implements ASAPChunk {
             }
         }
         dos.writeUTF(b.toString());
+
+        // write offsetList
+        dos.writeUTF(this.messageStartOffsetListAsString());
         
         dos.close();
+    }
+
+    private String messageStartOffsetListAsString() {
+        StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for(Long offset : this.messageStartOffsets) {
+            if(!first) {
+                sb.append(RECIPIENTS_LIST_DELIMITER);
+            }
+
+            sb.append(offset.toString());
+        }
+
+        return sb.toString();
+    }
+
+    private ArrayList<Long> messageOffsetString2List(String s) {
+        ArrayList<Long> longList = new ArrayList<>();
+
+        if(s == null || s.length() == 0) return longList;
+
+        StringTokenizer t = new StringTokenizer(s, RECIPIENTS_LIST_DELIMITER);
+
+        while(t.hasMoreTokens()) {
+            Long offsetLong = Long.parseLong(t.nextToken());
+            longList.add(offsetLong);
+        }
+
+        return longList;
     }
 
     @Override

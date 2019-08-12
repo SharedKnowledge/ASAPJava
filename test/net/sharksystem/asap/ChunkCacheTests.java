@@ -30,18 +30,18 @@ public class ChunkCacheTests {
 
         ASAPChunk chunk = chunkStorage.getChunk(TEST_URI, era);
 
-        chunk.add(MESSAGE_ONE);
+        chunk.addMessage(MESSAGE_ONE);
         storage.newEra(); // finish chunk one
         int newEra = storage.getEra();
 
         // start chunk two
         Assert.assertEquals(ASAPEngine.nextEra(era), newEra);
         chunk = chunkStorage.getChunk(TEST_URI, newEra);
-        chunk.add(MESSAGE_TWO);
+        chunk.addMessage(MESSAGE_TWO);
 
-        chunk.add(MESSAGE_THREE);
+        chunk.addMessage(MESSAGE_THREE);
 
-        chunk.add(MESSAGE_FOUR);
+        chunk.addMessage(MESSAGE_FOUR);
 
         ASAPChunkCache ASAPChunkCache = chunkStorage.getASAPChunkCache(TEST_URI, storage.getEra());
 
@@ -61,7 +61,7 @@ public class ChunkCacheTests {
         message = ASAPChunkCache.getMessage(1, false);
         Assert.assertTrue(message.toString().equalsIgnoreCase(MESSAGE_THREE));
 
-        chunk.add(MESSAGE_FIVE);
+        chunk.addMessage(MESSAGE_FIVE);
 
         ASAPChunkCache.sync();
         message = ASAPChunkCache.getMessage(4, true);
