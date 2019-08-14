@@ -44,21 +44,21 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     }
 
     @Override
-    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence channel, int era,
-                           CharSequence format, int length, InputStream dataIS,
+    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
+                           CharSequence channel, int era, int length, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        AssimilationPDU_Impl.sendPDU(peer, recipientPeer, channel, era, format, length, dataIS, os, signed);
+        AssimilationPDU_Impl.sendPDU(peer, recipientPeer, format, channel, era, length, dataIS, os, signed);
     }
 
     @Override
-    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence channel, int era,
-                           CharSequence format, byte[] data,
+    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
+                           CharSequence channel, int era,byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
 
-        this.assimilate(peer, recipientPeer, channel, era, format, data.length,
+        this.assimilate(peer, recipientPeer, format, channel, era, data.length,
                 new ByteArrayInputStream(data), os, signed);
     }
 
@@ -71,8 +71,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         switch(cmdInt) {
             case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, is); break;
-            case ASAP_1_0.INTEREST_CMD: new InterestPDU_Impl(flagsInt, is); break;
-            case ASAP_1_0.ASSIMILATE_CMD: break;
+            case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, is); break;
+            case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, is); break;
             default: throw new ASAPException("unknown command: " + cmdInt);
         }
 

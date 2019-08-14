@@ -2,13 +2,36 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 {
-    static void sendPDU(CharSequence peer, CharSequence recipientPeer, CharSequence channel, int era,
-                        CharSequence format, int length, InputStream is, OutputStream os, boolean signed)
+    private final int dataLength;
+    private final InputStream is;
+    private String recipientPeer;
+
+    public AssimilationPDU_Impl(int flagsInt, InputStream is) throws IOException {
+        evaluateFlags(flagsInt);
+
+        if(this.peerSet()) { this.readPeer(is); }
+        if(this.recipientPeerSet()) { this.readRecipientPeer(is); }
+        this.readFormat(is);
+        if(this.channelSet()) { this.readChannel(is); }
+        if(this.eraSet()) { this.readEra(is); }
+
+        this.dataLength = is.read();
+
+        this.is = is;
+    }
+
+    private void readRecipientPeer(InputStream is) throws IOException {
+        this.recipientPeer = this.readCharSequenceParameter(is);
+    }
+
+    static void sendPDU(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel,
+                        int era, int length, InputStream is, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
         // first: check protocol errors
@@ -43,22 +66,23 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     @Override
-    public boolean recipientPeerSet() {
-        return false;
-    }
+    public String getRecipientPeer() { return this.recipientPeer;  }
 
     @Override
-    public String getRecipientPeer() {
-        return null;
-    }
+    public int getLength() { return this.dataLength; }
 
     @Override
-    public byte[] getData() {
-        return new byte[0];
+    public byte[] getData() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        this.streamData(baos);
+
+        return baos.toByteArray();
     }
 
     @Override
     public void streamData(OutputStream os) throws IOException {
-
+        for(int i = 0; i < this.dataLength; i++) {
+            os.write(this.is.read());
+        }
     }
 }

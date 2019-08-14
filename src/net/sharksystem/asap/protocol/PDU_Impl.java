@@ -15,17 +15,18 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     public static final int ERA_TO_BIT_POSITION = 5;
     public static final int RECIPIENT_PEER_BIT_POSITION = 6;
 
-    private boolean peerSet;
-    private boolean channelSet;
-    private boolean eraSet;
+    private boolean peerSet = false;
+    private boolean channelSet = false;
+    private boolean eraSet = false;
+    private boolean sourcePeerSet = false;
+    private boolean eraFrom = false;
+    private boolean eraTo = false;
+    private boolean recipientPeerSet = false;
+
     private String peer;
     private String format;
     private String channel;
     private int era;
-    private boolean sourcePeerSet;
-    private boolean eraFrom;
-    private boolean eraTo;
-    private boolean recipientPeerSet;
 
     protected void evaluateFlags(int flagsInt) {
         // peer parameter set ?

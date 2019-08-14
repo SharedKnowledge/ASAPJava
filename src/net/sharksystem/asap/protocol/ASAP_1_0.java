@@ -94,7 +94,7 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence channel, int era, CharSequence format,
+    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
                     int length, InputStream dataIS, OutputStream os, boolean signed) throws IOException, ASAPException;
 
     /**
@@ -109,7 +109,7 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence channel, int era, CharSequence format,
+    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
                     byte[] data, OutputStream os, boolean signed) throws IOException, ASAPException;
 
 

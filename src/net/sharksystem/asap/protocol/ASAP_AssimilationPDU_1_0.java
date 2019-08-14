@@ -9,7 +9,9 @@ public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
 
     String getRecipientPeer();
 
-    byte[] getData();
+    byte[] getData() throws IOException;
+
+    int getLength();
 
     void streamData(OutputStream os) throws IOException;
 }

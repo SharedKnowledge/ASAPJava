@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class OfferPDU_Impl extends PDU_Impl {
+class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
     public OfferPDU_Impl(int flagsInt, InputStream is) throws IOException {
         evaluateFlags(flagsInt);
 
