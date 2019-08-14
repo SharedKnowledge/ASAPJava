@@ -155,7 +155,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             // newest era (which is not necessarily highest number!!)
             int currentEra = this.era;
             
-            // we start a conversation - increase era for newly produced messages
+            // we start a conversation - increment era for newly produced messages
             this.incrementEra();
 
             //<<<<<<<<<<<<<<<<<<debug

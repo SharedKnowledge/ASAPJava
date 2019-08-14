@@ -24,8 +24,7 @@ class ASAPChunkFS implements ASAPChunk {
     
     private int era;
     private String sender;
-    
-    
+
     ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era) throws IOException {
         this(storage, targetUri, era, null);
     }
