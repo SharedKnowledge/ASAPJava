@@ -104,6 +104,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     @Override
     public void handleConnection(InputStream is, OutputStream os,
             ASAPReceivedChunkListener listener) {
+        // TODO: not a very bright idea to implement that code here
+        // TODO: should use strategy pattern instead.
         
         DataInputStream dis = new DataInputStream(is);
         DataOutputStream dos = new DataOutputStream(os);

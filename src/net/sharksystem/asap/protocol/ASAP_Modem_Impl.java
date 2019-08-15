@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
     // Character are transmitted as bytes: number of bytes (first byte), content following, 0 mean no content
@@ -45,20 +46,20 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
-                           CharSequence channel, int era, int length, InputStream dataIS,
+                           CharSequence channel, int era, int length, List<Integer> offsets, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        AssimilationPDU_Impl.sendPDU(peer, recipientPeer, format, channel, era, length, dataIS, os, signed);
+        AssimilationPDU_Impl.sendPDU(peer, recipientPeer, format, channel, era, length, offsets, dataIS, os, signed);
     }
 
     @Override
     public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
-                           CharSequence channel, int era,byte[] data,
+                           CharSequence channel, int era, List<Integer> offsets, byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
 
-        this.assimilate(peer, recipientPeer, format, channel, era, data.length,
+        this.assimilate(peer, recipientPeer, format, channel, era, data.length, offsets,
                 new ByteArrayInputStream(data), os, signed);
     }
 

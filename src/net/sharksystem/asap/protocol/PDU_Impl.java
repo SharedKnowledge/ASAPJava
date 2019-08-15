@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 abstract class PDU_Impl implements ASAP_PDU_1_0{
     public static final int PEER_BIT_POSITION = 0;
@@ -14,6 +15,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     public static final int ERA_FROM_BIT_POSITION = 4;
     public static final int ERA_TO_BIT_POSITION = 5;
     public static final int RECIPIENT_PEER_BIT_POSITION = 6;
+    public static final int OFFSETS_BIT_POSITION = 7;
 
     private boolean peerSet = false;
     private boolean channelSet = false;
@@ -22,6 +24,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     private boolean eraFrom = false;
     private boolean eraTo = false;
     private boolean recipientPeerSet = false;
+    private boolean offsetsSet = false;
 
     private String peer;
     private String format;
@@ -70,6 +73,12 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         flag = flag << RECIPIENT_PEER_BIT_POSITION;
         result = flagsInt | flag;
         recipientPeerSet = result != 0;
+
+        // offsets parameter set ?
+        flag = 1;
+        flag = flag << OFFSETS_BIT_POSITION;
+        result = flagsInt | flag;
+        offsetsSet = result != 0;
     }
 
     @Override
@@ -89,6 +98,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
 
     public boolean recipientPeerSet() { return this.recipientPeerSet; }
 
+    public boolean offsetsSet() { return this.offsetsSet; }
+
     @Override
     public String getPeer() { return this.peer; }
 
@@ -102,9 +113,14 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     public int getEra() { return this.era;}
 
     static protected void sendCharSequenceParameter(CharSequence parameter, OutputStream os) throws IOException {
+        if(parameter == null || parameter.length() < 1) return;
         byte[] bytes = parameter.toString().getBytes();
         os.write(bytes.length);
         os.write(bytes);
+    }
+
+    static void sendIntegerParameter(int parameter, OutputStream os) throws IOException {
+        os.write(parameter);
     }
 
     protected String readCharSequenceParameter(InputStream is) throws IOException {
@@ -131,10 +147,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         this.channel = this.readCharSequenceParameter(is);
     }
 
-    static void sendIntegerParameter(int parameter, OutputStream os) throws IOException {
-        os.write(parameter);
-    }
-
     protected int readIntegerParameter(InputStream is) throws IOException {
         int parameter = is.read();
         return parameter;
@@ -158,6 +170,13 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
      */
     static int setFlag(CharSequence parameter, int flags, int bit_position) {
         if(parameter != null && parameter.length() > 0) {
+            return setFlag(1, flags, bit_position);
+        }
+        return flags;
+    }
+
+    static int setFlag(List<Integer> parameter, int flags, int bit_position) {
+        if(parameter != null && parameter.size() > 0) {
             return setFlag(1, flags, bit_position);
         }
         return flags;

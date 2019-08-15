@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,4 +95,6 @@ public interface ASAPChunk {
     void addMessage(CharSequence message) throws IOException;
 
     void addMessage(byte[] messageAsBytes) throws IOException;
+
+    void addMessage(InputStream messageByteIS, int length) throws IOException;
 }

@@ -120,11 +120,25 @@ class ASAPChunkFS implements ASAPChunk {
             throw new IOException("message must not be longer than Integer.MAXVALUE");
         }
 
+        InputStream is = new ByteArrayInputStream(messageAsBytes);
+
+        long offset = this.messageFile.length();
+
+        this.addMessage(is, messageAsBytes.length);
+    }
+
+    public void addMessage(InputStream messageByteIS, int length) throws IOException {
+        if(length > Integer.MAX_VALUE) {
+            throw new IOException("message must not be longer than Integer.MAXVALUE");
+        }
+
         long offset = this.messageFile.length();
 
         OutputStream os = new FileOutputStream(this.messageFile, true);
 
-        os.write(messageAsBytes);
+        while(length-- > 0) {
+            os.write(messageByteIS.read());
+        }
 
         os.close();
 

@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * Descriptions of ASAP protocol data units and some constants
@@ -88,6 +89,8 @@ public interface ASAP_1_0 {
      * @param recipientPeer wished recipient (optional, can be null)
      * @param channel mandatory
      * @param format mandatory
+     * @param offsets applications will probably store a number of messages in a data block. This (optional) list
+     *                of numbers represents the offset where a new app specific message begins.
      * @param dataIS stream from which are read to be transmitted to recipient mandatory
      * @param os stream that PDU is to be sent
      * @param signed message is signed
@@ -95,7 +98,8 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    int length, InputStream dataIS, OutputStream os, boolean signed) throws IOException, ASAPException;
+                    int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
+            throws IOException, ASAPException;
 
     /**
      *
@@ -103,6 +107,8 @@ public interface ASAP_1_0 {
      * @param recipientPeer wished recipient (optional, can be null)
      * @param channel mandatory
      * @param format mandatory
+     * @param offsets applications will probably store a number of messages in a data block. This (optional) list
+     *                of numbers represents the offset where a new app specific message begins.
      * @param data which are read to be transmitted to recipient mandatory
      * @param os stream that PDU is to be sent
      * @param signed message is signed
@@ -110,7 +116,8 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    byte[] data, OutputStream os, boolean signed) throws IOException, ASAPException;
+                    List<Integer> offsets, byte[] data, OutputStream os, boolean signed)
+            throws IOException, ASAPException;
 
 
     ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException;
