@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 {
-    private final int dataLength;
+    private final long dataLength;
     private final InputStream is;
     private String recipientPeer;
     public static final String OFFSET_DELIMITER = ",";
@@ -20,6 +20,8 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     // PDU: CMD | FLAGS | PEER | RECIPIENT | FORMAT | CHANNEL | ERA | OFFSETS | LENGTH | DATA
 
     public AssimilationPDU_Impl(int flagsInt, InputStream is) throws IOException, ASAPException {
+        super(ASAP_1_0.ASSIMILATE_CMD);
+
         evaluateFlags(flagsInt);
 
         if(this.peerSet()) { this.readPeer(is); }
@@ -29,7 +31,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         if(this.eraSet()) { this.readEra(is); }
         if(this.offsetsSet()) { this.readOffsets(is); }
 
-        this.dataLength = is.read();
+        this.dataLength = this.readLongParameter(is);
 
         this.is = is;
     }
@@ -43,7 +45,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     static void sendPDU(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel,
-                        int era, int length, List<Integer> offsets, InputStream is, OutputStream os, boolean signed)
+                        int era, long length, List<Long> offsets, InputStream is, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
         // first: check protocol errors
@@ -60,8 +62,8 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);
         flags = PDU_Impl.setFlag(offsets, flags, OFFSETS_BIT_POSITION);
 
-        PDU_Impl.sendCommand(ASAP_1_0.ASSIMILATE_CMD, os); // mand
-        PDU_Impl.sendIntegerParameter(flags, os); // mand
+        PDU_Impl.sendHeader(ASAP_1_0.ASSIMILATE_CMD, flags, os);
+
         PDU_Impl.sendCharSequenceParameter(peer, os); // opt
         PDU_Impl.sendCharSequenceParameter(recipientPeer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
@@ -69,7 +71,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         PDU_Impl.sendIntegerParameter(era, os); // opt
         PDU_Impl.sendCharSequenceParameter(list2string(offsets), os); // opt
 
-        PDU_Impl.sendIntegerParameter(length, os); // mand
+        PDU_Impl.sendLongParameter(length, os); // mand
 
         // stream data
         while(length-- > 0) {
@@ -79,13 +81,13 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         // TODO: signature
     }
 
-    static String list2string(List<Integer> list) {
+    static String list2string(List<Long> list) {
         if(list == null || list.size() == 0) return null;
 
         StringBuilder sb = new StringBuilder();
 
         boolean first = true;
-        for(Integer i : list) {
+        for(Long i : list) {
             if(!first) {
                 sb.append(OFFSET_DELIMITER);
             }
@@ -119,7 +121,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     public String getRecipientPeer() { return this.recipientPeer;  }
 
     @Override
-    public int getLength() { return this.dataLength; }
+    public long getLength() { return this.dataLength; }
 
     @Override
     public List<Integer> getMessageOffsets() {
@@ -135,7 +137,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     @Override
-    public void streamData(OutputStream os, int length) throws IOException {
+    public void streamData(OutputStream os, long length) throws IOException {
         for(int i = 0; i < length; i++) {
             os.write(this.is.read());
         }

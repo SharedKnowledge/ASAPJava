@@ -89,11 +89,12 @@ public class PDUTests {
 
         String testString1 = "data1";
         String testString2 = "data2 longer";
-        List<Integer> offsetsList = new ArrayList<Integer>();
+        List<Long> offsetsList = new ArrayList<Long>();
 
         byte[] testData1 = testString1.getBytes();
         byte[] testData2 = testString2.getBytes();
-        offsetsList.add(testData1.length);
+        long len = testData1.length;
+        offsetsList.add(len);
 
         ByteArrayOutputStream testDataOutputStream = new ByteArrayOutputStream();
 

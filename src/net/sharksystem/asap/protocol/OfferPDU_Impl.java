@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
+
     public OfferPDU_Impl(int flagsInt, InputStream is) throws IOException {
+        super(ASAP_1_0.OFFER_CMD);
         evaluateFlags(flagsInt);
 
         if(this.peerSet()) { this.readPeer(is); }
@@ -32,8 +34,8 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);
 
         // PDU: CMD | FLAGS | PEER | FORMAT | CHANNEL | ERA
-        PDU_Impl.sendCommand(ASAP_1_0.OFFER_CMD, os); // mand
-        PDU_Impl.sendIntegerParameter(flags, os); // mand
+        PDU_Impl.sendHeader(ASAP_1_0.OFFER_CMD, flags, os);
+
         PDU_Impl.sendCharSequenceParameter(peer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
         PDU_Impl.sendCharSequenceParameter(channel, os); // opt

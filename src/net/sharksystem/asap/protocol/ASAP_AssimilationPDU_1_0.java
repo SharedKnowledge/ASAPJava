@@ -16,7 +16,7 @@ public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
      * @return full length of chunk data, regardless of any internal message
      * structure whatsoever.
      */
-    int getLength();
+    long getLength();
 
     /**
      * it is assumed that the stream of bytes contains a number of
@@ -40,5 +40,5 @@ public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
      * @param os
      * @throws IOException
      */
-    void streamData(OutputStream os, int length) throws IOException;
+    void streamData(OutputStream os, long length) throws IOException;
 }

@@ -14,6 +14,7 @@ public interface ASAP_1_0 {
     public static final byte OFFER_CMD = 'O';
     public static final byte INTEREST_CMD = 'I';
     public static final byte ASSIMILATE_CMD = 'A';
+    CharSequence ANY_FORMAT = "any_asap";
 
     /*
     OFFER: An peer (optional) in an range of era (optional) offers data for
@@ -98,7 +99,7 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
+                    long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
     /**
@@ -116,7 +117,7 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    List<Integer> offsets, byte[] data, OutputStream os, boolean signed)
+                    List<Long> offsets, byte[] data, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
 

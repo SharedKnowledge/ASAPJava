@@ -12,6 +12,8 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
     private int eraTo;
 
     public InterestPDU_Impl(int flagsInt, InputStream is) throws IOException {
+        super(ASAP_1_0.INTEREST_CMD);
+
         evaluateFlags(flagsInt);
 
         if(this.peerSet()) { this.readPeer(is); }
@@ -38,6 +40,8 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
                         CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
+        if(format == null || format.length() < 1) format = ASAP_1_0.ANY_FORMAT;
+
         // first: check protocol errors
         PDU_Impl.checkValidEra(eraFrom);
         PDU_Impl.checkValidEra(eraTo);
@@ -53,9 +57,8 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
         flags = PDU_Impl.setFlag(eraFrom, flags, ERA_FROM_BIT_POSITION);
         flags = PDU_Impl.setFlag(eraTo, flags, ERA_TO_BIT_POSITION);
 
-        // PDU: CMD | FLAGS | PEER | FORMAT | CHANNEL | ERA
-        PDU_Impl.sendCommand(ASAP_1_0.INTEREST_CMD, os); // mand
-        PDU_Impl.sendIntegerParameter(flags, os); // mand
+        PDU_Impl.sendHeader(ASAP_1_0.INTEREST_CMD, flags, os);
+
         PDU_Impl.sendCharSequenceParameter(peer, os); // opt
         PDU_Impl.sendCharSequenceParameter(sourcePeer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand

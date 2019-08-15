@@ -46,7 +46,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
-                           CharSequence channel, int era, int length, List<Integer> offsets, InputStream dataIS,
+                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         AssimilationPDU_Impl.sendPDU(peer, recipientPeer, format, channel, era, length, offsets, dataIS, os, signed);
@@ -54,7 +54,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
-                           CharSequence channel, int era, List<Integer> offsets, byte[] data,
+                           CharSequence channel, int era, List<Long> offsets, byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
@@ -65,19 +65,18 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
-        int cmdInt = is.read();
-        int flagsInt = is.read();
+        byte cmd = PDU_Impl.readByte(is);
+        int flagsInt = PDU_Impl.readByte(is);
 
         ASAP_PDU_1_0 pdu = null;
 
-        switch(cmdInt) {
+        switch(cmd) {
             case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, is); break;
             case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, is); break;
             case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, is); break;
-            default: throw new ASAPException("unknown command: " + cmdInt);
+            default: throw new ASAPException("unknown command: " + cmd);
         }
 
         return pdu;
     }
-
 }

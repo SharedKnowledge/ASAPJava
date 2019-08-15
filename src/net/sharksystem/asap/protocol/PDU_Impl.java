@@ -30,6 +30,16 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     private String format;
     private String channel;
     private int era;
+    private final byte cmd;
+
+    PDU_Impl(byte cmd) {
+        this.cmd = cmd;
+    }
+
+    protected static void sendHeader(byte cmd, int flags, OutputStream os) throws IOException {
+        PDU_Impl.sendByteParameter(cmd, os); // mand
+        PDU_Impl.sendByteParameter((byte)flags, os); // mand
+    }
 
     protected void evaluateFlags(int flagsInt) {
         // peer parameter set ?
@@ -112,19 +122,79 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     @Override
     public int getEra() { return this.era;}
 
+
+    @Override
+    public byte getCommand() { return this.cmd; }
+
+
     static protected void sendCharSequenceParameter(CharSequence parameter, OutputStream os) throws IOException {
         if(parameter == null || parameter.length() < 1) return;
         byte[] bytes = parameter.toString().getBytes();
-        os.write(bytes.length);
+        sendIntegerParameter(bytes.length, os);
         os.write(bytes);
     }
 
+    static void sendByteParameter(byte parameter, OutputStream os) throws IOException {
+        os.write(new byte[] { parameter} );
+    }
+
+
+    static void sendShortParameter(short parameter, OutputStream os) throws IOException {
+        // short = 16 bit = 2 bytes
+        int leftInt = parameter >> 8;
+        sendByteParameter( (byte)leftInt, os);
+        // cut left part
+        sendByteParameter( (byte)parameter, os);
+    }
+
     static void sendIntegerParameter(int parameter, OutputStream os) throws IOException {
-        os.write(parameter);
+        // Integer == 32 bit == 4 Byte
+        int left = parameter >> 16;
+        sendShortParameter((short) left, os);
+        sendShortParameter((short) parameter, os);
+    }
+
+    protected static void sendLongParameter(long longValue, OutputStream os) throws IOException {
+        // Long = 64 bit = 2 Integer
+        long left = longValue >> 32;
+        sendIntegerParameter((int) left, os);
+        sendIntegerParameter((int) longValue, os);
+    }
+
+    protected byte readByteParameter(InputStream is) throws IOException {
+        return PDU_Impl.readByte(is);
+    }
+
+    static byte readByte(InputStream is) throws IOException {
+        return (byte) is.read();
+    }
+
+    protected short readShortParameter(InputStream is) throws IOException {
+        int value = this.readByteParameter(is);
+        value = value << 8;
+        int right = this.readByteParameter(is);
+        value += right;
+        return (short) value;
+    }
+
+    protected int readIntegerParameter(InputStream is) throws IOException {
+        int value = this.readShortParameter(is);
+        value = value << 16;
+        int right = this.readShortParameter(is);
+        value += right;
+        return value;
+    }
+
+    protected long readLongParameter(InputStream is) throws IOException {
+        long value = this.readIntegerParameter(is);
+        value = value << 32;
+        long right = this.readIntegerParameter(is);
+        value += right;
+        return value;
     }
 
     protected String readCharSequenceParameter(InputStream is) throws IOException {
-        int length = is.read();
+        int length = this.readIntegerParameter(is);
         byte[] parameterBytes = new byte[length];
 
         is.read(parameterBytes);
@@ -145,11 +215,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
 
     protected void readChannel(InputStream is) throws IOException {
         this.channel = this.readCharSequenceParameter(is);
-    }
-
-    protected int readIntegerParameter(InputStream is) throws IOException {
-        int parameter = is.read();
-        return parameter;
     }
 
     protected void readEra(InputStream is) throws IOException {
@@ -175,7 +240,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         return flags;
     }
 
-    static int setFlag(List<Integer> parameter, int flags, int bit_position) {
+    static int setFlag(List<Long> parameter, int flags, int bit_position) {
         if(parameter != null && parameter.size() > 0) {
             return setFlag(1, flags, bit_position);
         }
@@ -210,4 +275,5 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         int maxEra = 2^8-1;
         if(era > maxEra) throw new ASAPException("era exceeded max limit of 2^8-1");
     }
+
 }

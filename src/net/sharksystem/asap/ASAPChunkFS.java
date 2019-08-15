@@ -191,6 +191,27 @@ class ASAPChunkFS implements ASAPChunk {
         return byteMessageList;
     }
 
+    public long getLength() {
+        return this.messageFile.length();
+    }
+
+    @Override
+    public List<Long> getOffsetList() {
+        return this.messageStartOffsets;
+    }
+
+    @Override
+    public InputStream getMessageDataInputStream() {
+        InputStream is = null;
+        try {
+            is = new FileInputStream(this.messageFile);
+        } catch (FileNotFoundException e) {
+            // cannot happen - is checked before
+        }
+
+        return is;
+    }
+
     @Override
     public Iterator<CharSequence> getMessages() throws IOException {
         try {

@@ -9,4 +9,6 @@ public interface ASAP_PDU_1_0 {
     boolean peerSet();
     boolean channelSet();
     boolean eraSet();
+
+    byte getCommand();
 }
