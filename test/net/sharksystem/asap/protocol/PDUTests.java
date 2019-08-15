@@ -104,11 +104,6 @@ public class PDUTests {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        /*
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    byte[] data, OutputStream os, boolean signed) throws IOException, ASAPException;
-         */
-
         protocolEngine.assimilate(peer, recipientPeer, format, channel, era, offsetsList, data, os,false);
 
         // try t read output

@@ -15,8 +15,8 @@ import org.junit.Assert;
  */
 public class BasicTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
-    public static final String ALICE_FOLDER = "alice";
-    public static final String BOB_FOLDER = "bob";
+    public static final String ALICE_FOLDER = "tests/alice";
+    public static final String BOB_FOLDER = "tests/bob";
     public static final String ALICE = "alice";
     public static final String BOB = "bob";
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
