@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
@@ -127,178 +128,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 throw new ASAPException("protocol error: expected asap interest - got something else");
             }
 
-            // get remote peer
-            String peer = asapPDU.getPeer();
-
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("read Peer: ");
-            b.append(peer);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-            // check conflict
-            if(!this.permission2ProceedConversation(peer)) {
-                throw new ASAPException("no permission to communicate with remote peer: " + peer);
-            }
-
-            // start reading from remote peer
-            Thread readerThread = new Thread(
-                    new ASAPChunkAssimilator(is, this.owner, peer, this, listener));
-
-            readerThread.start();
-
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("chunk reader started");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-            // era we are about to transmit
-            int workingEra = this.getEraStartSync(peer);
-
-            // newest era (which is not necessarily highest number!!)
-            int currentEra = this.era;
-
-            // we start a conversation - increment era for newly produced messages
-            this.incrementEra();
-
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("working era: ");
-            b.append(workingEra);
-            b.append(" / current era: ");
-            b.append(currentEra);
-            b.append(" / this.era: ");
-            b.append(this.era);
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-            // make a breakpoint here
-            if(this.memento != null) this.memento.save(this);
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("memento saved");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-
-            /*
-            There is a little challenge: era uses a circle of numbers
-            We cannot say: higher number, later era. That rule does *not*
-            apply. We can calculate next era, though.
-
-            That loop has to be re-entered as long as working era has not
-            yet reached currentEra. In other words: lastRound is reached whenever
-            workingEra == currentEra. Processing currentEra is the last round
-            We at at least one round!
-            */
-
-            boolean lastRound = false; // assume more than one round
-            do {
-                lastRound = workingEra == currentEra;
-
-                List<ASAPChunk> chunks = this.chunkStorage.getChunks(workingEra);
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("start iterating chunks with working Era: ");
-                b.append(workingEra);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
-                for(ASAPChunk chunk : chunks) {
-                    //<<<<<<<<<<<<<<<<<<debug
-                    b = new StringBuilder();
-                    b.append(this.getLogStart());
-                    b.append("chunkUrl: ");
-                    b.append(chunk.getUri());
-                    b.append(" / isPublic: ");
-                    b.append(this.isPublic(chunk));
-                    System.out.println(b.toString());
-                    //>>>>>>>>>>>>>>>>>>>debug
-
-                    // is not a public chunk
-                    if (!this.isPublic(chunk)) {
-                        List<CharSequence> recipients = chunk.getRecipients();
-
-                        if (!recipients.contains(peer)) {
-                            continue;
-                        }
-                    }
-
-                    //<<<<<<<<<<<<<<<<<<debug
-                    b = new StringBuilder();
-                    b.append(this.getLogStart());
-                    b.append("send chunk");
-                    System.out.println(b.toString());
-                    //>>>>>>>>>>>>>>>>>>>debug
-
-                    /*
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
-            throws IOException, ASAPException;
-                     */
-
-                    protocol.assimilate(this.owner, // peer
-                            peer, // recipient
-                            this.chunkContentFormat,
-                            chunk.getUri(), // channel ok
-                            workingEra, // era ok
-                            chunk.getLength(), // data length
-                            chunk.getOffsetList(),
-                            chunk.getMessageInputStream(),
-                            os,
-                            false);
-
-                    // remember sent
-                    chunk.removeRecipient(peer);
-                    //<<<<<<<<<<<<<<<<<<debug
-                    b = new StringBuilder();
-                    b.append(this.getLogStart());
-                    b.append("removed recipient ");
-                    b.append(peer);
-                    System.out.println(b.toString());
-                    //>>>>>>>>>>>>>>>>>>>debug
-                    // empty?
-                    if (chunk.getRecipients().isEmpty()) {
-                        if (this.isDropDeliveredChunks()) {
-                            chunk.drop();
-                            //<<<<<<<<<<<<<<<<<<debug
-                            b = new StringBuilder();
-                            b.append(this.getLogStart());
-                            b.append("chunk dropped");
-                            System.out.println(b.toString());
-                        } else {
-                            b = new StringBuilder();
-                            b.append(this.getLogStart());
-                            b.append("drop flag set false - engine does not remove delivered chunks");
-                            System.out.println(b.toString());
-                        }
-                    }
-                }
-
-                // make a breakpoint here
-                if(this.memento != null) this.memento.save(this);
-
-                // remember that we are in sync until that era
-                this.setLastSeen(peer, workingEra);
-
-                // next era which isn't necessarilly workingEra++
-                workingEra = this.getNextEra(workingEra);
-
-                // as long as not already performed last round
-            } while(!lastRound);
-
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("ended iterating chunks");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
+            Thread readerThread = this.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, is, os, listener);
         }
         catch(Exception ioe) {
             //<<<<<<<<<<<<<<<<<<debug
@@ -309,6 +139,186 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
         }
+    }
+
+    public Thread handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol,
+                       InputStream is, OutputStream os, ASAPReceivedChunkListener listener)
+            throws ASAPException, IOException {
+
+        // get remote peer
+        String peer = asapInterest.getPeer();
+
+        //<<<<<<<<<<<<<<<<<<debug
+        StringBuilder b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("read Peer: ");
+        b.append(peer);
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        // check conflict
+        if(!this.permission2ProceedConversation(peer)) {
+            throw new ASAPException("no permission to communicate with remote peer: " + peer);
+        }
+
+        // start reading from remote peer
+        Thread readerThread = new Thread(
+                new ASAPChunkAssimilator(is, this.owner, peer, this, listener));
+
+        readerThread.start();
+
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("chunk reader started");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        // era we are about to transmit
+        int workingEra = this.getEraStartSync(peer);
+
+        // newest era (which is not necessarily highest number!!)
+        int currentEra = this.era;
+
+        // we start a conversation - increment era for newly produced messages
+        this.incrementEra();
+
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("working era: ");
+        b.append(workingEra);
+        b.append(" / current era: ");
+        b.append(currentEra);
+        b.append(" / this.era: ");
+        b.append(this.era);
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        // make a breakpoint here
+        if(this.memento != null) this.memento.save(this);
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("memento saved");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        /*
+        There is a little challenge: era uses a circle of numbers
+        We cannot say: higher number, later era. That rule does *not*
+        apply. We can calculate next era, though.
+
+        That loop has to be re-entered as long as working era has not
+        yet reached currentEra. In other words: lastRound is reached whenever
+        workingEra == currentEra. Processing currentEra is the last round
+        We at at least one round!
+        */
+
+        boolean lastRound = false; // assume more than one round
+        do {
+            lastRound = workingEra == currentEra;
+
+            List<ASAPChunk> chunks = this.chunkStorage.getChunks(workingEra);
+            //<<<<<<<<<<<<<<<<<<debug
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("start iterating chunks with working Era: ");
+            b.append(workingEra);
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+
+            for(ASAPChunk chunk : chunks) {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("chunkUrl: ");
+                b.append(chunk.getUri());
+                b.append(" / isPublic: ");
+                b.append(this.isPublic(chunk));
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+
+                // is not a public chunk
+                if (!this.isPublic(chunk)) {
+                    List<CharSequence> recipients = chunk.getRecipients();
+
+                    if (!recipients.contains(peer)) {
+                        continue;
+                    }
+                }
+
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("send chunk");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+
+                /*
+    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
+                    int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
+            throws IOException, ASAPException;
+                 */
+
+                protocol.assimilate(this.owner, // peer
+                        peer, // recipient
+                        this.chunkContentFormat,
+                        chunk.getUri(), // channel ok
+                        workingEra, // era ok
+                        chunk.getLength(), // data length
+                        chunk.getOffsetList(),
+                        chunk.getMessageInputStream(),
+                        os,
+                        false);
+
+                // remember sent
+                chunk.removeRecipient(peer);
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("removed recipient ");
+                b.append(peer);
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+                // empty?
+                if (chunk.getRecipients().isEmpty()) {
+                    if (this.isDropDeliveredChunks()) {
+                        chunk.drop();
+                        //<<<<<<<<<<<<<<<<<<debug
+                        b = new StringBuilder();
+                        b.append(this.getLogStart());
+                        b.append("chunk dropped");
+                        System.out.println(b.toString());
+                    } else {
+                        b = new StringBuilder();
+                        b.append(this.getLogStart());
+                        b.append("drop flag set false - engine does not remove delivered chunks");
+                        System.out.println(b.toString());
+                    }
+                }
+            }
+
+            // make a breakpoint here
+            if(this.memento != null) this.memento.save(this);
+
+            // remember that we are in sync until that era
+            this.setLastSeen(peer, workingEra);
+
+            // next era which isn't necessarilly workingEra++
+            workingEra = this.getNextEra(workingEra);
+
+            // as long as not already performed last round
+        } while(!lastRound);
+
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("ended iterating chunks");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        return readerThread;
     }
 
     private boolean isDropDeliveredChunks() {

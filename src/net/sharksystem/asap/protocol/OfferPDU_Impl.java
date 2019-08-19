@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
 
-    public OfferPDU_Impl(int flagsInt, InputStream is) throws IOException {
+    public OfferPDU_Impl(int flagsInt, InputStream is) throws IOException, ASAPException {
         super(ASAP_1_0.OFFER_CMD);
         evaluateFlags(flagsInt);
 

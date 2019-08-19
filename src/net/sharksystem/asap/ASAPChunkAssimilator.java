@@ -177,25 +177,12 @@ class ASAPChunkAssimilator implements Runnable {
                 listener.chunkReceived(peer, uri, storage.getEra());
             }
         }
-        catch (IOException ex) {
-            try {
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("IOException (give up, close inputstream): ");
-                b.append(ex.getLocalizedMessage());
-                System.out.println(b.toString());
-
-                is.close();
-            }
-            catch (IOException ex1) {   /* ignore */ }
-        }
-        catch (ASAPException e) {
+        catch (Exception e) {
             b = new StringBuilder();
             b.append(this.getLogStart());
-            b.append("ASAPException (give up, close inputstream): ");
+            b.append("Exception (give up, keep streams untouched): ");
             b.append(e.getLocalizedMessage());
             System.out.println(b.toString());
-            try { is.close(); } catch (IOException ex1) {   /* ignore */ }
         }
     }
 }

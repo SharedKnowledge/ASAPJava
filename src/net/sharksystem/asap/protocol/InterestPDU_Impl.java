@@ -11,7 +11,7 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
     private int eraFrom;
     private int eraTo;
 
-    public InterestPDU_Impl(int flagsInt, InputStream is) throws IOException {
+    public InterestPDU_Impl(int flagsInt, InputStream is) throws IOException, ASAPException {
         super(ASAP_1_0.INTEREST_CMD);
 
         evaluateFlags(flagsInt);
@@ -24,15 +24,15 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
         if(this.eraToSet()) { this.readToEra(is); }
     }
 
-    private void readToEra(InputStream is) throws IOException {
+    private void readToEra(InputStream is) throws IOException, ASAPException {
         this.eraTo = this.readIntegerParameter(is);
     }
 
-    private void readFromEra(InputStream is) throws IOException {
+    private void readFromEra(InputStream is) throws IOException, ASAPException {
         this.eraFrom = this.readIntegerParameter(is);
     }
 
-    private void readSourcePeer(InputStream is) throws IOException {
+    private void readSourcePeer(InputStream is) throws IOException, ASAPException {
         this.sourcePeer = this.readCharSequenceParameter(is);
     }
 

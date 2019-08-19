@@ -165,20 +165,19 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         sendNonNegativeIntegerParameter((int) longValue, os);
     }
 
-    protected byte readByteParameter(InputStream is) throws IOException {
+    protected byte readByteParameter(InputStream is) throws IOException, ASAPException {
         return PDU_Impl.readByte(is);
     }
 
-    static byte readByte(InputStream is) throws IOException {
+    static byte readByte(InputStream is) throws IOException, ASAPException {
         int value = is.read();
         if(value < 0) {
-            is.close();
-            throw new IOException("read -1: no more data in stream, closed stream");
+            throw new ASAPException("read -1: no more data in stream");
         }
         return (byte) value;
     }
 
-    protected short readShortParameter(InputStream is) throws IOException {
+    protected short readShortParameter(InputStream is) throws IOException, ASAPException {
         int value = this.readByteParameter(is);
         value = value << 8;
         int right = this.readByteParameter(is);
@@ -186,7 +185,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         return (short) value;
     }
 
-    protected int readIntegerParameter(InputStream is) throws IOException {
+    protected int readIntegerParameter(InputStream is) throws IOException, ASAPException {
         int value = this.readShortParameter(is);
         value = value << 16;
         int right = this.readShortParameter(is);
@@ -194,7 +193,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         return value;
     }
 
-    protected long readLongParameter(InputStream is) throws IOException {
+    protected long readLongParameter(InputStream is) throws IOException, ASAPException {
         long value = this.readIntegerParameter(is);
         value = value << 32;
         long right = this.readIntegerParameter(is);
@@ -202,7 +201,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         return value;
     }
 
-    protected String readCharSequenceParameter(InputStream is) throws IOException {
+    protected String readCharSequenceParameter(InputStream is) throws IOException, ASAPException {
         int length = this.readIntegerParameter(is);
         byte[] parameterBytes = new byte[length];
 
@@ -212,21 +211,21 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     }
 
 
-    protected void readPeer(InputStream is) throws IOException {
+    protected void readPeer(InputStream is) throws IOException, ASAPException {
         this.peer = this.readCharSequenceParameter(is);
     }
 
 
-    protected void readFormat(InputStream is) throws IOException {
+    protected void readFormat(InputStream is) throws IOException, ASAPException {
         this.format = this.readCharSequenceParameter(is);
     }
 
 
-    protected void readChannel(InputStream is) throws IOException {
+    protected void readChannel(InputStream is) throws IOException, ASAPException {
         this.channel = this.readCharSequenceParameter(is);
     }
 
-    protected void readEra(InputStream is) throws IOException {
+    protected void readEra(InputStream is) throws IOException, ASAPException {
         this.era = this.readIntegerParameter(is);
     }
 

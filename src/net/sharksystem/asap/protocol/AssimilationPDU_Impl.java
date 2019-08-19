@@ -40,7 +40,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         this.offsets = string2list(this.readCharSequenceParameter(is));
     }
 
-    private void readRecipientPeer(InputStream is) throws IOException {
+    private void readRecipientPeer(InputStream is) throws IOException, ASAPException {
         this.recipientPeer = this.readCharSequenceParameter(is);
     }
 
