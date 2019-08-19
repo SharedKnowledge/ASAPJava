@@ -170,7 +170,12 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     }
 
     static byte readByte(InputStream is) throws IOException {
-        return (byte) is.read();
+        int value = is.read();
+        if(value < 0) {
+            is.close();
+            throw new IOException("read -1: no more data in stream, closed stream");
+        }
+        return (byte) value;
     }
 
     protected short readShortParameter(InputStream is) throws IOException {

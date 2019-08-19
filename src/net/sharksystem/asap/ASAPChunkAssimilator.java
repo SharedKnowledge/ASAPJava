@@ -83,6 +83,7 @@ class ASAPChunkAssimilator implements Runnable {
 
             while(true) { // until IOException informs end of communication
                 // read assimilation message
+                b = new StringBuilder();
                 b.append(this.getLogStart());
                 b.append(" readChunks (sender: ");
                 b.append(peer);
@@ -175,13 +176,26 @@ class ASAPChunkAssimilator implements Runnable {
                 // read all messages
                 listener.chunkReceived(peer, uri, storage.getEra());
             }
-        } catch (Exception ex) {
+        }
+        catch (IOException ex) {
             try {
-                // give up
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("IOException (give up, close inputstream): ");
+                b.append(ex.getLocalizedMessage());
+                System.out.println(b.toString());
+
                 is.close();
-            } catch (IOException ex1) {
-                // ignore
             }
+            catch (IOException ex1) {   /* ignore */ }
+        }
+        catch (ASAPException e) {
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("ASAPException (give up, close inputstream): ");
+            b.append(e.getLocalizedMessage());
+            System.out.println(b.toString());
+            try { is.close(); } catch (IOException ex1) {   /* ignore */ }
         }
     }
 }
