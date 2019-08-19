@@ -1,85 +1,77 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
+import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class ASAPChunkExchangeHandler {
-    private HashMap<CharSequence, HashMap<CharSequence, FolderAndListener>> ownerMap;
+    private final CharSequence owner;
+    private final HashMap<CharSequence, FormatSettings> folderMap;
 
-    public ASAPChunkExchangeHandler(List<ASAPChunkExchangeSetting> settings) throws ASAPException {
+    public ASAPChunkExchangeHandler(CharSequence owner, List<ASAPChunkExchangeSetting> settings) throws ASAPException {
         if(settings == null) throw new ASAPException("no settings at all - makes no sense");
         if(settings.size() == 0) throw new ASAPException("no settings - makes no sense");
 
-        // remember settings
-        this.ownerMap = new HashMap<>();
+        this.owner = owner;
+        this.folderMap = new HashMap<>();
 
         // fill settings
         for(ASAPChunkExchangeSetting setting : settings) {
-            HashMap<CharSequence, FolderAndListener> folderMap = this.ownerMap.get(setting.owner);
-            if(folderMap == null) {
-                folderMap = new HashMap<>();
-                ownerMap.put(setting.owner, folderMap);
-            }
-
-            FolderAndListener folderAndListenerSetting = folderMap.get(setting.format);
-            folderMap.put(setting.format, new FolderAndListener(setting.rootFolder, setting.listener));
+            folderMap.put(setting.format, new FormatSettings(setting.rootFolder, setting.listener));
         }
     }
 
-    private FolderAndListener getFolderAndListener(CharSequence owner, CharSequence format) throws ASAPException {
-        HashMap<CharSequence, FolderAndListener> folderMap = this.ownerMap.get(owner);
-        if(folderMap == null) throw new ASAPException("no entry for owner: " + owner);
-
-        FolderAndListener folderAndListener = folderMap.get(format);
+    private FormatSettings getFormatSettings(CharSequence format) throws ASAPException {
+        FormatSettings folderAndListener = folderMap.get(format);
         if(folderAndListener == null) throw new ASAPException("no folder for owner / format: " + owner + "/" + format);
 
         return folderAndListener;
     }
 
-    CharSequence getFolder(CharSequence owner, CharSequence format) throws ASAPException {
-        return this.getFolderAndListener(owner, format).folder;
-    }
-
-    ASAPReceivedChunkListener getListener(CharSequence owner, CharSequence format) throws ASAPException {
-        return this.getFolderAndListener(owner, format).listener;
-    }
-
-    public void handleConnection(InputStream is, OutputStream os) {
+    public void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
-        // issue an interest for each setting combination
-        for(CharSequence owner : this.ownerMap.keySet()) {
-            HashMap<CharSequence, FolderAndListener> folderMaps = this.ownerMap.get(owner);
-
-            for(CharSequence format : folderMaps.keySet()) {
-                FolderAndListener fl = folderMaps.get(format);
-                // TODO hier weitermachen.
-
-                /*
-                save last seen here or in upper layers? guess it fits quite good here.
-                 */
-            }
+        // issue an interest for each owner / format combination
+        for(CharSequence format : this.folderMap.keySet()) {
+            protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
-/*
-        protocol.interest(this.owner, null, null,
-                null, -1, -1, os, false);
-*/
 
+        // read pdu from the other side from the other side
+        ASAP_PDU_1_0 asapPDU = protocol.readPDU(is);
 
+        // get engine
+        FormatSettings formatSettings = this.getFormatSettings(asapPDU.getFormat());
+        if(formatSettings.engine == null) {
+            ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(
+                                        owner.toString(),
+                                        formatSettings.folder.toString(),
+                                        asapPDU.getFormat());
+
+            formatSettings.setASAPEngine(asapEngine);
+        }
+
+        // TODO HIER WEITERMACHEN
+        if(asapPDU.getCommand() == ASAP_1_0.INTEREST_CMD) {
+            Thread thread = formatSettings.engine.handleASAPInterest(
+                    (ASAP_Interest_PDU_1_0) asapPDU,
+                    protocol, is, os,
+                    formatSettings.listener);
+        }
     }
 
-    private class FolderAndListener {
+    private class FormatSettings {
         final CharSequence folder;
         final ASAPReceivedChunkListener listener;
         private ASAPEngine engine;
 
-        FolderAndListener(CharSequence folder, ASAPReceivedChunkListener listener) {
+        FormatSettings(CharSequence folder, ASAPReceivedChunkListener listener) {
             this.folder = folder;
             this.listener = listener;
         }

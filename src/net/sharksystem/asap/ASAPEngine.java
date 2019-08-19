@@ -299,11 +299,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 }
             }
 
-            // make a breakpoint here
-            if(this.memento != null) this.memento.save(this);
-
             // remember that we are in sync until that era
             this.setLastSeen(peer, workingEra);
+
+            // make a breakpoint here
+            if(this.memento != null) this.memento.save(this);
 
             // next era which isn't necessarilly workingEra++
             workingEra = this.getNextEra(workingEra);
