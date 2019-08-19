@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 public class ChunkCacheTests {
+    public static final String DUMMY_USER = "dummyUser";
     public static final String TEST_URI = "TEST_URI";
+    public static final String TEST_FORMAT = "format";
     private static final String MESSAGE_ONE = "message one";
     private static final String MESSAGE_TWO = "message two";
     private static final String MESSAGE_THREE = "message three";
@@ -22,7 +24,7 @@ public class ChunkCacheTests {
         ASAPEngineFS.removeFolder(rootDirectory);
 
         // open a fresh chunk storage
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(rootDirectory);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, rootDirectory, TEST_FORMAT);
 
         int era = storage.getEra();
 

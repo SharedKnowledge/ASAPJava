@@ -24,7 +24,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
-    
+    private final CharSequence chunkContentFormat;
+
     /**
      * that engine transmitts serialized chunks to another peer.
      * After transmission that channel is closed. In immediate closure would
@@ -42,10 +43,15 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     /* private */ final private ASAPChunkStorage chunkStorage;
     private boolean dropDeliveredChunks = false;
 
-    protected ASAPEngine(ASAPChunkStorage chunkStorage)
+    protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
         
         this.chunkStorage = chunkStorage;
+        if(chunkContentFormat != null) {
+            this.chunkContentFormat = chunkContentFormat;
+        } else {
+            throw new ASAPException("format expected. like application/x-sn2-makan");
+        }
     }
     
     @Override
@@ -237,12 +243,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
                     int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
-
                      */
-                    // TODO: format
+
                     protocol.assimilate(this.owner, // peer
                             peer, // recipient
-                            ASAP_1_0.ANY_FORMAT, // format: TODO - application like makan!!
+                            this.chunkContentFormat,
                             chunk.getUri(), // channel ok
                             workingEra, // era ok
                             chunk.getLength(), // data length

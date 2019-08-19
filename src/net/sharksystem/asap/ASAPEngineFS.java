@@ -16,16 +16,15 @@ public class ASAPEngineFS extends ASAPEngine {
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_AASP";
     
-    private ASAPEngineFS(String rootDirectory,
-                         ASAPChunkStorageFS chunkStorage)
+    private ASAPEngineFS(String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
         throws ASAPException, IOException {
         
-        super(new ASAPChunkStorageFS(rootDirectory));
+        super(new ASAPChunkStorageFS(rootDirectory), format);
         
         this.rootDirectory = rootDirectory;
     }
     
-    public static ASAPStorage getASAPStorage(String owner, String rootDirectory)
+    public static ASAPStorage getASAPStorage(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
         
         // check if root directory already exists. If not srt it up
@@ -34,18 +33,20 @@ public class ASAPEngineFS extends ASAPEngine {
             root.mkdirs();
         }
         
-        return ASAPEngineFS.getASAPEngine(owner, rootDirectory);
+        return ASAPEngineFS.getASAPEngine(owner, rootDirectory, format);
         
     }
-    
-    public static ASAPStorage getASAPStorage(String rootDirectory)
+
+    /*
+    public static ASAPStorage getASAPStorage(String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
         
-        return ASAPEngineFS.getASAPStorage(DEFAULT_OWNER, rootDirectory);
+        return ASAPEngineFS.getASAPStorage(DEFAULT_OWNER, rootDirectory, format);
         
     }
-    
-    public static ASAPEngine getASAPEngine(String owner, String rootDirectory)
+    */
+
+    public static ASAPEngine getASAPEngine(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
         
         // root directory must exist when setting up an engine
@@ -56,7 +57,7 @@ public class ASAPEngineFS extends ASAPEngine {
         
         ASAPEngineFS engine = new ASAPEngineFS(
                 rootDirectory, 
-                new ASAPChunkStorageFS(rootDirectory));
+                new ASAPChunkStorageFS(rootDirectory), format);
 
         
         ASAPMementoFS mementoFS = engine.getMemento(rootDirectory);
@@ -88,12 +89,13 @@ public class ASAPEngineFS extends ASAPEngine {
         return engine;
     }
 
-    public static ASAPEngine getASAPEngine(String rootDirectory)
+    /*
+    public static ASAPEngine getASAPEngine(String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
             
-        return ASAPEngineFS.getASAPEngine(null, rootDirectory);
+        return ASAPEngineFS.getASAPEngine(null, rootDirectory, format);
 
-    }
+    }*/
     
     private ASAPMementoFS getMemento(String rootDirectory) {
         return new ASAPMementoFS(new File(rootDirectory));

@@ -16,6 +16,7 @@ import org.junit.Assert;
  */
 public class BasicTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
+    public static final String CHAT_FORMAT = "application/x-sn2-makan";
     public static final String ALICE_FOLDER = "tests/alice";
     public static final String BOB_FOLDER = "tests/bob";
     public static final String ALICE = "alice";
@@ -32,22 +33,22 @@ public class BasicTests {
        
         // alice writes a message into chunkStorage
         ASAPStorage aliceStorage =
-                ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER);
+                ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER, CHAT_FORMAT);
 
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
 
         // bob does the same
         ASAPStorage bobStorage =
-                ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER);
+                ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER, CHAT_FORMAT);
 
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
 
         // now set up both engines / use default reader
-        ASAPEngine aliceEngine = ASAPEngineFS.getASAPEngine("Alice", ALICE_FOLDER);
+        ASAPEngine aliceEngine = ASAPEngineFS.getASAPEngine("Alice", ALICE_FOLDER, CHAT_FORMAT);
         
-        ASAPEngine bobEngine = ASAPEngineFS.getASAPEngine("Bob", BOB_FOLDER);
+        ASAPEngine bobEngine = ASAPEngineFS.getASAPEngine("Bob", BOB_FOLDER, CHAT_FORMAT);
         
         ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
@@ -135,7 +136,7 @@ public class BasicTests {
         Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
 
         // simulate a sync
-        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER);
+        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(1, bobStorage.getEra());
         Assert.assertEquals(bobEngine.getEra(), bobStorage.getEra());
     }

@@ -2,7 +2,6 @@ package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,7 +11,9 @@ import org.junit.Test;
  * @author thsc
  */
 public class WhiteBoxTests {
-    
+    public static final String FORMAT = "format";
+    public static final String DUMMY_USER = "dummyUser";
+
     public WhiteBoxTests() {
     }
 
@@ -24,7 +25,7 @@ public class WhiteBoxTests {
         String secondMessage = "second message";
 
         ASAPEngineFS.removeFolder(folder);
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(folder);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         // convert message into bytes
         byte[] messageBytes = firstMessage.getBytes();
@@ -52,7 +53,7 @@ public class WhiteBoxTests {
         String secondMessage = "second message";
 
         ASAPEngineFS.removeFolder(folder);
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(folder);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         storage.add(uri, firstMessage);
         storage.add(uri, secondMessage);
