@@ -11,29 +11,34 @@ import java.util.List;
 
 /**
  * Implements the chunk exchange step in the AAS protocol.
- * @author local
+ * @author thsc42
  */
 
-class ASAPPChunkAssimilator implements Runnable {
+class ASAPChunkAssimilator implements Runnable {
     private final InputStream is;
     private final String peer;
     private final String owner;
     private final ASAPStorage storage;
     private final ASAPReceivedChunkListener listener;
 
-    ASAPPChunkAssimilator(InputStream is, String owner,
-                          String peer, ASAPStorage storage,
-                          ASAPReceivedChunkListener listener) {
+    private final String logHead;
+
+    ASAPChunkAssimilator(InputStream is, String owner,
+                         String peer, ASAPStorage storage,
+                         ASAPReceivedChunkListener listener) {
         this.is = is;
         this.peer = peer;
         this.owner = owner;
         this.storage = storage;
         this.listener = listener;
+
+        this.logHead = this.getClass().getSimpleName();
     }
 
     private String getLogStart() {
         StringBuilder b = new StringBuilder();
-        b.append("ASAPPChunkAssimilator (");
+        b.append(this.logHead);
+        b.append(" (");
         b.append(this.owner);
         b.append(") connected to (");
         b.append(this.peer);
@@ -65,7 +70,8 @@ class ASAPPChunkAssimilator implements Runnable {
         try {
             // read asap assimiate messages
             b = new StringBuilder();
-            b.append("ASPChunkSerialization.readChunks (sender: ");
+            b.append(this.getLogStart());
+            b.append(" readChunks (sender: ");
             b.append(peer);
             b.append(") ");
             System.out.println(b.toString());
@@ -77,15 +83,16 @@ class ASAPPChunkAssimilator implements Runnable {
 
             while(true) { // until IOException informs end of communication
                 // read assimilation message
-                b = new StringBuilder();
-                b.append("ASPChunkSerialization.readChunks (sender: ");
+                b.append(this.getLogStart());
+                b.append(" readChunks (sender: ");
                 b.append(peer);
                 b.append(") going to read asap pdu");
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
                 ASAP_PDU_1_0 asapPDU = protocol.readPDU(is);
                 b = new StringBuilder();
-                b.append("ASPChunkSerialization.readChunks (sender: ");
+                b.append(this.getLogStart());
+                b.append(" readChunks (sender: ");
                 b.append(peer);
                 b.append(") successfully read pdu");
                 System.out.println(b.toString());
@@ -94,7 +101,8 @@ class ASAPPChunkAssimilator implements Runnable {
                 if(asapPDU.getCommand() != ASAP_1_0.ASSIMILATE_CMD) {
                     //>>>>>>>>>>>>>>>>>>>debug
                     b = new StringBuilder();
-                    b.append("ASPChunkSerialization.readChunks (sender: ");
+                    b.append(this.getLogStart());
+                    b.append(" readChunks (sender: ");
                     b.append(peer);
                     b.append(") no assimilation pdu received - fatal");
                     System.out.println(b.toString());

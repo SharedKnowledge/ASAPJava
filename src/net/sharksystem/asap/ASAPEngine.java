@@ -4,8 +4,6 @@ import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -147,7 +145,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
             // start reading from remote peer
             Thread readerThread = new Thread(
-                    new ASAPPChunkAssimilator(is, this.owner, peer, this, listener));
+                    new ASAPChunkAssimilator(is, this.owner, peer, this, listener));
 
             readerThread.start();
 
