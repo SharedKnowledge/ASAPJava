@@ -15,7 +15,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     private final InputStream is;
     private String recipientPeer;
     public static final String OFFSET_DELIMITER = ",";
-    private List<Integer> offsets;
+    private List<Integer> offsets = new ArrayList<>();
 
     // PDU: CMD | FLAGS | PEER | RECIPIENT | FORMAT | CHANNEL | ERA | OFFSETS | LENGTH | DATA
 
@@ -68,10 +68,10 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         PDU_Impl.sendCharSequenceParameter(recipientPeer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
         PDU_Impl.sendCharSequenceParameter(channel, os); // opt
-        PDU_Impl.sendIntegerParameter(era, os); // opt
+        PDU_Impl.sendNonNegativeIntegerParameter(era, os); // opt
         PDU_Impl.sendCharSequenceParameter(list2string(offsets), os); // opt
 
-        PDU_Impl.sendLongParameter(length, os); // mand
+        PDU_Impl.sendNonNegativeLongParameter(length, os); // mand
 
         // stream data
         while(length-- > 0) {
@@ -134,6 +134,10 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         this.streamData(baos, this.dataLength);
 
         return baos.toByteArray();
+    }
+
+    public InputStream getInputStream() {
+        return this.is;
     }
 
     @Override

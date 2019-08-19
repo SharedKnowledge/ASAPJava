@@ -41,53 +41,53 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         PDU_Impl.sendByteParameter((byte)flags, os); // mand
     }
 
-    protected void evaluateFlags(int flagsInt) {
+    protected void evaluateFlags(int flag) {
         // peer parameter set ?
-        int flag = 1;
-        flag = flag << PEER_BIT_POSITION;
-        int result = flagsInt | flag;
+        int testFlag = 1;
+        testFlag = testFlag << PEER_BIT_POSITION;
+        int result = flag & testFlag;
         peerSet = result != 0;
 
         // channel parameter set ?
-        flag = 1;
-        flag = flag << CHANNEL_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << CHANNEL_BIT_POSITION;
+        result = flag & testFlag;
         channelSet = result != 0;
 
         // era parameter set ?
-        flag = 1;
-        flag = flag << ERA_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << ERA_BIT_POSITION;
+        result = flag & testFlag;
         eraSet = result != 0;
 
         // source peer parameter set ?
-        flag = 1;
-        flag = flag << SOURCE_PEER_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << SOURCE_PEER_BIT_POSITION;
+        result = flag & testFlag;
         sourcePeerSet = result != 0;
 
         // era from parameter set ?
-        flag = 1;
-        flag = flag << ERA_FROM_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << ERA_FROM_BIT_POSITION;
+        result = flag & testFlag;
         eraFrom = result != 0;
 
         // era from parameter set ?
-        flag = 1;
-        flag = flag << ERA_TO_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << ERA_TO_BIT_POSITION;
+        result = flag & testFlag;
         eraTo = result != 0;
 
         // recipient peer parameter set ?
-        flag = 1;
-        flag = flag << RECIPIENT_PEER_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << RECIPIENT_PEER_BIT_POSITION;
+        result = flag & testFlag;
         recipientPeerSet = result != 0;
 
         // offsets parameter set ?
-        flag = 1;
-        flag = flag << OFFSETS_BIT_POSITION;
-        result = flagsInt | flag;
+        testFlag = 1;
+        testFlag = testFlag << OFFSETS_BIT_POSITION;
+        result = flag & testFlag;
         offsetsSet = result != 0;
     }
 
@@ -130,7 +130,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     static protected void sendCharSequenceParameter(CharSequence parameter, OutputStream os) throws IOException {
         if(parameter == null || parameter.length() < 1) return;
         byte[] bytes = parameter.toString().getBytes();
-        sendIntegerParameter(bytes.length, os);
+        sendNonNegativeIntegerParameter(bytes.length, os);
         os.write(bytes);
     }
 
@@ -147,18 +147,22 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         sendByteParameter( (byte)parameter, os);
     }
 
-    static void sendIntegerParameter(int parameter, OutputStream os) throws IOException {
+    static void sendNonNegativeIntegerParameter(int parameter, OutputStream os) throws IOException {
+        if(parameter < 0) return; // non negative!
+
         // Integer == 32 bit == 4 Byte
         int left = parameter >> 16;
         sendShortParameter((short) left, os);
         sendShortParameter((short) parameter, os);
     }
 
-    protected static void sendLongParameter(long longValue, OutputStream os) throws IOException {
+    protected static void sendNonNegativeLongParameter(long longValue, OutputStream os) throws IOException {
+        if(longValue < 0) return;
+
         // Long = 64 bit = 2 Integer
         long left = longValue >> 32;
-        sendIntegerParameter((int) left, os);
-        sendIntegerParameter((int) longValue, os);
+        sendNonNegativeIntegerParameter((int) left, os);
+        sendNonNegativeIntegerParameter((int) longValue, os);
     }
 
     protected byte readByteParameter(InputStream is) throws IOException {

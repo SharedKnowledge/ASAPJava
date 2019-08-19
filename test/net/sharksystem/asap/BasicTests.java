@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sharksystem.asap.util.ASAPChunkReceiverTester;
@@ -20,8 +21,10 @@ public class BasicTests {
     public static final String ALICE = "alice";
     public static final String BOB = "bob";
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
+    public static final String ALICE2BOB_MESSAGE2 = "Hi Bob again";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
-    
+    public static final String BOB2ALICE_MESSAGE2 = "Hi Alice again";
+
     @Test
     public void androidUsage() throws IOException, ASAPException, InterruptedException {
         ASAPEngineFS.removeFolder(ALICE_FOLDER); // clean previous version before
@@ -30,15 +33,17 @@ public class BasicTests {
         // alice writes a message into chunkStorage
         ASAPStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER);
-        
+
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
-        
+        aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
+
         // bob does the same
         ASAPStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER);
-        
+
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
-        
+        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
+
         // now set up both engines / use default reader
         ASAPEngine aliceEngine = ASAPEngineFS.getASAPEngine("Alice", ALICE_FOLDER);
         
@@ -71,32 +76,43 @@ public class BasicTests {
                 bobChannel.getOutputStream(), bobListener);
 
         // wait until communication probably ends
+        System.out.flush();
+        System.err.flush();
         Thread.sleep(5000);
-        
+        System.out.flush();
+        System.err.flush();
+
         // close connections: note ASAPEngine does NOT close any connection!!
         aliceChannel.close();
         bobChannel.close();
+        System.out.flush();
+        System.err.flush();
         Thread.sleep(1000);
-        
+        System.out.flush();
+        System.err.flush();
+
         // check results
         
         // listener must have been informed about new messages
         Assert.assertTrue(aliceListener.chunkReceived());
         Assert.assertTrue(bobListener.chunkReceived());
 
-        // get message alice received
+        // get messages alice received
         ASAPChunkStorage aliceSenderStored =
                 aliceStorage.getIncomingChunkStorage(aliceListener.getSender());
         
         ASAPChunk aliceReceivedChunk =
                 aliceSenderStored.getChunk(aliceListener.getUri(), 
                         aliceListener.getEra());
-        
-        CharSequence aliceReceivedMessage = 
-                aliceReceivedChunk.getMessages().next();
-        
+
+        // #1
+        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessages();
+        CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
-       
+        // #2
+        aliceReceivedMessage = aliceReceivedMessages.next();
+        Assert.assertEquals(BOB2ALICE_MESSAGE2, aliceReceivedMessage);
+
         // get message bob received
         ASAPChunkStorage bobSenderStored =
                 bobStorage.getIncomingChunkStorage(bobListener.getSender());
@@ -104,11 +120,14 @@ public class BasicTests {
         ASAPChunk bobReceivedChunk =
                 bobSenderStored.getChunk(bobListener.getUri(), 
                         bobListener.getEra());
-        
-        CharSequence bobReceivedMessage = 
-                bobReceivedChunk.getMessages().next();
-        
+
+        // #1
+        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessages();
+        CharSequence bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
+        // #2
+        bobReceivedMessage = bobReceivedMessages.next();
+        Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
 
         List<CharSequence> senderList = aliceStorage.getSender();
         // expect bob

@@ -63,8 +63,8 @@ public class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 
         PDU_Impl.sendCharSequenceParameter(sourcePeer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
         PDU_Impl.sendCharSequenceParameter(channel, os); // opt
-        PDU_Impl.sendIntegerParameter(eraFrom, os); // opt
-        PDU_Impl.sendIntegerParameter(eraTo, os); // opt
+        PDU_Impl.sendNonNegativeIntegerParameter(eraFrom, os); // opt
+        PDU_Impl.sendNonNegativeIntegerParameter(eraTo, os); // opt
 
         // TODO: signature
     }

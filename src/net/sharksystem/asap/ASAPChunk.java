@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -97,11 +96,11 @@ public interface ASAPChunk {
 
     void addMessage(byte[] messageAsBytes) throws IOException;
 
-    void addMessage(InputStream messageByteIS, int length) throws IOException;
+    void addMessage(InputStream messageByteIS, long length) throws IOException;
 
     public long getLength();
 
     List<Long> getOffsetList();
 
-    InputStream getMessageDataInputStream();
+    InputStream getMessageInputStream();
 }

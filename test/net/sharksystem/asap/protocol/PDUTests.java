@@ -139,4 +139,41 @@ public class PDUTests {
         Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
         Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
     }
+
+    // protocol.interest(this.owner, null, null, null, -1, -1, os, false);
+    @Test
+    public void sendAndReceiveInterest2() throws IOException, ASAPException {
+        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
+
+        String peer = "Alice";
+        String sourcePeer = null;
+        String channel = null;
+        String format = null;
+        int eraFrom = -1;
+        int eraTo = -1;
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        /*
+    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+                  CharSequence channel, int eraFrom, int eraTo,
+                  OutputStream os, boolean signed) throws IOException, ASAPException;
+         */
+
+        protocolEngine.interest(peer, sourcePeer, format, channel, eraFrom, eraTo, os, false);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = protocolEngine.readPDU(is);
+
+        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
+
+        Assert.assertFalse(interestPDU.channelSet());
+        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ANY_FORMAT.toString()));
+        Assert.assertTrue(interestPDU.getPeer().equalsIgnoreCase(peer));
+        Assert.assertFalse(interestPDU.sourcePeerSet());
+        Assert.assertFalse(interestPDU.eraFromSet());
+        Assert.assertFalse(interestPDU.eraToSet());
+    }
 }

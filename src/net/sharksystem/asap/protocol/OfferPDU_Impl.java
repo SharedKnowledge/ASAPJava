@@ -39,7 +39,7 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
         PDU_Impl.sendCharSequenceParameter(peer, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
         PDU_Impl.sendCharSequenceParameter(channel, os); // opt
-        PDU_Impl.sendIntegerParameter(era, os); // opt
+        PDU_Impl.sendNonNegativeIntegerParameter(era, os); // opt
 
         // TODO: signature
     }
