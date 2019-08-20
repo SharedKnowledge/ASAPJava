@@ -1,9 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.protocol.ASAP_1_0;
-import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
-import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
-import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
+import net.sharksystem.asap.protocol.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,7 +125,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 throw new ASAPException("protocol error: expected asap interest - got something else");
             }
 
-            Thread readerThread = this.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, is, os, listener);
+            this.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
         }
         catch(Exception ioe) {
             //<<<<<<<<<<<<<<<<<<debug
@@ -141,8 +138,113 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         }
     }
 
-    public Thread handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol,
-                       InputStream is, OutputStream os, ASAPReceivedChunkListener listener)
+    public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
+            throws ASAPException, IOException {
+        //<<<<<<<<<<<<<<<<<<debug
+        StringBuilder b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("ASAP Offer is not handled in this implementation ");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+    }
+
+    public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimiliationPDU, ASAP_1_0 protocol,
+                              InputStream is, OutputStream os, ASAPReceivedChunkListener listener)
+            throws ASAPException, IOException {
+
+        String sender = asapAssimiliationPDU.getPeer();
+        //<<<<<<<<<<<<<<<<<<debug
+        StringBuilder b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("handle assimilate pdu received from ");
+        b.append(sender);
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        // get received storage
+        ASAPChunkStorage senderStorage = this.getIncomingChunkStorage(sender);
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("got received chunk storage for sender: ");
+        b.append(sender);
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        try {
+            // read URI
+            String uri = asapAssimiliationPDU.getChannel();
+            ASAPChunk chunk = senderStorage.getChunk(uri, this.getEra());
+
+            if(chunk != null) {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("got local chunk to store messages for uri: ");
+                b.append(uri);
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+            } else {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("ERROR: no chunk found for sender/uri: ");
+                b.append(" / ");
+                b.append(uri);
+                System.err.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+                throw new ASAPException("couldn't create local chunk storage - give up");
+            }
+
+            List<Integer> messageOffsets = asapAssimiliationPDU.getMessageOffsets();
+
+            // iterate messages and stream into chunk
+            InputStream protocolInputStream = asapAssimiliationPDU.getInputStream();
+            long offset = 0;
+            for(long nextOffset : messageOffsets) {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("going to read message: [");
+                b.append(offset);
+                b.append(", ");
+                b.append(nextOffset);
+                b.append(")");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+
+                chunk.addMessage(protocolInputStream, nextOffset - offset);
+
+                offset = nextOffset;
+            }
+
+            // last round
+            //<<<<<<<<<<<<<<<<<<debug
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("going to read last message: from offset ");
+            b.append(offset);
+            b.append(" to end of file - total length: ");
+            b.append(asapAssimiliationPDU.getLength());
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+
+            chunk.addMessage(protocolInputStream, asapAssimiliationPDU.getLength() - offset);
+
+            // read all messages
+            listener.chunkReceived(sender, uri, this.getEra());
+        }
+        catch (IOException | ASAPException e) {
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("Exception (give up, keep streams untouched): ");
+            b.append(e.getLocalizedMessage());
+            System.out.println(b.toString());
+            throw e;
+        }
+    }
+
+    public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
         // get remote peer
@@ -151,7 +253,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("read Peer: ");
+        b.append("handle interest pdu received from ");
         b.append(peer);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
@@ -160,19 +262,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         if(!this.permission2ProceedConversation(peer)) {
             throw new ASAPException("no permission to communicate with remote peer: " + peer);
         }
-
-        // start reading from remote peer
-        Thread readerThread = new Thread(
-                new ASAPChunkAssimilator(is, this.owner, peer, this, listener));
-
-        readerThread.start();
-
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("chunk reader started");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
 
         // era we are about to transmit
         int workingEra = this.getEraStartSync(peer);
@@ -317,8 +406,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         b.append("ended iterating chunks");
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
-
-        return readerThread;
     }
 
     private boolean isDropDeliveredChunks() {

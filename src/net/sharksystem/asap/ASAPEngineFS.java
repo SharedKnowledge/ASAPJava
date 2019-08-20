@@ -74,7 +74,7 @@ public class ASAPEngineFS extends ASAPEngine {
                 && !owner.equalsIgnoreCase(engine.owner)) {
             
                     throw new ASAPException("cannot overwrite folder of a "
-                        + "a non-anonymous different owner: " + engine.owner);
+                        + "non-anonymous but different owner: " + engine.owner);
         } 
         
         // replacing owner could be done
