@@ -40,6 +40,8 @@ public interface MultiASAPEngineFS {
         return new MultiASAPEngineFS_Impl(owner, settings, maxExecutionTime);
     }
 
+    public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
+
     /**
      * handle that newly established connection to another ASAP peer
      * @param is
