@@ -61,7 +61,7 @@ public class CommunicationTests {
         aliceSettingList.add(aliceSetting);
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.createMultiEngine(ALICE, aliceSettingList);
         */
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.getEngine(ALICE_ROOT_FOLDER, aliceListener);
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
 
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
         /*
@@ -70,7 +70,7 @@ public class CommunicationTests {
         bobSettingList.add(bobSetting);
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS.createMultiEngine(BOB, bobSettingList);
         */
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS.getEngine(BOB_ROOT_FOLDER, bobListener);
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //

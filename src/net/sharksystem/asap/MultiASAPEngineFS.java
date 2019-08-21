@@ -20,26 +20,6 @@ import java.util.List;
 public interface MultiASAPEngineFS {
     public static final long DEFAULT_MAX_PROCESSING_TIME = 1000;
 
-    public static MultiASAPEngineFS getEngine(CharSequence rootFolder, long maxExecutionTime,
-                                       ASAPReceivedChunkListener listener) throws ASAPException, IOException {
-        return new MultiASAPEngineFS_Impl(rootFolder, maxExecutionTime, listener);
-    }
-
-    public static MultiASAPEngineFS getEngine(CharSequence folder, ASAPReceivedChunkListener listener)
-            throws ASAPException, IOException {
-
-        return MultiASAPEngineFS.getEngine(folder, DEFAULT_MAX_PROCESSING_TIME, listener);
-    }
-
-    static MultiASAPEngineFS getEngine(CharSequence owner, List<ASAPEngineFSSetting> settings) throws ASAPException {
-        return MultiASAPEngineFS.getEngine(owner, settings, DEFAULT_MAX_PROCESSING_TIME);
-    }
-
-    static MultiASAPEngineFS getEngine(CharSequence owner, List<ASAPEngineFSSetting> settings,
-                                       long maxExecutionTime) throws ASAPException {
-        return new MultiASAPEngineFS_Impl(owner, settings, maxExecutionTime);
-    }
-
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
     /**
