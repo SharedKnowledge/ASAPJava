@@ -20,17 +20,10 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
-    private final CharSequence chunkContentFormat;
 
-    /**
-     * that engine transmitts serialized chunks to another peer.
-     * After transmission that channel is closed. In immediate closure would
-     * result in an IOException on the other side
-     */
-    private int sleepBeforeConnectionClosed = 5000; 
-    
     protected String owner = ANONYMOUS_OWNER;
-    
+    protected String format = ASAP_1_0.ANY_FORMAT.toString();
+
     protected int era = 0;
     protected int oldestEra = 0;
     protected HashMap<String, Integer> lastSeen = new HashMap<>();
@@ -44,7 +37,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         
         this.chunkStorage = chunkStorage;
         if(chunkContentFormat != null) {
-            this.chunkContentFormat = chunkContentFormat;
+            this.format = chunkContentFormat.toString();
         } else {
             throw new ASAPException("format expected. like application/x-sn2-makan");
         }
@@ -352,7 +345,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
                 protocol.assimilate(this.owner, // peer
                         peer, // recipient
-                        this.chunkContentFormat,
+                        this.format,
                         chunk.getUri(), // channel ok
                         workingEra, // era ok
                         chunk.getLength(), // data length

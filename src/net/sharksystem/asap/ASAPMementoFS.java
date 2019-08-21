@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.protocol.ASAP_1_0;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -35,6 +37,7 @@ class ASAPMementoFS implements ASAPMemento {
                                 new FileOutputStream(fName));
 
         dos.writeUTF(engine.owner);
+        dos.writeUTF(engine.format);
         dos.writeInt(engine.era);
         dos.writeInt(engine.oldestEra);
 
@@ -53,6 +56,7 @@ class ASAPMementoFS implements ASAPMemento {
     private void setDefaults(ASAPEngine engine) {
         // set defaults
         engine.owner = ASAPEngine.DEFAULT_OWNER;
+        engine.format = ASAP_1_0.ANY_FORMAT.toString();
         engine.era = ASAPEngine.DEFAULT_INIT_ERA;
         engine.oldestEra = ASAPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
@@ -71,6 +75,7 @@ class ASAPMementoFS implements ASAPMemento {
                                 new FileInputStream(file));
 
         engine.owner = dis.readUTF();
+        engine.format = dis.readUTF();
         engine.era = dis.readInt();
         engine.oldestEra = dis.readInt();
 

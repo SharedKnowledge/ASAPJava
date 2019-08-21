@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.protocol.ASAP_1_0;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class ASAPEngineFS extends ASAPEngine {
     private final String rootDirectory;
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_AASP";
-    
+
     private ASAPEngineFS(String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
         throws ASAPException, IOException {
         
@@ -37,16 +39,29 @@ public class ASAPEngineFS extends ASAPEngine {
         
     }
 
-    /*
-    public static ASAPStorage getASAPStorage(String rootDirectory, CharSequence format)
+    public static ASAPEngine getExistingASAPEngineFS(String rootDirectory)
             throws IOException, ASAPException {
-        
-        return ASAPEngineFS.getASAPStorage(DEFAULT_OWNER, rootDirectory, format);
-        
+
+        // assumed - storage already exists
+        return ASAPEngineFS.getASAPEngineFS(null, rootDirectory, null);
     }
-    */
 
     public static ASAPEngine getASAPEngine(String owner, String rootDirectory, CharSequence format)
+            throws IOException, ASAPException {
+
+        return ASAPEngineFS.getASAPEngineFS(owner, rootDirectory, format);
+    }
+
+    /**
+     *
+     * @param owner can be null - restored
+     * @param rootDirectory must not be null
+     * @param format can be null - restored
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
+    static ASAPEngineFS getASAPEngineFS(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
         
         // root directory must exist when setting up an engine
@@ -54,17 +69,32 @@ public class ASAPEngineFS extends ASAPEngine {
         if(!root.exists() || !root.isDirectory()) {
             throw new ASAPException("chunk root directory must exist when creating an ASAPEngine");
         }
-        
+
         ASAPEngineFS engine = new ASAPEngineFS(
                 rootDirectory, 
-                new ASAPChunkStorageFS(rootDirectory), format);
+                new ASAPChunkStorageFS(rootDirectory),
+                ASAP_1_0.ANY_FORMAT // set to default - real value is restored by memento anyway
+        );
 
         
         ASAPMementoFS mementoFS = engine.getMemento(rootDirectory);
         engine.memento = mementoFS;
         
         mementoFS.restore(engine);
-        
+
+        if(format != null) {
+            // overwrite default - actually set format
+            if(engine.format.equalsIgnoreCase(ASAP_1_0.ANY_FORMAT.toString())) {
+                engine.format = format.toString();
+            }
+            else { // cannot overwrite a non-default format
+                if(!format.toString().equalsIgnoreCase(engine.format)) {
+                    throw new ASAPException("cannot overwrite existing format (" + format + "with another one: ("
+                            + engine.format + ")");
+                }
+            }
+        }
+
         // reset owner?
         if(owner != null && engine.owner != null
                 && !engine.owner.equalsIgnoreCase(ANONYMOUS_OWNER)

@@ -18,14 +18,25 @@ import java.util.List;
  * That interface hides those different engines.
  */
 public interface MultiASAPEngineFS {
-    public static final int DEFAULT_MAX_PROCESSING_TIME = 1000;
+    public static final long DEFAULT_MAX_PROCESSING_TIME = 1000;
+
+    static MultiASAPEngineFS getEngine(CharSequence rootFolder, long maxExecutionTime,
+                                       ASAPReceivedChunkListener listener) throws ASAPException, IOException {
+        return new MultiASAPEngineFS_Impl(rootFolder, maxExecutionTime, listener);
+    }
+
+    static MultiASAPEngineFS getEngine(CharSequence folder, ASAPReceivedChunkListener listener)
+            throws ASAPException, IOException {
+
+        return MultiASAPEngineFS.getEngine(folder, DEFAULT_MAX_PROCESSING_TIME, listener);
+    }
 
     static MultiASAPEngineFS getEngine(CharSequence owner, List<ASAPEngineFSSetting> settings) throws ASAPException {
-        return new MultiASAPEngineFS_Impl(owner, settings, DEFAULT_MAX_PROCESSING_TIME);
+        return MultiASAPEngineFS.getEngine(owner, settings, DEFAULT_MAX_PROCESSING_TIME);
     }
 
     static MultiASAPEngineFS getEngine(CharSequence owner, List<ASAPEngineFSSetting> settings,
-                                       int maxExecutionTime) throws ASAPException {
+                                       long maxExecutionTime) throws ASAPException {
         return new MultiASAPEngineFS_Impl(owner, settings, maxExecutionTime);
     }
 

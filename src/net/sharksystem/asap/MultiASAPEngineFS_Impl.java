@@ -2,18 +2,22 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListener {
-    private final CharSequence owner;
+    private CharSequence owner;
     private final HashMap<CharSequence, EngineSetting> folderMap;
-    private final int maxExecutionTime;
+    private final long maxExecutionTime;
 
-    public MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, int maxExecutionTime) throws ASAPException {
+    public MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
+            throws ASAPException {
+
         if(settings == null) throw new ASAPException("no settings at all - makes no sense");
         if(settings.size() == 0) throw new ASAPException("no settings - makes no sense");
 
@@ -22,10 +26,46 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
 
         // fill settings
         for(ASAPEngineFSSetting setting : settings) {
-            folderMap.put(setting.format, new EngineSetting(setting.rootFolder, setting.listener));
+            if(setting.folder.toString().contains("/") || setting.folder.toString().contains("\\")) {
+                throw new ASAPException("sub folders are not allowed: " + setting.folder);
+            }
+            folderMap.put(setting.format, new EngineSetting(setting.folder, setting.listener));
         }
 
         this.maxExecutionTime = maxExecutionTime;
+    }
+
+    /**
+     * assumed that a number of asap storages are already exists in subdirectories of the
+     * root directory. setting list can be created by iterating those storages.
+     * @param rootFolderName
+     */
+    public MultiASAPEngineFS_Impl(CharSequence rootFolderName, long maxExecutionTime,
+                                  ASAPReceivedChunkListener listener) throws ASAPException, IOException {
+
+        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
+        this.maxExecutionTime = maxExecutionTime;
+        this.folderMap = new HashMap<>();
+
+        File rootFolder = new File(rootFolderName.toString());
+
+        if (!rootFolder.isDirectory()) {
+            throw new ASAPException("is not directory: " + rootFolderName);
+        }
+
+        File[] files = rootFolder.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                String fileName = file.getCanonicalPath();
+                ASAPEngine engine = ASAPEngineFS.getExistingASAPEngineFS(fileName);
+                EngineSetting setting = new EngineSetting(
+                        rootFolderName + "/" + fileName, // folder
+                        listener// listener
+                        );
+                setting.setASAPEngine(engine);
+                this.folderMap.put(engine.format, setting);
+            }
+        }
     }
 
     private EngineSetting getEngineSettings(CharSequence format) throws ASAPException {

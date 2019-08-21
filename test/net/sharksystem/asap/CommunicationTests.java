@@ -8,7 +8,6 @@ import java.util.List;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
-import sun.awt.XSettings;
 
 /**
  * Here are some basic tests and usage examples.
@@ -17,8 +16,10 @@ import sun.awt.XSettings;
 public class CommunicationTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
-    public static final String ALICE_FOLDER = "tests/alice";
-    public static final String BOB_FOLDER = "tests/bob";
+    public static final String ALICE_ROOT_FOLDER = "tests/alice";
+    public static final String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
+    public static final String BOB_ROOT_FOLDER = "tests/bob";
+    public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
     public static final String ALICE = "alice";
     public static final String BOB = "bob";
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
@@ -32,19 +33,19 @@ public class CommunicationTests {
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPEngineFS.removeFolder(ALICE_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_FOLDER); // clean previous version before
+        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPStorage aliceStorage =
-                ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER, CHAT_FORMAT);
+                ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
 
         // bob does the same
         ASAPStorage bobStorage =
-                ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER, CHAT_FORMAT);
+                ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
@@ -54,17 +55,22 @@ public class CommunicationTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
-
-        ASAPEngineFSSetting aliceSetting = new ASAPEngineFSSetting(CHAT_FORMAT, ALICE_FOLDER, aliceListener);
+        /*
+        ASAPEngineFSSetting aliceSetting = new ASAPEngineFSSetting(CHAT_FORMAT, ALICE_ROOT_FOLDER, aliceListener);
         List<ASAPEngineFSSetting> aliceSettingList = new ArrayList<>();
         aliceSettingList.add(aliceSetting);
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.getEngine(ALICE, aliceSettingList);
+        */
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.getEngine(ALICE_ROOT_FOLDER, aliceListener);
 
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
-        ASAPEngineFSSetting bobSetting = new ASAPEngineFSSetting(CHAT_FORMAT, BOB_FOLDER, bobListener);
+        /*
+        ASAPEngineFSSetting bobSetting = new ASAPEngineFSSetting(CHAT_FORMAT, BOB_ROOT_FOLDER, bobListener);
         List<ASAPEngineFSSetting> bobSettingList = new ArrayList<>();
         bobSettingList.add(bobSetting);
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS.getEngine(BOB, bobSettingList);
+        */
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS.getEngine(BOB_ROOT_FOLDER, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -159,7 +165,7 @@ public class CommunicationTests {
         Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
 
         // simulate a sync
-        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_FOLDER, CHAT_FORMAT);
+        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(1, bobStorage.getEra());
     }
 }
