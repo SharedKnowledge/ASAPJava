@@ -59,7 +59,7 @@ public class CommunicationTests {
         ASAPEngineFSSetting aliceSetting = new ASAPEngineFSSetting(CHAT_FORMAT, ALICE_ROOT_FOLDER, aliceListener);
         List<ASAPEngineFSSetting> aliceSettingList = new ArrayList<>();
         aliceSettingList.add(aliceSetting);
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.getEngine(ALICE, aliceSettingList);
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.createMultiEngine(ALICE, aliceSettingList);
         */
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS.getEngine(ALICE_ROOT_FOLDER, aliceListener);
 
@@ -68,7 +68,7 @@ public class CommunicationTests {
         ASAPEngineFSSetting bobSetting = new ASAPEngineFSSetting(CHAT_FORMAT, BOB_ROOT_FOLDER, bobListener);
         List<ASAPEngineFSSetting> bobSettingList = new ArrayList<>();
         bobSettingList.add(bobSetting);
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS.getEngine(BOB, bobSettingList);
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS.createMultiEngine(BOB, bobSettingList);
         */
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS.getEngine(BOB_ROOT_FOLDER, bobListener);
 

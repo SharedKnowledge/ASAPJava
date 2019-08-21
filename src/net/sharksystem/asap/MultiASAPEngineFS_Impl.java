@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +14,19 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
     private final HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
 
-    public MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
+    public static MultiASAPEngineFS createMultiEngine(CharSequence rootFolder, long maxExecutionTime,
+                                                      ASAPReceivedChunkListener listener) throws ASAPException, IOException {
+        return new MultiASAPEngineFS_Impl(rootFolder, maxExecutionTime, listener);
+    }
+
+    public static MultiASAPEngineFS createMultiEngine(CharSequence folder, ASAPReceivedChunkListener listener)
+            throws ASAPException, IOException {
+
+        return MultiASAPEngineFS_Impl.createMultiEngine(folder, DEFAULT_MAX_PROCESSING_TIME, listener);
+    }
+
+
+    MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
             throws ASAPException {
 
         if(settings == null) throw new ASAPException("no settings at all - makes no sense");
@@ -40,7 +51,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
      * root directory. setting list can be created by iterating those storages.
      * @param rootFolderName
      */
-    public MultiASAPEngineFS_Impl(CharSequence rootFolderName, long maxExecutionTime,
+    MultiASAPEngineFS_Impl(CharSequence rootFolderName, long maxExecutionTime,
                                   ASAPReceivedChunkListener listener) throws ASAPException, IOException {
 
         this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
@@ -66,6 +77,18 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
                 this.folderMap.put(engine.format, setting);
             }
         }
+    }
+
+    public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException {
+        // get engine
+        EngineSetting engineSetting = this.getEngineSettings(format);
+        ASAPEngine asapEngine = engineSetting.engine;
+
+        if (asapEngine == null) {
+            asapEngine = ASAPEngineFS.getASAPEngine(owner.toString(), engineSetting.folder.toString(), format);
+            engineSetting.setASAPEngine(asapEngine); // remember - keep that object
+        }
+        return asapEngine;
     }
 
     private EngineSetting getEngineSettings(CharSequence format) throws ASAPException {
