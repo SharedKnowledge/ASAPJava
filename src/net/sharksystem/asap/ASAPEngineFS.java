@@ -13,7 +13,7 @@ import java.util.List;
  * @author thsc
  */
 public class ASAPEngineFS extends ASAPEngine {
-    public static final String MEMENTO_FILENAME = "aaspCurrentAttributes";
+    public static final String MEMENTO_FILENAME = "asapCurrentAttributes";
     private final String rootDirectory;
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_ASAP";
@@ -36,7 +36,6 @@ public class ASAPEngineFS extends ASAPEngine {
         }
         
         return ASAPEngineFS.getASAPEngine(owner, rootDirectory, format);
-        
     }
 
     public static ASAPEngine getExistingASAPEngineFS(String rootDirectory)
@@ -50,6 +49,10 @@ public class ASAPEngineFS extends ASAPEngine {
             throws IOException, ASAPException {
 
         return ASAPEngineFS.getASAPEngineFS(owner, rootDirectory, format);
+    }
+
+    public ASAPStorage refresh() throws IOException, ASAPException {
+        return ASAPEngineFS.getExistingASAPEngineFS(this.rootDirectory);
     }
 
     /**

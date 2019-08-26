@@ -56,7 +56,6 @@ public class WhiteBoxTests {
         String firstMessage = "first message";
         String secondMessage = "second message";
 
-        ASAPEngineFS.removeFolder(folder);
         ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         storage.add(uri, firstMessage);
@@ -68,6 +67,27 @@ public class WhiteBoxTests {
 
         message = messageIter.next().toString();
         Assert.assertTrue(message.equals(secondMessage));
+    }
+
+    @Test
+    public void persistentMessage1() throws IOException, ASAPException {
+        String folder = "tests/persistentMessage1";
+        ASAPEngineFS.removeFolder(folder);
+
+        String uri = "test://anURI";
+        String firstMessage = "first message";
+
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        storage.add(uri, firstMessage);
+
+        // re-create storage
+        storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+
+        Assert.assertEquals(storage.getChannelURIs().get(0), uri);
+
+        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessages();
+        String message = messageIter.next().toString();
+        Assert.assertTrue(message.equals(firstMessage));
     }
 
     @Test
@@ -92,5 +112,11 @@ public class WhiteBoxTests {
         storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
         Assert.assertEquals(storage.getExtra(uri, key1), value1);
         Assert.assertEquals(storage.getExtra(uri, key2), value2);
+
+        CharSequence charSequence = storage.getChannelURIs().get(0);
+        ASAPChunkCache chunkCache = storage.getChunkCache(0);
+
+        int i = 42; // break
+
     }
 }

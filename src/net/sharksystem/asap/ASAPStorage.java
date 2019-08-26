@@ -192,4 +192,10 @@ public interface ASAPStorage {
     ASAPChunkCache getChunkCache(CharSequence uri, int toEra) throws IOException;
 
     ASAPChunkCache getChunkCache(CharSequence uri) throws IOException;
+
+    /**
+     * Refresh with external system - re-read files, or whatever.
+     * @return refreshed object
+     */
+    ASAPStorage refresh() throws IOException, ASAPException;
 }
