@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import static net.sharksystem.asap.ASAPChunkFS.DATA_EXTENSION;
+import static net.sharksystem.asap.ASAPChunkFS.META_DATA_EXTENSION;
 
 /**
  *
@@ -102,7 +103,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         File[] contentFileList = dir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String fileName) {
-                    return fileName.endsWith(DATA_EXTENSION);
+                    return fileName.endsWith(META_DATA_EXTENSION);
                 }
             });
 

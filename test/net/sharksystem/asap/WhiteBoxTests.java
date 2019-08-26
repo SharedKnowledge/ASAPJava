@@ -113,10 +113,6 @@ public class WhiteBoxTests {
         Assert.assertEquals(storage.getExtra(uri, key1), value1);
         Assert.assertEquals(storage.getExtra(uri, key2), value2);
 
-        CharSequence charSequence = storage.getChannelURIs().get(0);
-        ASAPChunkCache chunkCache = storage.getChunkCache(0);
-
-        int i = 42; // break
-
+        Assert.assertEquals(storage.getChannelURIs().get(0), uri);
     }
 }
