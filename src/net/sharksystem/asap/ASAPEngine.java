@@ -55,7 +55,22 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     //////////////////////////////////////////////////////////////////////
     //                               Writer                             //
     //////////////////////////////////////////////////////////////////////
-    
+
+    @Override
+    public void putExtra(CharSequence uri, String key, String value) throws IOException {
+        this.chunkStorage.getChunk(uri, this.era).putExtra(key, value);
+    }
+
+    @Override
+    public CharSequence removeExtra(CharSequence uri, String key) throws IOException {
+        return this.chunkStorage.getChunk(uri, this.era).removeExtra(key);
+    }
+
+    @Override
+    public CharSequence getExtra(CharSequence uri, String key) throws IOException {
+        return this.chunkStorage.getChunk(uri, this.era).getExtra(key);
+    }
+
     @Override
     public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException {
         this.chunkStorage.getChunk(urlTarget, this.era).addRecipient(recipient);
@@ -64,6 +79,10 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     @Override
     public void setRecipients(CharSequence urlTarget, List<CharSequence> recipients) throws IOException {
         this.chunkStorage.getChunk(urlTarget, this.era).setRecipients(recipients);
+    }
+
+    public List<CharSequence> getRecipients(CharSequence urlTarget) throws IOException {
+        return this.chunkStorage.getChunk(urlTarget, this.era).getRecipients();
     }
 
     @Override

@@ -103,4 +103,11 @@ public interface ASAPChunk {
     List<Long> getOffsetList();
 
     InputStream getMessageInputStream();
+
+    void putExtra(String key, String value) throws IOException;
+
+    CharSequence removeExtra(String key) throws IOException;
+
+    CharSequence getExtra(String key) throws IOException;
+
 }

@@ -16,7 +16,7 @@ public class ASAPEngineFS extends ASAPEngine {
     public static final String MEMENTO_FILENAME = "aaspCurrentAttributes";
     private final String rootDirectory;
     
-    public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_AASP";
+    public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_ASAP";
 
     private ASAPEngineFS(String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
         throws ASAPException, IOException {

@@ -1,11 +1,9 @@
 package net.sharksystem.asap;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  *
@@ -24,6 +22,8 @@ class ASAPChunkFS implements ASAPChunk {
     
     private int era;
     private String sender;
+
+    private HashMap<String, String> extraData = new HashMap<>();
 
     ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era) throws IOException {
         this(storage, targetUri, era, null);
@@ -213,6 +213,30 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     @Override
+    public void putExtra(String key, String value) throws IOException {
+        if(key == null || value == null) {
+            throw new IOException("null values are not allowed in extra data");
+        }
+        this.extraData.put(key, value);
+        this.saveStatus();
+    }
+
+    @Override
+    public CharSequence removeExtra(String key) throws IOException {
+        if(key == null) throw new IOException("null key not allowed");
+        String removed = this.extraData.remove(key);
+        this.saveStatus();
+        return removed;
+    }
+
+    @Override
+    public CharSequence getExtra(String key) throws IOException {
+        if(key == null) throw new IOException("null key not allowed");
+        return this.extraData.get(key);
+        // no status change
+    }
+
+    @Override
     public Iterator<CharSequence> getMessages() throws IOException {
         try {
             return new MessageIter(this.getMessagesAsBytesList());
@@ -227,7 +251,7 @@ class ASAPChunkFS implements ASAPChunk {
         this.messageFile.delete();
     }
 
-    private static final String RECIPIENTS_LIST_DELIMITER = "|||";
+    private static final String SERIALIZATION_DELIMITER = "|||";
 
     private boolean readMetaData(File metaFile) throws IOException {
         if(!metaFile.exists()) return false;
@@ -236,6 +260,7 @@ class ASAPChunkFS implements ASAPChunk {
 
         try {
             this.uri = dis.readUTF();
+            this.setExtraByString(dis.readUTF());
         }
         catch(EOFException eof) {
             // file empty
@@ -247,8 +272,8 @@ class ASAPChunkFS implements ASAPChunk {
         try {
             String recipientsList = dis.readUTF();
             
-            StringTokenizer t = new StringTokenizer(recipientsList, 
-                    RECIPIENTS_LIST_DELIMITER);
+            StringTokenizer t = new StringTokenizer(recipientsList,
+                    SERIALIZATION_DELIMITER);
             
             while(t.hasMoreTokens()) {
                 this.recipients.add(t.nextToken());
@@ -266,12 +291,13 @@ class ASAPChunkFS implements ASAPChunk {
         
         return true;
     }
-    
+
     private void writeMetaData(File metaFile) throws IOException {
         // write data to metafile
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(metaFile));
         
         dos.writeUTF(this.uri);
+        dos.writeUTF(this.getExtraAsString());
         StringBuilder b = new StringBuilder();
         
         boolean first = true;
@@ -279,7 +305,7 @@ class ASAPChunkFS implements ASAPChunk {
             for(CharSequence recipient : this.recipients) {
                 if(recipient != null) {
                     if(!first) {
-                        b.append(RECIPIENTS_LIST_DELIMITER);
+                        b.append(SERIALIZATION_DELIMITER);
                     } else {
                         first = false;
                     }
@@ -301,7 +327,7 @@ class ASAPChunkFS implements ASAPChunk {
         boolean first = true;
         for(Long offset : this.messageStartOffsets) {
             if(!first) {
-                sb.append(RECIPIENTS_LIST_DELIMITER);
+                sb.append(SERIALIZATION_DELIMITER);
             }
 
             sb.append(offset.toString());
@@ -310,12 +336,54 @@ class ASAPChunkFS implements ASAPChunk {
         return sb.toString();
     }
 
+    private String getExtraAsString() throws IOException {
+        StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for(String key : this.extraData.keySet()) {
+            String value = this.extraData.get(key);
+            if(value == null) {
+                throw new IOException("null value not allowed in extra data");
+            };
+
+            if(first) { first = false; }
+            else { sb.append(SERIALIZATION_DELIMITER); }
+
+            sb.append(key);
+            sb.append(SERIALIZATION_DELIMITER);
+            sb.append(value);
+        }
+
+        return sb.toString();
+    }
+
+    private void setExtraByString(String extraString) throws IOException {
+        if(extraString == null) return;
+
+        try {
+            HashMap<String, String> extra = new HashMap<>();
+            StringTokenizer st = new StringTokenizer(extraString, SERIALIZATION_DELIMITER);
+            while (st.hasMoreTokens()) {
+                String key = st.nextToken();
+                String value = st.nextToken();
+
+                extra.put(key, value);
+            }
+
+            this.extraData = extra;
+        }
+        catch(RuntimeException e) {
+            // missing token or something
+            throw new IOException(e.getLocalizedMessage());
+        }
+    }
+
     private ArrayList<Long> messageOffsetString2List(String s) {
         ArrayList<Long> longList = new ArrayList<>();
 
         if(s == null || s.length() == 0) return longList;
 
-        StringTokenizer t = new StringTokenizer(s, RECIPIENTS_LIST_DELIMITER);
+        StringTokenizer t = new StringTokenizer(s, SERIALIZATION_DELIMITER);
 
         while(t.hasMoreTokens()) {
             Long offsetLong = Long.parseLong(t.nextToken());

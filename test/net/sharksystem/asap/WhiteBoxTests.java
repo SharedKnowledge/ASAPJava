@@ -17,9 +17,11 @@ public class WhiteBoxTests {
     public WhiteBoxTests() {
     }
 
-    //@Test
+    @Test
     public void writeReadByteMessages() throws IOException, ASAPException {
         String folder = "tests/writeReadByteMessagesTest";
+        ASAPEngineFS.removeFolder(folder);
+
         String uri = "test://anURI";
         String firstMessage = "first message";
         String secondMessage = "second message";
@@ -48,6 +50,8 @@ public class WhiteBoxTests {
     @Test
     public void writeReadStringMessages() throws IOException, ASAPException {
         String folder = "tests/writeReadStringMessagesTest";
+        ASAPEngineFS.removeFolder(folder);
+
         String uri = "test://anURI";
         String firstMessage = "first message";
         String secondMessage = "second message";
@@ -64,5 +68,29 @@ public class WhiteBoxTests {
 
         message = messageIter.next().toString();
         Assert.assertTrue(message.equals(secondMessage));
+    }
+
+    @Test
+    public void testExtraData() throws IOException, ASAPException {
+        String folder = "tests/testExtraData";
+        ASAPEngineFS.removeFolder(folder);
+
+        String uri = "test://anURI";
+
+        ASAPEngineFS.removeFolder(folder);
+        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+
+        String key1 = "key1";
+        String value1 = "value1";
+        String key2 = "key2";
+        String value2 = "value2";
+
+        storage.putExtra(uri, key1, value1);
+        storage.putExtra(uri, key2, value2);
+
+        // restore
+        storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        Assert.assertEquals(storage.getExtra(uri, key1), value1);
+        Assert.assertEquals(storage.getExtra(uri, key2), value2);
     }
 }
