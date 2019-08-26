@@ -104,6 +104,50 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         chunk.addMessage(messageAsBytes);
     }
 
+    public List<CharSequence> getChannelURIs() throws IOException {
+        List<CharSequence> uriList = new ArrayList<>();
+
+        List<ASAPChunk> chunks = this.chunkStorage.getChunks(this.era);
+        for(ASAPChunk chunk : chunks) {
+            uriList.add(chunk.getUri());
+        }
+
+        return uriList;
+    }
+
+    public void removeChannel(CharSequence uri) throws IOException {
+        ASAPChunk chunk = this.chunkStorage.getChunk(uri, this.getEra());
+        chunk.drop();
+    }
+
+    public ASAPChunkCache getChunkCache(int position) throws IOException, ASAPException {
+        return this.getChunkCache(position, this.era);
+    }
+
+    public ASAPChunkCache getChunkCache(CharSequence uri, int toEra) throws IOException {
+        return this.chunkStorage.getASAPChunkCache(uri, toEra);
+    }
+
+    public ASAPChunkCache getChunkCache(CharSequence uri) throws IOException {
+        return this.getChunkCache(uri, this.getEra());
+    }
+
+    public ASAPChunkCache getChunkCache(int position, int toEra)
+            throws IOException, ASAPException {
+
+        List<CharSequence> channelURIs = this.getChannelURIs();
+        if(channelURIs.size() - 1 < position) {
+            throw new ASAPException("position greater than number of channels");
+        }
+
+        CharSequence uri = channelURIs.get(position);
+        if(uri == null) {
+            throw new ASAPException("uri at postion is null. Position: " + position);
+        }
+
+        return this.chunkStorage.getASAPChunkCache(uri, toEra);
+    }
+
     //////////////////////////////////////////////////////////////////////
     //                       ProtocolEngine                             //
     //////////////////////////////////////////////////////////////////////

@@ -180,4 +180,16 @@ public interface ASAPStorage {
      * app. Note: That storage is changed during an AASP session.
      */
     public ASAPChunkStorage getChunkStorage();
+
+    public List<CharSequence> getChannelURIs() throws IOException;
+
+    void removeChannel(CharSequence uri) throws IOException;
+
+    ASAPChunkCache getChunkCache(int position) throws IOException, ASAPException;
+
+    ASAPChunkCache getChunkCache(int position, int toEra) throws IOException, ASAPException;
+
+    ASAPChunkCache getChunkCache(CharSequence uri, int toEra) throws IOException;
+
+    ASAPChunkCache getChunkCache(CharSequence uri) throws IOException;
 }
