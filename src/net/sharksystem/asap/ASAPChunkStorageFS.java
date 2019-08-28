@@ -22,7 +22,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
 
     @Override
     public ASAPChunk getChunk(CharSequence uriTarget, int era) throws IOException {
-        return new ASAPChunkFS(this, (String) uriTarget, era);
+        return new ASAPChunkFS(this, uriTarget.toString(), era);
     }
 
     @Override
