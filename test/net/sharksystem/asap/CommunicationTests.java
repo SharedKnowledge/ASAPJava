@@ -10,6 +10,8 @@ import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
 
+import static net.sharksystem.asap.MultiASAPEngineFS.DEFAULT_MAX_PROCESSING_TIME;
+
 /**
  * Here are some basic tests and usage examples.
  * @author thsc
@@ -36,7 +38,7 @@ public class CommunicationTests {
     }
 
     @Test
-    public void undisclosedMessageChunkExchange() throws IOException, ASAPException, InterruptedException {
+    public void openMessageExchange() throws IOException, ASAPException, InterruptedException {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -197,10 +199,12 @@ public class CommunicationTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+                ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+                BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -328,10 +332,12 @@ public class CommunicationTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+                ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
         ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+                BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                       prepare asap immediate bypass                           //

@@ -16,15 +16,16 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     private final HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
 
-    public static MultiASAPEngineFS createMultiEngine(CharSequence rootFolder, long maxExecutionTime,
+    public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder, long maxExecutionTime,
                                                       ASAPReceivedChunkListener listener) throws ASAPException, IOException {
-        return new MultiASAPEngineFS_Impl(rootFolder, maxExecutionTime, listener);
+        return new MultiASAPEngineFS_Impl(owner, rootFolder, maxExecutionTime, listener);
     }
 
     public static MultiASAPEngineFS createMultiEngine(CharSequence folder, ASAPReceivedChunkListener listener)
             throws ASAPException, IOException {
 
-        return MultiASAPEngineFS_Impl.createMultiEngine(folder, DEFAULT_MAX_PROCESSING_TIME, listener);
+        return MultiASAPEngineFS_Impl.createMultiEngine(ASAPEngine.DEFAULT_OWNER, folder,
+                DEFAULT_MAX_PROCESSING_TIME, listener);
     }
 
     MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
@@ -52,10 +53,11 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
      * root directory. setting list can be created by iterating those storages.
      * @param rootFolderName
      */
-    MultiASAPEngineFS_Impl(CharSequence rootFolderName, long maxExecutionTime,
+    MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
                                   ASAPReceivedChunkListener listener) throws ASAPException, IOException {
 
-        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
+//        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
+        this.owner = owner; // probably dummy name
         this.maxExecutionTime = maxExecutionTime;
         this.folderMap = new HashMap<>();
 
