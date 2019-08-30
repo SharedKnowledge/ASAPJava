@@ -88,7 +88,7 @@ public interface ASAP_1_0 {
      *
      * @param peer sender (optional, can be null)
      * @param recipientPeer wished recipient (optional, can be null)
-     * @param channel mandatory
+     * @param channelUri mandatory
      * @param format mandatory
      * @param offsets applications will probably store a number of messages in a data block. This (optional) list
      *                of numbers represents the offset where a new app specific message begins.
@@ -98,7 +98,7 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
+    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channelUri, int era,
                     long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 

@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     
     /* private */ final private ASAPChunkStorage chunkStorage;
     private boolean dropDeliveredChunks = false;
+    private ASAPMessageAddListener asapMessageAddListener;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -92,9 +94,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
     @Override
     public void add(CharSequence urlTarget, CharSequence message) throws IOException {
-        ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
-        
-        chunk.addMessage(message);
+        this.add(urlTarget, message.toString().getBytes());
     }
 
     @Override
@@ -102,6 +102,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
 
         chunk.addMessage(messageAsBytes);
+
+        if(this.asapMessageAddListener != null) {
+            try {
+                this.asapMessageAddListener.messageAdded(
+                        this.format, urlTarget, chunk.getRecipients(),
+                        messageAsBytes, this.era);
+            } catch (IOException | ASAPException e) {
+                StringBuilder sb = Log.startLog(this);
+                sb.append("message written to local storage - but could not write to open asap connection: ");
+                sb.append(e.getLocalizedMessage());
+                System.err.println(sb.toString());
+            }
+        }
     }
 
     public List<CharSequence> getChannelURIs() throws IOException {

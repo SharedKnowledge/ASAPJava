@@ -80,6 +80,10 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
     }
 
+    public CharSequence getOwner() {
+        return this.owner;
+    }
+
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException {
         // get engine
         EngineSetting engineSetting = this.getEngineSettings(format);
@@ -104,7 +108,8 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
-        ASAPConnection_Impl asapConnection = new ASAPConnection_Impl(is, os, this,
+        ASAPConnection_Impl asapConnection = new ASAPConnection_Impl(
+                is, os, this, new ASAP_Modem_Impl(),
                 maxExecutionTime, this, this);
 
         Thread thread = new Thread(asapConnection);
@@ -193,6 +198,16 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         System.out.println(sb.toString());
     }
 
+    @Override
+    public boolean existASAPConnection(CharSequence recipient) {
+        return this.getASAPConnection(recipient) != null;
+    }
+
+    @Override
+    public ASAPConnection getASAPConnection(CharSequence recipient) {
+        return this.connectedThreads.get(recipient);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                              ASAP management                                           //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +230,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
                 new ASAP_Modem_Impl());
     }
 
-    private String getLogStart() {
+   private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
 

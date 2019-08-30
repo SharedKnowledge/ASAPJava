@@ -46,8 +46,12 @@ import java.util.List;
  * @author thsc
  */
 public interface ASAPStorage {
+    /**
+     * Get owner name (or id) of this storage
+     * @return owner name (or id)
+     */
+    CharSequence getOwner();
 
-    
     /**
      * Adds a recipient to chunk recipient list.
      * @param urlTarget chunk address

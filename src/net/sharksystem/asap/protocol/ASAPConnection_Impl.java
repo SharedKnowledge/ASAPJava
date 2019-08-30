@@ -12,19 +12,23 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
     private final ASAPConnectionListener asapConnectionListener;
     private final MultiASAPEngineFS multiASAPEngineFS;
     private final ThreadFinishedListener threadFinishedListener;
+    private final ASAP_1_0 protocol;
     private Thread managementThread = null;
     private final long maxExecutionTime;
     private String peer;
 
     public ASAPConnection_Impl(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
+                               ASAP_1_0 protocol,
                                long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                                ThreadFinishedListener threadFinishedListener) {
         this.is = is;
         this.os = os;
         this.multiASAPEngineFS = multiASAPEngineFS;
+        this.protocol = protocol;
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
+
     }
 
     private String getLogStart() {
@@ -51,6 +55,27 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
     @Override
     public CharSequence getRemotePeer() {
         return this.peer;
+    }
+
+    @Override
+    public void addMessage(CharSequence recipient, CharSequence format, CharSequence urlTarget, byte[] messageAsBytes, int era)
+            throws IOException, ASAPException {
+
+        // TODO: sync that stuff with managedThread!!
+        this.protocol.assimilate(
+                this.multiASAPEngineFS.getOwner(),
+                recipient,
+                format,
+                urlTarget,
+                era,
+                null, // no offsets
+                messageAsBytes,
+                this.os,
+                this.isSigned());
+    }
+
+    public boolean isSigned() {
+        return false;
     }
 
     @Override

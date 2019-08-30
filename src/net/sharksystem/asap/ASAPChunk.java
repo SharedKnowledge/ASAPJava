@@ -90,7 +90,8 @@ public interface ASAPChunk {
     /**
      * adds a message
      * @param message
-     * @throws IOException 
+     * @throws IOException
+     * @deprecated
      */
     void addMessage(CharSequence message) throws IOException;
 
