@@ -124,6 +124,10 @@ public interface ASAPStorage {
 
     public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException;
 
+    void attachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener);
+
+    void detachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener);
+
     /**
      * Create a new era
      */

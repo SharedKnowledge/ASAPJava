@@ -32,6 +32,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     
     /* private */ final private ASAPChunkStorage chunkStorage;
     private boolean dropDeliveredChunks = false;
+
     private ASAPMessageAddListener asapMessageAddListener;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
@@ -52,6 +53,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     
     ASAPChunkStorage getStorage() {
         return this.chunkStorage;
+    }
+
+    public void attachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener) {
+        this.asapMessageAddListener = asapMessageAddListener;
+    }
+
+    public void detachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener) {
+        this.asapMessageAddListener = null;
     }
 
     //////////////////////////////////////////////////////////////////////

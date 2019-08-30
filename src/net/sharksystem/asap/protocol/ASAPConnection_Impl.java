@@ -1,7 +1,9 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,6 +64,8 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             throws IOException, ASAPException {
 
         // TODO: sync that stuff with managedThread!!
+        ByteArrayOutputStream dummyOS = new ByteArrayOutputStream();
+
         this.protocol.assimilate(
                 this.multiASAPEngineFS.getOwner(),
                 recipient,
@@ -70,8 +74,14 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
                 era,
                 null, // no offsets
                 messageAsBytes,
-                this.os,
+//                this.os,
+                dummyOS,
                 this.isSigned());
+
+        StringBuilder sb = Log.startLog(this);
+        sb.append("addMessage would have sent");
+        sb.append(dummyOS.toByteArray());
+        System.out.println(sb.toString());
     }
 
     public boolean isSigned() {
