@@ -2,7 +2,9 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.ASAPChunkFS;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -14,6 +16,11 @@ public class ChunkPrinter {
     
     @Test
     public void printChunk() throws IOException, ASAPException {
+        Map<String, String> m = new HashMap<>();
+        m.put(null, "A");
+
+        m.remove(null);
+
         String chunkTrunkName = "bob/0/content%3A%2F%2FaliceAndBob.talk";
         
         System.out.println("going to print content of chunk " + chunkTrunkName);

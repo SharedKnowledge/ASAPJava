@@ -6,10 +6,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListener {
+public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
     private CharSequence owner;
     private final HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
@@ -24,7 +26,6 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
 
         return MultiASAPEngineFS_Impl.createMultiEngine(folder, DEFAULT_MAX_PROCESSING_TIME, listener);
     }
-
 
     MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
             throws ASAPException {
@@ -98,90 +99,120 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
         return folderAndListener;
     }
 
-    private Thread managementThread = null;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                          connection management                                         //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public void doneReadingPDU() {
-        this.managementThread.interrupt();
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+        ASAPConnection_Impl asapConnection = new ASAPConnection_Impl(is, os, this,
+                maxExecutionTime, this, this);
+
+        Thread thread = new Thread(asapConnection);
+        thread.start();
+
+        // remember
+        this.runningThreads.add(thread);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("launched new asapConnection thread, total number is now: ");
+        sb.append(this.runningThreads.size());
+        System.out.println(sb.toString());
+
+        return asapConnection;
     }
 
-    public void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+    /** all running threads */
+    private List<Thread> runningThreads = new ArrayList<>();
+
+    @Override
+    public void finished(Thread thread) {
+        if(thread == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getLogStart());
+            sb.append("finished thread cannot be null - do nothing");
+            System.err.println(sb.toString());
+            return;
+        }
+
+        this.runningThreads.remove(thread);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("thread terminated - number of running threads is now: ");
+        sb.append(this.runningThreads.size());
+        System.out.println(sb.toString());
+    }
+
+    // thread connected to a peer
+    private Map<CharSequence, ASAPConnection> connectedThreads = new HashMap<>();
+    private Map<ASAPConnection, CharSequence> threadPeerNames = new HashMap<>();
+
+    @Override
+    public void asapConnectionStarted(String peerName, ASAPConnection thread) {
+        if(thread == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getLogStart());
+            sb.append("asap connection started but thread terminated cannot be null - do nothing");
+            System.err.println(sb.toString());
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("asap connection started, got a peername: ");
+        sb.append(peerName);
+        System.out.println(sb.toString());
+
+        this.connectedThreads.put(peerName, thread);
+        this.threadPeerNames.put(thread, peerName);
+    }
+
+    @Override
+    public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection thread) {
+        if(thread == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getLogStart());
+            sb.append("terminated connection cannot be null - do nothing");
+            System.err.println(sb.toString());
+            return;
+        }
+
+        // get thread name
+        CharSequence threadName = this.threadPeerNames.remove(thread);
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("thread terminated connected to: ");
+
+        if(threadName != null) {
+            sb.append(threadName);
+        } else {
+            sb.append("null");
+        }
+
+        System.out.println(sb.toString());
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                              ASAP management                                           //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void pushInterests(OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
+    }
 
-        // start reading / processing loop
-        while(true) {
-            ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
-            pduReader.start();
-
-            try {
-                this.managementThread = Thread.currentThread();
-                Thread.sleep(maxExecutionTime);
-            } catch (InterruptedException e) {
-                // should happen if successfully read something
-            }
-
-            // what happened?
-            if(pduReader.ioExceptionMessage != null) {
-                throw new IOException(pduReader.ioExceptionMessage);
-            }
-
-            if(pduReader.asapExceptionMessage != null) {
-                System.out.println(this.getLogStart() + pduReader.asapExceptionMessage);
-                return;
-            }
-
-            if(pduReader.asapPDU == null) {
-                System.out.println(this.getLogStart() + "no data received during max execution time");
-                os.close();
-                is.close();
-                System.out.println(this.getLogStart() + "closed streams");
-                return;
-            }
-
-            // get engine
-            EngineSetting engineSetting = this.getEngineSettings(pduReader.asapPDU.getFormat());
-            if (engineSetting.engine == null) {
-                ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(
-                        owner.toString(),
-                        engineSetting.folder.toString(),
-                        pduReader.asapPDU.getFormat());
-
-                engineSetting.setASAPEngine(asapEngine);
-            }
-
-            // process pdu
-            ASAPPDUExecutor executor = new ASAPPDUExecutor(pduReader.asapPDU, is, os, engineSetting, protocol);
-            executor.start();
-
-            try {
-                Thread.sleep(maxExecutionTime);
-            } catch (InterruptedException e) {
-                // cannot happen.
-                e.printStackTrace();
-            }
-
-            if (executor.isAlive()) {
-                // declare this a failure
-                System.err.println(this.getLogStart() + "process that processes asap pdu takes longer than allowed - close streams");
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-
-                throw new ASAPException("process that processes asap pdu takes longer than allowed - closed streams");
-            }
-        }
+    @Override
+    public Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
+                                    ThreadFinishedListener threadFinishedListener) throws ASAPException {
+        // process pdu
+        return new ASAPPDUExecutor(asappdu, is, os,
+                this.getEngineSettings(asappdu.getFormat()),
+                new ASAP_Modem_Impl());
     }
 
     private String getLogStart() {
@@ -203,41 +234,15 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, PDUReaderListe
         }
     }
 
-    private class ASAPPDUReader extends Thread {
-        private final ASAP_1_0 protocol;
-        private final InputStream is;
-        private final PDUReaderListener pduReaderListener;
-        ASAP_PDU_1_0 asapPDU = null;
-        private String ioExceptionMessage = null;
-        private String asapExceptionMessage = null;
-
-        ASAPPDUReader(ASAP_1_0 protocol, InputStream is, PDUReaderListener pduReaderListener) {
-            this.protocol = protocol;
-            this.is = is;
-            this.pduReaderListener = pduReaderListener;
-        }
-
-        public void run() {
-            try {
-                this.asapPDU = protocol.readPDU(is);
-                this.pduReaderListener.doneReadingPDU();
-            } catch (IOException e) {
-                this.ioExceptionMessage = e.getLocalizedMessage();
-            } catch (ASAPException e) {
-                this.asapExceptionMessage = e.getLocalizedMessage();
-            }
-        }
-    }
-
-    private class ASAPPDUExecutor extends Thread {
+    public static class ASAPPDUExecutor extends Thread {
         private final ASAP_PDU_1_0 asapPDU;
         private final InputStream is;
         private final OutputStream os;
         private final EngineSetting engineSetting;
         private final ASAP_1_0 protocol;
 
-        ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os, EngineSetting engineSetting,
-                        ASAP_1_0 protocol) {
+        ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
+                        EngineSetting engineSetting, ASAP_1_0 protocol) {
             this.asapPDU = asapPDU;
             this.is = is;
             this.os = os;

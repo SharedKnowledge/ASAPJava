@@ -1,9 +1,13 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.protocol.ASAPConnection;
+import net.sharksystem.asap.protocol.ASAPConnectionListener;
+import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
+import net.sharksystem.asap.protocol.ThreadFinishedListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 /**
  * There is an ASAPEngine that stores its data with a filesystem.
@@ -29,5 +33,9 @@ public interface MultiASAPEngineFS {
      * @throws IOException
      * @throws ASAPException
      */
-    public void handleConnection(InputStream is, OutputStream os)  throws IOException, ASAPException;
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
+
+    public void pushInterests(OutputStream os) throws IOException, ASAPException;
+
+    Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os, ThreadFinishedListener threadFinishedListener) throws ASAPException;
 }
