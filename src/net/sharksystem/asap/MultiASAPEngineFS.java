@@ -45,4 +45,6 @@ public interface MultiASAPEngineFS {
     ASAPConnection getASAPConnection(CharSequence recipient);
 
     CharSequence getOwner();
+
+    void newEra() throws IOException, ASAPException;
 }

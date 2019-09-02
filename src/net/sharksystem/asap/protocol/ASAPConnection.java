@@ -7,8 +7,8 @@ import java.io.IOException;
 public interface ASAPConnection {
     CharSequence getRemotePeer();
 
-    void addMessage(CharSequence recipient, CharSequence format, CharSequence urlTarget,
-                    byte[] messageAsBytes, int era) throws IOException, ASAPException;
+    void addOnlineMessageSource(ASAPOnlineMessageSource source);
+    void removeOnlineMessageSource(ASAPOnlineMessageSource source);
 
     boolean isSigned();
 }

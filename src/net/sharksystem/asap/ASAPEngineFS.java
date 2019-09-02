@@ -127,6 +127,23 @@ public class ASAPEngineFS extends ASAPEngine {
         
         return engine;
     }
+    
+    private void restoreFromMemento() throws IOException {
+        ASAPMementoFS mementoFS = this.getMemento(rootDirectory);
+        this.memento = mementoFS;
+
+        mementoFS.restore(this);
+
+    }
+
+    @Override
+    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException {
+        // always re-read metainformation
+        this.restoreFromMemento();
+        
+        // do the real work
+        super.add(urlTarget, messageAsBytes);
+    }
 
     /*
     public static ASAPEngine getASAPEngine(String rootDirectory, CharSequence format)

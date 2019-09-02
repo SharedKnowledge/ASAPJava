@@ -1,6 +1,6 @@
 package net.sharksystem.asap;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import net.sharksystem.asap.util.Helper;
 
 import java.io.*;
 import java.util.*;
@@ -14,16 +14,42 @@ class ASAPChunkFS implements ASAPChunk {
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
     private final ASAPChunkStorageFS storage;
+    private String sender;
     private String uri = DEFAULT_URL;
     private List<CharSequence> recipients;
+    private List<CharSequence> deliveredTo;
     private List<Long> messageStartOffsets = new ArrayList<>();
     private File metaFile;
     private File messageFile;
     
     private int era;
-    private String sender;
 
     private HashMap<String, String> extraData = new HashMap<>();
+
+
+    @Override
+    public void clone(ASAPChunk chunkSource) throws IOException {
+        this.uri = chunkSource.getUri();
+        this.recipients = chunkSource.getRecipients();
+        this.extraData = chunkSource.getExtraData();
+
+        this.saveStatus();
+    }
+
+    public HashMap<String, String> getExtraData() {
+        return this.extraData;
+    }
+
+    @Override
+    public void deliveredTo(String peer) throws IOException {
+        this.deliveredTo.add(peer);
+        this.saveStatus();
+    }
+
+    @Override
+    public List<CharSequence> getDeliveredTo() {
+        return this.deliveredTo;
+    }
 
     ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era) throws IOException {
         this(storage, targetUri, era, null);
@@ -67,6 +93,7 @@ class ASAPChunkFS implements ASAPChunk {
             // no metadate to be read - set defaults
             this.writeMetaData(this.metaFile);
             this.recipients = new ArrayList<>();
+            this.deliveredTo = new ArrayList<>();
             this.messageStartOffsets = new ArrayList<>();
         }
     }
@@ -83,7 +110,6 @@ class ASAPChunkFS implements ASAPChunk {
     @Override
     public void addRecipient(CharSequence recipient) throws IOException {
         this.recipients.add(recipient);
-        
         this.writeMetaData(this.metaFile);
     }
 
@@ -100,7 +126,6 @@ class ASAPChunkFS implements ASAPChunk {
     @Override
     public void removeRecipient(CharSequence recipient) throws IOException {
         this.recipients.remove(recipient);
-        
         this.writeMetaData(this.metaFile);
     }
 
@@ -251,8 +276,6 @@ class ASAPChunkFS implements ASAPChunk {
         this.messageFile.delete();
     }
 
-    private static final String SERIALIZATION_DELIMITER = "|||";
-
     private boolean readMetaData(File metaFile) throws IOException {
         if(!metaFile.exists()) return false;
         // read data from metafile
@@ -267,17 +290,10 @@ class ASAPChunkFS implements ASAPChunk {
             return false;
         }
         
-        this.recipients = new ArrayList<CharSequence>();
-        
         try {
-            String recipientsList = dis.readUTF();
-            
-            StringTokenizer t = new StringTokenizer(recipientsList,
-                    SERIALIZATION_DELIMITER);
-            
-            while(t.hasMoreTokens()) {
-                this.recipients.add(t.nextToken());
-            }
+            this.recipients = Helper.string2CharSequenceList(dis.readUTF());
+            this.deliveredTo = Helper.string2CharSequenceList(dis.readUTF());
+
             // finally read offset list
             String offsetList = dis.readUTF();
             this.messageStartOffsets = this.messageOffsetString2List(offsetList);
@@ -298,22 +314,8 @@ class ASAPChunkFS implements ASAPChunk {
         
         dos.writeUTF(this.uri);
         dos.writeUTF(this.getExtraAsString());
-        StringBuilder b = new StringBuilder();
-        
-        boolean first = true;
-        if(this.recipients != null && !this.recipients.isEmpty()) {
-            for(CharSequence recipient : this.recipients) {
-                if(recipient != null) {
-                    if(!first) {
-                        b.append(SERIALIZATION_DELIMITER);
-                    } else {
-                        first = false;
-                    }
-                    b.append(recipient);
-                }
-            }
-        }
-        dos.writeUTF(b.toString());
+        dos.writeUTF(Helper.list2String(this.recipients));
+        dos.writeUTF(Helper.list2String(this.deliveredTo));
 
         // write offsetList
         dos.writeUTF(this.messageStartOffsetListAsString());
@@ -327,7 +329,7 @@ class ASAPChunkFS implements ASAPChunk {
         boolean first = true;
         for(Long offset : this.messageStartOffsets) {
             if(!first) {
-                sb.append(SERIALIZATION_DELIMITER);
+                sb.append(Helper.SERIALIZATION_DELIMITER);
             }
 
             sb.append(offset.toString());
@@ -347,10 +349,10 @@ class ASAPChunkFS implements ASAPChunk {
             };
 
             if(first) { first = false; }
-            else { sb.append(SERIALIZATION_DELIMITER); }
+            else { sb.append(Helper.SERIALIZATION_DELIMITER); }
 
             sb.append(key);
-            sb.append(SERIALIZATION_DELIMITER);
+            sb.append(Helper.SERIALIZATION_DELIMITER);
             sb.append(value);
         }
 
@@ -362,7 +364,7 @@ class ASAPChunkFS implements ASAPChunk {
 
         try {
             HashMap<String, String> extra = new HashMap<>();
-            StringTokenizer st = new StringTokenizer(extraString, SERIALIZATION_DELIMITER);
+            StringTokenizer st = new StringTokenizer(extraString, Helper.SERIALIZATION_DELIMITER);
             while (st.hasMoreTokens()) {
                 String key = st.nextToken();
                 String value = st.nextToken();
@@ -383,7 +385,7 @@ class ASAPChunkFS implements ASAPChunk {
 
         if(s == null || s.length() == 0) return longList;
 
-        StringTokenizer t = new StringTokenizer(s, SERIALIZATION_DELIMITER);
+        StringTokenizer t = new StringTokenizer(s, Helper.SERIALIZATION_DELIMITER);
 
         while(t.hasMoreTokens()) {
             Long offsetLong = Long.parseLong(t.nextToken());

@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -111,4 +112,15 @@ public interface ASAPChunk {
 
     CharSequence getExtra(String key) throws IOException;
 
+    /**
+     * set up this chunk by a source
+     * @param chunkSource
+     */
+    void clone(ASAPChunk chunkSource) throws IOException;
+
+    HashMap<String, String> getExtraData();
+
+    void deliveredTo(String peer) throws IOException;
+
+    List<CharSequence> getDeliveredTo();
 }

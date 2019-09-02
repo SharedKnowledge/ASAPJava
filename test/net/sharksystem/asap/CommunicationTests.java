@@ -1,11 +1,10 @@
 package net.sharksystem.asap;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sharksystem.asap.util.ImmediateASAPMessageTransfer;
+import net.sharksystem.asap.util.ASAPOnlineMessageHandler;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
@@ -317,12 +316,16 @@ public class CommunicationTests {
         ASAPStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
+        int aliceInitialEra = aliceStorage.getEra();
+
         aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
 
         // bob does the same
         ASAPStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+
+        int bobInitialEra = bobStorage.getEra();
 
         bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
@@ -343,8 +346,8 @@ public class CommunicationTests {
         //                                       prepare asap immediate bypass                           //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ImmediateASAPMessageTransfer aliceBypass = new ImmediateASAPMessageTransfer(aliceEngine, aliceStorage);
-        ImmediateASAPMessageTransfer bobBypass = new ImmediateASAPMessageTransfer(bobEngine, bobStorage);
+        ASAPOnlineMessageHandler aliceBypass = new ASAPOnlineMessageHandler(aliceEngine, aliceStorage);
+        ASAPOnlineMessageHandler bobBypass = new ASAPOnlineMessageHandler(bobEngine, bobStorage);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -405,48 +408,37 @@ public class CommunicationTests {
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                     open incomming storages                                   //
+        //                                     open incoming storages                                   //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // get messages alice received
-        ASAPChunkStorage aliceSenderStored =
-                aliceStorage.getIncomingChunkStorage(aliceListener.getSender());
+        ASAPChunkStorage aliceIncomingBobStorage = aliceStorage.getIncomingChunkStorage(BOB);
+        ASAPChunk aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, bobInitialEra);
 
-        ASAPChunk aliceReceivedChunk =
-                aliceSenderStored.getChunk(aliceListener.getUri(),
-                        aliceListener.getEra());
-
-        // #1
+        // must be one message
         Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessages();
         CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
-        // #2
+
+        // #2 is in another era
+        aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, ASAPEngine.nextEra(bobInitialEra));
+        aliceReceivedMessages = aliceReceivedChunk.getMessages();
         aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE2, aliceReceivedMessage);
 
         // get message bob received
-        ASAPChunkStorage bobSenderStored =
-                bobStorage.getIncomingChunkStorage(bobListener.getSender());
-
-        ASAPChunk bobReceivedChunk =
-                bobSenderStored.getChunk(bobListener.getUri(),
-                        bobListener.getEra());
+        ASAPChunkStorage bobIncomingAliceStorage = bobStorage.getIncomingChunkStorage(ALICE);
+        ASAPChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
 
         // #1
         Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessages();
         CharSequence bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
-        // #2
+
+        // #2 - in next era
+        bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, ASAPEngine.nextEra(aliceInitialEra));
+        bobReceivedMessages = bobReceivedChunk.getMessages();
         bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
-
-        List<CharSequence> senderList = aliceStorage.getSender();
-        // expect bob
-        Assert.assertEquals(1, senderList.size());
-        Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
-
-        // simulate a sync
-        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
-        Assert.assertEquals(1, bobStorage.getEra());
     }
 }

@@ -130,7 +130,6 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         String eraPathName = this.rootDirectory + "/" + Integer.toString(era);
 
         ASAPEngineFS.removeFolder(eraPathName);
-
     }
 
     @Override

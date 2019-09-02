@@ -40,6 +40,7 @@ class ASAPMementoFS implements ASAPMemento {
         dos.writeUTF(engine.format);
         dos.writeInt(engine.era);
         dos.writeInt(engine.oldestEra);
+        dos.writeBoolean(engine.contentChanged);
 
         // write lastSeen hash map
         if(engine.lastSeen != null && !engine.lastSeen.isEmpty()) {
@@ -78,6 +79,7 @@ class ASAPMementoFS implements ASAPMemento {
         engine.format = dis.readUTF();
         engine.era = dis.readInt();
         engine.oldestEra = dis.readInt();
+        engine.contentChanged = dis.readBoolean();
 
         // try to read lastSeen list
         boolean first = true;

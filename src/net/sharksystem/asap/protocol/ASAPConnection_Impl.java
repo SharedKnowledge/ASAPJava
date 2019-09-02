@@ -1,12 +1,13 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFinishedListener {
     private final InputStream is;
@@ -19,6 +20,9 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
     private final long maxExecutionTime;
     private String peer;
 
+    private List<byte[]> onlineMessageList = new ArrayList<>();
+    private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
+
     public ASAPConnection_Impl(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
                                ASAP_1_0 protocol,
                                long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
@@ -30,7 +34,6 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
-
     }
 
     private String getLogStart() {
@@ -54,34 +57,27 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         }
     }
 
+    private synchronized void addOnlineMessage(byte[] message) {
+        this.onlineMessageList.add(message);
+    }
+
+    private synchronized byte[] remomveOnlineMessage() {
+        return this.onlineMessageList.remove(0);
+    }
+
     @Override
     public CharSequence getRemotePeer() {
         return this.peer;
     }
 
     @Override
-    public void addMessage(CharSequence recipient, CharSequence format, CharSequence urlTarget, byte[] messageAsBytes, int era)
-            throws IOException, ASAPException {
+    public void addOnlineMessageSource(ASAPOnlineMessageSource source) {
+        this.onlineMessageSources.add(source);
+    }
 
-        // TODO: sync that stuff with managedThread!!
-        ByteArrayOutputStream dummyOS = new ByteArrayOutputStream();
-
-        this.protocol.assimilate(
-                this.multiASAPEngineFS.getOwner(),
-                recipient,
-                format,
-                urlTarget,
-                era,
-                null, // no offsets
-                messageAsBytes,
-//                this.os,
-                dummyOS,
-                this.isSigned());
-
-        StringBuilder sb = Log.startLog(this);
-        sb.append("addMessage would have sent");
-        sb.append(dummyOS.toByteArray());
-        System.out.println(sb.toString());
+    @Override
+    public void removeOnlineMessageSource(ASAPOnlineMessageSource source) {
+        this.onlineMessageSources.remove(source);
     }
 
     public boolean isSigned() {
@@ -101,8 +97,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
     private void terminate(String message, Exception e) {
         // write log
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getLogStart());
+        StringBuilder sb = this.startLog();
         sb.append(message);
         if(e != null) {
             sb.append(e.getLocalizedMessage());
@@ -114,13 +109,13 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             this.os.close();
             this.is.close();
             sb.append("closed streams");
+            System.out.println(sb.toString());
         }
         catch (IOException ioe) {
             sb.append("could not close streams: ");
             sb.append(ioe.getLocalizedMessage());
+            System.err.println(sb.toString());
         }
-
-        System.err.println(sb.toString());
 
         // inform listener
         if(this.asapConnectionListener != null) {
@@ -132,11 +127,22 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         }
     }
 
+    private void sendOnlineMessages() throws IOException {
+        while(!this.onlineMessageSources.isEmpty()) {
+            ASAPOnlineMessageSource asapOnline = this.onlineMessageSources.get(0);
+            StringBuilder sb = this.startLog();
+            sb.append("going to send online message");
+            System.out.println(sb.toString());
+            asapOnline.sendMessages(this, this.os);
+        }
+    }
+
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
         try {
             // let engine write their interest
+
             this.multiASAPEngineFS.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
@@ -145,6 +151,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
         // start reading / processing loop
         while (true) {
+            // read asap pdu
             ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
             pduReader.start();
 
@@ -167,8 +174,20 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
 
             if (asappdu == null) {
-                this.terminate("no asap pdu read during max excecution time");
-                return;
+                System.out.println(this.startLog() + "no asap pdu read during max execution time");
+                if(this.onlineMessageSources.isEmpty()) {
+                    // no online source - we are really done here
+                    this.terminate("no online source - we are done here");
+                    return;
+                } else {
+                    System.out.println(this.startLog() + "give online sources the channel.");
+                    try {
+                        this.sendOnlineMessages();
+                    } catch (IOException e) {
+                        this.terminate("exception when sending online messages: " + e.getLocalizedMessage());
+                        return;
+                    }
+                }
             }
 
             // we have read something - remember peer
@@ -190,11 +209,32 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
                 if (executor.isAlive()) {
                     // declare this a failure
                     this.terminate("process that processes asap pdu takes longer than allowed - close streams");
+                    return;
                 }
+
             } catch (ASAPException e) {
-                this.terminate("when executing asap received pdu", e);
+                this.terminate("when executing asap received pdu: ", e);
+                return;
             }
+
+            // pdu processed - we have a free channel now - use it to send online messages - if any
+            try {
+                this.sendOnlineMessages();
+            } catch (IOException e) {
+                this.terminate("exception when sending online messages: " + e.getLocalizedMessage());
+                return;
+            }
+            // next loop
         }
+    }
+
+    private StringBuilder startLog() {
+        StringBuilder sb = net.sharksystem.asap.util.Log.startLog(this);
+        sb.append(" recipient: ");
+        sb.append(this.peer);
+        sb.append(" | ");
+
+        return sb;
     }
 }
 

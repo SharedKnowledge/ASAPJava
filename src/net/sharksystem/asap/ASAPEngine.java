@@ -34,6 +34,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     private boolean dropDeliveredChunks = false;
 
     private ASAPMessageAddListener asapMessageAddListener;
+    protected boolean contentChanged = false;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -45,7 +46,13 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             throw new ASAPException("format expected. like application/x-sn2-makan");
         }
     }
-    
+
+    private void saveStatus() throws IOException {
+        if (this.memento != null) {
+            this.memento.save(this);
+        }
+    }
+
     @Override
     public ASAPChunkStorage getChunkStorage() {
         return this.chunkStorage;
@@ -112,6 +119,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
         chunk.addMessage(messageAsBytes);
 
+        // remember - something changed in that era
+        this.contentChanged();
+
         if(this.asapMessageAddListener != null) {
             try {
                 this.asapMessageAddListener.messageAdded(
@@ -124,6 +134,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 System.err.println(sb.toString());
             }
         }
+    }
+
+    private void contentChanged() throws IOException {
+        this.contentChanged = true;
+        this.saveStatus();
     }
 
     public List<CharSequence> getChannelURIs() throws IOException {
@@ -231,11 +246,15 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             throws ASAPException, IOException {
 
         String sender = asapAssimiliationPDU.getPeer();
+        int eraSender = asapAssimiliationPDU.getEra();
+
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("handle assimilate pdu received from ");
+        b.append("going to assimilate pdu sender: ");
         b.append(sender);
+        b.append(" | era: ");
+        b.append(eraSender);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
@@ -244,7 +263,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("got received chunk storage for sender: ");
+        b.append("got incoming chunk storage for sender: ");
         b.append(sender);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
@@ -252,7 +271,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         try {
             // read URI
             String uri = asapAssimiliationPDU.getChannel();
-            ASAPChunk chunk = senderStorage.getChunk(uri, this.getEra());
+            ASAPChunk chunk = senderStorage.getChunk(uri, eraSender);
 
             if(chunk != null) {
                 //<<<<<<<<<<<<<<<<<<debug
@@ -260,6 +279,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 b.append(this.getLogStart());
                 b.append("got local chunk to store messages for uri: ");
                 b.append(uri);
+                b.append(" | era: ");
+                b.append(eraSender);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
             } else {
@@ -267,8 +288,10 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 b = new StringBuilder();
                 b.append(this.getLogStart());
                 b.append("ERROR: no chunk found for sender/uri: ");
-                b.append(" / ");
+                b.append(" | ");
                 b.append(uri);
+                b.append(" | era: ");
+                b.append(eraSender);
                 System.err.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
                 throw new ASAPException("couldn't create local chunk storage - give up");
@@ -290,7 +313,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 b.append(")");
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
-
                 chunk.addMessage(protocolInputStream, nextOffset - offset);
 
                 offset = nextOffset;
@@ -310,7 +332,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             chunk.addMessage(protocolInputStream, asapAssimiliationPDU.getLength() - offset);
 
             // read all messages
-            listener.chunkReceived(sender, uri, this.getEra());
+            listener.chunkReceived(sender, uri, eraSender);
         }
         catch (IOException | ASAPException e) {
             b = new StringBuilder();
@@ -338,26 +360,35 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
         // check conflict
         if(!this.permission2ProceedConversation(peer)) {
+            b = Log.startLog(this);
+            b.append("no permission to communicate with remote peer: ");
+            b.append(peer);
+            System.err.println(b.toString());
             throw new ASAPException("no permission to communicate with remote peer: " + peer);
         }
 
         // era we are about to transmit
         int workingEra = this.getEraStartSync(peer);
 
-        // newest era (which is not necessarily highest number!!)
-        int currentEra = this.era;
+        if(workingEra == this.era) {
+            // nothing todo
+            b = Log.startLog(this);
+            b.append("there are not information before that era\n");
+            b.append("we only deliver information from previous eras - nothing todo here.");
+            return;
+        }
 
-        // we start a conversation - increment era for newly produced messages
-        this.incrementEra();
+        // we iterate up to era just before current one - current one is active sync.
+        int lastEra = this.getPreviousEra(this.era);
 
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("working era: ");
+        b.append("workingEra: ");
         b.append(workingEra);
-        b.append(" / current era: ");
-        b.append(currentEra);
-        b.append(" / this.era: ");
+        b.append(" | lastEra: ");
+        b.append(lastEra);
+        b.append(" | this.era: ");
         b.append(this.era);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
@@ -377,14 +408,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         apply. We can calculate next era, though.
 
         That loop has to be re-entered as long as working era has not
-        yet reached currentEra. In other words: lastRound is reached whenever
-        workingEra == currentEra. Processing currentEra is the last round
+        yet reached lastEra. In other words: lastRound is reached whenever
+        workingEra == lastEra. Processing lastEra is the last round
         We at at least one round!
         */
 
         boolean lastRound = false; // assume more than one round
         do {
-            lastRound = workingEra == currentEra;
+            lastRound = workingEra == lastEra;
 
             List<ASAPChunk> chunks = this.chunkStorage.getChunks(workingEra);
             //<<<<<<<<<<<<<<<<<<debug
@@ -440,26 +471,27 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                         false);
 
                 // remember sent
-                chunk.removeRecipient(peer);
+                chunk.deliveredTo(peer);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
-                b.append("removed recipient ");
+                b.append("remembered delivered to ");
                 b.append(peer);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
-                // empty?
-                if (chunk.getRecipients().isEmpty()) {
+                // sent to all recipients
+                if (chunk.getRecipients().size() == chunk.getDeliveredTo().size()) {
+                    b = Log.startLog(this);
+                    b.append("#recipients == #deliveredTo chunk delivered to any potential recipient - could drop it");
+                    System.out.println(b.toString());
                     if (this.isDropDeliveredChunks()) {
                         chunk.drop();
                         //<<<<<<<<<<<<<<<<<<debug
-                        b = new StringBuilder();
-                        b.append(this.getLogStart());
+                        b = Log.startLog(this);
                         b.append("chunk dropped");
                         System.out.println(b.toString());
                     } else {
-                        b = new StringBuilder();
-                        b.append(this.getLogStart());
+                        b = Log.startLog(this);
                         b.append("drop flag set false - engine does not remove delivered chunks");
                         System.out.println(b.toString());
                     }
@@ -567,17 +599,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         return goAhead;
     }
 
-    private synchronized void incrementEra() throws IOException {
-        // go to next era - even start with 0
-        this.era = this.getNextEra(this.era);
-        
-        // drop very very old chunks - if available
-        this.chunkStorage.dropChunks(this.era);
-
-        // persistent values
-        if(this.memento != null) this.memento.save(this);
-    }
-    
     /**
      * We interpret an existing chunk with *no* recipients as
      * public chunk
@@ -590,10 +611,48 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
     @Override
     public void newEra() {
-        try {
-            this.incrementEra();
-        } catch (IOException ex) {
-            // TODO
+        StringBuilder sb = Log.startLog(this);
+        sb.append("newEra() | owner: ");
+        sb.append(this.owner);
+        sb.append(" | format: ");
+        sb.append(this.format);
+        sb.append(" | ");
+
+        if(this.contentChanged) {
+            sb.append("content changed - increment era...");
+            try {
+                int oldEra = this.era;
+                int nextEra = this.getNextEra(this.era);
+
+                // set as fast as possible to make race conditions less likely
+                this.contentChanged = false;
+
+                // we are done here - we are in a new era.
+                this.era = nextEra;
+                // persistent values
+                if(this.memento != null) this.memento.save(this);
+
+                // do some - probably time consuming stuff
+
+                // drop very very old chunks - if available
+                this.chunkStorage.dropChunks(nextEra);
+
+                // setup new era - copy all chunks
+                for(ASAPChunk chunk : this.chunkStorage.getChunks(oldEra)) {
+                    ASAPChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
+                    copyChunk.clone(chunk);
+                }
+
+                sb.append(" done");
+                System.out.println(sb.toString());
+            } catch (IOException ex) {
+                sb.append("IOException while incrementing era: ");
+                sb.append(ex.getLocalizedMessage());
+                System.err.println(sb.toString());
+            }
+        } else {
+            sb.append("content not changed - era not changed");
+            System.out.println(sb.toString());
         }
     }
 }

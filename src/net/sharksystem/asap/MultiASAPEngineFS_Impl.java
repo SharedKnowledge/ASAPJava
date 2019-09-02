@@ -82,6 +82,16 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
     }
 
+    /**
+     * increase era for each engine
+     */
+    public void newEra() throws IOException, ASAPException {
+        for(CharSequence format : this.folderMap.keySet()) {
+            ASAPEngine engine = this.getEngineByFormat(format);
+            engine.newEra();
+        }
+    }
+
     public CharSequence getOwner() {
         return this.owner;
     }
@@ -114,13 +124,23 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
                 is, os, this, new ASAP_Modem_Impl(),
                 maxExecutionTime, this, this);
 
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("handleConnection: ask any aspStorage to increment era.");
+        System.out.println(sb.toString());
+
+        for(CharSequence format : this.folderMap.keySet()) {
+            ASAPStorage asapStorage = this.getEngineByFormat(format);
+            asapStorage.newEra();
+        }
+
         Thread thread = new Thread(asapConnection);
         thread.start();
 
         // remember
         this.runningThreads.add(thread);
 
-        StringBuilder sb = new StringBuilder();
+        sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append("launched new asapConnection thread, total number is now: ");
         sb.append(this.runningThreads.size());
