@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sharksystem.asap.util.ASAPOnlineMessageHandler;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
@@ -346,8 +345,8 @@ public class CommunicationTests {
         //                                       prepare asap immediate bypass                           //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPOnlineMessageHandler aliceBypass = new ASAPOnlineMessageHandler(aliceEngine, aliceStorage);
-        ASAPOnlineMessageHandler bobBypass = new ASAPOnlineMessageHandler(bobEngine, bobStorage);
+        ASAPOnlineMessageSender_Impl aliceBypass = new ASAPOnlineMessageSender_Impl(aliceEngine, aliceStorage);
+        ASAPOnlineMessageSender_Impl bobBypass = new ASAPOnlineMessageSender_Impl(bobEngine, bobStorage);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //

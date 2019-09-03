@@ -33,7 +33,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     /* private */ final private ASAPChunkStorage chunkStorage;
     private boolean dropDeliveredChunks = false;
 
-    private ASAPMessageAddListener asapMessageAddListener;
+    private ASAPOnlineMessageSender asapOnlineMessageSender;
     protected boolean contentChanged = false;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
@@ -62,12 +62,12 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         return this.chunkStorage;
     }
 
-    public void attachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener) {
-        this.asapMessageAddListener = asapMessageAddListener;
+    public void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender) {
+        this.asapOnlineMessageSender = asapOnlineMessageSender;
     }
 
-    public void detachASAPMessageAddListener(ASAPMessageAddListener asapMessageAddListener) {
-        this.asapMessageAddListener = null;
+    public void detachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender) {
+        this.asapOnlineMessageSender = null;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -122,9 +122,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         // remember - something changed in that era
         this.contentChanged();
 
-        if(this.asapMessageAddListener != null) {
+        if(this.asapOnlineMessageSender != null) {
             try {
-                this.asapMessageAddListener.messageAdded(
+                this.asapOnlineMessageSender.sendASAPAssimilate(
                         this.format, urlTarget, chunk.getRecipients(),
                         messageAsBytes, this.era);
             } catch (IOException | ASAPException e) {

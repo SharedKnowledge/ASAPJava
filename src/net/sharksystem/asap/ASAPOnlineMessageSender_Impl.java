@@ -1,7 +1,7 @@
-package net.sharksystem.asap.util;
+package net.sharksystem.asap;
 
-import net.sharksystem.asap.*;
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ASAPOnlineMessageHandler implements ASAPMessageAddListener, ASAPOnlineMessageSource {
+public class ASAPOnlineMessageSender_Impl implements ASAPOnlineMessageSender, ASAPOnlineMessageSource {
     private final MultiASAPEngineFS multiEngine;
-    private final ASAPStorage source;
     private final ASAP_1_0 protocol = new ASAP_Modem_Impl();
+    private ASAPStorage source = null;
 
     // connections and their remote peer (recipients)
     private Map<ASAPConnection, CharSequence> connectionPeers = new HashMap<>();
@@ -22,19 +22,44 @@ public class ASAPOnlineMessageHandler implements ASAPMessageAddListener, ASAPOnl
     // message for recipients
     private Map<CharSequence, List<byte[]>> messages = new HashMap<>();
 
-    public ASAPOnlineMessageHandler(MultiASAPEngineFS multiEngine, ASAPStorage source) {
-        this.multiEngine = multiEngine;
+    /**
+     * for local use: process that fills storage is in same process as engine
+     * @param multiEngine
+     * @param source
+     */
+    public ASAPOnlineMessageSender_Impl(MultiASAPEngineFS multiEngine, ASAPStorage source) {
+        this(multiEngine);
         this.source = source;
         source.attachASAPMessageAddListener(this);
     }
 
+    /**
+     * remote usage - runs within same process as engine but separated from storage
+     * @param multiEngine
+     */
+    public ASAPOnlineMessageSender_Impl(MultiASAPEngineFS multiEngine) {
+        this.multiEngine = multiEngine;
+    }
+
     public void detachFromStorage() {
-        this.source.detachASAPMessageAddListener(this);
+        if(this.source != null) {
+            this.source.detachASAPMessageAddListener(this);
+        }
+    }
+
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, byte[] messageAsBytes)
+            throws IOException, ASAPException {
+
+        ASAPEngine engine = this.multiEngine.getEngineByFormat(format);
+        int era = engine.getEra();
+        List<CharSequence> recipients = engine.getChunkStorage().getChunk(uri, era).getRecipients();
+
+        this.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
     }
 
     @Override
-    public void messageAdded(CharSequence format, CharSequence uri, List<CharSequence> recipients,
-                             byte[] messageAsBytes, int era) throws IOException, ASAPException {
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
+                                   byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         StringBuilder sb = Log.startLog(this);
         sb.append("messageAdded(format: ");
