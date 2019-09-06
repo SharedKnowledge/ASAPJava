@@ -27,6 +27,13 @@ public interface MultiASAPEngineFS {
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
     /**
+     * get or create engine for a given application - mainly means: setup folder
+     * @param appName
+     * @return
+     */
+    ASAPEngine getASAPEngine(CharSequence appName, CharSequence format) throws IOException, ASAPException;
+
+    /**
      * handle that newly established connection to another ASAP peer
      * @param is
      * @param os

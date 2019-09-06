@@ -18,7 +18,8 @@ public class ASAPEngineFS extends ASAPEngine {
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_ASAP";
 
-    private ASAPEngineFS(String owner, String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
+    private ASAPEngineFS(String owner,
+                         String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
         throws ASAPException, IOException {
         
         super(new ASAPChunkStorageFS(rootDirectory), format);
@@ -31,14 +32,8 @@ public class ASAPEngineFS extends ASAPEngine {
         return this.owner;
     }
     
-    public static ASAPStorage getASAPStorage(String owner, String rootDirectory, CharSequence format)
+    public static ASAPEngine getASAPStorage(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
-        
-        // check if root directory already exists. If not srt it up
-        File root = new File(rootDirectory);
-        if(!root.exists()) {
-            root.mkdirs();
-        }
         
         return ASAPEngineFS.getASAPEngine(owner, rootDirectory, format);
     }
@@ -46,12 +41,18 @@ public class ASAPEngineFS extends ASAPEngine {
     public static ASAPEngine getExistingASAPEngineFS(String rootDirectory)
             throws IOException, ASAPException {
 
-        // assumed - storage already exists
+        // the same
         return ASAPEngineFS.getASAPEngineFS(null, rootDirectory, null);
     }
 
     public static ASAPEngine getASAPEngine(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
+
+        // check if root directory already exists. If not set it up
+        File root = new File(rootDirectory);
+        if(!root.exists()) {
+            root.mkdirs();
+        }
 
         return ASAPEngineFS.getASAPEngineFS(owner, rootDirectory, format);
     }

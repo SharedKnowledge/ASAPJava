@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
+    private final CharSequence rootFolderName;
+    private final ASAPReceivedChunkListener listener;
     private CharSequence owner;
-    private final HashMap<CharSequence, EngineSetting> folderMap;
+    private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
 
     public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder, long maxExecutionTime,
@@ -28,26 +30,6 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
                 DEFAULT_MAX_PROCESSING_TIME, listener);
     }
 
-    MultiASAPEngineFS_Impl(CharSequence owner, List<ASAPEngineFSSetting> settings, long maxExecutionTime)
-            throws ASAPException {
-
-        if(settings == null) throw new ASAPException("no settings at all - makes no sense");
-        if(settings.size() == 0) throw new ASAPException("no settings - makes no sense");
-
-        this.owner = owner;
-        this.folderMap = new HashMap<>();
-
-        // fill settings
-        for(ASAPEngineFSSetting setting : settings) {
-            if(setting.folder.toString().contains("/") || setting.folder.toString().contains("\\")) {
-                throw new ASAPException("sub folders are not allowed: " + setting.folder);
-            }
-            folderMap.put(setting.format, new EngineSetting(setting.folder, setting.listener));
-        }
-
-        this.maxExecutionTime = maxExecutionTime;
-    }
-
     /**
      * assumed that a number of asap storages are already exists in subdirectories of the
      * root directory. setting list can be created by iterating those storages.
@@ -59,13 +41,26 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 //        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
         this.owner = owner; // probably dummy name
         this.maxExecutionTime = maxExecutionTime;
-        this.folderMap = new HashMap<>();
+        this.rootFolderName = rootFolderName;
+        this.listener = listener;
 
         File rootFolder = new File(rootFolderName.toString());
 
-        if (!rootFolder.isDirectory()) {
-            throw new ASAPException("is not directory: " + rootFolderName);
+        if(!rootFolder.exists()) {
+            // create
+            rootFolder.mkdirs();
         }
+
+        if (!rootFolder.isDirectory()) {
+            throw new ASAPException("exists but is not a directory: " + rootFolderName);
+        }
+
+        this.setupFolderMap();
+    }
+
+    private void setupFolderMap() throws IOException, ASAPException {
+        this.folderMap = new HashMap<>();
+        File rootFolder = new File(rootFolderName.toString());
 
         File[] files = rootFolder.listFiles();
         for (File file : files) {
@@ -75,7 +70,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
                 EngineSetting setting = new EngineSetting(
                         rootFolderName + "/" + fileName, // folder
                         listener// listener
-                        );
+                );
                 setting.setASAPEngine(engine);
                 this.folderMap.put(engine.format, setting);
             }
@@ -105,6 +100,32 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             asapEngine = ASAPEngineFS.getASAPEngine(owner.toString(), engineSetting.folder.toString(), format);
             engineSetting.setASAPEngine(asapEngine); // remember - keep that object
         }
+        return asapEngine;
+    }
+
+    @Override
+    public ASAPEngine getASAPEngine(CharSequence appName, CharSequence format)
+            throws IOException, ASAPException {
+
+        String foldername = this.rootFolderName.toString() + "/" + appName.toString();
+        // already exists?
+        try {
+            ASAPEngine existingASAPEngineFS = ASAPEngineFS.getExistingASAPEngineFS(foldername);
+            if(existingASAPEngineFS != null) {
+                return existingASAPEngineFS;
+            }
+        }
+        catch(ASAPException e) {
+            System.out.println(this.getLogStart() + "engine does not yet exist. folder " + foldername);
+        }
+
+        System.out.println(this.getLogStart() + "setup engine with folder" + foldername);
+        ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(this.getOwner().toString(), foldername, format);
+        // add to folderMap
+        EngineSetting setting = new EngineSetting(foldername, this.listener);
+        setting.setASAPEngine(asapEngine);
+        this.folderMap.put(format, setting);
+
         return asapEngine;
     }
 
