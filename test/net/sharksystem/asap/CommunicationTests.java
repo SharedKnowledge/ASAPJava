@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sharksystem.asap.util.ASAPChunkReceiverTester;
+import net.sharksystem.asap.util.ASAPEngineThread;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;

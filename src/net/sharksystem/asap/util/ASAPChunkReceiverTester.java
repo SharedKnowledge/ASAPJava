@@ -1,4 +1,4 @@
-package net.sharksystem.asap;
+package net.sharksystem.asap.util;
 
 import net.sharksystem.asap.ASAPReceivedChunkListener;
 
