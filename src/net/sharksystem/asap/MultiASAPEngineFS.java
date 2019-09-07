@@ -54,4 +54,6 @@ public interface MultiASAPEngineFS {
     CharSequence getOwner();
 
     void newEra() throws IOException, ASAPException;
+
+    void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener) throws ASAPException;
 }

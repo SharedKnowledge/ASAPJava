@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.Utils;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -37,30 +39,9 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     String getChunkFileTrunkname(int era, String uri) {
-        return this.getPath(era) + "/" + this.url2FileName(uri);
+        return this.getPath(era) + "/" + Utils.url2FileName(uri);
     }
 
-    String url2FileName(String url) {
-        // escape:
-        /*
-        see https://en.wikipedia.org/wiki/Percent-encoding
-        \ - %5C, / - %2F, : - %3A, ? - %3F," - %22,< - %3C,> - %3E,| - %7C
-        */
-
-        if(url == null) return null; // to be safe
-        
-        String newString = url.replace("\\", "%5C");
-        newString = newString.replace("/", "%2F");
-        newString = newString.replace(":", "%3A");
-        newString = newString.replace("?", "%3F");
-        newString = newString.replace("\"", "%22");
-        newString = newString.replace("<", "%3C");
-        newString = newString.replace(">", "%3E");
-        newString = newString.replace("|", "%7C");
-        
-        return newString;
-    }
-    
     /**
      * 
      * @param era
@@ -75,7 +56,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
             eraFolder.mkdirs();
         }
         
-        String fileName = eraFolderString + "/" + this.url2FileName(targetUrl);
+        String fileName = eraFolderString + "/" + Utils.url2FileName(targetUrl);
         return fileName;
     }
 

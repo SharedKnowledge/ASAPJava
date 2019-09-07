@@ -13,17 +13,17 @@ import java.util.Map;
 
 public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
     private final CharSequence rootFolderName;
-    private final ASAPReceivedChunkListener listener;
+    private final ASAPChunkReceivedListener listener;
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
 
     public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder, long maxExecutionTime,
-                                                      ASAPReceivedChunkListener listener) throws ASAPException, IOException {
+                                                      ASAPChunkReceivedListener listener) throws ASAPException, IOException {
         return new MultiASAPEngineFS_Impl(owner, rootFolder, maxExecutionTime, listener);
     }
 
-    public static MultiASAPEngineFS createMultiEngine(CharSequence folder, ASAPReceivedChunkListener listener)
+    public static MultiASAPEngineFS createMultiEngine(CharSequence folder, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
         return MultiASAPEngineFS_Impl.createMultiEngine(ASAPEngine.DEFAULT_OWNER, folder,
@@ -36,7 +36,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
      * @param rootFolderName
      */
     MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                                  ASAPReceivedChunkListener listener) throws ASAPException, IOException {
+                                  ASAPChunkReceivedListener listener) throws ASAPException, IOException {
 
 //        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
         this.owner = owner; // probably dummy name
@@ -87,6 +87,18 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
     }
 
+    @Override
+    public void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener)
+            throws ASAPException {
+
+        EngineSetting engineSetting = this.folderMap.get(appName);
+        if(engineSetting == null) {
+            throw new ASAPException("there is no ASAPEngine for app " + appName);
+        }
+
+        engineSetting.listener = listener;
+    }
+
     public CharSequence getOwner() {
         return this.owner;
     }
@@ -131,7 +143,8 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 
     private EngineSetting getEngineSettings(CharSequence format) throws ASAPException {
         EngineSetting folderAndListener = folderMap.get(format);
-        if(folderAndListener == null) throw new ASAPException("no folder for owner / format: " + owner + "/" + format);
+        if(folderAndListener == null)
+            throw new ASAPException("no folder for owner / format: " + owner + "/" + format);
 
         return folderAndListener;
     }
@@ -279,10 +292,10 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 
     private class EngineSetting {
         final CharSequence folder;
-        final ASAPReceivedChunkListener listener;
+        ASAPChunkReceivedListener listener;
         private ASAPEngine engine;
 
-        EngineSetting(CharSequence folder, ASAPReceivedChunkListener listener) {
+        EngineSetting(CharSequence folder, ASAPChunkReceivedListener listener) {
             this.folder = folder;
             this.listener = listener;
         }
@@ -306,18 +319,26 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             this.os = os;
             this.engineSetting = engineSetting;
             this.protocol = protocol;
+
+            System.out.println("ASAPPDUExecutor created - "
+                    + "folder: " + engineSetting.folder + " | "
+                    + "engine: " + engineSetting.engine.getClass().getSimpleName() + " | "
+                    + "listener: " + engineSetting.listener.getClass().getSimpleName());
         }
 
         public void run() {
             try {
                 switch (asapPDU.getCommand()) {
                     case ASAP_1_0.INTEREST_CMD:
+                        System.out.println("ASAPPDUExecutor call handleASAPInterest one engine");
                         engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
                         break;
                     case ASAP_1_0.OFFER_CMD:
+                        System.out.println("ASAPPDUExecutor call handleASAPOffer one engine");
                         engineSetting.engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
+                        System.out.println("ASAPPDUExecutor call handleASAPAssimilate one engine");
                         engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
                                 engineSetting.listener);
                         break;

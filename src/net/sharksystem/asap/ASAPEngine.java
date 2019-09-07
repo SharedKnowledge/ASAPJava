@@ -201,7 +201,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     }
 
     public void handleConnection(InputStream is, OutputStream os,
-                                 ASAPReceivedChunkListener listener) {
+                                 ASAPChunkReceivedListener listener) {
 
         try {
             ASAP_1_0 protocol = new ASAP_Modem_Impl();
@@ -242,7 +242,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     }
 
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimiliationPDU, ASAP_1_0 protocol,
-                              InputStream is, OutputStream os, ASAPReceivedChunkListener listener)
+                              InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
         String sender = asapAssimiliationPDU.getPeer();
@@ -332,7 +332,31 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             chunk.addMessage(protocolInputStream, asapAssimiliationPDU.getLength() - offset);
 
             // read all messages
-            listener.chunkReceived(sender, uri, eraSender);
+            if(listener != null) {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("call ");
+                b.append(listener.getClass().getSimpleName());
+                b.append(".chunkReceived(sender: ");
+                b.append(sender);
+                b.append(", uri: ");
+                b.append(uri);
+                b.append(", eraSender: ");
+                b.append(eraSender);
+                b.append(")");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+
+                listener.chunkReceived(sender, uri, eraSender);
+            } else {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("listener is null - no callback");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+            }
         }
         catch (IOException | ASAPException e) {
             b = new StringBuilder();

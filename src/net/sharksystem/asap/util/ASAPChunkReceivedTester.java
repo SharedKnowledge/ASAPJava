@@ -1,12 +1,12 @@
 package net.sharksystem.asap.util;
 
-import net.sharksystem.asap.ASAPReceivedChunkListener;
+import net.sharksystem.asap.ASAPChunkReceivedListener;
 
 /**
  *
  * @author thsc
  */
-public class ASAPChunkReceiverTester implements ASAPReceivedChunkListener {
+public class ASAPChunkReceivedTester implements ASAPChunkReceivedListener {
     private String sender = null;
     private String uri = null;
     private int era;

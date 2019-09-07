@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sharksystem.asap.util.ASAPChunkReceiverTester;
+import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPEngineThread;
 import net.sharksystem.util.localloop.TCPChannel;
 import org.junit.Test;
@@ -66,10 +66,10 @@ public class CommunicationTests {
         //                                        prepare multi engines                                  //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
 
-        ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,11 +198,11 @@ public class CommunicationTests {
         //                                        prepare multi engines                                  //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
                 ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
-        ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
                 BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
@@ -335,11 +335,11 @@ public class CommunicationTests {
         //                                        prepare multi engines                                  //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPChunkReceiverTester aliceListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
                 ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
-        ASAPChunkReceiverTester bobListener = new ASAPChunkReceiverTester();
+        ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
         MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
                 BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 

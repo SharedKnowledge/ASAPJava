@@ -3,10 +3,10 @@ package net.sharksystem.asap;
 public class ASAPEngineFSSetting {
     final CharSequence folder;
     final CharSequence format;
-    final ASAPReceivedChunkListener listener;
+    final ASAPChunkReceivedListener listener;
 
     public ASAPEngineFSSetting(CharSequence format, CharSequence folder,
-                               ASAPReceivedChunkListener listener) {
+                               ASAPChunkReceivedListener listener) {
         this.format = format;
         this.folder = folder;
         this.listener = listener;

@@ -20,7 +20,7 @@ public interface ASAPProtocolEngine {
             throws ASAPException, IOException;
 
     void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asap_assimilation, ASAP_1_0 protocol,
-                              InputStream is, OutputStream os, ASAPReceivedChunkListener listener)
+                              InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException;
 
     /**
