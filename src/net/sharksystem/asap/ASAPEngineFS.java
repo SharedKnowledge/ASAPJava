@@ -166,6 +166,11 @@ public class ASAPEngineFS extends ASAPEngine {
         return new ASAPChunkStorageFS(dir);
     }
 
+    public ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+        String dir = this.rootDirectory + "/" + sender;
+        return ASAPEngineFS.getExistingASAPEngineFS(dir);
+    }
+
     @Override
     public List<CharSequence> getSender() {
         List<CharSequence> senderList = new ArrayList<>();

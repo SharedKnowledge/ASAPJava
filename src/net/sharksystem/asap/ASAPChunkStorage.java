@@ -30,5 +30,5 @@ public interface ASAPChunkStorage {
      * @return a chunk cache which hides details of era
      * @throws IOException 
      */
-    public ASAPChunkCache getASAPChunkCache(CharSequence uri, int toEra) throws IOException;
+    public ASAPChunkChain getASAPChunkCache(CharSequence uri, int toEra) throws IOException;
 }

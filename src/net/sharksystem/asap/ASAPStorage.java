@@ -176,6 +176,8 @@ public interface ASAPStorage {
      */
     public ASAPChunkStorage getIncomingChunkStorage(CharSequence sender);
 
+    ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException;
+
     /**
      *
      * @return list of peers with an incoming chunk storage
@@ -193,13 +195,13 @@ public interface ASAPStorage {
 
     void removeChannel(CharSequence uri) throws IOException;
 
-    ASAPChunkCache getChunkCache(int position) throws IOException, ASAPException;
+    ASAPChunkChain getChunkChain(int position) throws IOException, ASAPException;
 
-    ASAPChunkCache getChunkCache(int position, int toEra) throws IOException, ASAPException;
+    ASAPChunkChain getChunkChain(int position, int toEra) throws IOException, ASAPException;
 
-    ASAPChunkCache getChunkCache(CharSequence uri, int toEra) throws IOException;
+    ASAPChunkChain getChunkChain(CharSequence uri, int toEra) throws IOException;
 
-    ASAPChunkCache getChunkCache(CharSequence uri) throws IOException;
+    ASAPChunkChain getChunkChain(CharSequence uri) throws IOException;
 
     /**
      * Refresh with external system - re-read files, or whatever.

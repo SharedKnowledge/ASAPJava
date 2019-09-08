@@ -147,8 +147,6 @@ class ASAPChunkFS implements ASAPChunk {
 
         InputStream is = new ByteArrayInputStream(messageAsBytes);
 
-        long offset = this.messageFile.length();
-
         this.addMessage(is, messageAsBytes.length);
     }
 
@@ -331,7 +329,7 @@ class ASAPChunkFS implements ASAPChunk {
             if(!first) {
                 sb.append(Helper.SERIALIZATION_DELIMITER);
             }
-
+            first = false;
             sb.append(offset.toString());
         }
 

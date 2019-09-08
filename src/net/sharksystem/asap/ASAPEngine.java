@@ -157,19 +157,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         chunk.drop();
     }
 
-    public ASAPChunkCache getChunkCache(int position) throws IOException, ASAPException {
-        return this.getChunkCache(position, this.era);
+    public ASAPChunkChain getChunkChain(int position) throws IOException, ASAPException {
+        return this.getChunkChain(position, this.era);
     }
 
-    public ASAPChunkCache getChunkCache(CharSequence uri, int toEra) throws IOException {
+    public ASAPChunkChain getChunkChain(CharSequence uri, int toEra) throws IOException {
         return this.chunkStorage.getASAPChunkCache(uri, toEra);
     }
 
-    public ASAPChunkCache getChunkCache(CharSequence uri) throws IOException {
-        return this.getChunkCache(uri, this.getEra());
+    public ASAPChunkChain getChunkChain(CharSequence uri) throws IOException {
+        return this.getChunkChain(uri, this.getEra());
     }
 
-    public ASAPChunkCache getChunkCache(int position, int toEra)
+    public ASAPChunkChain getChunkChain(int position, int toEra)
             throws IOException, ASAPException {
 
         List<CharSequence> channelURIs = this.getChannelURIs();

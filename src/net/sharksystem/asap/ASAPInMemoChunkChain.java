@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
  *
  * @author thsc
  */
-class ASAPInMemoChunkCache implements ASAPChunkCache {
+class ASAPInMemoChunkChain implements ASAPChunkChain {
     public static final int DEFAULT_MAX_CACHE_SIZE = 1000;
     private final CharSequence uri;
     private final ASAPChunkStorageFS chunkStorage;
@@ -27,7 +27,7 @@ class ASAPInMemoChunkCache implements ASAPChunkCache {
 
     private int numberOfMessages = 0;
 
-    public ASAPInMemoChunkCache(ASAPChunkStorageFS chunkStorage,
+    public ASAPInMemoChunkChain(ASAPChunkStorageFS chunkStorage,
                                 CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
 
         this.uri = uri;
@@ -37,7 +37,7 @@ class ASAPInMemoChunkCache implements ASAPChunkCache {
         this.maxCacheLen = maxCacheLen;
     }
 
-    public ASAPInMemoChunkCache(ASAPChunkStorageFS chunkStorage,
+    public ASAPInMemoChunkChain(ASAPChunkStorageFS chunkStorage,
                                 CharSequence uri, int fromEra, int toEra) {
 
         this(chunkStorage, uri, fromEra, toEra, DEFAULT_MAX_CACHE_SIZE);

@@ -114,14 +114,14 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public ASAPChunkCache getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
+    public ASAPChunkChain getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
         // go back 1000 eras
         int fromEra = toEra;
         for(int i = 0; i < 1000; i++) {
             fromEra = ASAPEngine.previousEra(fromEra);
         }
 
-        return new ASAPInMemoChunkCache(this,
+        return new ASAPInMemoChunkChain(this,
                 uri,
                 fromEra, // set starting era
                 toEra // anything before
