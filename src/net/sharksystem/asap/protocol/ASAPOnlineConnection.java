@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
 
-public interface ASAPConnection {
+public interface ASAPOnlineConnection {
     CharSequence getRemotePeer();
 
     void addOnlineMessageSource(ASAPOnlineMessageSource source);

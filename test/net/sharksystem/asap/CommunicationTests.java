@@ -25,11 +25,16 @@ public class CommunicationTests {
     public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
     public static final String ALICE = "alice";
     public static final String BOB = "bob";
+    public static final String ALICE2BOB_MESSAGE = "1";
+    public static final String ALICE2BOB_MESSAGE2 = "2";
+    public static final String BOB2ALICE_MESSAGE = "3";
+    public static final String BOB2ALICE_MESSAGE2 = "4";
+/*
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
     public static final String ALICE2BOB_MESSAGE2 = "Hi Bob again";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
     public static final String BOB2ALICE_MESSAGE2 = "Hi Alice again";
-
+*/
     private static int portnumber = 7777;
 
     private int getPortNumber() {
@@ -344,11 +349,11 @@ public class CommunicationTests {
                 BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                       prepare asap immediate bypass                           //
+        //                                    setup asap online support                                  //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPOnlineMessageSender_Impl aliceBypass = new ASAPOnlineMessageSender_Impl(aliceEngine, aliceStorage);
-        ASAPOnlineMessageSender_Impl bobBypass = new ASAPOnlineMessageSender_Impl(bobEngine, bobStorage);
+        new ASAPOnlineMessageSender_Impl(aliceEngine, aliceStorage);
+        new ASAPOnlineMessageSender_Impl(bobEngine, bobStorage);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -372,32 +377,38 @@ public class CommunicationTests {
 
         // run engine as thread
         ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
-                aliceChannel.getInputStream(), aliceChannel.getOutputStream());
+                aliceChannel.getInputStream(),
+//                aliceChannel.getOutputStream());
+                aliceChannel.getOutputStream(System.out, "a2b:"));
 
         aliceEngineThread.start();
 
         // and better debugging - no new thread
-        bobEngine.handleConnection(bobChannel.getInputStream(), bobChannel.getOutputStream());
+        bobEngine.handleConnection(
+                bobChannel.getInputStream(System.out, "b2a:"),
+//                bobChannel.getInputStream(),
+                bobChannel.getOutputStream());
 
-        // give handleConnection some time.
+        // need some time to establish a asap connection - identity exchange
         Thread.sleep(1000);
-        // create second message after creating a connection - should be bypassed.
+
+        // create second message after creating a connection - should be transmitted with that online feature.
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
 
         // wait until communication probably ends
         System.out.flush();
         System.err.flush();
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         System.out.flush();
         System.err.flush();
 
-        // close connections: note ASAPEngine does NOT close any connection!!
+        // close connections: note: ASAPEngine does NOT close any connection!!
         aliceChannel.close();
         bobChannel.close();
         System.out.flush();
         System.err.flush();
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         System.out.flush();
         System.err.flush();
 

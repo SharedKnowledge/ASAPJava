@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public interface ASAPOnlineMessageSource {
-    void sendMessages(ASAPConnection asapConnection, OutputStream os) throws IOException;
+    boolean sendMessages(ASAPOnlineConnection asapOnlineConnection, OutputStream os) throws IOException;
 }

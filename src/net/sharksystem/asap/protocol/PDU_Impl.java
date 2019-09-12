@@ -284,4 +284,29 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         if(era > maxEra) throw new ASAPException("era exceeded max limit of 2^8-1");
     }
 
+    private String getCMDString(byte cmd) {
+        switch(cmd) {
+            case ASAP_1_0.INTEREST_CMD: return "I";
+            case ASAP_1_0.OFFER_CMD: return "O";
+            case ASAP_1_0.ASSIMILATE_CMD: return "A";
+            default: return "unknown!";
+        }
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("cmd: ");
+        sb.append(this.getCMDString(this.cmd));
+        sb.append(" | ");
+        sb.append("channel: ");
+        sb.append(this.channel);
+        sb.append(" | ");
+        sb.append("format: ");
+        sb.append(this.format);
+        sb.append(" | ");
+        sb.append("peer: ");
+        sb.append(this.peer);
+
+        return sb.toString();
+    }
 }

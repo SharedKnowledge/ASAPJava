@@ -17,7 +17,7 @@ public class ASAPOnlineMessageSender_Impl implements ASAPOnlineMessageSender, AS
     private ASAPStorage source = null;
 
     // connections and their remote peer (recipients)
-    private Map<ASAPConnection, CharSequence> connectionPeers = new HashMap<>();
+    private Map<ASAPOnlineConnection, CharSequence> connectionPeers = new HashMap<>();
 
     // message for recipients
     private Map<CharSequence, List<byte[]>> messages = new HashMap<>();
@@ -85,19 +85,19 @@ public class ASAPOnlineMessageSender_Impl implements ASAPOnlineMessageSender, AS
             sb.append(recipient);
             System.out.println(sb.toString());
             if(multiEngine.existASAPConnection(recipient)) {
-                ASAPConnection asapConnection = multiEngine.getASAPConnection(recipient);
+                ASAPOnlineConnection asapOnlineConnection = multiEngine.getASAPOnlineConnection(recipient);
                 sb = Log.startLog(this);
                 sb.append("got asap connection, subscribe / and store message");
                 System.out.println(sb.toString());
 
                 // subscribe and remember it
-                asapConnection.addOnlineMessageSource(this);
-                this.connectionPeers.put(asapConnection, recipient);
+                asapOnlineConnection.addOnlineMessageSource(this);
+                this.connectionPeers.put(asapOnlineConnection, recipient);
 
                 // serialize message for this recipient
                 ByteArrayOutputStream asapPDUBytes = new ByteArrayOutputStream();
                 protocol.assimilate(this.multiEngine.getOwner(), recipient, format, uri, era, null, // no offsets
-                        messageAsBytes, asapPDUBytes, asapConnection.isSigned());
+                        messageAsBytes, asapPDUBytes, asapOnlineConnection.isSigned());
 
                 // I guess maps are synchronized
                 List<byte[]> messageList = this.messages.get(recipient);
@@ -122,17 +122,21 @@ public class ASAPOnlineMessageSender_Impl implements ASAPOnlineMessageSender, AS
     }
 
     @Override
-    public void sendMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
-        CharSequence recipient = this.connectionPeers.get(asapConnection);
+    public boolean sendMessages(ASAPOnlineConnection asapOnlineConnection, OutputStream os) throws IOException {
+        boolean sent = false;
+        CharSequence recipient = this.connectionPeers.get(asapOnlineConnection);
 
         List<byte[]> messageList = this.messages.get(recipient);
         System.out.println(this.getLogStart() + " send message(s) to " + recipient);
         while(!messageList.isEmpty()) {
             os.write(messageList.remove(0));
+            sent = true;
         }
 
         this.messages.remove(recipient);
-        asapConnection.removeOnlineMessageSource(this);
-        this.connectionPeers.remove(asapConnection);
+        asapOnlineConnection.removeOnlineMessageSource(this);
+        this.connectionPeers.remove(asapOnlineConnection);
+
+        return sent;
     }
 }

@@ -10,38 +10,57 @@ public class ASAPPDUExecutor extends Thread {
     private final ASAP_PDU_1_0 asapPDU;
     private final InputStream is;
     private final OutputStream os;
-    private final EngineSetting engineSetting;
+    private final ASAPEngine engine;
     private final ASAP_1_0 protocol;
+    private final ASAPChunkReceivedListener listener;
+    private final ThreadFinishedListener threadFinishedListener;
 
-    ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
-                    EngineSetting engineSetting, ASAP_1_0 protocol) {
+    public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
+                           ASAPEngine engine, ASAP_1_0 protocol,
+                           ASAPChunkReceivedListener listener,
+                           ThreadFinishedListener threadFinishedListener) {
         this.asapPDU = asapPDU;
         this.is = is;
         this.os = os;
-        this.engineSetting = engineSetting;
+        this.engine = engine;
         this.protocol = protocol;
+        this.listener = listener;
+        this.threadFinishedListener = threadFinishedListener;
 
-        System.out.println("ASAPPDUExecutor created - "
-                + "folder: " + engineSetting.folder + " | "
-                + "engine: " + engineSetting.engine.getClass().getSimpleName() + " | "
-                + "listener: " + engineSetting.listener.getClass().getSimpleName());
+        if(listener != null) {
+            System.out.println("ASAPPDUExecutor created: "
+                    + "engine: " + engine.getClass().getSimpleName() + " | "
+                    + "listener: " + listener.getClass().getSimpleName());
+        } else {
+            System.out.println("ASAPPDUExecutor created: "
+                    + "engine: " + engine.getClass().getSimpleName() + " | "
+                    + "no chunk received listener: ");
+        }
+    }
+
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + ": ";
     }
 
     public void run() {
         try {
+            String engineClass = engine.getClass().getSimpleName();
             switch (asapPDU.getCommand()) {
                 case ASAP_1_0.INTEREST_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPInterest one engine");
-                    engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
+                    System.out.println(this.getLogStart() + "call " + engineClass + ".handleASAPInterest()");
+                    engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
+                    System.out.println(this.getLogStart() + "done " + engineClass + ".handleASAPInterest()");
                     break;
                 case ASAP_1_0.OFFER_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPOffer one engine");
-                    engineSetting.engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
+                    System.out.println(this.getLogStart() + "call " + engineClass + ".handleASAPOffer()");
+                    engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
+                    System.out.println(this.getLogStart() + "done " + engineClass + ".handleASAPOffer()");
                     break;
                 case ASAP_1_0.ASSIMILATE_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPAssimilate one engine");
-                    engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
-                            engineSetting.listener);
+                    System.out.println(this.getLogStart() + "call " + engineClass + ".handleASAPAssimilate()");
+                    engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
+                            listener);
+                    System.out.println(this.getLogStart() + "done " + engineClass + ".handleASAPAssimilate()");
                     break;
 
                 default:
@@ -55,8 +74,12 @@ public class ASAPPDUExecutor extends Thread {
                 os.close(); // more important to close than input stream - do it first
                 is.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                System.err.println("could not close streams - ignore probably already closed: " + e.getLocalizedMessage());
             }
+        }
+
+        if(this.threadFinishedListener != null) {
+            this.threadFinishedListener.finished(this);
         }
     }
 }

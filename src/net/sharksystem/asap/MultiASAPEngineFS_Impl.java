@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
+public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS,
+        ASAPOnlineConnectionListener, ASAPStartupConnectionListener,
+        ThreadFinishedListener {
     private final CharSequence rootFolderName;
     private final ASAPChunkReceivedListener listener;
     private CharSequence owner;
@@ -101,6 +103,14 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         engineSetting.listener = listener;
     }
 
+    @Override
+    public ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException {
+        EngineSetting engineSetting = this.folderMap.get(format);
+        if(engineSetting == null) throw new ASAPException("unknown format: " + format);
+
+        return engineSetting.listener;
+    }
+
     public CharSequence getOwner() {
         return this.owner;
     }
@@ -155,41 +165,41 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     //                                          connection management                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
-        ASAPConnection_Impl asapConnection = new ASAPConnection_Impl(
-                is, os, this, new ASAP_Modem_Impl(),
-                maxExecutionTime, this, this);
+    ///////////////// notification
+    private List<ASAPConnectionChangedListener> asapConnectionChangedListenerList = new ArrayList<>();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getLogStart());
-        sb.append("handleConnection: ask any aspStorage to increment era.");
-        System.out.println(sb.toString());
-
-        for(CharSequence format : this.folderMap.keySet()) {
-            ASAPStorage asapStorage = this.getEngineByFormat(format);
-            asapStorage.newEra();
+    private void notifyASAPConnectionChanged() {
+        for(ASAPConnectionChangedListener l : this.asapConnectionChangedListenerList) {
+            l.asapConnectionedPeers(asapOnlineConnectionThread.keySet());
         }
-
-        Thread thread = new Thread(asapConnection);
-        thread.start();
-
-        // remember
-        this.runningThreads.add(thread);
-
-        sb = new StringBuilder();
-        sb.append(this.getLogStart());
-        sb.append("launched new asapConnection thread, total number is now: ");
-        sb.append(this.runningThreads.size());
-        System.out.println(sb.toString());
-
-        return asapConnection;
     }
 
+    public void addASAPConnectionChangedListener(ASAPConnectionChangedListener listener) {
+        this.asapConnectionChangedListenerList.add(listener);
+    }
+
+    public void removeASAPConnectionChangedListener(ASAPConnectionChangedListener listener) {
+        this.asapConnectionChangedListenerList.remove(listener);
+    }
+
+    ////////////////////////// thread management - just keep track who is running
     /** all running threads */
     private List<Thread> runningThreads = new ArrayList<>();
 
+    private void threadStarted(Thread thread) {
+        this.runningThreads.add(thread);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("launched new thread (");
+        sb.append(thread.getClass().getSimpleName());
+        sb.append(") | #threads: ");
+        sb.append(this.runningThreads.size());
+        System.out.println(sb.toString());
+    }
+
     @Override
-    public void finished(Thread thread) {
+    public synchronized void finished(Thread thread) {
         if(thread == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
@@ -207,33 +217,81 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         System.out.println(sb.toString());
     }
 
-    // thread connected to a peer
-    private Map<CharSequence, ASAPConnection> connectedThreads = new HashMap<>();
-    private Map<ASAPConnection, CharSequence> threadPeerNames = new HashMap<>();
+    // running online connections
+    private Map<CharSequence, ASAPOnlineConnection> asapOnlineConnectionThread = new HashMap<>();
 
-    @Override
-    public void asapConnectionStarted(String peerName, ASAPConnection thread) {
-        if(thread == null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(this.getLogStart());
-            sb.append("asap connection started but thread terminated cannot be null - do nothing");
-            System.err.println(sb.toString());
-            return;
-        }
+    private boolean supportOnline = false;
+    public void setSupportOnline(boolean on) {
+        this.supportOnline = on;
+    }
+
+    //////////////// start a startup session - first greetings and get to know each other
+    public void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+        // start a startup session first
+        ASAPChunkExchangeSession asapStartupConnection = new ASAPChunkExchangeSession(
+                is, os, this, new ASAP_Modem_Impl(),
+                this.maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("asap connection started, got a peername: ");
-        sb.append(peerName);
+        sb.append("handleConnection: ask any aspStorage to increment era.");
         System.out.println(sb.toString());
 
-        this.connectedThreads.put(peerName, thread);
-        this.threadPeerNames.put(thread, peerName);
+        for(CharSequence format : this.folderMap.keySet()) {
+            ASAPStorage asapStorage = this.getEngineByFormat(format);
+            asapStorage.newEra();
+        }
+
+        asapStartupConnection.start();
+
+        // remember
+        this.threadStarted(asapStartupConnection);
     }
 
     @Override
-    public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection thread) {
-        if(thread == null) {
+    public void asapStartupConnectionTerminatedWithException(
+            ASAPStartupConnection connection, Exception terminatingException) {
+
+        System.out.println(this.getLogStart() + "start session terminated with exception - nothing to do");
+    }
+
+    @Override
+    public synchronized void asapStartupConnectionTerminated(ASAPStartupConnection connection) {
+        if(!this.supportOnline) {
+            System.out.println(this.getLogStart() + "startup terminated successfully - no online support, though");
+            return;
+        }
+
+        System.out.println(this.getLogStart() + "startup terminated successfully - start online session");
+        try {
+            ASAPOnlineConnection_Impl asapOnlineConnection = new ASAPOnlineConnection_Impl(
+                            connection.getPeerID(),
+                            connection.getInputStream(),
+                            connection.getOutputStream(),
+                    this, this);
+
+            System.out.println(this.getLogStart() + "new online connection established to peer:"
+                    + connection.getPeerID());
+
+            this.asapOnlineConnectionThread.put(connection.getPeerID(), asapOnlineConnection);
+
+            // start it
+            asapOnlineConnection.start();
+
+            // tell the world
+            this.notifyASAPConnectionChanged();
+        }
+        catch(ASAPException e) {
+            System.err.println(this.getLogStart() + "could not create asap online connection: "
+                    + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public synchronized void asapOnlineConnectionTerminated(ASAPOnlineConnection asapOnlineConnection,
+                                                            Exception terminatingException) {
+
+        if(asapOnlineConnection == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
             sb.append("terminated connection cannot be null - do nothing");
@@ -241,29 +299,42 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             return;
         }
 
-        // get thread name
-        CharSequence threadName = this.threadPeerNames.remove(thread);
+        // get asapOnlineConnection name
+        CharSequence peerName = asapOnlineConnection.getRemotePeer();
+        this.asapOnlineConnectionThread.remove(peerName);
+
+        // logging
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("thread terminated connected to: ");
+        sb.append("asapOnlineConnection terminated connected to: ");
 
-        if(threadName != null) {
-            sb.append(threadName);
+        if(peerName != null) {
+            sb.append(peerName);
         } else {
             sb.append("null");
         }
 
+        if(terminatingException != null) {
+            sb.append(" | with exception: ");
+            sb.append(terminatingException);
+        } else {
+            // we have an open connection - which terminated without an exception
+            // start online phase?
+
+        }
+
         System.out.println(sb.toString());
+        this.notifyASAPConnectionChanged();
     }
 
     @Override
     public boolean existASAPConnection(CharSequence recipient) {
-        return this.getASAPConnection(recipient) != null;
+        return this.getASAPOnlineConnection(recipient) != null;
     }
 
     @Override
-    public ASAPConnection getASAPConnection(CharSequence recipient) {
-        return this.connectedThreads.get(recipient);
+    public ASAPOnlineConnection getASAPOnlineConnection(CharSequence recipient) {
+        return this.asapOnlineConnectionThread.get(recipient);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,17 +350,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
     }
 
-    @Override
-    public Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
-                                    ThreadFinishedListener threadFinishedListener) throws ASAPException {
-        // process pdu
-        return new ASAPPDUExecutor(asappdu, is, os,
-                this.getEngineSettings(asappdu.getFormat()),
-                new ASAP_Modem_Impl());
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + "(" + this.owner + "): ";
     }
-
-   private String getLogStart() {
-        return this.getClass().getSimpleName() + ": ";
-    }
-
 }
