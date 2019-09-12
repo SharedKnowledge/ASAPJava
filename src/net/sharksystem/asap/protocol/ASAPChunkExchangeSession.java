@@ -6,28 +6,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ASAPChunkExchangeSession extends Thread implements ASAPStartupConnection, ThreadFinishedListener {
-    private final InputStream is;
-    private final OutputStream os;
+public class ASAPChunkExchangeSession extends ASAPSession implements ASAPStartupConnection, ThreadFinishedListener {
     private final ASAPStartupConnectionListener asapStartupConnectionListener;
-    private final MultiASAPEngineFS multiASAPEngineFS;
     private final ThreadFinishedListener threadFinishedListener;
-    private final ASAP_1_0 protocol;
-    private Thread managementThread = null;
     private final long maxExecutionTime;
     private String peer;
-
-    private Thread thread2wait4;
 
     public ASAPChunkExchangeSession(InputStream is, OutputStream os,
                                     MultiASAPEngineFS multiASAPEngineFS,
                                     ASAP_1_0 protocol, long maxExecutionTime,
                                     ASAPStartupConnectionListener asapStartupConnectionListener,
                                     ThreadFinishedListener threadFinishedListener) {
-        this.is = is;
-        this.os = os;
-        this.multiASAPEngineFS = multiASAPEngineFS;
-        this.protocol = protocol;
+
+        super(protocol, multiASAPEngineFS, is, os);
+
         this.maxExecutionTime = maxExecutionTime;
         this.asapStartupConnectionListener = asapStartupConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
@@ -78,17 +70,6 @@ public class ASAPChunkExchangeSession extends Thread implements ASAPStartupConne
         return null;
     }
 
-    @Override
-    public void finished(Thread t) {
-        if(t == this.thread2wait4) {
-            this.thread2wait4 = null;
-        }
-
-        if(this.managementThread != null) {
-            this.managementThread.interrupt();
-        }
-    }
-
     private void finishSession(String message) {
         this.finishSession(message, null);
     }
@@ -113,13 +94,11 @@ public class ASAPChunkExchangeSession extends Thread implements ASAPStartupConne
         }
 
         if(this.threadFinishedListener != null) {
-            this.threadFinishedListener.finished(this.managementThread);
+            this.threadFinishedListener.finished(this);
         }
     }
 
     public void run() {
-        ASAP_1_0 protocol = new ASAP_Modem_Impl();
-
         try {
             // let engine write their interest
             this.multiASAPEngineFS.pushInterests(this.os);
@@ -130,76 +109,22 @@ public class ASAPChunkExchangeSession extends Thread implements ASAPStartupConne
 
         // start reading / processing loop
         while (true) {
-            // read asap pdu
-            ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
-            this.thread2wait4 = pduReader;
-            pduReader.start();
-
-            // send online messages would be much better here
-            if(this.thread2wait4 != null) {
-                // wait for reader
-                try {
-                    this.managementThread = Thread.currentThread();
-                    Thread.sleep(maxExecutionTime);
-                } catch (InterruptedException e) {
-                    // should happen if successfully read something
-                }
-            }
-
-            // exception caught while reading?
-            if (pduReader.getIoException() != null || pduReader.getAsapException() != null) {
-                Exception e = pduReader.getIoException() != null ?
-                        pduReader.getIoException() : pduReader.getAsapException();
-
-                this.finishSession("exception when reading from stream (stop asap session): ", e);
-                return;
-            }
-
-            ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
-
-            if (asappdu == null) {
-                this.finishSession("no pdu, no exception, give up");
-                return;
-            } else {
+            ASAP_PDU_1_0 asappdu = null;
+            try {
+                asappdu = this.readASAPPDU(this.maxExecutionTime);
                 // we have read something - remember peer
                 this.setPeer(asappdu.getPeer());
-
-                // process received pdu
-                try {
-                    ASAPEngine engine = this.multiASAPEngineFS.getEngineByFormat(asappdu.getFormat());
-                    ASAPChunkReceivedListener listener = this.multiASAPEngineFS.getListenerByFormat(asappdu.getFormat());
-
-                    Thread executor = new ASAPPDUExecutor(asappdu, this.is, this.os,
-                            engine, new ASAP_Modem_Impl(),
-                            listener, // chunk received listener (can be null)
-                            this);
-
-                    executor.start();
-
-                    boolean threadFinished = false;
-                    try {
-                        Thread.sleep(maxExecutionTime);
-                    } catch (InterruptedException e) {
-                        threadFinished = true;
-                        // will hopefully happens - woke up because executor is done;
-                    }
-
-                    if (!threadFinished) {
-                        // declare this a failure
-                        this.finishSession("processing asap pdu takes longer than allowed - close streams");
-                        return;
-                    }
-
-                } catch (ASAPException | IOException e) {
-                    this.finishSession("when executing asap received pdu: ", e);
-                    return;
-                }
-            } // asap pdu != null
+                // process received pdu - could force reading - keep it separated from reader.
+                this.runASAPExecutor(asappdu, this.maxExecutionTime);
+            }
+            catch(ASAPExecTimeExceededException e) {
+                this.finishSession("nothing to read or execute - ok");
+                return;
+            } catch (ASAPException | IOException e) {
+                this.finishSession("pdu reading: ", e);
+                return;
+            }
         } // next loop - read pdu
-    }
-
-    protected void runASAPExecutor(ASAP_PDU_1_0 asapPDU) {
-
     }
 
     private StringBuilder startLog() {
