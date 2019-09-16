@@ -118,6 +118,14 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     }
 
     @Override
+    public ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException {
+        EngineSetting engineSetting = this.folderMap.get(format);
+        if(engineSetting == null) throw new ASAPException("unknown format: " + format);
+
+        return engineSetting.listener;
+    }
+
+    @Override
     public ASAPEngine getASAPEngine(CharSequence appName, CharSequence format)
             throws IOException, ASAPException {
 

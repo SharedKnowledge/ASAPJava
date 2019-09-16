@@ -26,6 +26,8 @@ public interface MultiASAPEngineFS {
 
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
+    ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException;
+
     /**
      * get or create engine for a given application - mainly means: setup folder
      * @param appName
