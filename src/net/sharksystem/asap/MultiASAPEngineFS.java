@@ -1,6 +1,9 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.protocol.ASAPOnlineConnection;
+import net.sharksystem.asap.protocol.ASAPConnection;
+import net.sharksystem.asap.protocol.ASAPConnectionListener;
+import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
+import net.sharksystem.asap.protocol.ThreadFinishedListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +22,9 @@ import java.io.OutputStream;
  * That interface hides those different engines.
  */
 public interface MultiASAPEngineFS {
-    static final long DEFAULT_MAX_PROCESSING_TIME = 1000;
+    public static final long DEFAULT_MAX_PROCESSING_TIME = 1000;
 
-    ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
+    public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
     /**
      * get or create engine for a given application - mainly means: setup folder
@@ -37,26 +40,20 @@ public interface MultiASAPEngineFS {
      * @throws IOException
      * @throws ASAPException
      */
-    void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
 
-    void pushInterests(OutputStream os) throws IOException, ASAPException;
+    public void pushInterests(OutputStream os) throws IOException, ASAPException;
+
+    Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
+                             ThreadFinishedListener threadFinishedListener) throws ASAPException;
 
     boolean existASAPConnection(CharSequence recipient);
 
-    ASAPOnlineConnection getASAPOnlineConnection(CharSequence recipient);
+    ASAPConnection getASAPConnection(CharSequence recipient);
 
     CharSequence getOwner();
 
     void newEra() throws IOException, ASAPException;
 
     void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener) throws ASAPException;
-
-    ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException;
-
-    /**
-     * if on = true: a connection is kept open as long as possible to support online exchange
-     * default: false
-     * @param on
-     */
-    void setSupportOnline(boolean on);
 }

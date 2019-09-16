@@ -70,14 +70,12 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         ASAP_PDU_1_0 pdu = null;
 
-        //System.out.printf("PDU Header cmd(hex): %x | flags(hex): %x\n", cmd, flagsInt);
         switch(cmd) {
             case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, is); break;
             case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, is); break;
             case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, is); break;
             default: throw new ASAPException("unknown command: " + cmd);
         }
-        //System.out.println("got one: " + pdu.toString());
 
         return pdu;
     }

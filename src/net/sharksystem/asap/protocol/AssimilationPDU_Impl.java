@@ -25,20 +25,13 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         evaluateFlags(flagsInt);
 
         if(this.peerSet()) { this.readPeer(is); }
-        //System.out.println("assimiliatePDU: readPeer");
         if(this.recipientPeerSet()) { this.readRecipientPeer(is); }
-        //System.out.println("assimiliatePDU: readRecipientPeer");
         this.readFormat(is);
-        //System.out.println("assimiliatePDU: readFormat");
         if(this.channelSet()) { this.readChannel(is); }
-        //System.out.println("assimiliatePDU: readChannel");
         if(this.eraSet()) { this.readEra(is); }
-        //System.out.println("assimiliatePDU: readEra");
         if(this.offsetsSet()) { this.readOffsets(is); }
-        //System.out.println("assimiliatePDU: readOffsets");
 
         this.dataLength = this.readLongParameter(is);
-        //System.out.println("assimiliatePDU: dataLength: " + this.dataLength);
 
         this.is = is;
     }
