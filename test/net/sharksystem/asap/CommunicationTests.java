@@ -347,8 +347,8 @@ public class CommunicationTests {
         //                                       prepare asap immediate bypass                           //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPOnlineMessageSender_Impl aliceBypass = new ASAPOnlineMessageSender_Impl(aliceEngine, aliceStorage);
-        ASAPOnlineMessageSender_Impl bobBypass = new ASAPOnlineMessageSender_Impl(bobEngine, bobStorage);
+        ASAPAbstractOnlineMessageSender aliceBypass = new ASAPSingleProcessOnlineMessageSender(aliceEngine, aliceStorage);
+        ASAPAbstractOnlineMessageSender bobBypass = new ASAPSingleProcessOnlineMessageSender(bobEngine, bobStorage);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //

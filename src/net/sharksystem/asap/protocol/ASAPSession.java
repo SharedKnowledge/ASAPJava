@@ -60,7 +60,7 @@ public abstract class ASAPSession extends Thread implements ThreadFinishedListen
         }
 
         ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
-        if(asappdu == null) {
+        if (asappdu == null) {
             throw new ASAPException("could not read asap PDU");
         }
 
@@ -81,11 +81,11 @@ public abstract class ASAPSession extends Thread implements ThreadFinishedListen
 
     @Override
     public void finished(Thread t) {
-        if(t == this.thread2wait4) {
+        if (t == this.thread2wait4) {
             this.thread2wait4 = null;
         }
 
-        if(this.managementThread != null) {
+        if (this.managementThread != null) {
             this.managementThread.interrupt();
         }
     }
