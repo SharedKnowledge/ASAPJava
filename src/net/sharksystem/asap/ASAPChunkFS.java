@@ -312,8 +312,8 @@ class ASAPChunkFS implements ASAPChunk {
         
         dos.writeUTF(this.uri);
         dos.writeUTF(this.getExtraAsString());
-        dos.writeUTF(Helper.list2String(this.recipients));
-        dos.writeUTF(Helper.list2String(this.deliveredTo));
+        dos.writeUTF(Helper.collection2String(this.recipients));
+        dos.writeUTF(Helper.collection2String(this.deliveredTo));
 
         // write offsetList
         dos.writeUTF(this.messageStartOffsetListAsString());

@@ -6,10 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
     private final CharSequence rootFolderName;
@@ -219,6 +216,27 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     private Map<CharSequence, ASAPConnection> connectedThreads = new HashMap<>();
     private Map<ASAPConnection, CharSequence> threadPeerNames = new HashMap<>();
 
+    private List<ASAPOnlinePeersChangedListener> onlinePeersChangedListeners = new ArrayList<>();
+    public void addOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener) {
+        this.onlinePeersChangedListeners.add(listener);
+    }
+
+    public void removeOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener) {
+        this.onlinePeersChangedListeners.remove(listener);
+    }
+
+    private void notifyOnlinePeersChangedListener() {
+        if(this.onlinePeersChangedListeners != null) {
+            for(ASAPOnlinePeersChangedListener listener: this.onlinePeersChangedListeners) {
+                listener.onlinePeersChanged(this);
+            }
+        }
+    }
+
+    public Set<CharSequence> getOnlinePeers() {
+        return this.connectedThreads.keySet();
+    }
+
     @Override
     public void asapConnectionStarted(String peerName, ASAPConnection thread) {
         if(thread == null) {
@@ -237,6 +255,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 
         this.connectedThreads.put(peerName, thread);
         this.threadPeerNames.put(thread, peerName);
+        this.notifyOnlinePeersChangedListener();
     }
 
     @Override
@@ -250,18 +269,22 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
 
         // get thread name
-        CharSequence threadName = this.threadPeerNames.remove(thread);
+        CharSequence peerName = this.threadPeerNames.remove(thread);
+        this.connectedThreads.remove(peerName);
+
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append("thread terminated connected to: ");
 
-        if(threadName != null) {
-            sb.append(threadName);
+        if(peerName != null) {
+            sb.append(peerName);
         } else {
             sb.append("null");
         }
 
         System.out.println(sb.toString());
+
+        this.notifyOnlinePeersChangedListener();
     }
 
     @Override

@@ -1,13 +1,11 @@
 package net.sharksystem.asap.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Helper {
     public static final String SERIALIZATION_DELIMITER = "|||";
 
-    public static String list2String(List<CharSequence> stringList) {
+    public static String collection2String(Collection<CharSequence> stringList) {
         StringBuilder sb = new StringBuilder();
 
         boolean first = true;

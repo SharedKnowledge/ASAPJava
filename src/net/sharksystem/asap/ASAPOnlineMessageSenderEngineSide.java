@@ -9,12 +9,9 @@ import net.sharksystem.asap.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class ASAPOnlineMessageSenderEngineSide implements ASAPOnlineMessageSource {
+public class ASAPOnlineMessageSenderEngineSide implements ASAPOnlineMessageSource, ASAPOnlineMessageSender {
     private final MultiASAPEngineFS multiEngine;
     private final ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
@@ -28,8 +25,30 @@ public class ASAPOnlineMessageSenderEngineSide implements ASAPOnlineMessageSourc
         this.multiEngine = multiEngine;
     }
 
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, byte[] messageAsBytes, int era)
+            throws IOException, ASAPException {
+
+        Set<CharSequence> onlinePeers = this.multiEngine.getOnlinePeers();
+        if(onlinePeers == null || onlinePeers.size() < 1) {
+            System.out.println(this.getLogStart() + "no online peers");
+            throw new ASAPException("no online peers");
+        }
+
+        List<CharSequence> onlinePeerList = new ArrayList<>();
+        for(CharSequence peerName : onlinePeers) {
+            onlinePeerList.add(peerName);
+            System.out.println(this.getLogStart() + peerName  + "is online");
+        }
+
+        this.sendASAPAssimilate(format, uri, onlinePeerList, messageAsBytes, era);
+    }
+
     public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
-                                   byte[] messageAsBytes, int era) throws IOException, ASAPException {
+        byte[] messageAsBytes, int era) throws IOException, ASAPException {
+
+        if(recipients == null || recipients.size() < 1) {
+            this.sendASAPAssimilate(format, uri, messageAsBytes, era);
+        }
 
         StringBuilder sb = Log.startLog(this);
         sb.append("sendASAPAssimilate(format: ");

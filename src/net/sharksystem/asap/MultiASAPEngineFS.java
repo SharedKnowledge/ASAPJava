@@ -8,6 +8,7 @@ import net.sharksystem.asap.protocol.ThreadFinishedListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 
 /**
  * There is an ASAPEngine that stores its data with a filesystem.
@@ -49,6 +50,8 @@ public interface MultiASAPEngineFS {
     Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
                              ThreadFinishedListener threadFinishedListener) throws ASAPException;
 
+    Set<CharSequence> getOnlinePeers();
+
     boolean existASAPConnection(CharSequence recipient);
 
     ASAPConnection getASAPConnection(CharSequence recipient);
@@ -58,4 +61,8 @@ public interface MultiASAPEngineFS {
     void newEra() throws IOException, ASAPException;
 
     void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener) throws ASAPException;
+
+    void addOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener);
+
+    void removeOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener);
 }
