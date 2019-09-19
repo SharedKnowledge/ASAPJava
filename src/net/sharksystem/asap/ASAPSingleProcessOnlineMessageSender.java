@@ -19,7 +19,8 @@ public class ASAPSingleProcessOnlineMessageSender
 
     private final ASAP_1_0 protocol = new ASAP_Modem_Impl();
     private final MultiASAPEngineFS multiEngine;
-    private final ASAPStorage source;
+    private final ASAPOnlineMessageSenderEngineSide asapOnlineMessageSenderEngineSide;
+
     // connections and their remote peer (recipients)
     private Map<ASAPConnection, CharSequence> connectionPeers = new HashMap<>();
 
@@ -27,14 +28,21 @@ public class ASAPSingleProcessOnlineMessageSender
     private Map<CharSequence, List<byte[]>> messages = new HashMap<>();
 
     public ASAPSingleProcessOnlineMessageSender(MultiASAPEngineFS multiEngine, ASAPStorage source) {
-        this.source = source;
         this.attachToSource(source);
         this.multiEngine = multiEngine;
+        this.asapOnlineMessageSenderEngineSide = new ASAPOnlineMessageSenderEngineSide(multiEngine);
     }
 
     @Override
     public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
                                    byte[] messageAsBytes, int era) throws IOException, ASAPException {
+
+        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
+    }
+
+    /*
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
+        byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         StringBuilder sb = Log.startLog(this);
         sb.append("messageAdded(format: ");
@@ -109,5 +117,11 @@ public class ASAPSingleProcessOnlineMessageSender
         this.messages.remove(recipient);
         asapConnection.removeOnlineMessageSource(this);
         this.connectionPeers.remove(asapConnection);
+    }
+     */
+
+    @Override
+    public void sendMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
+        this.asapOnlineMessageSenderEngineSide.sendMessages(asapConnection, os);
     }
 }
