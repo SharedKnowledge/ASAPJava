@@ -57,22 +57,9 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         }
     }
 
-    private synchronized void addOnlineMessage(byte[] message) {
-        this.onlineMessageList.add(message);
-    }
-
-    private synchronized byte[] remomveOnlineMessage() {
-        return this.onlineMessageList.remove(0);
-    }
-
     @Override
     public CharSequence getRemotePeer() {
         return this.peer;
-    }
-
-    @Override
-    public void addOnlineMessageSource(ASAPOnlineMessageSource source) {
-        this.onlineMessageSources.add(source);
     }
 
     @Override
@@ -139,6 +126,11 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         }
     }
 
+    @Override
+    public void addOnlineMessageSource(ASAPOnlineMessageSource source) {
+        this.onlineMessageSources.add(source);
+    }
+
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
@@ -179,7 +171,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
                 try {
                     Thread executor =
                             this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
-                    this.runObservedThread(executor, this.maxExecutionTime);
+                    this.runExclusiveObservedThread(executor, this.maxExecutionTime);
                 } catch (ASAPExecTimeExceededException e) {
                     System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
                 } catch (ASAPException e) {
@@ -197,6 +189,12 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             }
             // next loop
         }
+    }
+
+    private synchronized void runExclusiveObservedThread
+            (Thread t, long maxExecutionTime) throws ASAPExecTimeExceededException {
+
+        this.runObservedThread(t, maxExecutionTime);
     }
 
     private Thread thread2wait4;
