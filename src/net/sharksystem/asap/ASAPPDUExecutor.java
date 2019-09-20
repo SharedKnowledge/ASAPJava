@@ -12,14 +12,17 @@ public class ASAPPDUExecutor extends Thread {
     private final OutputStream os;
     private final EngineSetting engineSetting;
     private final ASAP_1_0 protocol;
+    private final ThreadFinishedListener threadFinishedListener;
 
     public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
-                           EngineSetting engineSetting, ASAP_1_0 protocol) {
+                           EngineSetting engineSetting, ASAP_1_0 protocol,
+                           ThreadFinishedListener threadFinishedListener) {
         this.asapPDU = asapPDU;
         this.is = is;
         this.os = os;
         this.engineSetting = engineSetting;
         this.protocol = protocol;
+        this.threadFinishedListener = threadFinishedListener;
 
         System.out.println("ASAPPDUExecutor created - "
                 + "folder: " + engineSetting.folder + " | "
@@ -57,6 +60,9 @@ public class ASAPPDUExecutor extends Thread {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+        finally {
+            this.threadFinishedListener.finished(this);
         }
     }
 }

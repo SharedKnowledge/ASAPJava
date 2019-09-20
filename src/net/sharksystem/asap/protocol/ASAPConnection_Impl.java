@@ -2,7 +2,6 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,6 +21,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
     private List<byte[]> onlineMessageList = new ArrayList<>();
     private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
+    private Thread threadWaiting4StreamsLock;
 
     public ASAPConnection_Impl(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
                                ASAP_1_0 protocol,
@@ -92,20 +92,6 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
         sb.append(" | ");
 
-        /*
-        try {
-            this.os.close();
-            this.is.close();
-            sb.append("closed streams");
-            System.out.println(sb.toString());
-        }
-        catch (IOException ioe) {
-            sb.append("could not close streams: ");
-            sb.append(ioe.getLocalizedMessage());
-            System.err.println(sb.toString());
-        }
-         */
-
         // inform listener
         if(this.asapConnectionListener != null) {
             this.asapConnectionListener.asapConnectionTerminated(e, this);
@@ -126,9 +112,29 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         }
     }
 
+    private class OnlineMessageSenderThread extends Thread {
+        public Exception caughtException = null;
+        public void run() {
+            try {
+                // get exclusive access to streams
+                System.out.println(startLog() + "online sender is going to wait for stream access");
+                wait4ExclusiveStreamsAccess();
+                System.out.println(startLog() + "online sender got stream access");
+                sendOnlineMessages();
+            } catch (IOException e) {
+                this.caughtException = e;
+            }
+            finally {
+                System.out.println(startLog() + "online sender releases lock");
+                releaseStreamsLock();
+            }
+        }
+    }
+
     @Override
     public void addOnlineMessageSource(ASAPOnlineMessageSource source) {
         this.onlineMessageSources.add(source);
+        new OnlineMessageSenderThread().start();
     }
 
     public void run() {
@@ -136,14 +142,13 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
         try {
             // let engine write their interest
-
             this.multiASAPEngineFS.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
             return;
         }
 
-        // start reading / processing loop
+        /////////////////////////////// read
         while (true) {
             // read asap pdu
             ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
@@ -164,47 +169,88 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
 
-            // we have read something - remember peer
+            /////////////////////////////// process
             if(asappdu != null) {
                 this.setPeer(asappdu.getPeer());
                 // process received pdu
                 try {
                     Thread executor =
                             this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
-                    this.runExclusiveObservedThread(executor, this.maxExecutionTime);
-                } catch (ASAPExecTimeExceededException e) {
-                    System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
-                } catch (ASAPException e) {
+
+                    // get exclusive access to streams
+                    System.out.println(this.startLog() + "asap pdu executor going to wait for stream access");
+                    this.wait4ExclusiveStreamsAccess();
+                    try {
+                        System.out.println(this.startLog() + "asap pdu executor got stream access");
+                        this.runObservedThread(executor, maxExecutionTime);
+                    } catch (ASAPExecTimeExceededException e) {
+                        System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
+                    } finally {
+                        // wake waiting thread if any
+                        this.releaseStreamsLock();
+                        System.out.println(this.startLog() + "asap pdu executor release locks");
+                    }
+                }  catch (ASAPException e) {
                     this.terminate("serious problem when executing asap received pdu: ", e);
                     return;
                 }
             }
-
-            // pdu processed - we have a free channel now - use it to send online messages - if any
-            try {
-                this.sendOnlineMessages();
-            } catch (IOException e) {
-                this.terminate("exception when sending online messages: " + e.getLocalizedMessage());
-                return;
-            }
-            // next loop
         }
     }
 
-    private synchronized void runExclusiveObservedThread
-            (Thread t, long maxExecutionTime) throws ASAPExecTimeExceededException {
+    private Thread threadUsingStreams = null;
+    private synchronized Thread getThreadUsingStreams(Thread t) {
+        if(this.threadUsingStreams == null) {
+            this.threadUsingStreams = t;
+            return null;
+        }
 
-        this.runObservedThread(t, maxExecutionTime);
+        return this.threadUsingStreams;
     }
 
-    private Thread thread2wait4;
+    private void wait4ExclusiveStreamsAccess() {
+        // synchronize with other thread using streams
+        Thread threadUsingStreams = this.getThreadUsingStreams(Thread.currentThread());
+
+        // got lock - go ahead
+        if(threadUsingStreams == null) {
+            return;
+        }
+
+        // there is another stream - wait until it dies
+        do {
+            System.out.println(this.getLogStart() + "enter waiting loop for exclusive stream access");
+            // wait
+            try {
+                this.threadWaiting4StreamsLock = Thread.currentThread();
+                threadUsingStreams.join();
+            } catch (InterruptedException e) {
+                System.out.println(this.getLogStart() + "woke up from join");
+            }
+            finally {
+                this.threadWaiting4StreamsLock = null;
+            }
+            // try again
+            System.out.println(this.getLogStart() + "try to get streams access again");
+            threadUsingStreams = this.getThreadUsingStreams(Thread.currentThread());
+        } while(threadUsingStreams != null);
+        System.out.println(this.getLogStart() + "leave waiting loop for exclusive stream access");
+    }
+
+    private void releaseStreamsLock() {
+        this.threadUsingStreams = null; // take me out
+        if(this.threadWaiting4StreamsLock != null) {
+            System.out.println(this.getLogStart() + "wake waiting thread");
+            this.threadWaiting4StreamsLock.interrupt();
+        }
+    }
+
     private void runObservedThread(Thread t, long maxExecutionTime) throws ASAPExecTimeExceededException {
-        this.thread2wait4 = t;
+        this.managementThread = Thread.currentThread();
         t.start();
 
         // wait for reader
         try {
-            this.managementThread = Thread.currentThread();
             Thread.sleep(maxExecutionTime);
         } catch (InterruptedException e) {
             // was woken up by thread - that's good

@@ -316,7 +316,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         // process pdu
         return new ASAPPDUExecutor(asappdu, is, os,
                 this.getEngineSettings(asappdu.getFormat()),
-                new ASAP_Modem_Impl());
+                new ASAP_Modem_Impl(), threadFinishedListener);
     }
 
    private String getLogStart() {
