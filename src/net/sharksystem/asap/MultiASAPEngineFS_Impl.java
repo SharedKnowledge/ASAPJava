@@ -167,7 +167,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("handleConnection: ask any aspStorage to increment era.");
+        sb.append("handleConnection: ask any asapStorage to increment era.");
         System.out.println(sb.toString());
 
         for(CharSequence format : this.folderMap.keySet()) {
