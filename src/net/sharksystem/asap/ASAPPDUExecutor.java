@@ -13,8 +13,8 @@ public class ASAPPDUExecutor extends Thread {
     private final EngineSetting engineSetting;
     private final ASAP_1_0 protocol;
 
-    ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
-                    EngineSetting engineSetting, ASAP_1_0 protocol) {
+    public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
+                           EngineSetting engineSetting, ASAP_1_0 protocol) {
         this.asapPDU = asapPDU;
         this.is = is;
         this.os = os;

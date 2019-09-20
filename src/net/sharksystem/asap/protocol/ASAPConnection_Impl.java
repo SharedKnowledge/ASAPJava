@@ -105,6 +105,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
         sb.append(" | ");
 
+        /*
         try {
             this.os.close();
             this.is.close();
@@ -116,6 +117,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             sb.append(ioe.getLocalizedMessage());
             System.err.println(sb.toString());
         }
+         */
 
         // inform listener
         if(this.asapConnectionListener != null) {
@@ -153,13 +155,10 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         while (true) {
             // read asap pdu
             ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
-            pduReader.start();
-
             try {
-                this.managementThread = Thread.currentThread();
-                Thread.sleep(maxExecutionTime);
-            } catch (InterruptedException e) {
-                // should happen if successfully read something
+                this.runObservedThread(pduReader, this.maxExecutionTime);
+            } catch (ASAPExecTimeExceededException e) {
+                System.out.println(this.startLog() + "reading on stream took longer than allowed");
             }
 
             // exception caught while reading?
@@ -173,48 +172,20 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
 
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
 
-            if (asappdu == null) {
-                System.out.println(this.startLog() + "no asap pdu read during max execution time");
-                if(this.onlineMessageSources.isEmpty()) {
-                    // no online source - we are really done here
-                    this.terminate("no online source - we are done here");
-                    return;
-                } else {
-                    System.out.println(this.startLog() + "give online sources the channel.");
-                    try {
-                        this.sendOnlineMessages();
-                    } catch (IOException e) {
-                        this.terminate("exception when sending online messages: " + e.getLocalizedMessage());
-                        return;
-                    }
-                }
-            }
-
             // we have read something - remember peer
-            this.setPeer(asappdu.getPeer());
-
-            // process received pdu
-            try {
-                Thread executor = null;
-
-                executor = this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
-                executor.start();
-
+            if(asappdu != null) {
+                this.setPeer(asappdu.getPeer());
+                // process received pdu
                 try {
-                    Thread.sleep(maxExecutionTime);
-                } catch (InterruptedException e) {
-                    // will hopefully happens - woke up because executor is done;
-                }
-
-                if (executor.isAlive()) {
-                    // declare this a failure
-                    this.terminate("process that processes asap pdu takes longer than allowed - close streams");
+                    Thread executor =
+                            this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
+                    this.runObservedThread(executor, this.maxExecutionTime);
+                } catch (ASAPExecTimeExceededException e) {
+                    System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
+                } catch (ASAPException e) {
+                    this.terminate("serious problem when executing asap received pdu: ", e);
                     return;
                 }
-
-            } catch (ASAPException e) {
-                this.terminate("when executing asap received pdu: ", e);
-                return;
             }
 
             // pdu processed - we have a free channel now - use it to send online messages - if any
@@ -226,6 +197,30 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
             }
             // next loop
         }
+    }
+
+    private Thread thread2wait4;
+    private void runObservedThread(Thread t, long maxExecutionTime) throws ASAPExecTimeExceededException {
+        this.thread2wait4 = t;
+        t.start();
+
+        // wait for reader
+        try {
+            this.managementThread = Thread.currentThread();
+            Thread.sleep(maxExecutionTime);
+        } catch (InterruptedException e) {
+            // was woken up by thread - that's good
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("thread (");
+        sb.append(t.getClass().getSimpleName());
+        sb.append(") exceeded max execution time of ");
+        sb.append(maxExecutionTime);
+        sb.append(" ms");
+
+        throw new ASAPExecTimeExceededException(sb.toString());
     }
 
     private StringBuilder startLog() {
