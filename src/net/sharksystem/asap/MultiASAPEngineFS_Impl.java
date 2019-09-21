@@ -34,9 +34,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
      */
     MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
                                   ASAPChunkReceivedListener listener) throws ASAPException, IOException {
-
-//        this.owner = ASAPEngine.DEFAULT_OWNER; // probably dummy name
-        this.owner = owner; // probably dummy name
+        this.owner = owner;
         this.maxExecutionTime = maxExecutionTime;
         this.rootFolderName = rootFolderName;
         this.listener = listener;
@@ -92,7 +90,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
 
         EngineSetting engineSetting = this.folderMap.get(appName);
         if(engineSetting == null) {
-            throw new ASAPException("there is no ASAPEngine for app " + appName);
+            throw new ASAPException("there is no ASAPEngine for app/format " + appName);
         }
 
         engineSetting.listener = listener;
@@ -161,7 +159,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
-        ASAPConnection_Impl asapConnection = new ASAPConnection_Impl(
+        ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
                 maxExecutionTime, this, this);
 
@@ -170,10 +168,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         sb.append("handleConnection: ask any asapStorage to increment era.");
         System.out.println(sb.toString());
 
-        for(CharSequence format : this.folderMap.keySet()) {
-            ASAPStorage asapStorage = this.getEngineByFormat(format);
-            asapStorage.newEra();
-        }
+        this.announceNewEra();
 
         Thread thread = new Thread(asapConnection);
         thread.start();
@@ -188,6 +183,13 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         System.out.println(sb.toString());
 
         return asapConnection;
+    }
+
+    public void announceNewEra() throws IOException, ASAPException {
+        for(CharSequence format : this.folderMap.keySet()) {
+            ASAPStorage asapStorage = this.getEngineByFormat(format);
+            asapStorage.newEra();
+        }
     }
 
     /** all running threads */
@@ -283,6 +285,13 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
 
         System.out.println(sb.toString());
+        System.out.println(this.getLogStart() + "announce new era");
+
+        try {
+            this.announceNewEra();
+        } catch (IOException | ASAPException e) {
+            System.err.println(this.getLogStart() + "error when announcing new era: " + e.getLocalizedMessage());
+        }
 
         this.notifyOnlinePeersChangedListener();
     }

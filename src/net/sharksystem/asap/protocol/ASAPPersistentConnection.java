@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFinishedListener {
+public class ASAPPersistentConnection implements ASAPConnection, Runnable, ThreadFinishedListener {
     private final InputStream is;
     private final OutputStream os;
     private final ASAPConnectionListener asapConnectionListener;
@@ -23,10 +23,10 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
     private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
     private Thread threadWaiting4StreamsLock;
 
-    public ASAPConnection_Impl(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
-                               ASAP_1_0 protocol,
-                               long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
-                               ThreadFinishedListener threadFinishedListener) {
+    public ASAPPersistentConnection(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
+                                    ASAP_1_0 protocol,
+                                    long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
+                                    ThreadFinishedListener threadFinishedListener) {
         this.is = is;
         this.os = os;
         this.multiASAPEngineFS = multiASAPEngineFS;
@@ -140,7 +140,7 @@ public class ASAPConnection_Impl implements ASAPConnection, Runnable, ThreadFini
         this.checkRunningOnlineMessageSender();
     }
 
-    private void checkRunningOnlineMessageSender() {
+    private synchronized void checkRunningOnlineMessageSender() {
         if(this.onlineMessageSenderThread == null
                 && this.onlineMessageSources != null && this.onlineMessageSources.size() > 0) {
             this.onlineMessageSenderThread = new OnlineMessageSenderThread();

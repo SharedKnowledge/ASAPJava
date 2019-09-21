@@ -23,4 +23,15 @@ public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessa
             this.source.detachASAPMessageAddListener(this);
         }
     }
+
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, CharSequence recipient,
+                                            byte[] messageAsBytes, int era) throws IOException, ASAPException {
+        if(recipient == null) {
+            this.sendASAPAssimilate(format, uri, messageAsBytes, era);
+        } else {
+            List<CharSequence> recipients = new ArrayList<>();
+            recipients.add(recipient);
+            this.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
+        }
+    }
 }
