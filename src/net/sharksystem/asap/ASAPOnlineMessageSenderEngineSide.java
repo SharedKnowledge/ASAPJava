@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
-public class ASAPOnlineMessageSenderEngineSide implements ASAPOnlineMessageSource, ASAPOnlineMessageSender {
+public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessageSender
+        implements ASAPOnlineMessageSource, ASAPOnlineMessageSender {
+
     private final MultiASAPEngineFS multiEngine;
     private final ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
