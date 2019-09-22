@@ -11,10 +11,11 @@ import java.util.List;
  * Descriptions of ASAP protocol data units and some constants
  */
 public interface ASAP_1_0 {
-    public static final byte OFFER_CMD = 'O';
-    public static final byte INTEREST_CMD = 'I';
-    public static final byte ASSIMILATE_CMD = 'A';
+    byte OFFER_CMD = 'O';
+    byte INTEREST_CMD = 'I';
+    byte ASSIMILATE_CMD = 'A';
     CharSequence ANY_FORMAT = "any_asap";
+    CharSequence ASAP_MANAGEMENT_FORMAT = "asap/control";
 
     /*
     OFFER: An peer (optional) in an range of era (optional) offers data for

@@ -8,18 +8,16 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ASAPPersistentConnection implements ASAPConnection, Runnable, ThreadFinishedListener {
-    private final InputStream is;
-    private final OutputStream os;
+public class ASAPPersistentConnection extends ASAPProtocolEngine
+        implements ASAPConnection, Runnable, ThreadFinishedListener {
+
     private final ASAPConnectionListener asapConnectionListener;
     private final MultiASAPEngineFS multiASAPEngineFS;
     private final ThreadFinishedListener threadFinishedListener;
-    private final ASAP_1_0 protocol;
     private Thread managementThread = null;
     private final long maxExecutionTime;
-    private String peer;
+    private String remotePeer;
 
-    private List<byte[]> onlineMessageList = new ArrayList<>();
     private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
     private Thread threadWaiting4StreamsLock;
 
@@ -27,10 +25,10 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
                                     ASAP_1_0 protocol,
                                     long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                                     ThreadFinishedListener threadFinishedListener) {
-        this.is = is;
-        this.os = os;
+
+        super(is, os, protocol);
+
         this.multiASAPEngineFS = multiASAPEngineFS;
-        this.protocol = protocol;
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
@@ -40,26 +38,26 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
         return this.getClass().getSimpleName() + ": ";
     }
 
-    private void setPeer(String peerName) {
-        if(this.peer == null) {
+    private void setRemotePeer(String remotePeerName) {
+        if(this.remotePeer == null) {
 
-            this.peer = peerName;
+            this.remotePeer = remotePeerName;
 
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
-            sb.append("set peerName after reading first asap message: ");
-            sb.append(peerName);
+            sb.append("set remotePeerName after reading first asap message: ");
+            sb.append(remotePeerName);
             System.out.println(sb.toString());
 
             if(this.asapConnectionListener != null) {
-                this.asapConnectionListener.asapConnectionStarted(peerName, this);
+                this.asapConnectionListener.asapConnectionStarted(remotePeerName, this);
             }
         }
     }
 
     @Override
     public CharSequence getRemotePeer() {
-        return this.peer;
+        return this.remotePeer;
     }
 
     @Override
@@ -151,6 +149,21 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
+        // introduce yourself
+        CharSequence owner = this.multiASAPEngineFS.getOwner();
+        if(owner != null && owner.length() > 0) {
+            try {
+                this.sendIntroductionOffer(owner, false);
+            } catch (IOException e) {
+                this.terminate("io error when sending introduction offering: ", e);
+                return;
+            } catch (ASAPException e) {
+                System.out.println(this.getLogStart()
+                        + "could not send introduction offer: " + e.getLocalizedMessage());
+                // go ahead - no io problem
+            }
+        }
+
         try {
             // let engine write their interest
             this.multiASAPEngineFS.pushInterests(this.os);
@@ -178,7 +191,7 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
             /////////////////////////////// process
             if(asappdu != null) {
-                this.setPeer(asappdu.getPeer());
+                this.setRemotePeer(asappdu.getPeer());
                 // process received pdu
                 try {
                     Thread executor =
@@ -199,8 +212,7 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
                         System.out.println(this.startLog() + "asap pdu executor release locks");
                     }
                 }  catch (ASAPException e) {
-                    this.terminate("serious problem when executing asap received pdu: ", e);
-                    return;
+                    System.out.println(this.getLogStart() + " problem when executing asap received pdu: " + e);
                 }
             }
         }
@@ -278,7 +290,7 @@ public class ASAPPersistentConnection implements ASAPConnection, Runnable, Threa
     private StringBuilder startLog() {
         StringBuilder sb = net.sharksystem.asap.util.Log.startLog(this);
         sb.append(" recipient: ");
-        sb.append(this.peer);
+        sb.append(this.remotePeer);
         sb.append(" | ");
 
         return sb;
