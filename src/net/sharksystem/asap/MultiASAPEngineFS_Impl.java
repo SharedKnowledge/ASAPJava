@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.util.Helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,7 +169,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         sb.append("handleConnection: ask any asapStorage to increment era.");
         System.out.println(sb.toString());
 
-        this.announceNewEra();
+        // this.announceNewEra(); announce when connection is actually established
 
         Thread thread = new Thread(asapConnection);
         thread.start();
@@ -186,6 +187,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     }
 
     public void announceNewEra() throws IOException, ASAPException {
+        System.out.println(this.getLogStart() + "announce new era");
         for(CharSequence format : this.folderMap.keySet()) {
             ASAPStorage asapStorage = this.getEngineByFormat(format);
             asapStorage.newEra();
@@ -228,6 +230,14 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     }
 
     private void notifyOnlinePeersChangedListener() {
+        if(!this.connectedThreads.isEmpty()) {
+            System.out.println(this.getLogStart()
+                    + "#online peers: " + this.connectedThreads.keySet().size()
+                    + " | " + Helper.collection2String(this.connectedThreads.keySet()));
+        } else {
+            System.out.println(this.getLogStart() + "no (more) peers: ");
+        }
+
         if(this.onlinePeersChangedListeners != null) {
             for(ASAPOnlinePeersChangedListener listener: this.onlinePeersChangedListeners) {
                 listener.onlinePeersChanged(this);
@@ -236,6 +246,14 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     }
 
     public Set<CharSequence> getOnlinePeers() {
+        if(!this.connectedThreads.isEmpty()) {
+            System.out.println(this.getLogStart()
+                    + "getOnlinePeers called | #online peers: " + this.connectedThreads.keySet().size()
+                    + " | " + Helper.collection2String(this.connectedThreads.keySet()));
+        } else {
+            System.out.println(this.getLogStart() + "getOnlinePeers called | no (more) peers: ");
+        }
+
         return this.connectedThreads.keySet();
     }
 
@@ -247,6 +265,12 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             sb.append("asap connection started but thread terminated cannot be null - do nothing");
             System.err.println(sb.toString());
             return;
+        }
+
+        try {
+            this.announceNewEra();
+        } catch (IOException | ASAPException e) {
+            System.err.println(this.getLogStart() + "could not announce new era: " + e.getLocalizedMessage());
         }
 
         StringBuilder sb = new StringBuilder();
@@ -285,15 +309,19 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         }
 
         System.out.println(sb.toString());
-        System.out.println(this.getLogStart() + "announce new era");
 
-        try {
-            this.announceNewEra();
-        } catch (IOException | ASAPException e) {
-            System.err.println(this.getLogStart() + "error when announcing new era: " + e.getLocalizedMessage());
+        if(peerName != null) {
+            try {
+                this.announceNewEra();
+            } catch (IOException | ASAPException e) {
+                System.err.println(this.getLogStart() + "error when announcing new era: " + e.getLocalizedMessage());
+            }
+
+            this.notifyOnlinePeersChangedListener();
+        } else {
+            System.out.println(this.getLogStart()
+                    + "asap connection terminated connected to nobody: don't change era / don't notify listeners");
         }
-
-        this.notifyOnlinePeersChangedListener();
     }
 
     @Override
