@@ -188,9 +188,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 this.terminate("exception when reading from stream (stop asap session): ", e);
                 return;
             }
+            System.out.println(this.getLogStart() + "back from reading");
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
             /////////////////////////////// process
             if(asappdu != null) {
+                System.out.println(this.getLogStart() + "read valid pdu");
                 this.setRemotePeer(asappdu.getPeer());
                 // process received pdu
                 try {
@@ -200,7 +202,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                     System.out.println(this.startLog() + "asap pdu executor going to wait for stream access");
                     this.wait4ExclusiveStreamsAccess();
                     try {
-                        System.out.println(this.startLog() + "asap pdu executor got stream access");
+                        System.out.println(this.startLog() + "asap pdu executor got stream access - process pdu");
                         this.runObservedThread(executor, maxExecutionTime);
                     } catch (ASAPExecTimeExceededException e) {
                         System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
