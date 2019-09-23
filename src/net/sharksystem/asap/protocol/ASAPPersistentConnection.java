@@ -176,6 +176,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         while (true) {
             ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
             try {
+                System.out.println(this.startLog() + "start reading");
                 this.runObservedThread(pduReader, this.maxExecutionTime);
             } catch (ASAPExecTimeExceededException e) {
                 System.out.println(this.startLog() + "reading on stream took longer than allowed");
