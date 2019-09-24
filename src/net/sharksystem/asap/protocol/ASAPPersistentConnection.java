@@ -20,6 +20,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
     private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
     private Thread threadWaiting4StreamsLock;
+    private boolean terminated = false;
 
     public ASAPPersistentConnection(InputStream is, OutputStream os, MultiASAPEngineFS multiASAPEngineFS,
                                     ASAP_1_0 protocol,
@@ -87,13 +88,20 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         sb.append(" | ");
         System.out.println(sb.toString());
 
-        // inform listener
-        if(this.asapConnectionListener != null) {
-            this.asapConnectionListener.asapConnectionTerminated(e, this);
-        }
+        if(!this.terminated) {
+            this.terminated = true;
+            // kill reader - proofed to be useful in a bluetooth environment
+            if(this.pduReader != null && this.pduReader.isAlive()) {
+                this.pduReader.interrupt();
+            }
+            // inform listener
+            if (this.asapConnectionListener != null) {
+                this.asapConnectionListener.asapConnectionTerminated(e, this);
+            }
 
-        if(this.threadFinishedListener != null) {
-            this.threadFinishedListener.finished(Thread.currentThread());
+            if (this.threadFinishedListener != null) {
+                this.threadFinishedListener.finished(Thread.currentThread());
+            }
         }
     }
 
@@ -118,20 +126,24 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 wait4ExclusiveStreamsAccess();
                 System.out.println(startLog() + "online sender got stream access");
                 sendOnlineMessages();
+                // prepare a graceful death
+                onlineMessageSenderThread = null;
+                // are new message waiting in the meantime?
+                checkRunningOnlineMessageSender();
             } catch (IOException e) {
-                this.caughtException = e;
+                terminate("could not write data into stream", e);
             }
             finally {
                 System.out.println(startLog() + "online sender releases lock");
                 releaseStreamsLock();
-                onlineMessageSenderThread = null;
-                // are new message waiting in the meantime?
-                checkRunningOnlineMessageSender();
             }
         }
     }
 
-    OnlineMessageSenderThread onlineMessageSenderThread = null;
+    private OnlineMessageSenderThread onlineMessageSenderThread = null;
+    private ASAPPDUReader pduReader = null;
+    Thread executor = null;
+
     @Override
     public void addOnlineMessageSource(ASAPOnlineMessageSource source) {
         this.onlineMessageSources.add(source);
@@ -173,8 +185,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
 
         /////////////////////////////// read
-        while (true) {
-            ASAPPDUReader pduReader = new ASAPPDUReader(protocol, is, this);
+        while (!this.terminated) {
+            this.pduReader = new ASAPPDUReader(protocol, is, this);
             try {
                 System.out.println(this.startLog() + "start reading");
                 this.runObservedThread(pduReader, this.maxExecutionTime);
@@ -197,7 +209,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 this.setRemotePeer(asappdu.getPeer());
                 // process received pdu
                 try {
-                    Thread executor =
+                    this.executor =
                             this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
                     // get exclusive access to streams
                     System.out.println(this.startLog() + "asap pdu executor going to wait for stream access");

@@ -122,7 +122,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             System.out.println(this.getLogStart() + " send message to " + recipient);
             System.out.println(this.getLogStart() + "outstream: " + os.getClass().getSimpleName());
             os.write(messageList.remove(0));
-            os.flush(); // hopefully we figure out io problems quickly
+            System.out.println(this.getLogStart() + "wrote");
         }
 
         this.messages.remove(recipient);
