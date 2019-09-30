@@ -34,11 +34,14 @@ public class ASAPPDUReader extends Thread {
     public void run() {
         try {
             this.asapPDU = protocol.readPDU(is);
-            this.pduReaderListener.finished(this);
+//            this.pduReaderListener.finished(this);
         } catch (IOException e) {
             this.ioException = e;
         } catch (ASAPException e) {
             this.asapException = e;
+        }
+        finally {
+            this.pduReaderListener.finished(this);
         }
     }
 }

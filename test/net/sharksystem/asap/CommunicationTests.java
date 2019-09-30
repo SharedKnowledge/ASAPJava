@@ -169,6 +169,7 @@ public class CommunicationTests {
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(1, bobStorage.getEra());
     }
+
     @Test
     public void notOpenMessageChunkExchange() throws IOException, ASAPException, InterruptedException {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,4 +443,83 @@ public class CommunicationTests {
         bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
     }
+
+    @Test
+    public void killOpenConnection() throws IOException, ASAPException, InterruptedException {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                        prepare storages                                       //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+
+        // alice writes a message into chunkStorage
+        ASAPStorage aliceStorage =
+                ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
+
+        aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
+        aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
+        //aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
+
+        // bob does the same
+        ASAPStorage bobStorage =
+                ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+
+        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
+        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
+        //bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                        prepare multi engines                                  //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
+        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
+
+        ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
+        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                        setup connection                                       //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+        int portNumber = this.getPortNumber();
+        // create connections for both sides
+        TCPChannel aliceChannel = new TCPChannel(portNumber, true, "a2b");
+        TCPChannel bobChannel = new TCPChannel(portNumber, false, "b2a");
+
+        aliceChannel.start();
+        bobChannel.start();
+
+        // wait to connect
+        aliceChannel.waitForConnection();
+        bobChannel.waitForConnection();
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        //                                        run asap connection                                    //
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // run engine as thread
+/*
+        ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
+                aliceChannel.getInputStream(), aliceChannel.getOutputStream());
+
+        aliceEngineThread.start();
+ */
+        // and better debugging - no new thread
+        bobEngine.handleConnection(bobChannel.getInputStream(), bobChannel.getOutputStream());
+
+        // wait until communication probably ends
+        Thread.sleep(1000);
+
+        // kill connection on bob side
+        bobChannel.close();
+
+        Thread.sleep(1000);
+        System.out.flush();
+        System.err.flush();
+
+        // check results
+    }
+
 }
