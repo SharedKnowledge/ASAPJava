@@ -214,7 +214,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         pduReader.getIoException() : pduReader.getAsapException();
 
                 this.terminate("exception when reading from stream (stop asap session): ", e);
-                return;
+                break;
             }
 
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
@@ -235,7 +235,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                     } catch (ASAPExecTimeExceededException e) {
                         System.out.println(this.startLog() + "asap pdu processing took longer than allowed");
                         this.terminate("asap pdu processing took longer than allowed", e);
-                        return;
+                        break;
                     } finally {
                         // wake waiting thread if any
                         this.releaseStreamsLock();

@@ -41,7 +41,9 @@ public class ASAPPDUReader extends Thread {
             this.asapException = e;
         }
         finally {
-            this.pduReaderListener.finished(this);
+            if(this.pduReaderListener != null) {
+                this.pduReaderListener.finished(this);
+            }
         }
     }
 }
