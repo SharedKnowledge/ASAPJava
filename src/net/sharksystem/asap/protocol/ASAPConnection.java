@@ -11,4 +11,7 @@ public interface ASAPConnection {
     void removeOnlineMessageSource(ASAPOnlineMessageSource source);
 
     boolean isSigned();
+
+    // terminate that connection - don't do anything with underlying protocol (streams)
+    void kill();
 }

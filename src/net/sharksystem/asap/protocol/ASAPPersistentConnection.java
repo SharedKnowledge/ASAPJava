@@ -71,6 +71,32 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     @Override
+    public void kill() {
+        this.kill(new ASAPException("kill called from outside asap connection"));
+    }
+
+    public void kill(Exception e) {
+        if(!this.terminated) {
+            this.terminated = true;
+            // kill reader - proofed to be useful in a bluetooth environment
+            if(this.pduReader != null && this.pduReader.isAlive()) {
+                this.pduReader.interrupt();
+            }
+            if(this.managementThread != null && this.managementThread.isAlive()) {
+                this.managementThread.interrupt();
+            }
+            // inform listener
+            if (this.asapConnectionListener != null) {
+                this.asapConnectionListener.asapConnectionTerminated(e, this);
+            }
+
+            if (this.threadFinishedListener != null) {
+                this.threadFinishedListener.finished(Thread.currentThread());
+            }
+        }
+    }
+
+    @Override
     public void finished(Thread t) {
         if(this.managementThread != null) {
             this.managementThread.interrupt();
@@ -88,21 +114,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         sb.append(" | ");
         System.out.println(sb.toString());
 
-        if(!this.terminated) {
-            this.terminated = true;
-            // kill reader - proofed to be useful in a bluetooth environment
-            if(this.pduReader != null && this.pduReader.isAlive()) {
-                this.pduReader.interrupt();
-            }
-            // inform listener
-            if (this.asapConnectionListener != null) {
-                this.asapConnectionListener.asapConnectionTerminated(e, this);
-            }
-
-            if (this.threadFinishedListener != null) {
-                this.threadFinishedListener.finished(Thread.currentThread());
-            }
-        }
+        this.kill();
     }
 
     private void sendOnlineMessages() throws IOException {
@@ -194,6 +206,9 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 System.out.println(this.startLog() + "reading on stream took longer than allowed");
             }
 
+            System.out.println(this.getLogStart() + "back from reading");
+            if(terminated) break; // could be killed in the meantime
+
             if (pduReader.getIoException() != null || pduReader.getAsapException() != null) {
                 Exception e = pduReader.getIoException() != null ?
                         pduReader.getIoException() : pduReader.getAsapException();
@@ -201,7 +216,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 this.terminate("exception when reading from stream (stop asap session): ", e);
                 return;
             }
-            System.out.println(this.getLogStart() + "back from reading");
+
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
             /////////////////////////////// process
             if(asappdu != null) {
