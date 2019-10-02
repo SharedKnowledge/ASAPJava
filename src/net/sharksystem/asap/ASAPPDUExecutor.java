@@ -30,19 +30,39 @@ public class ASAPPDUExecutor extends Thread {
                 + "listener: " + engineSetting.listener.getClass().getSimpleName());
     }
 
+    private void finish() {
+        if(this.threadFinishedListener != null) {
+            this.threadFinishedListener.finished(this);
+        }
+    }
+
     public void run() {
+        if(engineSetting.engine == null) {
+            System.err.println("ASAPPDUExecutor called without engine set - fatal");
+            this.finish();
+            return;
+        }
+
+        System.out.println("ASAPPDUExecutor calls engine: " + engineSetting.engine.getClass().getSimpleName());
+
+        if(asapPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT.toString())) {
+            System.out.println("ASAPPDUExecutor got asap management message - ignore");
+            this.finish();
+            return;
+        }
+
         try {
             switch (asapPDU.getCommand()) {
                 case ASAP_1_0.INTEREST_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPInterest one engine");
+                    System.out.println("ASAPPDUExecutor call handleASAPInterest");
                     engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
                     break;
                 case ASAP_1_0.OFFER_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPOffer one engine");
+                    System.out.println("ASAPPDUExecutor call handleASAPOffer");
                     engineSetting.engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
                     break;
                 case ASAP_1_0.ASSIMILATE_CMD:
-                    System.out.println("ASAPPDUExecutor call handleASAPAssimilate one engine");
+                    System.out.println("ASAPPDUExecutor call handleASAPAssimilate");
                     engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
                             engineSetting.listener);
                     break;
@@ -62,7 +82,7 @@ public class ASAPPDUExecutor extends Thread {
             }
         }
         finally {
-            this.threadFinishedListener.finished(this);
+            this.finish();
         }
     }
 }

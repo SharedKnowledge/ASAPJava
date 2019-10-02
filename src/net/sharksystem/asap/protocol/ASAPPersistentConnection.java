@@ -170,6 +170,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
     }
 
+
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
@@ -177,6 +178,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         CharSequence owner = this.multiASAPEngineFS.getOwner();
         if(owner != null && owner.length() > 0) {
             try {
+                System.out.println(this.getLogStart() + "send introduction ASAP Offer; owner: " + owner);
                 this.sendIntroductionOffer(owner, false);
             } catch (IOException e) {
                 this.terminate("io error when sending introduction offering: ", e);
