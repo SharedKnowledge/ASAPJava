@@ -1,8 +1,5 @@
 package net.sharksystem.cmdline;
 
-import net.sharksystem.util.localloop.TCPChannel;
-import sun.rmi.transport.tcp.TCPConnection;
-
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +52,12 @@ public class CmdLineUI {
         b.append(OPEN);
         b.append(".. open socket");
         b.append("\n");
+        b.append(LIST);
+        b.append(".. list open connections");
+        b.append("\n");
+        b.append(KILL);
+        b.append(".. kill an open connection");
+        b.append("\n");
         b.append(EXIT);
         b.append(".. exit");
 
@@ -86,6 +89,7 @@ public class CmdLineUI {
                 out.println("example: " + KILL + "localhost:7070");
                 out.println("kills channel named localhost:7070");
                 out.println("channel names are produced by using list");
+                out.println(KILL + "all .. kills all open connections");
                 break;
         }
 
@@ -96,7 +100,6 @@ public class CmdLineUI {
 
         boolean again = true;
         while(again) {
-            System.out.println("TODO: do not use that TCPChannel Class");
 
             try {
                 // read user input
@@ -131,6 +134,7 @@ public class CmdLineUI {
                         this.doKill(parameterString); break;
                     case "q": // convenience
                     case EXIT:
+                        this.doKill("all");
                         again = false; break; // end loop
 
                     default: this.consoleOutput.println("unknown command:" +
@@ -148,6 +152,7 @@ public class CmdLineUI {
     private Map<String, TCPChannel> openConnections = new HashMap<>();
 
     private void startChannel(String name, TCPChannel channel) {
+        channel.setWaitPeriod(1000*30); // 30 seconds
         channel.start();
         this.openConnections.put(name, channel);
     }
@@ -194,25 +199,31 @@ public class CmdLineUI {
     private void doKill(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
-        String channelName = st.nextToken();
-        TCPChannel channel = this.openConnections.remove(channelName);
-        if(channel == null) {
-            System.err.println("channel does not exist: " + channelName);
-            return;
-        }
-        System.out.println("close channel");
-        InputStream inputStream = null;
         try {
-            inputStream = channel.getInputStream();
-            inputStream.close();
-            channel.getOutputStream().close();
-        }
-        catch(IOException e) {
-            System.out.println("no open stream yet - kill anyway");
-            channel.interrupt();
-        }
+            String channelName = st.nextToken();
+            if(channelName.equalsIgnoreCase("all")) {
+                System.out.println("kill all open channels..");
+                for(TCPChannel channel : this.openConnections.values()) {
+                    channel.kill();
+                }
+                this.openConnections = new HashMap<>();
+                System.out.println(".. done");
+            } else {
 
-        System.out.println(".. done");
+                TCPChannel channel = this.openConnections.remove(channelName);
+                if (channel == null) {
+                    System.err.println("channel does not exist: " + channelName);
+                    return;
+                }
+                System.out.println("kill channel");
+                channel.kill();
+
+                System.out.println(".. done");
+            }
+        }
+        catch(RuntimeException e) {
+            this.printUsage(KILL, e.getLocalizedMessage());
+        }
     }
 }
 

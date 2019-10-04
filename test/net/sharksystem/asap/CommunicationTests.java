@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPEngineThread;
-import net.sharksystem.util.localloop.TCPChannel;
+import net.sharksystem.cmdline.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
 
