@@ -14,6 +14,7 @@ public class TCPChannel extends Thread {
     private final int port;
     private final boolean asServer;
     private final String name;
+    private TCPChannelCreatedListener listener = null;
     private Socket socket = null;
     
     private boolean fatalError = false;
@@ -24,10 +25,19 @@ public class TCPChannel extends Thread {
     private TCPClient tcpClient = null;
     private long waitInMillis = WAIT_LOOP_IN_MILLIS;
 
-    public TCPChannel(int port, boolean asServer, String name) {
+    public TCPChannel(int port, boolean asServer, String name, TCPChannelCreatedListener listener) {
         this.port = port;
         this.asServer = asServer;
         this.name = name;
+        this.listener = listener;
+    }
+
+    public TCPChannel(int port, boolean asServer, String name) {
+        this(port, asServer, name, null);
+    }
+
+    public void setListener(TCPChannelCreatedListener listener) {
+        this.listener = listener;
     }
 
     public void setWaitPeriod(long waitInMillis) {
@@ -65,9 +75,14 @@ public class TCPChannel extends Thread {
         }
         } catch (IOException ex) {
             //<<<<<<<<<<<<<<<<<<debug
-            String s = "couldn't esatblish connection";
+            String s = "couldn't establish connection";
             System.out.println(s);
             this.fatalError = true;
+        }
+        finally {
+            if(this.listener != null) {
+                this.listener.channelCreated(this);
+            }
         }
     }
     

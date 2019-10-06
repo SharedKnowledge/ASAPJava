@@ -33,8 +33,8 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
      * root directory. setting list can be created by iterating those storages.
      * @param rootFolderName
      */
-    MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                                  ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+    private MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
+                                   ASAPChunkReceivedListener listener) throws ASAPException, IOException {
         this.owner = owner;
         this.maxExecutionTime = maxExecutionTime;
         this.rootFolderName = rootFolderName;
