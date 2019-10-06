@@ -66,23 +66,25 @@ public class TCPChannel extends Thread {
     public void run() {
         this.createThread = Thread.currentThread();
         try {
-        if(this.asServer) {
-            this.tcpServer = new TCPServer();
-            this.socket = tcpServer.getSocket();
-        } else {
-            this.tcpClient = new TCPClient();
-            this.socket = this.tcpClient.getSocket();
-        }
+            if(this.asServer) {
+                System.out.println(
+                        "TCPChannel: note: this implementation will only accept *one* connection attempt as server");
+                this.tcpServer = new TCPServer();
+                this.socket = tcpServer.getSocket();
+            } else {
+                this.tcpClient = new TCPClient();
+                this.socket = this.tcpClient.getSocket();
+            }
+
+            // we have got a socket
+            if(this.listener != null) {
+                this.listener.channelCreated(this);
+            }
         } catch (IOException ex) {
             //<<<<<<<<<<<<<<<<<<debug
             String s = "couldn't establish connection";
             System.out.println(s);
             this.fatalError = true;
-        }
-        finally {
-            if(this.listener != null) {
-                this.listener.channelCreated(this);
-            }
         }
     }
     
@@ -149,10 +151,12 @@ public class TCPChannel extends Thread {
     }
     
     private class TCPServer {
-        private ServerSocket srvSocket;
+        private ServerSocket srvSocket = null;
 
         Socket getSocket() throws IOException {
-            this.srvSocket = new ServerSocket(port);
+            if(this.srvSocket == null) {
+                this.srvSocket = new ServerSocket(port);
+            }
 
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
