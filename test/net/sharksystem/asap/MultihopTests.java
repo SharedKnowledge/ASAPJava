@@ -30,6 +30,7 @@ public class MultihopTests {
         ui.doCreateASAPMultiEngine("Alice");
         ui.doOpen("7070 Alice");
         ui.doCreateASAPMultiEngine("Bob");
+
         ui.doConnect("7070 Bob");
 
         // wait a moment

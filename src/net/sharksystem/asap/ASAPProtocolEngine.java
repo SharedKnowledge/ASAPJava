@@ -33,4 +33,10 @@ public interface ASAPProtocolEngine {
      * @param drop
      */
     void setDropDeliveredChunks(boolean drop);
+
+    /**
+     * engine can deliver local message but also received messages - default false - send no received messages
+     * @param on
+     */
+    void setSendReceivedChunks(boolean on);
 }

@@ -35,6 +35,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
     private ASAPOnlineMessageSender asapOnlineMessageSender;
     protected boolean contentChanged = false;
+    private boolean sendReceivedChunks = false;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -427,13 +428,24 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         //>>>>>>>>>>>>>>>>>>>debug
 
         this.sendChunks(peer, this.getChunkStorage(), protocol, workingEra, lastEra, os);
-
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("ended iterating chunks");
+        b.append("ended iterating local chunks");
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
+
+        if(this.isSendReceivedChunks()) {
+
+        }
+    }
+
+    private boolean isSendReceivedChunks() {
+        return this.sendReceivedChunks;
+    }
+
+    public void setSendReceivedChunks(boolean on) {
+        this.sendReceivedChunks = on;
     }
 
     private void sendChunks(String peer, ASAPChunkStorage chunkStorage,
