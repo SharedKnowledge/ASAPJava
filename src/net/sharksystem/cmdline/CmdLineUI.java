@@ -26,6 +26,13 @@ public class CmdLineUI {
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
 
+    public static final String TESTS_ROOT_FOLDER = "tests";
+    private Map<String, MultiASAPEngineFS> engines = new HashMap();
+    private String getStorageKey(String owner, String appName) {
+        return owner + ":" + appName;
+    }
+    private Map<String, ASAPStorage> storages = new HashMap();
+
     public static void main(String[] args) {
         PrintStream os = System.out;
 
@@ -39,6 +46,11 @@ public class CmdLineUI {
     public CmdLineUI(PrintStream os, InputStream is) {
         this.consoleOutput = os;
         this.userInput = new BufferedReader(new InputStreamReader(is));
+    }
+
+    public CmdLineUI(PrintStream out) {
+        this.consoleOutput = out;
+        this.userInput = null;
     }
 
     public void printUsage() {
@@ -186,7 +198,7 @@ public class CmdLineUI {
                     case CREATE_ASAP_MESSAGE:
                         this.doCreateASAPMessage(parameterString); break;
                     case RESET_ASAP_STORAGES:
-                        ASAPEngineFS.removeFolder("tests"); break;
+                        this.doResetASAPStorages(); break;
                     case "q": // convenience
                     case EXIT:
                         this.doKill("all");
@@ -223,7 +235,11 @@ public class CmdLineUI {
         this.channels.put(name, channel);
     }
 
-    private void doConnect(String parameterString) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                           method implementations                                   //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void doConnect(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -251,7 +267,7 @@ public class CmdLineUI {
         }
     }
 
-    private void doOpen(String parameterString) {
+    public void doOpen(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -270,7 +286,7 @@ public class CmdLineUI {
         }
     }
 
-    private void doList() {
+    public void doList() {
         System.out.println("connections:");
         for(String connectionName : this.channels.keySet()) {
             System.out.println(connectionName);
@@ -285,7 +301,7 @@ public class CmdLineUI {
         }
     }
 
-    private void doKill(String parameterString) {
+    public void doKill(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -315,7 +331,7 @@ public class CmdLineUI {
         }
     }
 
-    private void doSetWaiting(String parameterString) {
+    public void doSetWaiting(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -328,9 +344,7 @@ public class CmdLineUI {
         }
     }
 
-    public static final String TESTS_ROOT_FOLDER = "tests";
-    private Map<String, MultiASAPEngineFS> engines = new HashMap();
-    private void doCreateASAPMultiEngine(String parameterString) {
+    public void doCreateASAPMultiEngine(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -348,12 +362,7 @@ public class CmdLineUI {
         }
     }
 
-    private String getStorageKey(String owner, String appName) {
-        return owner + ":" + appName;
-    }
-
-    private Map<String, ASAPStorage> storages = new HashMap();
-    private void doCreateASAPStorage(String parameterString) {
+    public void doCreateASAPStorage(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -374,7 +383,7 @@ public class CmdLineUI {
         }
     }
 
-    private void doCreateASAPMessage(String parameterString) {
+    public void doCreateASAPMessage(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -397,5 +406,12 @@ public class CmdLineUI {
             this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
         }
     }
-}
 
+    public void doResetASAPStorages() {
+        ASAPEngineFS.removeFolder("tests");
+    }
+
+    public ASAPStorage getStorage(String storageName) {
+        return this.storages.get(storageName);
+    }
+}

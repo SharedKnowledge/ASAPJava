@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPEngineThread;
+import net.sharksystem.cmdline.CmdLineUI;
 import net.sharksystem.cmdline.TCPChannel;
 import org.junit.Test;
 import org.junit.Assert;
@@ -521,5 +522,4 @@ public class CommunicationTests {
 
         // check results
     }
-
 }
