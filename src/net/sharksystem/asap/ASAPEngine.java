@@ -426,7 +426,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        this.sendChunks(peer, protocol, workingEra, lastEra, os);
+        this.sendChunks(peer, this.getChunkStorage(), protocol, workingEra, lastEra, os);
 
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
@@ -436,7 +436,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         //>>>>>>>>>>>>>>>>>>>debug
     }
 
-    private void sendChunks(String peer, ASAP_1_0 protocol, int workingEra, int lastEra, OutputStream os) throws IOException, ASAPException {
+    private void sendChunks(String peer, ASAPChunkStorage chunkStorage,
+                            ASAP_1_0 protocol, int workingEra,
+                            int lastEra, OutputStream os) throws IOException, ASAPException {
         /*
         There is a little challenge: era uses a circle of numbers
         We cannot say: higher number, later era. That rule does *not*
@@ -452,7 +454,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         do {
             lastRound = workingEra == lastEra;
 
-            List<ASAPChunk> chunks = this.chunkStorage.getChunks(workingEra);
+            List<ASAPChunk> chunks = chunkStorage.getChunks(workingEra);
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
             b.append(this.getLogStart());
