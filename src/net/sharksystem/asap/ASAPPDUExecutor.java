@@ -24,10 +24,15 @@ public class ASAPPDUExecutor extends Thread {
         this.protocol = protocol;
         this.threadFinishedListener = threadFinishedListener;
 
-        System.out.println("ASAPPDUExecutor created - "
-                + "folder: " + engineSetting.folder + " | "
-                + "engine: " + engineSetting.engine.getClass().getSimpleName() + " | "
-                + "listener: " + engineSetting.listener.getClass().getSimpleName());
+        StringBuilder sb = new StringBuilder();
+        sb.append("ASAPPDUExecutor created - ");
+        sb.append("folder: " + engineSetting.folder + " | ");
+        sb.append("engine: " + engineSetting.engine.getClass().getSimpleName() + " | ");
+        if(engineSetting.listener != null) {
+            sb.append("listener: " + engineSetting.listener.getClass().getSimpleName());
+        }
+
+        System.out.println(sb.toString());
     }
 
     private void finish() {

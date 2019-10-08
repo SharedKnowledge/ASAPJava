@@ -89,9 +89,12 @@ public class CmdLineUI {
         out.println("use:");
         switch(cmdString) {
             case CONNECT:
-                out.println(CONNECT + " IP/DNS-Name_remoteHost remotePort");
+                out.println(CONNECT + " [IP/DNS-Name_remoteHost] remotePort engineName");
+                out.println("omitting remote host: localhost is assumed");
                 out.println("example: " + CONNECT + " localhost 7070 Bob");
-                out.println("tries to connect to localhost:7070 and let engine Bob handle connection when established");
+                out.println("example: " + CONNECT + " 7070 Bob");
+                out.println("in both cases try to connect to localhost:7070 and let engine Bob handle connection when established");
+
                 break;
             case OPEN:
                 out.println(OPEN + " localPort engineName");
@@ -226,7 +229,15 @@ public class CmdLineUI {
         try {
             String remoteHost = st.nextToken();
             String remotePortString = st.nextToken();
-            String engineName = st.nextToken();
+            String engineName = null;
+            if(!st.hasMoreTokens()) {
+                // no remote host set - shift
+                engineName = remotePortString;
+                remotePortString = remoteHost;
+                remoteHost = "localhost";
+            } else {
+                engineName = st.nextToken();
+            }
             int remotePort = Integer.parseInt(remotePortString);
 
             String name =  remoteHost + ":" + remotePortString;
@@ -263,6 +274,10 @@ public class CmdLineUI {
         System.out.println("connections:");
         for(String connectionName : this.channels.keySet()) {
             System.out.println(connectionName);
+        }
+        System.out.println("storages:");
+        for(String storageName : this.storages.keySet()) {
+            System.out.println(storageName);
         }
         System.out.println("engines:");
         for(String engineName : this.engines.keySet()) {
