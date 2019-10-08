@@ -426,6 +426,17 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
+        this.sendChunks(peer, protocol, workingEra, lastEra, os);
+
+        //<<<<<<<<<<<<<<<<<<debug
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("ended iterating chunks");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+    }
+
+    private void sendChunks(String peer, ASAP_1_0 protocol, int workingEra, int lastEra, OutputStream os) throws IOException, ASAPException {
         /*
         There is a little challenge: era uses a circle of numbers
         We cannot say: higher number, later era. That rule does *not*
@@ -443,7 +454,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
             List<ASAPChunk> chunks = this.chunkStorage.getChunks(workingEra);
             //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
+            StringBuilder b = new StringBuilder();
             b.append(this.getLogStart());
             b.append("start iterating chunks with working Era: ");
             b.append(workingEra);
@@ -533,13 +544,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
             // as long as not already performed last round
         } while(!lastRound);
-
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("ended iterating chunks");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
     }
 
     private boolean isDropDeliveredChunks() {
