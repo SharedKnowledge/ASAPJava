@@ -22,6 +22,7 @@ public class CmdLineUI {
     public static final String CREATE_ASAP_STORAGE = "newstorage";
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
     public static final String RESET_ASAP_STORAGES = "resetstorage";
+    public static final String SET_SEND_RECEIVED_MESSAGES = "sendReceived";
 
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
@@ -87,6 +88,9 @@ public class CmdLineUI {
         b.append(RESET_ASAP_STORAGES);
         b.append(".. removes all asap storages");
         b.append("\n");
+        b.append(SET_SEND_RECEIVED_MESSAGES);
+        b.append(".. set whether received message are to be sent");
+        b.append("\n");
         b.append(EXIT);
         b.append(".. exit");
 
@@ -148,6 +152,11 @@ public class CmdLineUI {
                 out.println(RESET_ASAP_STORAGES);
                 out.println("removes all storages");
                 break;
+            case SET_SEND_RECEIVED_MESSAGES:
+                out.println(SET_SEND_RECEIVED_MESSAGES + " storageName [on | off]");
+                out.println("set whether send received messages");
+                out.println("example: " + SET_SEND_RECEIVED_MESSAGES + " Alice:chat on");
+                break;
         }
 
         out.println("unknown command: " + cmdString);
@@ -199,6 +208,8 @@ public class CmdLineUI {
                         this.doCreateASAPMessage(parameterString); break;
                     case RESET_ASAP_STORAGES:
                         this.doResetASAPStorages(); break;
+                    case SET_SEND_RECEIVED_MESSAGES:
+                        this.doSetSendReceivedMessage(parameterString); break;
                     case "q": // convenience
                     case EXIT:
                         this.doKill("all");
@@ -223,12 +234,18 @@ public class CmdLineUI {
         this.waitPeriod = period;
     }
 
-    private void startChannel(String name, TCPChannel channel, String engineName) throws ASAPException {
-        channel.setWaitPeriod(this.waitPeriod);
+    private MultiASAPEngineFS getMultiEngine(String engineName) throws ASAPException {
         MultiASAPEngineFS multiASAPEngineFS = this.engines.get(engineName);
         if(multiASAPEngineFS == null) {
             throw new ASAPException("engine does not exist: " + engineName);
         }
+
+        return multiASAPEngineFS;
+    }
+
+    private void startChannel(String name, TCPChannel channel, String engineName) throws ASAPException {
+        channel.setWaitPeriod(this.waitPeriod);
+        MultiASAPEngineFS multiASAPEngineFS = this.getMultiEngine(engineName);
 
         channel.setListener(new TCPChannelCreatedHandler(multiASAPEngineFS));
         channel.start();
@@ -411,7 +428,35 @@ public class CmdLineUI {
         ASAPEngineFS.removeFolder("tests");
     }
 
-    public ASAPStorage getStorage(String storageName) {
-        return this.storages.get(storageName);
+    public ASAPStorage getStorage(String storageName) throws ASAPException {
+        ASAPStorage asapStorage = this.storages.get(storageName);
+        if(asapStorage == null) throw new ASAPException("no such storage: " + storageName);
+
+        return asapStorage;
+    }
+
+    public void doSetSendReceivedMessage(String parameterString) {
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            String storageName = st.nextToken();
+            String onOff = st.nextToken();
+
+            boolean on = this.parseOnOffValue(onOff);
+
+            ASAPStorage storage = this.getStorage(storageName);
+            storage.setSendReceivedChunks(on);
+        }
+        catch(RuntimeException | IOException | ASAPException e) {
+            this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());
+        }
+    }
+
+    private boolean parseOnOffValue(String onOff) throws ASAPException {
+        if(onOff.equalsIgnoreCase("on")) return true;
+        if(onOff.equalsIgnoreCase("off")) return false;
+
+        throw new ASAPException("unexpected value; expected on or off, found: " + onOff);
+
     }
 }

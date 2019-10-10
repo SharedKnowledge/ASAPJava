@@ -65,4 +65,6 @@ public interface MultiASAPEngineFS {
     void addOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener);
 
     void removeOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener);
+
+    EngineSetting getEngineSettings(CharSequence format) throws ASAPException;
 }

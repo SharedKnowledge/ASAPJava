@@ -31,11 +31,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     protected ASAPMemento memento = null;
     
     /* private */ final private ASAPChunkStorage chunkStorage;
-    private boolean dropDeliveredChunks = false;
+    protected boolean dropDeliveredChunks = false;
 
     private ASAPOnlineMessageSender asapOnlineMessageSender;
     protected boolean contentChanged = false;
-    private boolean sendReceivedChunks = false;
+    protected boolean sendReceivedChunks = false;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -436,7 +436,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         //>>>>>>>>>>>>>>>>>>>debug
 
         if(this.isSendReceivedChunks()) {
+            System.out.println(this.getLogStart() + "send also received chunks - if any");
 
+            for(CharSequence sender : this.getSender()) {
+                System.out.println(this.getLogStart() + "send chunks received from: " + sender);
+                ASAPChunkStorage incomingChunkStorage = this.getIncomingChunkStorage(sender);
+
+                this.sendChunks(peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
+            }
         }
     }
 
@@ -444,8 +451,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         return this.sendReceivedChunks;
     }
 
-    public void setSendReceivedChunks(boolean on) {
+    public void setSendReceivedChunks(boolean on) throws IOException {
         this.sendReceivedChunks = on;
+        this.saveStatus();
     }
 
     private void sendChunks(String peer, ASAPChunkStorage chunkStorage,
@@ -564,8 +572,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         return this.dropDeliveredChunks;
     }
 
-    public void setDropDeliveredChunks(boolean drop) {
+    public void setDropDeliveredChunks(boolean drop) throws IOException {
         this.dropDeliveredChunks = drop;
+        this.saveStatus();
     }
 
     static int nextEra(int workingEra) {

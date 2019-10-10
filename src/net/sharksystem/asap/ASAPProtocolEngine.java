@@ -32,11 +32,11 @@ public interface ASAPProtocolEngine {
      * to all their recipients. If no set, they remain intact.
      * @param drop
      */
-    void setDropDeliveredChunks(boolean drop);
+    void setDropDeliveredChunks(boolean drop) throws IOException;
 
     /**
      * engine can deliver local message but also received messages - default false - send no received messages
      * @param on
      */
-    void setSendReceivedChunks(boolean on);
+    void setSendReceivedChunks(boolean on) throws IOException;
 }

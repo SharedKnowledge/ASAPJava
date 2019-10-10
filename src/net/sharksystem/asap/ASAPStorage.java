@@ -71,6 +71,23 @@ public interface ASAPStorage {
     public void setRecipients(CharSequence urlTarget, List<CharSequence> recipients) throws IOException;
 
     /**
+     * Chunks are delivered when seeing other peers. This flag allows to decide whether delivered chunks
+     * are to be deleted.
+     * @param drop
+     */
+    void setDropDeliveredChunks(boolean drop) throws IOException;
+
+    /**
+     * Chunks are delivered when seeing other peers. Default behaviour is to send only message which
+     * are in local peers own storage. A peer can also have received messages in an incoming storage.
+     * This flag allows to force even delivery of received messages from incoming storages. Basis of
+     * multihop communication.
+     *
+     * @param drop
+     */
+    void setSendReceivedChunks(boolean drop) throws IOException;
+
+    /**
      /**
      * returns recipient list
      *

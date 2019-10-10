@@ -41,6 +41,8 @@ class ASAPMementoFS implements ASAPMemento {
         dos.writeInt(engine.era);
         dos.writeInt(engine.oldestEra);
         dos.writeBoolean(engine.contentChanged);
+        dos.writeBoolean(engine.dropDeliveredChunks);
+        dos.writeBoolean(engine.sendReceivedChunks);
 
         // write lastSeen hash map
         if(engine.lastSeen != null && !engine.lastSeen.isEmpty()) {
@@ -61,6 +63,8 @@ class ASAPMementoFS implements ASAPMemento {
         engine.era = ASAPEngine.DEFAULT_INIT_ERA;
         engine.oldestEra = ASAPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
+        engine.dropDeliveredChunks = false;
+        engine.sendReceivedChunks = false;
     }
 
     public void restore(ASAPEngine engine) throws IOException {
@@ -80,6 +84,8 @@ class ASAPMementoFS implements ASAPMemento {
         engine.era = dis.readInt();
         engine.oldestEra = dis.readInt();
         engine.contentChanged = dis.readBoolean();
+        engine.dropDeliveredChunks = dis.readBoolean();
+        engine.sendReceivedChunks = dis.readBoolean();
 
         // try to read lastSeen list
         boolean first = true;

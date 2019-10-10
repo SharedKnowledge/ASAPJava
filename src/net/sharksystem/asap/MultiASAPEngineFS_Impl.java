@@ -147,7 +147,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
         return asapEngine;
     }
 
-    private EngineSetting getEngineSettings(CharSequence format) throws ASAPException {
+    public EngineSetting getEngineSettings(CharSequence format) throws ASAPException {
         EngineSetting folderAndListener = folderMap.get(format);
         if(folderAndListener == null)
             throw new ASAPException("no folder for owner / format: " + owner + "/" + format);
@@ -351,7 +351,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
     public Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
                                     ThreadFinishedListener threadFinishedListener) throws ASAPException {
         // process pdu
-        return new ASAPPDUExecutor(asappdu, is, os,
+        return new ASAPPersistentConnection.ASAPPDUExecutor(asappdu, is, os,
                 this.getEngineSettings(asappdu.getFormat()),
                 new ASAP_Modem_Impl(), threadFinishedListener);
     }
