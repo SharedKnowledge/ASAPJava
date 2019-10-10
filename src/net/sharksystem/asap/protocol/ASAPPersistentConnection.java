@@ -36,7 +36,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName() + "(connected to: " + this.remotePeer + "): ";
+        return this.getClass().getSimpleName() + "(to: " + this.remotePeer + "): ";
     }
 
     private void setRemotePeer(String remotePeerName) {
@@ -386,18 +386,18 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         engineSetting.engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
-                        System.out.println("getLogStart() + ASAPPDUExecutor call handleASAPAssimilate");
+                        System.out.println(getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");
                         engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
                                 engineSetting.listener);
                         break;
 
                     default:
-                        System.err.println(
-                                this.getClass().getSimpleName() + ": " + "unknown ASAP command: " + asapPDU.getCommand());
+                        System.err.println(getLogStart() + ": " + "unknown ASAP command: " + asapPDU.getCommand());
                 }
             }
             catch(IOException | ASAPException e) {
-                System.err.println("Exception while processing ASAP PDU - close streams" + e.getLocalizedMessage());
+                System.err.println(getLogStart()
+                        + "Exception while processing ASAP PDU - close streams" + e.getLocalizedMessage());
                 try {
                     os.close(); // more important to close than input stream - do it first
                     is.close();

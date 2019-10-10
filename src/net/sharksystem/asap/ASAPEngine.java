@@ -438,7 +438,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        this.sendChunks(peer, this.getChunkStorage(), protocol, workingEra, lastEra, os);
+        this.sendChunks(this.owner, peer, this.getChunkStorage(), protocol, workingEra, lastEra, os);
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
@@ -453,7 +453,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 System.out.println(this.getLogStart() + "send chunks received from: " + sender);
                 ASAPChunkStorage incomingChunkStorage = this.getIncomingChunkStorage(sender);
 
-                this.sendChunks(peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
+                this.sendChunks(sender, peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
             }
         }
     }
@@ -467,7 +467,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         this.saveStatus();
     }
 
-    private void sendChunks(String peer, ASAPChunkStorage chunkStorage,
+    private void sendChunks(CharSequence sender, String recipient, ASAPChunkStorage chunkStorage,
                             ASAP_1_0 protocol, int workingEra,
                             int lastEra, OutputStream os) throws IOException, ASAPException {
         /*
@@ -509,7 +509,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 if (!this.isPublic(chunk)) {
                     List<CharSequence> recipients = chunk.getRecipients();
 
-                    if (!recipients.contains(peer)) {
+                    if (!recipients.contains(recipient)) {
                         continue;
                     }
                 }
@@ -522,13 +522,13 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 //>>>>>>>>>>>>>>>>>>>debug
 
                 /*
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
+    void assimilate(CharSequence recipient, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
                     int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
                  */
 
-                protocol.assimilate(this.owner, // peer
-                        peer, // recipient
+                protocol.assimilate(sender, // recipient
+                        recipient, // recipient
                         this.format,
                         chunk.getUri(), // channel ok
                         workingEra, // era ok
@@ -539,12 +539,12 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                         false);
 
                 // remember sent
-                chunk.deliveredTo(peer);
+                chunk.deliveredTo(recipient);
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
                 b.append("remembered delivered to ");
-                b.append(peer);
+                b.append(recipient);
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
                 // sent to all recipients
@@ -567,7 +567,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             }
 
             // remember that we are in sync until that era
-            this.setLastSeen(peer, workingEra);
+            this.setLastSeen(recipient, workingEra);
 
             // make a breakpoint here
             if(this.memento != null) this.memento.save(this);

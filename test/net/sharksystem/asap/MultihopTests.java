@@ -78,10 +78,11 @@ public class MultihopTests {
         String rootFolder = ui.getEngineRootFolderByStorageName("Clara:twoHops");
         ASAPStorage clara = ASAPEngineFS.getExistingASAPEngineFS(rootFolder);
 
-        /* that asap message is from Bob even if it was created by Alice .. !!
-        apps on top of asap could and should deal differently with ownership of messages.
+        /* message was actually from Bob but originated from Alice. It is put
+        into a incoming folder as it would have been directly received from Alice.
+        Signatures would allow ensuring if origin was really who mediator claims to be.
         */
-        ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Bob");
+        ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Alice");
 
         // clara era was increased after connection terminated - message from bob is in era before current one
         int eraToLook = ASAPEngine.previousEra(clara.getEra());
