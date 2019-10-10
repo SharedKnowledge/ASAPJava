@@ -168,7 +168,7 @@ public class Point2PointTests {
 
         // simulate a sync
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
-        Assert.assertEquals(1, bobStorage.getEra());
+        Assert.assertEquals(2, bobStorage.getEra());
     }
 
     @Test
@@ -303,7 +303,7 @@ public class Point2PointTests {
 
         // simulate a sync
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
-        Assert.assertEquals(1, bobStorage.getEra());
+        Assert.assertEquals(2, bobStorage.getEra());
     }
 
     @Test
@@ -316,21 +316,23 @@ public class Point2PointTests {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage =
-                ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
+        ASAPStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         int aliceInitialEra = aliceStorage.getEra();
 
         aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
+
+        // content changed - next change in topology should increase alice era.
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
 
         // bob does the same
-        ASAPStorage bobStorage =
-                ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+        ASAPStorage bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         int bobInitialEra = bobStorage.getEra();
 
         bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE);
+
+        // content changed - next change in topology should increase bob era.
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////

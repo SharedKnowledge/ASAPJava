@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.cmdline.CmdLineUI;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,7 +29,8 @@ public class MultihopTests {
         ui.doSetSendReceivedMessage("Clara:twoHops on");
 
         // add message to alice storage
-        ui.doCreateASAPMessage("Alice twoHops abcChat HiClara");
+        String messageAlice2Clara = "Alice twoHops abcChat HiClara";
+        ui.doCreateASAPMessage(messageAlice2Clara);
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
@@ -48,6 +50,9 @@ public class MultihopTests {
         // kill connections
         ui.doKill("all");
 
+        // wait a moment
+        Thread.sleep(1000);
+
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Bob with Clara                         **");
         System.out.println("**************************************************************************");
@@ -66,6 +71,7 @@ public class MultihopTests {
         ASAPStorage clara = ui.getStorage("Clara:twoHops");
         ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Bob");
         ASAPChunk claraABCChat = claraBob.getChunk("abcChat", clara.getEra());
-
+        CharSequence message = claraABCChat.getMessages().next();
+        Assert.assertTrue(message.toString().equalsIgnoreCase(messageAlice2Clara));
     }
 }

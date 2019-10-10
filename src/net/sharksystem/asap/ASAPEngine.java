@@ -196,7 +196,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         StringBuilder b = new StringBuilder();
         b.append("ASAPEngine (");
         b.append(this.owner);
-        b.append(") ");
+        b.append(", era: ");
+        b.append(this.era);
+        b.append("): ");
 
         return b.toString();
     }
@@ -269,6 +271,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
+        boolean changed = false;
+
         try {
             // read URI
             String uri = asapAssimiliationPDU.getChannel();
@@ -315,7 +319,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
                 chunk.addMessage(protocolInputStream, nextOffset - offset);
-
+                if(!changed) { changed = true; this.contentChanged();}
                 offset = nextOffset;
             }
 
@@ -331,6 +335,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
             //>>>>>>>>>>>>>>>>>>>debug
 
             chunk.addMessage(protocolInputStream, asapAssimiliationPDU.getLength() - offset);
+            if(!changed) { changed = true; this.contentChanged();}
 
             // read all messages
             if(listener != null) {
@@ -385,21 +390,27 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
         // check conflict
         if(!this.permission2ProceedConversation(peer)) {
-            b = Log.startLog(this);
+            b = new StringBuilder();
+            b.append(this.getLogStart());
             b.append("no permission to communicate with remote peer: ");
             b.append(peer);
             System.err.println(b.toString());
             throw new ASAPException("no permission to communicate with remote peer: " + peer);
+        } else {
+            System.out.println(this.getLogStart() + "permission ok, process interest");
         }
 
         // era we are about to transmit
         int workingEra = this.getEraStartSync(peer);
+        System.out.println(this.getLogStart() + "last_seen: " + workingEra + " | era: " + this.era);
 
         if(workingEra == this.era) {
             // nothing todo
-            b = Log.startLog(this);
-            b.append("there are not information before that era\n");
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("there are no information before that era; ");
             b.append("we only deliver information from previous eras - nothing todo here.");
+            System.out.println(b.toString());
             return;
         }
 
@@ -662,7 +673,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
     @Override
     public void newEra() {
-        StringBuilder sb = Log.startLog(this);
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
         sb.append("newEra() | owner: ");
         sb.append(this.owner);
         sb.append(" | format: ");
