@@ -28,6 +28,10 @@ public class ASAPEngineFS extends ASAPEngine {
         this.rootDirectory = rootDirectory;
     }
 
+    public String getRootFolder() {
+        return this.rootDirectory;
+    }
+
     public String getOwner() {
         return this.owner;
     }
@@ -58,6 +62,7 @@ public class ASAPEngineFS extends ASAPEngine {
     }
 
     public ASAPStorage refresh() throws IOException, ASAPException {
+        this.memento.save(this);
         return ASAPEngineFS.getExistingASAPEngineFS(this.rootDirectory);
     }
 

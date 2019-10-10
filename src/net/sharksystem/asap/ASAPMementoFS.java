@@ -2,12 +2,7 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.ASAP_1_0;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 
 /**
@@ -82,10 +77,18 @@ class ASAPMementoFS implements ASAPMemento {
         engine.owner = dis.readUTF();
         engine.format = dis.readUTF();
         engine.era = dis.readInt();
-        engine.oldestEra = dis.readInt();
-        engine.contentChanged = dis.readBoolean();
-        engine.dropDeliveredChunks = dis.readBoolean();
-        engine.sendReceivedChunks = dis.readBoolean();
+
+        // from hereon optional values - could work with defaults
+        try {
+            engine.oldestEra = dis.readInt();
+            engine.contentChanged = dis.readBoolean();
+            engine.dropDeliveredChunks = dis.readBoolean();
+            engine.sendReceivedChunks = dis.readBoolean();
+        }
+        catch(EOFException e) {
+            // ignore and work with set defaults
+            return; // reached end of file - nothing to do here
+        }
 
         // try to read lastSeen list
         boolean first = true;

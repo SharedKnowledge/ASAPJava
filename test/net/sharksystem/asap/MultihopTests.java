@@ -29,8 +29,9 @@ public class MultihopTests {
         ui.doSetSendReceivedMessage("Clara:twoHops on");
 
         // add message to alice storage
-        String messageAlice2Clara = "Alice twoHops abcChat HiClara";
-        ui.doCreateASAPMessage(messageAlice2Clara);
+        String messageAlice2Clara = "HiClara";
+        String parameters = "Alice twoHops abcChat " + messageAlice2Clara;
+        ui.doCreateASAPMessage(parameters);
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
@@ -44,11 +45,15 @@ public class MultihopTests {
 
         ui.doConnect("7070 Bob");
 
+        // alice should be in era 1 (content has changed before connection) and bob era is 0 - no changes
+
         // wait a moment
         Thread.sleep(1000);
 
         // kill connections
         ui.doKill("all");
+
+        // alice should stay in era 1 (no content change), bob should be in era 1 received something
 
         // wait a moment
         Thread.sleep(1000);
@@ -62,16 +67,27 @@ public class MultihopTests {
         Thread.sleep(10);
         ui.doConnect("8080 Bob");
 
+        // bob should remain in era 1 o changes, clara is era 0
+
         // wait a moment
         Thread.sleep(1000);
         // kill connections
         ui.doKill("all");
 
         // get Clara storage
-        ASAPStorage clara = ui.getStorage("Clara:twoHops");
+        String rootFolder = ui.getEngineRootFolderByStorageName("Clara:twoHops");
+        ASAPStorage clara = ASAPEngineFS.getExistingASAPEngineFS(rootFolder);
+
+        /* that asap message is from Bob even if it was created by Alice .. !!
+        apps on top of asap could and should deal differently with ownership of messages.
+        */
         ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Bob");
-        ASAPChunk claraABCChat = claraBob.getChunk("abcChat", clara.getEra());
+
+        // clara era was increased after connection terminated - message from bob is in era before current one
+        int eraToLook = ASAPEngine.previousEra(clara.getEra());
+        ASAPChunk claraABCChat = claraBob.getChunk("abcChat", eraToLook);
         CharSequence message = claraABCChat.getMessages().next();
-        Assert.assertTrue(message.toString().equalsIgnoreCase(messageAlice2Clara));
+        boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
+        Assert.assertTrue(same);
     }
 }

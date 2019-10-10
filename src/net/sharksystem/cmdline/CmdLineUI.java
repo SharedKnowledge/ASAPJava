@@ -428,13 +428,6 @@ public class CmdLineUI {
         ASAPEngineFS.removeFolder("tests");
     }
 
-    public ASAPStorage getStorage(String storageName) throws ASAPException {
-        ASAPStorage asapStorage = this.storages.get(storageName);
-        if(asapStorage == null) throw new ASAPException("no such storage: " + storageName);
-
-        return asapStorage;
-    }
-
     public void doSetSendReceivedMessage(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
@@ -452,11 +445,24 @@ public class CmdLineUI {
         }
     }
 
+    private ASAPStorage getStorage(String storageName) throws ASAPException {
+        ASAPStorage asapStorage = this.storages.get(storageName);
+        if(asapStorage == null) throw new ASAPException("no storage with name: " + storageName);
+
+        return asapStorage;
+    }
+
     private boolean parseOnOffValue(String onOff) throws ASAPException {
         if(onOff.equalsIgnoreCase("on")) return true;
         if(onOff.equalsIgnoreCase("off")) return false;
 
         throw new ASAPException("unexpected value; expected on or off, found: " + onOff);
 
+    }
+
+    public String getEngineRootFolderByStorageName(String storageName) throws ASAPException {
+
+        ASAPEngineFS asapEngineFS = (ASAPEngineFS) this.getStorage(storageName);
+        return asapEngineFS.getRootFolder();
     }
 }

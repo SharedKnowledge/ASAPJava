@@ -683,6 +683,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
         if(this.contentChanged) {
             sb.append("content changed - increment era...");
+            System.out.println(sb.toString());
             try {
                 int oldEra = this.era;
                 int nextEra = this.getNextEra(this.era);
@@ -692,10 +693,9 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
                 // we are done here - we are in a new era.
                 this.era = nextEra;
+
                 // persistent values
                 if(this.memento != null) this.memento.save(this);
-
-                // do some - probably time consuming stuff
 
                 // drop very very old chunks - if available
                 this.chunkStorage.dropChunks(nextEra);
@@ -706,8 +706,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
                     copyChunk.clone(chunk);
                 }
 
-                sb.append(" done");
-                System.out.println(sb.toString());
+                System.out.println(this.getLogStart() + "era incremented");
             } catch (IOException ex) {
                 sb.append("IOException while incrementing era: ");
                 sb.append(ex.getLocalizedMessage());
