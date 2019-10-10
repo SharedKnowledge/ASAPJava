@@ -47,9 +47,6 @@ public interface MultiASAPEngineFS {
 
     public void pushInterests(OutputStream os) throws IOException, ASAPException;
 
-    Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
-                             ThreadFinishedListener threadFinishedListener) throws ASAPException;
-
     Set<CharSequence> getOnlinePeers();
 
     boolean existASAPConnection(CharSequence recipient);

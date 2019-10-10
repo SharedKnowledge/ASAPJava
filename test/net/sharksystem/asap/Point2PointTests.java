@@ -17,7 +17,7 @@ import static net.sharksystem.asap.MultiASAPEngineFS.DEFAULT_MAX_PROCESSING_TIME
  * Here are some basic tests and usage examples.
  * @author thsc
  */
-public class CommunicationTests {
+public class Point2PointTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
     public static final String ALICE_ROOT_FOLDER = "tests/alice";

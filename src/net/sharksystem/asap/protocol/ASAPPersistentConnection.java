@@ -170,7 +170,6 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
     }
 
-
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
@@ -231,13 +230,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                             + "got asap management message - not processed, took remote peer name only");
                 } else {
                     try {
-                        this.executor =
-                                new ASAPPDUExecutor(asappdu,
-                                        this.is, this.os,
-                                        this.multiASAPEngineFS.getEngineSettings(asappdu.getFormat()),
-                                        new ASAP_Modem_Impl(),
-                                        this);
-//                        this.multiASAPEngineFS.getExecutorThread(asappdu, this.is, this.os, this);
+                        this.executor = new ASAPPDUExecutor(asappdu,
+                                            this.is, this.os,
+                                            this.multiASAPEngineFS.getEngineSettings(asappdu.getFormat()),
+                                            protocol,this);
+
                         // get exclusive access to streams
                         System.out.println(this.startLog() + "asap pdu executor going to wait for stream access");
                         this.wait4ExclusiveStreamsAccess();
@@ -339,7 +336,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         return sb;
     }
 
-    public static class ASAPPDUExecutor extends Thread {
+    private class ASAPPDUExecutor extends Thread {
         private final ASAP_PDU_1_0 asapPDU;
         private final InputStream is;
         private final OutputStream os;
@@ -415,6 +412,49 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             }
             finally {
                 this.finish();
+            }
+        }
+    }
+
+    private class ASAPPDUReader extends Thread {
+        private final ASAP_1_0 protocol;
+        private final InputStream is;
+        private final ThreadFinishedListener pduReaderListener;
+        private ASAP_PDU_1_0 asapPDU = null;
+        private IOException ioException = null;
+        private ASAPException asapException = null;
+
+        ASAPPDUReader(ASAP_1_0 protocol, InputStream is, ThreadFinishedListener listener) {
+            this.protocol = protocol;
+            this.is = is;
+            this.pduReaderListener = listener;
+        }
+
+        IOException getIoException() {
+            return this.ioException;
+        }
+
+        ASAPException getAsapException() {
+            return this.asapException;
+        }
+
+        ASAP_PDU_1_0 getASAPPDU() {
+            return this.asapPDU;
+        }
+
+        public void run() {
+            try {
+                this.asapPDU = protocol.readPDU(is);
+    //            this.pduReaderListener.finished(this);
+            } catch (IOException e) {
+                this.ioException = e;
+            } catch (ASAPException e) {
+                this.asapException = e;
+            }
+            finally {
+                if(this.pduReaderListener != null) {
+                    this.pduReaderListener.finished(this);
+                }
             }
         }
     }

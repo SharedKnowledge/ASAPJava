@@ -346,8 +346,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
     }
-
-    @Override
+/*
     public Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
                                     ThreadFinishedListener threadFinishedListener) throws ASAPException {
         // process pdu
@@ -355,6 +354,7 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
                 this.getEngineSettings(asappdu.getFormat()),
                 new ASAP_Modem_Impl(), threadFinishedListener);
     }
+ */
 
    private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
