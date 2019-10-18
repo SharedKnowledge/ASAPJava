@@ -23,6 +23,7 @@ public class CmdLineUI {
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
     public static final String RESET_ASAP_STORAGES = "resetstorage";
     public static final String SET_SEND_RECEIVED_MESSAGES = "sendReceived";
+    public static final String ADD_RECIPIENT = "sentRecipient";
 
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
@@ -91,6 +92,9 @@ public class CmdLineUI {
         b.append(SET_SEND_RECEIVED_MESSAGES);
         b.append(".. set whether received message are to be sent");
         b.append("\n");
+        b.append(ADD_RECIPIENT);
+        b.append(".. add recipient to a storage");
+        b.append("\n");
         b.append(EXIT);
         b.append(".. exit");
 
@@ -157,6 +161,11 @@ public class CmdLineUI {
                 out.println("set whether send received messages");
                 out.println("example: " + SET_SEND_RECEIVED_MESSAGES + " Alice:chat on");
                 break;
+            case ADD_RECIPIENT:
+                out.println(ADD_RECIPIENT + " storageName recipientName");
+                out.println("add recipient to storage");
+                out.println("example: " + ADD_RECIPIENT + " Alice:chat Bob");
+                break;
         }
 
         out.println("unknown command: " + cmdString);
@@ -210,6 +219,8 @@ public class CmdLineUI {
                         this.doResetASAPStorages(); break;
                     case SET_SEND_RECEIVED_MESSAGES:
                         this.doSetSendReceivedMessage(parameterString); break;
+                    case ADD_RECIPIENT:
+                        this.doAddRecipient(parameterString); break;
                     case "q": // convenience
                     case EXIT:
                         this.doKill("all");
@@ -443,6 +454,32 @@ public class CmdLineUI {
         catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());
         }
+    }
+
+    public void doAddRecipient(String parameterString) {
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            String storageName = st.nextToken();
+            String recipient = st.nextToken();
+
+            ASAPStorage storage = this.getStorage(storageName);
+            storage.addRecipient(this.getUriFromStorageName(storageName), recipient);
+        }
+        catch(RuntimeException | IOException | ASAPException e) {
+            this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                              helper methods                                            //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private String getUriFromStorageName(String storageName) throws ASAPException {
+        int i = storageName.indexOf(":");
+        if(i < 0) throw new ASAPException("malformed storage name (missing \":\") " + storageName);
+
+        return storageName.substring(i);
     }
 
     private ASAPStorage getStorage(String storageName) throws ASAPException {
