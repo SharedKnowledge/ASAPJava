@@ -74,12 +74,10 @@ class ASAPMementoFS implements ASAPMemento {
         DataInputStream dis = new DataInputStream(
                                 new FileInputStream(file));
 
-        engine.owner = dis.readUTF();
-        engine.format = dis.readUTF();
-        engine.era = dis.readInt();
-
-        // from hereon optional values - could work with defaults
         try {
+            engine.owner = dis.readUTF();
+            engine.format = dis.readUTF();
+            engine.era = dis.readInt();
             engine.oldestEra = dis.readInt();
             engine.contentChanged = dis.readBoolean();
             engine.dropDeliveredChunks = dis.readBoolean();

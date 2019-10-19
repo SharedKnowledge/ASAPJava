@@ -9,7 +9,7 @@ import java.util.List;
  * That chunk storage is meant to keep messages which are produced by an
  * app for later transmission.
  * 
- * Messages which cannot be sent to their recipients can be stored in AASP chunks.
+ * Messages which cannot be sent to their recipients can be stored in ASAP chunks.
  * Each chunk is addressed with an URI (comparable to URIs e.g. in Android
  * Content Provider)
  * 
@@ -37,8 +37,8 @@ import java.util.List;
  * changed by the ASAPEngine whenever a peer (re-) connects. In that case, the
  * current era is declared to be finished and an new era is opened. 
  * Any new message is now tagged as message from that new era. The ASAPEngine
- * transmitts all message to the peer which are stored after the final 
- * encounter. If no encounter ever happend - all avaiable messages are 
+ * transmits all message to the peer which are stored after the final
+ * encounter. If no encounter ever happened - allavailablee messages are
  * transmitted. 
  *
  * @see ASAPEngine
@@ -130,6 +130,13 @@ public interface ASAPStorage {
      * @throws IOException 
      */
     public void removeRecipient(CharSequence urlTarget, CharSequence recipients) throws IOException;
+
+    /**
+     *
+     * @param uri channel uri
+     * @return if channel exists - in other words: at least one message was added with this channel uri
+     */
+    boolean channelExists(CharSequence uri) throws IOException;
     
     /**
      * Add a message to that chunk.

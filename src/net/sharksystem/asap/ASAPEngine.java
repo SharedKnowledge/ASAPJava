@@ -154,6 +154,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         return uriList;
     }
 
+    @Override
+    public boolean channelExists(CharSequence uri) throws IOException {
+        return this.chunkStorage.existsChunk(uri, this.getEra());
+    }
+
     public void removeChannel(CharSequence uri) throws IOException {
         ASAPChunk chunk = this.chunkStorage.getChunk(uri, this.getEra());
         chunk.drop();

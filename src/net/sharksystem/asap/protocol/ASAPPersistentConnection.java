@@ -233,7 +233,10 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
                     try {
                         this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
-                    } catch (ASAPException | IOException e) {
+                    } catch (ASAPException e) {
+                        System.err.println("asap management pdu processing failed - go ahead in read/process loop"
+                                + e.getLocalizedMessage());
+                    } catch (IOException e) {
                         this.terminate("asap management pdu processing failed", e);
                         break;
                     }

@@ -390,11 +390,34 @@ public class MultiASAPEngineFS_Impl implements
         // find storage
         ASAPStorage asapStorage = this.getEngineByFormat(format);
 
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("Implementation not yet finished - TODO");
-        b.append(recipients.size());
-        System.out.println(b.toString());
+        if(asapStorage.channelExists(channelUri)) {
+            List<CharSequence> existingChannelRecipientsList = asapStorage.getRecipients(channelUri);
+            if(existingChannelRecipientsList.size() == recipients.size()) {
+                // could be the same - same recipients?
+
+                // iterate all recipient and check whether they are also in local recipient list
+                for(CharSequence recipient : recipients) {
+                    boolean found = false;
+                    for(CharSequence existingRecipient : existingChannelRecipientsList) {
+                        if(existingRecipient.toString().equalsIgnoreCase(recipient.toString())) {
+                            // got it
+                            found = true;
+                            break; // leave loop and test next
+                        }
+                    }
+                    if(!found) {
+                        throw new ASAPException("channel already exists but with different recipients");
+                    }
+                }
+                // ok it the same
+                return;
+            } else {
+                throw new ASAPException("channel already exists but with different settings");
+            }
+        }
+
+        // else - channel does not exist - create by setting recipients
+        asapStorage.setRecipients(channelUri, recipients);
     }
 
     private String getLogStart() {
