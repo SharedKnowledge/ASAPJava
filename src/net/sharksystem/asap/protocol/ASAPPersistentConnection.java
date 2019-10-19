@@ -227,9 +227,16 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 this.setRemotePeer(asappdu.getPeer());
                 // process received pdu
 
-                if(asappdu.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT.toString())) {
+                if(asappdu.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) {
                     System.out.println(this.getLogStart()
-                            + "got asap management message - not processed, took remote peer name only");
+                            + "got asap management message - let multiengine handle this one");
+
+                    try {
+                        this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
+                    } catch (ASAPException | IOException e) {
+                        this.terminate("asap management pdu processing failed", e);
+                        break;
+                    }
                 } else {
                     try {
                         this.executor = new ASAPPDUExecutor(asappdu,

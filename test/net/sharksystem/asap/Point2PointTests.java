@@ -20,12 +20,12 @@ import static net.sharksystem.asap.MultiASAPEngineFS.DEFAULT_MAX_PROCESSING_TIME
 public class Point2PointTests {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
-    public static final String ALICE_ROOT_FOLDER = "tests/alice";
+    public static final String ALICE_ROOT_FOLDER = "tests/Alice";
     public static final String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
-    public static final String BOB_ROOT_FOLDER = "tests/bob";
+    public static final String BOB_ROOT_FOLDER = "tests/Bob";
     public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
-    public static final String ALICE = "alice";
-    public static final String BOB = "bob";
+    public static final String ALICE = "Alice";
+    public static final String BOB = "Bob";
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
     public static final String ALICE2BOB_MESSAGE2 = "Hi Bob again";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
@@ -105,7 +105,7 @@ public class Point2PointTests {
         // wait until communication probably ends
         System.out.flush();
         System.err.flush();
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         System.out.flush();
         System.err.flush();
 
@@ -169,6 +169,8 @@ public class Point2PointTests {
         // simulate a sync
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(2, bobStorage.getEra());
+
+        Thread.sleep(1000);
     }
 
     @Test
@@ -240,7 +242,7 @@ public class Point2PointTests {
         // wait until communication probably ends
         System.out.flush();
         System.err.flush();
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         System.out.flush();
         System.err.flush();
 
@@ -304,6 +306,8 @@ public class Point2PointTests {
         // simulate a sync
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(2, bobStorage.getEra());
+
+        Thread.sleep(1000);
     }
 
     @Test
@@ -392,7 +396,7 @@ public class Point2PointTests {
         // wait until communication probably ends
         System.out.flush();
         System.err.flush();
-        Thread.sleep(5000);
+        Thread.sleep(2000);
         System.out.flush();
         System.err.flush();
 
@@ -445,6 +449,8 @@ public class Point2PointTests {
         bobReceivedMessages = bobReceivedChunk.getMessages();
         bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
+
+        Thread.sleep(1000);
     }
 
     @Test

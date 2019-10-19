@@ -348,19 +348,53 @@ public class MultiASAPEngineFS_Impl implements
         }
     }
 
-    public void handleASAPManagementPDU(ASAP_AssimilationPDU_1_0 asapPDU, ASAP_1_0 protocol,
-                                        InputStream is, OutputStream os) throws ASAPException, IOException {
+    public void handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
+                                        InputStream is) throws ASAPException, IOException {
 
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("start processing asap management pdu");
         System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
+
+        ASAP_AssimilationPDU_1_0 asap_assimilationPDU_1_0 = null;
+        if(asapPDU instanceof ASAP_AssimilationPDU_1_0) {
+            asap_assimilationPDU_1_0 = (ASAP_AssimilationPDU_1_0) asapPDU;
+        } else {
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("asap management pdu must be within an assimilate message - got another one / nothing todo");
+            System.out.println(b.toString());
+            return;
+        }
 
         ASAPManagementCreateASAPStoragePDU asapManagementPDU =
-                ASAPManagementProtocolPDU_Impl.parseASAPPDU(asapPDU);
+                ASAPManagementProtocolPDU_Impl.parseASAPPDU(asap_assimilationPDU_1_0);
 
+        CharSequence channelUri = asapManagementPDU.getChannelUri();
+        CharSequence format = asapManagementPDU.getFormat();
+        CharSequence owner = asapManagementPDU.getOwner();
+        List<CharSequence> recipients = asapManagementPDU.getRecipients();
 
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("owner: ");
+        b.append(owner);
+        b.append(" | format: ");
+        b.append(format);
+        b.append(" | channelUri: ");
+        b.append(channelUri);
+        b.append(" | #recipients: ");
+        b.append(recipients.size());
+        System.out.println(b.toString());
+
+        // find storage
+        ASAPStorage asapStorage = this.getEngineByFormat(format);
+
+        b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("Implementation not yet finished - TODO");
+        b.append(recipients.size());
+        System.out.println(b.toString());
     }
 
     private String getLogStart() {

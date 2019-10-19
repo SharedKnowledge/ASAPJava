@@ -1,9 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.protocol.ASAPConnection;
-import net.sharksystem.asap.protocol.ASAPConnectionListener;
-import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
-import net.sharksystem.asap.protocol.ThreadFinishedListener;
+import net.sharksystem.asap.protocol.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +19,7 @@ import java.util.Set;
  *
  * That interface hides those different engines.
  */
-public interface MultiASAPEngineFS {
+public interface MultiASAPEngineFS extends ASAPManagementProtocolEngine {
     public static final long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
