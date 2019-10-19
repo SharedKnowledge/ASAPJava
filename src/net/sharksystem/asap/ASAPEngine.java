@@ -276,6 +276,17 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         try {
             // read URI
             String uri = asapAssimiliationPDU.getChannel();
+            if(!senderStorage.existsChunk(uri, eraSender) && asapAssimiliationPDU.recipientPeerSet()) {
+                //<<<<<<<<<<<<<<<<<<debug
+                b = new StringBuilder();
+                b.append(this.getLogStart());
+                b.append("recipient ( ");
+                b.append(asapAssimiliationPDU.getRecipientPeer());
+                b.append(") but no chunk on my side - should run asap management before (TODO):");
+                System.out.println(b.toString());
+                //>>>>>>>>>>>>>>>>>>>debug
+            }
+
             ASAPChunk chunk = senderStorage.getChunk(uri, eraSender);
 
             if(chunk != null) {
