@@ -210,7 +210,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             }
 
             System.out.println(this.getLogStart() + "back from reading");
-            if(terminated) break; // could be killed in the meantime
+            if(terminated) break; // thread could be killed in the meantime
 
             if (pduReader.getIoException() != null || pduReader.getAsapException() != null) {
                 Exception e = pduReader.getIoException() != null ?

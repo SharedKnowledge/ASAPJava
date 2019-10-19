@@ -14,8 +14,9 @@ public interface ASAP_1_0 {
     byte OFFER_CMD = 'O';
     byte INTEREST_CMD = 'I';
     byte ASSIMILATE_CMD = 'A';
-    CharSequence ANY_FORMAT = "any_asap";
-    CharSequence ASAP_MANAGEMENT_FORMAT = "asap/control";
+    String ANY_FORMAT = "any_asap";
+    String ASAP_MANAGEMENT_FORMAT = "asap/control";
+    int ERA_NOT_DEFINED = -1;
 
     /*
     OFFER: An peer (optional) in an range of era (optional) offers data for

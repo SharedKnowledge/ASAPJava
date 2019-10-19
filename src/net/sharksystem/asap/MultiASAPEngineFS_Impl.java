@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener {
+public class MultiASAPEngineFS_Impl implements
+        MultiASAPEngineFS, ASAPManagementProtocolEngine, ASAPConnectionListener, ThreadFinishedListener {
     private final CharSequence rootFolderName;
     private final ASAPChunkReceivedListener listener;
     private CharSequence owner;
@@ -346,18 +347,23 @@ public class MultiASAPEngineFS_Impl implements MultiASAPEngineFS, ASAPConnection
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
     }
-/*
-    public Thread getExecutorThread(ASAP_PDU_1_0 asappdu, InputStream is, OutputStream os,
-                                    ThreadFinishedListener threadFinishedListener) throws ASAPException {
-        // process pdu
-        return new ASAPPersistentConnection.ASAPPDUExecutor(asappdu, is, os,
-                this.getEngineSettings(asappdu.getFormat()),
-                new ASAP_Modem_Impl(), threadFinishedListener);
-    }
- */
 
-   private String getLogStart() {
+    public void handleASAPManagementPDU(ASAP_AssimilationPDU_1_0 asapPDU, ASAP_1_0 protocol,
+                                        InputStream is, OutputStream os) throws ASAPException, IOException {
+
+        StringBuilder b = new StringBuilder();
+        b.append(this.getLogStart());
+        b.append("start processing asap management pdu");
+        System.out.println(b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        ASAPManagementCreateASAPStoragePDU asapManagementPDU =
+                ASAPManagementProtocolPDU_Impl.parseASAPPDU(asapPDU);
+
+
+    }
+
+    private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
-
 }

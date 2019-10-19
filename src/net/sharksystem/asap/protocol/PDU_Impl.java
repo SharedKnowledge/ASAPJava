@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
+
 abstract class PDU_Impl implements ASAP_PDU_1_0{
     public static final int PEER_BIT_POSITION = 0;
     public static final int CHANNEL_BIT_POSITION = 1;
@@ -256,7 +258,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     }
 
     static int setFlag(int parameter, int flags, int bit_position) {
-        if(parameter > -1) {
+        if(parameter != ERA_NOT_DEFINED) {
             int newFlag = 1;
             newFlag = newFlag << bit_position;
 

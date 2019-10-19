@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.protocol.ASAPManagementProtocolEngine;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
@@ -236,17 +237,39 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
 
     public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
-        //<<<<<<<<<<<<<<<<<<debug
-        StringBuilder b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("ASAP Offer is not handled in this implementation ");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
+
+        if(this.isASAPManagementMessage(asapOffer)) {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("got asap management assimilate - not handled in this implementation.");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            return;
+        } else {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("ASAP Offer are not processed in this implementation");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            return;
+        }
     }
 
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimiliationPDU, ASAP_1_0 protocol,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
+
+        if(this.isASAPManagementMessage(asapAssimiliationPDU)) {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("got asap management assimilate - it's the wrong place for that - multiengine should be called");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            throw new ASAPException("got asap management assimilate - it's the wrong place for that - multiengine should be called");
+        }
 
         String sender = asapAssimiliationPDU.getPeer();
         int eraSender = asapAssimiliationPDU.getEra();
@@ -385,8 +408,22 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         }
     }
 
+    private boolean isASAPManagementMessage(ASAP_PDU_1_0 asapPDU) {
+        return asapPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+    }
+
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
+
+        if(this.isASAPManagementMessage(asapInterest)) {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("got asap management interest - not handled in this implementation.");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            return;
+        }
 
         // get remote peer
         String peer = asapInterest.getPeer();
