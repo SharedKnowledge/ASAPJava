@@ -467,6 +467,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
+        /*
         if(this.isASAPManagementMessage(asapInterest)) {
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
@@ -476,6 +477,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             //>>>>>>>>>>>>>>>>>>>debug
             return;
         }
+        */
 
         // get remote peer
         String peer = asapInterest.getPeer();

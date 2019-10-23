@@ -192,7 +192,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
 */
         try {
-            // let engine write their interest
+            // let engine write their interest - at least management interest is sent which als introduces
+            // this peer to the other one
             this.multiASAPEngineFS.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
