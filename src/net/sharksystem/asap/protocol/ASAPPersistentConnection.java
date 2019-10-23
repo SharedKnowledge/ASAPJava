@@ -225,22 +225,27 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             if(asappdu != null) {
                 System.out.println(this.getLogStart() + "read valid pdu");
                 this.setRemotePeer(asappdu.getPeer());
-                // process received pdu
 
+                // process received pdu
+                boolean pduExecuted = false;
                 if(asappdu.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) {
                     System.out.println(this.getLogStart()
-                            + "got asap management message - let multiengine handle this one");
+                            + "got asap management message - let multi-engine handle this one");
 
                     try {
-                        this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
+                        // if return true - message was handled. No further actions required
+                        pduExecuted = this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
                     } catch (ASAPException e) {
                         System.err.println("asap management pdu processing failed - go ahead in read/process loop"
                                 + e.getLocalizedMessage());
+                        pduExecuted = false; // failed to execute - forget and go ahead
                     } catch (IOException e) {
                         this.terminate("asap management pdu processing failed", e);
                         break;
                     }
-                } else {
+                }
+
+                if(!pduExecuted) { // not (completely executed by multi engine
                     try {
                         this.executor = new ASAPPDUExecutor(asappdu,
                                             this.is, this.os,

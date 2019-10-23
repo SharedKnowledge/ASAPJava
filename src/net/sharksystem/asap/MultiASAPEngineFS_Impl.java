@@ -59,7 +59,7 @@ public class MultiASAPEngineFS_Impl implements
         this.folderMap = new HashMap<>();
         File rootFolder = new File(rootFolderName.toString());
 
-        System.out.println(this.getLogStart() + "iterate subfolder in " + this.rootFolderName);
+        System.out.println(this.getLogStart() + "setting up ASAPEngine based on subfolders in " + this.rootFolderName);
         File[] files = rootFolder.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
@@ -342,19 +342,23 @@ public class MultiASAPEngineFS_Impl implements
     public void pushInterests(OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
+        System.out.println(this.getLogStart() + "start sending interest for each engine");
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
+            System.out.println(this.getLogStart() + "send interest for app/format: " + format);
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
     }
 
-    public void handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
-                                        InputStream is) throws ASAPException, IOException {
+    public boolean handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
+                                           InputStream is) throws ASAPException, IOException {
 
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("start processing asap management pdu");
         System.out.println(b.toString());
+
+        System.out.println(this.getLogStart() + asapPDU);
 
         ASAP_AssimilationPDU_1_0 asap_assimilationPDU_1_0 = null;
         if(asapPDU instanceof ASAP_AssimilationPDU_1_0) {
@@ -362,9 +366,9 @@ public class MultiASAPEngineFS_Impl implements
         } else {
             b = new StringBuilder();
             b.append(this.getLogStart());
-            b.append("asap management pdu must be within an assimilate message - got another one / nothing todo");
+            b.append("asap management pdu not an assimilate message - let ordinary engine to the job");
             System.out.println(b.toString());
-            return;
+            return false;
         }
 
         CharSequence owner = asapPDU.getPeer();
@@ -412,7 +416,7 @@ public class MultiASAPEngineFS_Impl implements
                     }
                 }
                 // ok it the same
-                return;
+                return false;
             } else {
                 throw new ASAPException("channel already exists but with different settings");
             }
@@ -420,9 +424,10 @@ public class MultiASAPEngineFS_Impl implements
 
         // else - channel does not exist - create by setting recipients
         asapStorage.createChannel(channelUri, recipients);
+        return false;
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName() + ": ";
+        return this.getClass().getSimpleName() + "(" + this.getOwner() + "): ";
     }
 }

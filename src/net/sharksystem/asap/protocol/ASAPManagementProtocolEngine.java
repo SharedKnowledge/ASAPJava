@@ -13,7 +13,8 @@ public interface ASAPManagementProtocolEngine {
      * @param is inputstream
      * @throws ASAPException
      * @throws IOException
+     * @return true if that pdu was fully executed and no further processing is required
      */
-    void handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
-                                 InputStream is) throws ASAPException, IOException;
+    boolean handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
+                                    InputStream is) throws ASAPException, IOException;
 }

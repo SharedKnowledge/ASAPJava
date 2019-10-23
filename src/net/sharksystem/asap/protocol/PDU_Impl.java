@@ -38,6 +38,23 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
         this.cmd = cmd;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("cmd: ");
+        switch(cmd) {
+            case ASAP_1_0.INTEREST_CMD: sb.append("I"); break;
+            case ASAP_1_0.OFFER_CMD: sb.append("O"); break;
+            case ASAP_1_0.ASSIMILATE_CMD: sb.append("A"); break;
+        }
+        sb.append(" | sender: "); if(peerSet) sb.append(this.peer); else sb.append("X");
+        sb.append(" | format: "); sb.append(format);
+        sb.append(" | channel: "); if(channelSet) sb.append(this.channel); else sb.append("X");
+        sb.append(" | era: "); if(eraSet) sb.append(era); else sb.append("X");
+
+        return sb.toString();
+    }
+
     protected static void sendHeader(byte cmd, int flags, OutputStream os) throws IOException {
         PDU_Impl.sendByteParameter(cmd, os); // mand
         PDU_Impl.sendByteParameter((byte)flags, os); // mand
