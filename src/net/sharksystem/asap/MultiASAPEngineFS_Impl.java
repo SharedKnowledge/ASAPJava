@@ -343,8 +343,13 @@ public class MultiASAPEngineFS_Impl implements
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
         System.out.println(this.getLogStart() + "start sending interest for each engine");
+
+        // in any case: issue an interest for management information first
+        protocol.interest(this.owner, null, ASAP_1_0.ASAP_MANAGEMENT_FORMAT,null, -1, -1, os, false);
+
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
+            if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already send
             System.out.println(this.getLogStart() + "send interest for app/format: " + format);
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }
