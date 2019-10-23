@@ -389,7 +389,18 @@ public class MultiASAPEngineFS_Impl implements
 
         CharSequence channelUri = asapManagementCreateASAPStorageMessage.getChannelUri();
         CharSequence format = asapManagementCreateASAPStorageMessage.getAppName();
-        List<CharSequence> recipients = asapManagementCreateASAPStorageMessage.getRecipients();
+        List<CharSequence> receivedRecipients = asapManagementCreateASAPStorageMessage.getRecipients();
+
+        // add owner to this list
+        List<CharSequence> recipients = new ArrayList<>();
+
+        // add owner
+        recipients.add(asapPDU.getPeer());
+
+        // add rest
+        for(CharSequence r : receivedRecipients) {
+            recipients.add(r);
+        }
 
         b = new StringBuilder();
         b.append(this.getLogStart());

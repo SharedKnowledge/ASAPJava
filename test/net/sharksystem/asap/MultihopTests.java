@@ -133,9 +133,11 @@ public class MultihopTests {
         Thread.sleep(1000);
 
         // Bob should now have created an closed asap storage with three recipients
-        ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:closedChannel");
+        ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:chat");
 
-        List<CharSequence> recipientsList = bobStorage.getRecipients("nonOpen");
+        ui.doPrintChannelInformation("Bob chat sn2://closedChannel");
+
+        List<CharSequence> recipientsList = bobStorage.getRecipients("sn2://closedChannel");
         boolean aliceFound = false;
         boolean bobFound = false;
         boolean claraFound = false;
