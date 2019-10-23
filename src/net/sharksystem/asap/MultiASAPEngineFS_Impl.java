@@ -403,7 +403,7 @@ public class MultiASAPEngineFS_Impl implements
         b.append(recipients.size());
         System.out.println(b.toString());
 
-        // find storage
+        // find storage / app - can throw an exception - that's ok
         ASAPStorage asapStorage = this.getEngineByFormat(format);
 
         if(asapStorage.channelExists(channelUri)) {
@@ -433,8 +433,9 @@ public class MultiASAPEngineFS_Impl implements
         }
 
         // else - channel does not exist - create by setting recipients
+        System.out.println(this.getLogStart() + "create channel");
         asapStorage.createChannel(channelUri, recipients);
-        return false;
+        return true;
     }
 
     private String getLogStart() {

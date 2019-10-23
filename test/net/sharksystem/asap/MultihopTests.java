@@ -21,9 +21,9 @@ public class MultihopTests {
         ui.doResetASAPStorages();
 
         // create storages
-        ui.doCreateASAPChannel("Alice twoHops sn2://abc");
-        ui.doCreateASAPChannel("Bob twoHops sn2://abc");
-        ui.doCreateASAPChannel("Clara twoHops sn2://abc");
+        ui.doCreateASAPApp("Alice twoHops");
+        ui.doCreateASAPApp("Bob twoHops");
+        ui.doCreateASAPApp("Clara twoHops");
 
         ui.doSetSendReceivedMessage("Alice:twoHops on");
         ui.doSetSendReceivedMessage("Bob:twoHops on");
@@ -98,6 +98,12 @@ public class MultihopTests {
         CmdLineUI ui = new CmdLineUI(System.out);
         ui.doResetASAPStorages();
 
+        // create app on each peer
+        ui.doCreateASAPApp("Alice chat");
+        ui.doCreateASAPApp("Bob chat");
+        ui.doCreateASAPApp("Clara chat");
+
+        // create closed channel with Alice
         ui.doCreateASAPChannel(" Alice chat sn2://closedChannel Bob Clara");
         ui.doPrintChannelInformation("Alice chat sn2://closedChannel");
 

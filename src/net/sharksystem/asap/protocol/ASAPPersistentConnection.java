@@ -174,23 +174,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
-/*
-        // introduce yourself
-        CharSequence owner = this.multiASAPEngineFS.getOwner();
-        if(owner != null && owner.length() > 0) {
-            try {
-                System.out.println(this.getLogStart() + "send introduction ASAP Offer; owner: " + owner);
-                this.sendIntroductionOffer(owner, false);
-            } catch (IOException e) {
-                this.terminate("io error when sending introduction offering: ", e);
-                return;
-            } catch (ASAPException e) {
-                System.out.println(this.getLogStart()
-                        + "could not send introduction offer: " + e.getLocalizedMessage());
-                // go ahead - no io problem
-            }
-        }
-*/
+
         try {
             // let engine write their interest - at least management interest is sent which als introduces
             // this peer to the other one
@@ -237,7 +221,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         // if return true - message was handled. No further actions required
                         pduExecuted = this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
                     } catch (ASAPException e) {
-                        System.err.println("asap management pdu processing failed - go ahead in read/process loop"
+                        System.err.println("asap management pdu processing failed - go ahead in read/process loop: "
                                 + e.getLocalizedMessage());
                         pduExecuted = false; // failed to execute - forget and go ahead
                     } catch (IOException e) {

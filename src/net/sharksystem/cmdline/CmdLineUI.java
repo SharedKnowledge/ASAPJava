@@ -18,7 +18,7 @@ public class CmdLineUI {
     public static final String KILL = "kill";
     public static final String SETWAITING = "setwaiting";
     public static final String CREATE_ASAP_ENGINE = "newengine";
-    public static final String CREATE_ASAP_STORAGE = "newstorage";
+    public static final String CREATE_ASAP_APP = "newapp";
     public static final String CREATE_ASAP_CHANNEL = "newchannel";
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
     public static final String RESET_ASAP_STORAGES = "resetstorage";
@@ -80,8 +80,8 @@ public class CmdLineUI {
         b.append(CREATE_ASAP_ENGINE);
         b.append(".. create new asap engine");
         b.append("\n");
-        b.append(CREATE_ASAP_STORAGE);
-        b.append(".. create new asap storage");
+        b.append(CREATE_ASAP_APP);
+        b.append(".. create new asap app (==storage)");
         b.append("\n");
         b.append(CREATE_ASAP_CHANNEL);
         b.append(".. create new closed asap channel");
@@ -143,9 +143,9 @@ public class CmdLineUI {
                 out.println("example: " + CREATE_ASAP_ENGINE + " Alice");
                 out.println("create engine called Alice - data kept under a folder called tests/Alice");
                 break;
-            case CREATE_ASAP_STORAGE:
-                out.println(CREATE_ASAP_STORAGE + " owner appName");
-                out.println("example: " + CREATE_ASAP_STORAGE + " Alice chat");
+            case CREATE_ASAP_APP:
+                out.println(CREATE_ASAP_APP + " owner appName");
+                out.println("example: " + CREATE_ASAP_APP + " Alice chat");
                 break;
             case CREATE_ASAP_CHANNEL:
                 out.println(CREATE_ASAP_CHANNEL + " owner appName uri (recipient)+");
@@ -216,7 +216,8 @@ public class CmdLineUI {
                         this.doSetWaiting(parameterString); break;
                     case CREATE_ASAP_ENGINE:
                         this.doCreateASAPMultiEngine(parameterString); break;
-                    case CREATE_ASAP_STORAGE: // same
+                    case CREATE_ASAP_APP: // same
+                        this.doCreateASAPApp(parameterString); break;
                     case CREATE_ASAP_CHANNEL:
                         this.doCreateASAPChannel(parameterString); break;
                     case CREATE_ASAP_MESSAGE:
@@ -396,6 +397,31 @@ public class CmdLineUI {
         }
     }
 
+    public void doCreateASAPApp(String parameterString) {
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            String owner = st.nextToken();
+            String appName = st.nextToken();
+
+            String appFolderName = TESTS_ROOT_FOLDER + "/" + owner + "/" + appName;
+
+            ASAPStorage storage = ASAPEngineFS.getASAPStorage(owner, appFolderName, appName);
+            if(!storage.isASAPManagementStorageSet()) {
+                storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(owner,
+                        TESTS_ROOT_FOLDER + "/" + owner + "/ASAPManagement",
+                        ASAP_1_0.ASAP_MANAGEMENT_FORMAT));
+            }
+
+            this.storages.put(this.getStorageKey(owner, appName), storage);
+        }
+        catch(RuntimeException e) {
+            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
+        } catch (IOException | ASAPException e) {
+            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
+        }
+    }
+
     public void doCreateASAPChannel(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
@@ -404,31 +430,24 @@ public class CmdLineUI {
             String appName = st.nextToken();
             String uri = st.nextToken();
 
-            String appFolderName = TESTS_ROOT_FOLDER + "/" + owner + "/" + appName;
-            String format = "sn2://" + appName;
+            ASAPStorage storage = this.storages.get(this.getStorageKey(owner, appName));
 
             List<CharSequence> recipients = new ArrayList<>();
+
+            // one recipient is mandatory - provoke an exception otherwise
+            recipients.add(st.nextToken());
+
+            // optional recipients
             while(st.hasMoreTokens()) {
                 recipients.add(st.nextToken());
             }
 
-            ASAPStorage storage = ASAPEngineFS.getASAPStorage(owner, appFolderName, format);
-            if(!storage.isASAPManagementStorageSet()) {
-                storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(owner,
-                        TESTS_ROOT_FOLDER + "/" + owner + "/ASAPManagement",
-                        ASAP_1_0.ASAP_MANAGEMENT_FORMAT));
-            }
-
-            if(recipients.size() > 0) {
-                storage.createChannel(uri, recipients);
-            }
-
-            this.storages.put(this.getStorageKey(owner, appName), storage);
+            storage.createChannel(uri, recipients);
         }
         catch(RuntimeException e) {
-            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
         } catch (IOException | ASAPException e) {
-            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
         }
     }
 
