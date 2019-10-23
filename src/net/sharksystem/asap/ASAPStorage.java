@@ -38,7 +38,7 @@ import java.util.List;
  * current era is declared to be finished and an new era is opened. 
  * Any new message is now tagged as message from that new era. The ASAPEngine
  * transmits all message to the peer which are stored after the final
- * encounter. If no encounter ever happened - allavailablee messages are
+ * encounter. If no encounter ever happened - all availablee messages are
  * transmitted. 
  *
  * @see ASAPEngine
@@ -53,22 +53,24 @@ public interface ASAPStorage {
     CharSequence getOwner();
 
     /**
-     * Adds a recipient to chunk recipient list.
-     * @param urlTarget chunk address
-     * @param recipient recipient to add
-     * @throws IOException 
-     */
-    public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
-
-    /**
-     /**
-     * Set a list of recipients for chunk. A former list is dropped.
+     * Creates a channel with named recipients - we call it a closed channel in opposite
+     * to an open channel.
      *
-     * @param urlTarget chunk address
-     * @param recipients new list of recipients
+     * Peers must not forward messages from a closed to other peers than those in recipient list.
+     *
+     * @param urlTarget
+     * @param recipients
      * @throws IOException
      */
-    public void setRecipients(CharSequence urlTarget, List<CharSequence> recipients) throws IOException;
+    void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException;
+
+    /**
+     * Create a channel with only two members - creator and recipient
+     * @param urlTarget
+     * @param recipient
+     * @throws IOException
+     */
+    void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException;
 
     /**
      * Chunks are delivered when seeing other peers. This flag allows to decide whether delivered chunks
@@ -122,14 +124,6 @@ public interface ASAPStorage {
      * @throws IOException
      */
     public CharSequence getExtra(CharSequence uri, String key) throws IOException;
-
-    /**
-     * Removes recipients
-     * @param urlTarget chunk address
-     * @param recipients list of recipients to be removed
-     * @throws IOException 
-     */
-    public void removeRecipient(CharSequence urlTarget, CharSequence recipients) throws IOException;
 
     /**
      *

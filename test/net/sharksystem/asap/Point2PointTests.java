@@ -186,7 +186,7 @@ public class Point2PointTests {
         ASAPStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
-        aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB); // Add recipient: make it a non-open channel
+        aliceStorage.createChannel(ALICE_BOB_CHAT_URL, BOB); // Add recipient: make it a non-open channel
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
 
@@ -194,7 +194,9 @@ public class Point2PointTests {
         ASAPStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
-        bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE); // Add recipient: make it a non-open channel
+        int bobInitialEra = bobStorage.getEra();
+
+        bobStorage.createChannel(ALICE_BOB_CHAT_URL, ALICE); // Add recipient: make it a non-open channel
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
 
@@ -305,7 +307,7 @@ public class Point2PointTests {
 
         // simulate a sync
         bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
-        Assert.assertEquals(2, bobStorage.getEra());
+        Assert.assertEquals(bobInitialEra+2, bobStorage.getEra());
 
         Thread.sleep(1000);
     }
@@ -324,7 +326,7 @@ public class Point2PointTests {
 
         int aliceInitialEra = aliceStorage.getEra();
 
-        aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
+        aliceStorage.createChannel(ALICE_BOB_CHAT_URL, BOB);
 
         // content changed - next change in topology should increase alice era.
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
@@ -334,7 +336,7 @@ public class Point2PointTests {
 
         int bobInitialEra = bobStorage.getEra();
 
-        bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE);
+        bobStorage.createChannel(ALICE_BOB_CHAT_URL, ALICE);
 
         // content changed - next change in topology should increase bob era.
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);

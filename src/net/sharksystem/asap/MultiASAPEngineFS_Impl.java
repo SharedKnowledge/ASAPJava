@@ -417,7 +417,7 @@ public class MultiASAPEngineFS_Impl implements
         }
 
         // else - channel does not exist - create by setting recipients
-        asapStorage.setRecipients(channelUri, recipients);
+        asapStorage.createChannel(channelUri, recipients);
     }
 
     private String getLogStart() {
