@@ -62,7 +62,7 @@ public interface ASAPStorage {
      * @param recipients
      * @throws IOException
      */
-    void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException;
+    void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
      * Create a channel with only two members - creator and recipient
@@ -70,7 +70,7 @@ public interface ASAPStorage {
      * @param recipient
      * @throws IOException
      */
-    void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException;
+    void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException;
 
     /**
      * Chunks are delivered when seeing other peers. This flag allows to decide whether delivered chunks
@@ -145,6 +145,10 @@ public interface ASAPStorage {
     void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
 
     void detachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
+
+    void setASAPManagementStorage(ASAPManagementStorage asapManagementStorage);
+
+    boolean isASAPManagementStorageSet();
 
     /**
      * Create a new era

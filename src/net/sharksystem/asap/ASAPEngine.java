@@ -17,7 +17,7 @@ import java.util.List;
  * @see ASAPStorage
  * @author thsc
  */
-public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
+public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -91,17 +91,54 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
     }
 
     @Override
-    public void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException {
-        this.setRecipients(urlTarget, recipients);
-    }
-
-    @Override
-    public void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException {
-        ArrayList<CharSequence> recipients = new ArrayList<>();
-        recipients.add(recipient);
+    public void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException {
         this.setRecipients(urlTarget, recipients);
 
         // inform recipients about that event
+        if(this.isASAPManagementStorageSet()) {
+            ASAPManagementStorage asapManagementStorage = this.getASAPManagementStorage();
+            asapManagementStorage.addCreateClosedASAPChannelMessage(this.format, urlTarget, recipients);
+        } else {
+            System.out.println(this.getLogStart()
+                    + "asap management storage not set - no propagation of channel creation");
+        }
+    }
+
+    @Override
+    public void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException {
+        ArrayList<CharSequence> recipients = new ArrayList<>();
+        recipients.add(recipient);
+        this.createChannel(urlTarget, recipients);
+    }
+
+    private ASAPManagementStorage asapManagementStorage = null;
+    public void setASAPManagementStorage(ASAPManagementStorage asapManagementStorage) {
+        this.asapManagementStorage = asapManagementStorage;
+    }
+
+    public ASAPManagementStorage getASAPManagementStorage() throws IOException, ASAPException {
+        if(this.asapManagementStorage == null) {
+            throw new ASAPException("ASAP Management Storage not set");
+        }
+
+        return this.asapManagementStorage;
+    }
+
+    public boolean isASAPManagementStorageSet() {
+        return this.asapManagementStorage != null;
+    }
+
+    public void addCreateClosedASAPChannelMessage(CharSequence appName, CharSequence channelUri,
+                                                  List<CharSequence> recipients)
+            throws ASAPException, IOException {
+
+        byte[] createClosedASAPChannelMessage =
+                ASAPManagementMessage.getCreateClosedASAPChannelMessage(
+                        this.getOwner(), appName, channelUri, recipients);
+
+        // put into create channel
+        this.add(ASAPManagementStorage.ASAP_CREATE_CHANNEL, createClosedASAPChannelMessage);
+
     }
 
     public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException {

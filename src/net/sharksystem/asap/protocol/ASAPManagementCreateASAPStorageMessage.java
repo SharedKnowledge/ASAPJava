@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import java.util.List;
 
-public interface ASAPManagementCreateASAPStoragePDU {
+public interface ASAPManagementCreateASAPStorageMessage {
     /**
      * @return list of recipients of this storage/channel
      */
@@ -19,9 +19,5 @@ public interface ASAPManagementCreateASAPStoragePDU {
      */
     CharSequence getOwner();
 
-    /**
-     *
-     * @return format/app in which this storage/channel is hosted
-     */
-    CharSequence getFormat();
+    CharSequence getAppName();
 }

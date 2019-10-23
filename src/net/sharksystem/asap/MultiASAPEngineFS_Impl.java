@@ -367,13 +367,15 @@ public class MultiASAPEngineFS_Impl implements
             return;
         }
 
-        ASAPManagementCreateASAPStoragePDU asapManagementPDU =
-                ASAPManagementProtocolPDU_Impl.parseASAPPDU(asap_assimilationPDU_1_0);
+        CharSequence owner = asapPDU.getPeer();
+        byte[] message = asap_assimilationPDU_1_0.getData();
 
-        CharSequence channelUri = asapManagementPDU.getChannelUri();
-        CharSequence format = asapManagementPDU.getFormat();
-        CharSequence owner = asapManagementPDU.getOwner();
-        List<CharSequence> recipients = asapManagementPDU.getRecipients();
+        ASAPManagementCreateASAPStorageMessage asapManagementCreateASAPStorageMessage =
+                ASAPManagementMessage.parseASAPManagementMessage(owner, message);
+
+        CharSequence channelUri = asapManagementCreateASAPStorageMessage.getChannelUri();
+        CharSequence format = asapManagementCreateASAPStorageMessage.getAppName();
+        List<CharSequence> recipients = asapManagementCreateASAPStorageMessage.getRecipients();
 
         b = new StringBuilder();
         b.append(this.getLogStart());

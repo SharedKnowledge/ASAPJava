@@ -21,9 +21,9 @@ public class MultihopTests {
         ui.doResetASAPStorages();
 
         // create storages
-        ui.doCreateASAPStorage("Alice twoHops");
-        ui.doCreateASAPStorage("Bob twoHops");
-        ui.doCreateASAPStorage("Clara twoHops");
+        ui.doCreateASAPChannel("Alice twoHops sn2://abc");
+        ui.doCreateASAPChannel("Bob twoHops sn2://abc");
+        ui.doCreateASAPChannel("Clara twoHops sn2://abc");
 
         ui.doSetSendReceivedMessage("Alice:twoHops on");
         ui.doSetSendReceivedMessage("Bob:twoHops on");
@@ -31,7 +31,7 @@ public class MultihopTests {
 
         // add message to alice storage
         String messageAlice2Clara = "HiClara";
-        String parameters = "Alice twoHops abcChat " + messageAlice2Clara;
+        String parameters = "Alice twoHops sn2://abc " + messageAlice2Clara;
         ui.doCreateASAPMessage(parameters);
 
         System.out.println("**************************************************************************");
@@ -87,7 +87,7 @@ public class MultihopTests {
 
         // clara era was increased after connection terminated - message from bob is in era before current one
         int eraToLook = ASAPEngine.previousEra(clara.getEra());
-        ASAPChunk claraABCChat = claraBob.getChunk("abcChat", eraToLook);
+        ASAPChunk claraABCChat = claraBob.getChunk("sn2://abc", eraToLook);
         CharSequence message = claraABCChat.getMessages().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
         Assert.assertTrue(same);

@@ -1,6 +1,7 @@
 package net.sharksystem.cmdline;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.protocol.ASAP_1_0;
 
 import java.io.*;
 import java.util.*;
@@ -215,8 +216,7 @@ public class CmdLineUI {
                         this.doSetWaiting(parameterString); break;
                     case CREATE_ASAP_ENGINE:
                         this.doCreateASAPMultiEngine(parameterString); break;
-                    case CREATE_ASAP_STORAGE:
-                        this.doCreateASAPStorage(parameterString); break;
+                    case CREATE_ASAP_STORAGE: // same
                     case CREATE_ASAP_CHANNEL:
                         this.doCreateASAPChannel(parameterString); break;
                     case CREATE_ASAP_MESSAGE:
@@ -396,27 +396,6 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPStorage(String parameterString) {
-        StringTokenizer st = new StringTokenizer(parameterString);
-
-        try {
-            String owner = st.nextToken();
-            String appName = st.nextToken();
-            String appFolderName = TESTS_ROOT_FOLDER + "/" + owner + "/" + appName;
-            String format = "sn2://" + appName;
-
-            ASAPStorage storage =
-                    ASAPEngineFS.getASAPStorage(owner, appFolderName, format);
-
-            this.storages.put(this.getStorageKey(owner, appName), storage);
-        }
-        catch(RuntimeException e) {
-            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
-        } catch (IOException | ASAPException e) {
-            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
-        }
-    }
-
     public void doCreateASAPChannel(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
@@ -434,8 +413,15 @@ public class CmdLineUI {
             }
 
             ASAPStorage storage = ASAPEngineFS.getASAPStorage(owner, appFolderName, format);
+            if(!storage.isASAPManagementStorageSet()) {
+                storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(owner,
+                        TESTS_ROOT_FOLDER + "/" + owner + "/ASAPManagement",
+                        ASAP_1_0.ASAP_MANAGEMENT_FORMAT));
+            }
 
-            storage.createChannel(uri, recipients);
+            if(recipients.size() > 0) {
+                storage.createChannel(uri, recipients);
+            }
 
             this.storages.put(this.getStorageKey(owner, appName), storage);
         }
