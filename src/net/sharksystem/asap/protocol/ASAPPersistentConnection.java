@@ -174,7 +174,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
     public void run() {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
-
+/*
         // introduce yourself
         CharSequence owner = this.multiASAPEngineFS.getOwner();
         if(owner != null && owner.length() > 0) {
@@ -190,7 +190,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 // go ahead - no io problem
             }
         }
-
+*/
         try {
             // let engine write their interest
             this.multiASAPEngineFS.pushInterests(this.os);

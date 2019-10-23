@@ -342,11 +342,16 @@ public class MultiASAPEngineFS_Impl implements
     public void pushInterests(OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
-        System.out.println(this.getLogStart() + "start sending interest for each engine");
 
         // in any case: issue an interest for management information first
+        System.out.println(this.getLogStart() + "send interest on " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
         protocol.interest(this.owner, null, ASAP_1_0.ASAP_MANAGEMENT_FORMAT,null, -1, -1, os, false);
 
+        if(this.folderMap.size() > 0) {
+            System.out.println(this.getLogStart() + "start sending interest for further apps/formats");
+        } else {
+            System.out.println(this.getLogStart() + "no more apps/formats on that engine - no further interests to be sent");
+        }
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
             if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already send
