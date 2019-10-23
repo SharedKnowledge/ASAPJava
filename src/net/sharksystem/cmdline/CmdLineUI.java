@@ -3,9 +3,7 @@ package net.sharksystem.cmdline;
 import net.sharksystem.asap.*;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * @author thsc
@@ -20,9 +18,11 @@ public class CmdLineUI {
     public static final String SETWAITING = "setwaiting";
     public static final String CREATE_ASAP_ENGINE = "newengine";
     public static final String CREATE_ASAP_STORAGE = "newstorage";
+    public static final String CREATE_ASAP_CHANNEL = "newchannel";
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
     public static final String RESET_ASAP_STORAGES = "resetstorage";
     public static final String SET_SEND_RECEIVED_MESSAGES = "sendReceived";
+    public static final String PRINT_CHANNEL_INFORMATION = "printChannelInfo";
 
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
@@ -82,6 +82,9 @@ public class CmdLineUI {
         b.append(CREATE_ASAP_STORAGE);
         b.append(".. create new asap storage");
         b.append("\n");
+        b.append(CREATE_ASAP_CHANNEL);
+        b.append(".. create new closed asap channel");
+        b.append("\n");
         b.append(CREATE_ASAP_MESSAGE);
         b.append(".. add message to storage");
         b.append("\n");
@@ -90,6 +93,9 @@ public class CmdLineUI {
         b.append("\n");
         b.append(SET_SEND_RECEIVED_MESSAGES);
         b.append(".. set whether received message are to be sent");
+        b.append("\n");
+        b.append(PRINT_CHANNEL_INFORMATION);
+        b.append(".. print general information about a channel");
         b.append("\n");
         b.append(EXIT);
         b.append(".. exit");
@@ -110,7 +116,6 @@ public class CmdLineUI {
                 out.println("example: " + CONNECT + " localhost 7070 Bob");
                 out.println("example: " + CONNECT + " 7070 Bob");
                 out.println("in both cases try to connect to localhost:7070 and let engine Bob handle connection when established");
-
                 break;
             case OPEN:
                 out.println(OPEN + " localPort engineName");
@@ -141,6 +146,10 @@ public class CmdLineUI {
                 out.println(CREATE_ASAP_STORAGE + " owner appName");
                 out.println("example: " + CREATE_ASAP_STORAGE + " Alice chat");
                 break;
+            case CREATE_ASAP_CHANNEL:
+                out.println(CREATE_ASAP_CHANNEL + " owner appName uri (recipient)+");
+                out.println("example: " + CREATE_ASAP_CHANNEL + " Alice chat sn2://abChat Bob Clara");
+                break;
             case CREATE_ASAP_MESSAGE:
                 out.println(CREATE_ASAP_MESSAGE + " owner appName uri message");
                 out.println("example: " + CREATE_ASAP_MESSAGE + " Alice chat sn2://abChat HiBob");
@@ -156,6 +165,10 @@ public class CmdLineUI {
                 out.println(SET_SEND_RECEIVED_MESSAGES + " storageName [on | off]");
                 out.println("set whether send received messages");
                 out.println("example: " + SET_SEND_RECEIVED_MESSAGES + " Alice:chat on");
+                break;
+            case PRINT_CHANNEL_INFORMATION:
+                out.println(PRINT_CHANNEL_INFORMATION + " user appName uri");
+                out.println("example: " + PRINT_CHANNEL_INFORMATION + " Alice chat sn2://abChat");
                 break;
             default:
                 out.println("unknown command: " + cmdString);
@@ -204,12 +217,16 @@ public class CmdLineUI {
                         this.doCreateASAPMultiEngine(parameterString); break;
                     case CREATE_ASAP_STORAGE:
                         this.doCreateASAPStorage(parameterString); break;
+                    case CREATE_ASAP_CHANNEL:
+                        this.doCreateASAPChannel(parameterString); break;
                     case CREATE_ASAP_MESSAGE:
                         this.doCreateASAPMessage(parameterString); break;
                     case RESET_ASAP_STORAGES:
                         this.doResetASAPStorages(); break;
                     case SET_SEND_RECEIVED_MESSAGES:
                         this.doSetSendReceivedMessage(parameterString); break;
+                    case PRINT_CHANNEL_INFORMATION:
+                        this.doPrintChannelInformation(parameterString); break;
                     case "q": // convenience
                     case EXIT:
                         this.doKill("all");
@@ -400,6 +417,35 @@ public class CmdLineUI {
         }
     }
 
+    public void doCreateASAPChannel(String parameterString) {
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            String owner = st.nextToken();
+            String appName = st.nextToken();
+            String uri = st.nextToken();
+
+            String appFolderName = TESTS_ROOT_FOLDER + "/" + owner + "/" + appName;
+            String format = "sn2://" + appName;
+
+            List<CharSequence> recipients = new ArrayList<>();
+            while(st.hasMoreTokens()) {
+                recipients.add(st.nextToken());
+            }
+
+            ASAPStorage storage = ASAPEngineFS.getASAPStorage(owner, appFolderName, format);
+
+            storage.createChannel(uri, recipients);
+
+            this.storages.put(this.getStorageKey(owner, appName), storage);
+        }
+        catch(RuntimeException e) {
+            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
+        } catch (IOException | ASAPException e) {
+            this.printUsage(CREATE_ASAP_STORAGE, e.getLocalizedMessage());
+        }
+    }
+
     public void doCreateASAPMessage(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
@@ -442,6 +488,37 @@ public class CmdLineUI {
         }
         catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());
+        }
+    }
+
+    public void doPrintChannelInformation(String parameterString) {
+        //                     out.println("example: " + PRINT_CHANNEL_INFORMATION + " Alice chat sn2://abChat");
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            String owner = st.nextToken();
+            String appName = st.nextToken();
+            String uri = st.nextToken();
+
+            // first - get storage
+            ASAPStorage asapStorage = this.storages.get(this.getStorageKey(owner, appName));
+            if(asapStorage == null) {
+                System.err.println("storage does not exist: " + this.getStorageKey(owner, appName));
+                return;
+            }
+
+            List<CharSequence> recipients = asapStorage.getRecipients(uri);
+
+            System.out.println("Owner:App:Channel == " + owner + ":" + appName + ":" + uri);
+            System.out.println("#Recipients == " + recipients.size());
+            for(CharSequence recipient : recipients) {
+                System.out.println(recipient);
+            }
+        }
+        catch(RuntimeException e) {
+            this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
+        } catch (IOException e) {
+            this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
         }
     }
 

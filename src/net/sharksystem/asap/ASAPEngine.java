@@ -1,7 +1,6 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.asap.protocol.ASAPManagementProtocolEngine;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
@@ -101,6 +100,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine {
         ArrayList<CharSequence> recipients = new ArrayList<>();
         recipients.add(recipient);
         this.setRecipients(urlTarget, recipients);
+
+        // inform recipients about that event
     }
 
     public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException {

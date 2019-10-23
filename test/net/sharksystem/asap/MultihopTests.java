@@ -93,23 +93,13 @@ public class MultihopTests {
         Assert.assertTrue(same);
     }
 
-    //@Test
+    @Test
     public void createNonOpenStorage() throws IOException, ASAPException, InterruptedException {
         CmdLineUI ui = new CmdLineUI(System.out);
-
         ui.doResetASAPStorages();
 
-        // Alice creates storage with three recipients
-        ui.doCreateASAPStorage("Alice nonOpen");
-        ui.doCreateASAPStorage("Bob nonOpen");
-        ui.doCreateASAPStorage("Clara nonOpen");
-
-        // add message to alice storage
-        String messageAlice2Clara = "HiClara";
-        String parameters = "Alice nonOpen abcChat " + messageAlice2Clara;
-        ui.doCreateASAPMessage(parameters);
-
-        // message is no in Alice storage
+        ui.doCreateASAPChannel(" Alice chat sn2://closedChannel Bob Clara");
+        ui.doPrintChannelInformation("Alice chat sn2://closedChannel");
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
@@ -137,26 +127,23 @@ public class MultihopTests {
         Thread.sleep(1000);
 
         // Bob should now have created an closed asap storage with three recipients
-        ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:nonOpen");
+        ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:closedChannel");
 
-        CharSequence uri = bobStorage.getChannelURIs().get(0);
         List<CharSequence> recipientsList = bobStorage.getRecipients("nonOpen");
         boolean aliceFound = false;
         boolean bobFound = false;
         boolean claraFound = false;
-        boolean davidFound = false;
         for(CharSequence recipient : recipientsList) {
             String recipientString = recipient.toString();
             switch(recipient.toString()) {
                 case "Alice": aliceFound = true; break;
                 case "Bob": bobFound = true; break;
                 case "Clara": claraFound = true; break;
-                case "David": davidFound = true; break;
                 default: Assert.fail("found unexpected recipient: " + recipient);
             }
         }
 
-        Assert.assertTrue(aliceFound && bobFound && claraFound && davidFound);
+        Assert.assertTrue(aliceFound && bobFound && claraFound);
     }
 
     private ASAPStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {
