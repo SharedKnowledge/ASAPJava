@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 public class MultiASAPEngineFS_Impl implements
-        MultiASAPEngineFS, ASAPManagementProtocolEngine, ASAPConnectionListener, ThreadFinishedListener {
+        MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener, ASAPChunkReceivedListener {
     private final CharSequence rootFolderName;
     private final ASAPChunkReceivedListener listener;
     private CharSequence owner;
@@ -73,6 +73,12 @@ public class MultiASAPEngineFS_Impl implements
                 setting.setASAPEngine(engine);
                 this.folderMap.put(engine.format, setting);
             }
+        }
+
+        // set yourself as listener to asap management app
+        EngineSetting folderAndListener = folderMap.get(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+        if(folderAndListener != null) {
+            folderAndListener.listener = this;
         }
     }
 
@@ -360,29 +366,39 @@ public class MultiASAPEngineFS_Impl implements
         }
     }
 
-    public boolean handleASAPManagementPDU(ASAP_PDU_1_0 asapPDU, ASAP_1_0 protocol,
-                                           InputStream is) throws ASAPException, IOException {
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + "(" + this.getOwner() + "): ";
+    }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                            chunk received listener for asap management engine                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void chunkReceived(String sender, String uri, int era) {
+        System.out.println(this.getLogStart()
+                + "handle received chunk (sender/uri/era)" + sender + "/" + uri + "/" + era);
+        try {
+            ASAPEngine asapManagementEngine = this.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+            ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getIncomingChunkStorage(sender);
+            ASAPChunk chunk = incomingChunkStorage.getChunk(uri, era);
+            Iterator<byte[]> messageIter = chunk.getMessagesAsBytes();
+            System.out.println(this.getLogStart() + "iterate management messages");
+            while(messageIter.hasNext()) {
+                byte[] message = messageIter.next();
+                this.handleASAPManagementMessage(sender, message);
+            }
+            System.out.println(this.getLogStart() + "done iterating management messages");
+        } catch (ASAPException | IOException e) {
+            System.out.println("could get asap management engine but received chunk - looks like a bug");
+        }
+    }
+
+    private void handleASAPManagementMessage(CharSequence owner, byte[] message) throws ASAPException, IOException {
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("start processing asap management pdu");
         System.out.println(b.toString());
-
-        System.out.println(this.getLogStart() + asapPDU);
-
-        ASAP_AssimilationPDU_1_0 asap_assimilationPDU_1_0 = null;
-        if(asapPDU instanceof ASAP_AssimilationPDU_1_0) {
-            asap_assimilationPDU_1_0 = (ASAP_AssimilationPDU_1_0) asapPDU;
-        } else {
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("asap management pdu not an assimilate message - let ordinary engine to the job");
-            System.out.println(b.toString());
-            return false;
-        }
-
-        CharSequence owner = asapPDU.getPeer();
-        byte[] message = asap_assimilationPDU_1_0.getData();
 
         ASAPManagementCreateASAPStorageMessage asapManagementCreateASAPStorageMessage =
                 ASAPManagementMessage.parseASAPManagementMessage(owner, message);
@@ -395,7 +411,7 @@ public class MultiASAPEngineFS_Impl implements
         List<CharSequence> recipients = new ArrayList<>();
 
         // add owner
-        recipients.add(asapPDU.getPeer());
+        recipients.add(owner);
 
         // add rest
         for(CharSequence r : receivedRecipients) {
@@ -412,7 +428,6 @@ public class MultiASAPEngineFS_Impl implements
         b.append(channelUri);
         b.append(" | #recipients: ");
         b.append(recipients.size());
-        System.out.println(b.toString());
 
         // find storage / app - can throw an exception - that's ok
         ASAPStorage asapStorage = this.getEngineByFormat(format);
@@ -433,25 +448,18 @@ public class MultiASAPEngineFS_Impl implements
                         }
                     }
                     if(!found) {
-                        throw new ASAPException("channel already exists but with different recipients");
+                        throw new ASAPException("channel already exists but with different recipients: " + b.toString());
                     }
                 }
                 // ok it the same
-                return false;
+                return;
             } else {
-                throw new ASAPException("channel already exists but with different settings");
+                throw new ASAPException("channel already exists but with different settings: " + b.toString());
             }
         }
 
         // else - channel does not exist - create by setting recipients
-        System.out.println(this.getLogStart() + "create channel");
+        System.out.println(this.getLogStart() + "create channel: " + b.toString());
         asapStorage.createChannel(channelUri, recipients);
-        System.err.println(this.getLogStart() + ".handleASAPManagementPDU(): TODO: return true - works / false not - but must be false...");
-//        return true;
-        return false;
-    }
-
-    private String getLogStart() {
-        return this.getClass().getSimpleName() + "(" + this.getOwner() + "): ";
     }
 }

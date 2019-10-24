@@ -213,6 +213,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
                 // process received pdu
                 boolean pduExecuted = false;
+                /*
                 if(asappdu.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) {
                     System.out.println(this.getLogStart()
                             + "got asap management message - let multi-engine handle this one");
@@ -229,7 +230,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         break;
                     }
                 }
-
+                */
                 if(!pduExecuted) { // not (completely executed by multi engine
                     try {
                         this.executor = new ASAPPDUExecutor(asappdu,

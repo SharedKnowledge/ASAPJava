@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * That interface hides those different engines.
  */
-public interface MultiASAPEngineFS extends ASAPManagementProtocolEngine {
+public interface MultiASAPEngineFS {
     public static final long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
     public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
