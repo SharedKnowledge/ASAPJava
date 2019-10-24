@@ -446,7 +446,8 @@ public class MultiASAPEngineFS_Impl implements
         // else - channel does not exist - create by setting recipients
         System.out.println(this.getLogStart() + "create channel");
         asapStorage.createChannel(channelUri, recipients);
-        return true;
+//        return true;
+        return false;
     }
 
     private String getLogStart() {

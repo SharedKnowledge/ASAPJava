@@ -122,22 +122,16 @@ public class MultihopTests {
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
         ui.doCreateASAPMultiEngine("Bob");
-
         ui.doConnect("7070 Bob");
 
         // alice should be in era 1 (content has changed before connection) and bob era is 0 - no changes
-
         // wait a moment
         Thread.sleep(1000);
-
         // kill connections
         ui.doKill("all");
-
         // alice should stay in era 1 (no content change), bob should be in era 1 received something
-
         // wait a moment
         Thread.sleep(1000);
-
         // Bob should now have created an closed asap storage with three recipients
         ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:chat");
 
