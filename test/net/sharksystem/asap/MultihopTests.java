@@ -107,6 +107,12 @@ public class MultihopTests {
         ui.doCreateASAPChannel(" Alice chat sn2://closedChannel Bob Clara");
         ui.doPrintChannelInformation("Alice chat sn2://closedChannel");
 
+        // add message
+        // add message to alice storage
+        String messageAlice2Clara = "HiClara";
+        String parameters = "Alice chat sn2://closedChannel " + messageAlice2Clara;
+        ui.doCreateASAPMessage(parameters);
+
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
         System.out.println("**************************************************************************");
@@ -152,6 +158,19 @@ public class MultihopTests {
         }
 
         Assert.assertTrue(aliceFound && bobFound && claraFound);
+
+        // check for a message
+        /* message was actually from Bob but originated from Alice. It is put
+        into a incoming folder as it would have been directly received from Alice.
+        Signatures would allow ensuring if origin was really who mediator claims to be.
+        */
+        ASAPChunkStorage bobAlice = bobStorage.getIncomingChunkStorage("Alice");
+
+        // clara era was increased after connection terminated - message from bob is in era before current one
+        int eraToLook = ASAPEngine.previousEra(bobStorage.getEra());
+        ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", eraToLook);
+        CharSequence message = bobABCChat.getMessages().next();
+        Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
     }
 
     private ASAPStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {
