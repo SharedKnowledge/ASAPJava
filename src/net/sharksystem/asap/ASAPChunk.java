@@ -124,4 +124,6 @@ public interface ASAPChunk {
     void deliveredTo(String peer) throws IOException;
 
     List<CharSequence> getDeliveredTo();
+
+    void copyMetaData(ASAPChannel channel) throws IOException;
 }

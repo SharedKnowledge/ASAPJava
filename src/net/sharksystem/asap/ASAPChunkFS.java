@@ -36,6 +36,15 @@ class ASAPChunkFS implements ASAPChunk {
         this.saveStatus();
     }
 
+    @Override
+    public void copyMetaData(ASAPChannel channel) throws IOException {
+        this.uri = channel.getUri().toString();
+        this.recipients = channel.getRecipients();
+        this.extraData = channel.getExtraData();
+
+        this.saveStatus();
+    }
+
     public HashMap<String, String> getExtraData() {
         return this.extraData;
     }

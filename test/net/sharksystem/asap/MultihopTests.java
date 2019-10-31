@@ -99,7 +99,7 @@ public class MultihopTests {
     }
 
     @Test
-    public void createNonOpenStorage() throws IOException, ASAPException, InterruptedException {
+    public void closedChannelTest() throws IOException, ASAPException, InterruptedException {
         CmdLineUI ui = new CmdLineUI(System.out);
         ui.doResetASAPStorages();
 

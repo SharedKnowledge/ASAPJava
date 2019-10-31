@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Set;
 
 public class ASAPChannelImpl implements ASAPChannel {
@@ -26,6 +27,11 @@ public class ASAPChannelImpl implements ASAPChannel {
     @Override
     public Set<CharSequence> getRecipients() throws IOException {
         return this.asapEngine.getRecipients(this.getUri());
+    }
+
+    @Override
+    public HashMap<String, String> getExtraData() throws IOException {
+        return this.asapEngine.getStorage().getChunk(uri, this.asapEngine.getEra()).getExtraData();
     }
 
     public void setOwner(CharSequence owner) throws IOException {
