@@ -350,12 +350,12 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
             StringBuilder sb = new StringBuilder();
             sb.append(getLogStart());
-            sb.append("ASAPPDUExecutor created - ");
-            sb.append("folder: " + engineSetting.folder + " | ");
+            sb.append("ASAPPDUExecutor: ");
             sb.append("engine: " + engineSetting.engine.getClass().getSimpleName() + " | ");
             if(engineSetting.listener != null) {
-                sb.append("listener: " + engineSetting.listener.getClass().getSimpleName());
+                sb.append("listener: " + engineSetting.listener.getClass().getSimpleName() + " | ");
             }
+            sb.append("folder: " + engineSetting.folder);
 
             System.out.println(sb.toString());
         }

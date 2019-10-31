@@ -92,7 +92,6 @@ public class MultihopTests {
 
         // clara era was increased after connection terminated - message from bob is in era before current one
 //        int eraToLook = ASAPEngine.previousEra(clara.getEra());
-        int eraToLook = clara.getEra();
         ASAPChunk claraABCChat = claraAlice.getChunk("sn2://abc", aliceEraWhenIssuedMessage);
         CharSequence message = claraABCChat.getMessages().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
@@ -108,6 +107,12 @@ public class MultihopTests {
         ui.doCreateASAPApp("Alice chat");
         ui.doCreateASAPApp("Bob chat");
         ui.doCreateASAPApp("Clara chat");
+        ui.doCreateASAPApp("David chat");
+
+        ui.doSetSendReceivedMessage("Alice:chat on");
+        ui.doSetSendReceivedMessage("Bob:chat on");
+        ui.doSetSendReceivedMessage("Clara:chat on");
+        ui.doSetSendReceivedMessage("David:chat on");
 
         // create closed channel with Alice
         ui.doCreateASAPChannel(" Alice chat sn2://closedChannel Bob Clara");
@@ -118,6 +123,10 @@ public class MultihopTests {
         String messageAlice2Clara = "HiClara";
         String parameters = "Alice chat sn2://closedChannel " + messageAlice2Clara;
         ui.doCreateASAPMessage(parameters);
+
+        // remember Alice' era
+        ASAPStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:chat");
+        int aliceEraWhenIssuedMessage = aliceStorage.getEra();
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
@@ -165,8 +174,7 @@ public class MultihopTests {
         // message received?
         ASAPChunkStorage bobAlice = bobStorage.getIncomingChunkStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
-        int eraToLook = ASAPEngine.previousEra(bobStorage.getEra());
-        ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", eraToLook);
+        ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
         CharSequence message = bobABCChat.getMessages().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
 
@@ -216,10 +224,31 @@ public class MultihopTests {
         // message received?
         ASAPChunkStorage claraAlice = claraStorage.getIncomingChunkStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
-        eraToLook = ASAPEngine.previousEra(bobStorage.getEra());
-        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", eraToLook);
+        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
         message = claraABCChat.getMessages().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
+
+        System.out.println("**************************************************************************");
+        System.out.println("**                       connect Clara with David                       **");
+        System.out.println("**************************************************************************");
+        // connect alice with bob
+        ui.doCreateASAPMultiEngine("Clara");
+        ui.doOpen("7072 Clara");
+        // wait a moment to give server socket time to be created
+        Thread.sleep(10);
+        ui.doCreateASAPMultiEngine("David");
+        ui.doConnect("7072 David");
+
+        // wait a moment
+        Thread.sleep(1000);
+        // kill connections
+        ui.doKill("all");
+        // wait a moment
+        Thread.sleep(1000);
+        // Bob should now have created an closed asap storage with three recipients
+        ASAPStorage davidStorage = this.getFreshStorageByName(ui, "David:chat");
+
+        Assert.assertFalse(davidStorage.channelExists("sn2://closedChannel"));
     }
 
     private ASAPStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {

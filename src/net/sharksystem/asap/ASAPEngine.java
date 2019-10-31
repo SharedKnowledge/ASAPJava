@@ -580,6 +580,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
                 this.sendChunks(sender, peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
             }
+        } else {
+            System.out.println(this.getLogStart() + "engine does not send received chunks");
         }
     }
 
@@ -608,6 +610,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
         boolean lastRound = false; // assume more than one round
         do {
+            boolean goAhead = true; // to avoid deep if-if-if-if structures
             lastRound = workingEra == lastEra;
 
             List<ASAPChunk> chunks = chunkStorage.getChunks(workingEra);
@@ -625,68 +628,69 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
                 b.append(this.getLogStart());
                 b.append("chunkUrl: ");
                 b.append(chunk.getUri());
-                b.append(" / isPublic: ");
+                b.append(" | isPublic: ");
                 b.append(this.isPublic(chunk));
+                b.append(" | len: ");
+                b.append(chunk.getLength());
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
-                // is not a public chunk
-                if (!this.isPublic(chunk)) {
-                    Set<CharSequence> recipients = chunk.getRecipients();
+                if(chunk.getLength() < 1) {
+                    goAhead = false;
+                }
 
-                    if (!recipients.contains(recipient)) {
-                        continue;
+                // is not a public chunk
+                if (goAhead && !this.isPublic(chunk)) {
+                    Set<CharSequence> recipients = chunk.getRecipients();
+                    if (recipients == null || !recipients.contains(recipient)) {
+                        goAhead = false;
                     }
                 }
 
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("send chunk");
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
-                /*
-    void assimilate(CharSequence recipient, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
-                    int length, List<Integer> offsets, InputStream dataIS, OutputStream os, boolean signed)
-            throws IOException, ASAPException;
-                 */
-
-                protocol.assimilate(sender, // recipient
-                        recipient, // recipient
-                        this.format,
-                        chunk.getUri(), // channel ok
-                        workingEra, // era ok
-                        chunk.getLength(), // data length
-                        chunk.getOffsetList(),
-                        chunk.getMessageInputStream(),
-                        os,
-                        false);
-
-                // remember sent
-                chunk.deliveredTo(recipient);
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("remembered delivered to ");
-                b.append(recipient);
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-                // sent to all recipients
-                if (chunk.getRecipients().size() == chunk.getDeliveredTo().size()) {
-                    b = Log.startLog(this);
-                    b.append("#recipients == #deliveredTo chunk delivered to any potential recipient - could drop it");
+                if (goAhead) {
+                    //<<<<<<<<<<<<<<<<<<debug
+                    b = new StringBuilder();
+                    b.append(this.getLogStart());
+                    b.append("send chunk");
                     System.out.println(b.toString());
-                    if (this.isDropDeliveredChunks()) {
-                        chunk.drop();
-                        //<<<<<<<<<<<<<<<<<<debug
+                    //>>>>>>>>>>>>>>>>>>>debug
+
+                    protocol.assimilate(sender, // recipient
+                            recipient, // recipient
+                            this.format,
+                            chunk.getUri(), // channel ok
+                            workingEra, // era ok
+                            chunk.getLength(), // data length
+                            chunk.getOffsetList(),
+                            chunk.getMessageInputStream(),
+                            os,
+                            false);
+
+                    // remember sent
+                    chunk.deliveredTo(recipient);
+                    //<<<<<<<<<<<<<<<<<<debug
+                    b = new StringBuilder();
+                    b.append(this.getLogStart());
+                    b.append("remembered delivered to ");
+                    b.append(recipient);
+                    System.out.println(b.toString());
+                    //>>>>>>>>>>>>>>>>>>>debug
+                    // sent to all recipients
+                    if (chunk.getRecipients().size() == chunk.getDeliveredTo().size()) {
                         b = Log.startLog(this);
-                        b.append("chunk dropped");
+                        b.append("#recipients == #deliveredTo chunk delivered to any potential recipient - could drop it");
                         System.out.println(b.toString());
-                    } else {
-                        b = Log.startLog(this);
-                        b.append("drop flag set false - engine does not remove delivered chunks");
-                        System.out.println(b.toString());
+                        if (this.isDropDeliveredChunks()) {
+                            chunk.drop();
+                            //<<<<<<<<<<<<<<<<<<debug
+                            b = Log.startLog(this);
+                            b.append("chunk dropped");
+                            System.out.println(b.toString());
+                        } else {
+                            b = Log.startLog(this);
+                            b.append("drop flag set false - engine does not remove delivered chunks");
+                            System.out.println(b.toString());
+                        }
                     }
                 }
             }

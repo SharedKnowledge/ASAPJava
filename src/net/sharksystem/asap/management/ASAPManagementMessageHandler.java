@@ -23,7 +23,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
     @Override
     public void chunkReceived(String sender, String uri, int era) {
         System.out.println(this.getLogStart()
-                + "handle received chunk (sender/uri/era)" + sender + "/" + uri + "/" + era);
+                + "handle received chunk (sender|uri|era) " + sender + "|" + uri + "|" + era);
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
             CharSequence owner = asapManagementEngine.getOwner();

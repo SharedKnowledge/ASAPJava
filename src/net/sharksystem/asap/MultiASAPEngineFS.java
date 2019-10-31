@@ -66,4 +66,9 @@ public interface MultiASAPEngineFS {
     boolean isASAPManagementEngineRunning();
 
     EngineSetting getEngineSettings(CharSequence format) throws ASAPException;
+
+    /**
+     * @return all formats currently supported by this mulit engine
+     */
+    Set<CharSequence> getFormats();
 }

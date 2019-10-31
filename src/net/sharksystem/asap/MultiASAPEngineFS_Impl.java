@@ -182,6 +182,11 @@ public class MultiASAPEngineFS_Impl implements
         return folderAndListener;
     }
 
+    public Set<CharSequence> getFormats() {
+        return this.folderMap.keySet();
+    }
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                          connection management                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
