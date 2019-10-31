@@ -9,4 +9,5 @@ public interface ASAPChannel {
     CharSequence getUri() throws IOException;
     Set<CharSequence> getRecipients() throws IOException;
     HashMap<String, String> getExtraData() throws IOException;
+    ASAPChannelMessages getMessages() throws IOException;
 }

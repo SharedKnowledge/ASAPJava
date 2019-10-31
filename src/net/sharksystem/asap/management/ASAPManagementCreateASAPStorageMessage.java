@@ -1,12 +1,12 @@
 package net.sharksystem.asap.management;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ASAPManagementCreateASAPStorageMessage {
     /**
      * @return list of recipients of this storage/channel
      */
-    List<CharSequence> getRecipients();
+    Set<CharSequence> getRecipients();
 
     /**
      * @return channel uri

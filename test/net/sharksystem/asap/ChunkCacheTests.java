@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public class ChunkCacheTests {
     public static final String ALICE_FOLDER = "tests/alice";
@@ -51,7 +50,7 @@ public class ChunkCacheTests {
         aliceStorage.add(TEST_URI, message[0xF]);
 
         // now get message chain
-        ASAPChunkChain chunkChain = aliceStorage.getChunkChain(TEST_URI);
+        ASAPChannelMessages chunkChain = aliceStorage.getChunkChain(TEST_URI);
         for(int i = 0; i < 0x10; i++) {
             Assert.assertTrue(chunkChain.getMessage(i, true).toString()
                     .equalsIgnoreCase(message[i]));

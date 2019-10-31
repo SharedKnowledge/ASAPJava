@@ -1,17 +1,14 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.management.ASAPManagementMessage;
 import net.sharksystem.asap.management.ASAPManagementStorage;
+import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * That ASAPEngine manages exchange of stored messages with peers.
@@ -94,12 +91,12 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     @Override
-    public void createChannel(CharSequence uri, List<CharSequence> recipients) throws IOException, ASAPException {
+    public void createChannel(CharSequence uri, Set<CharSequence> recipients) throws IOException, ASAPException {
         this.createChannel(this.getOwner(), uri, recipients);
     }
 
     @Override
-    public void createChannel(CharSequence owner, CharSequence uri, List<CharSequence> recipients)
+    public void createChannel(CharSequence owner, CharSequence uri, Set<CharSequence> recipients)
             throws IOException, ASAPException {
 
         this.setRecipients(uri, recipients);
@@ -116,7 +113,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
     @Override
     public void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException {
-        ArrayList<CharSequence> recipients = new ArrayList<>();
+        Set<CharSequence> recipients = new HashSet<>();
         recipients.add(recipient);
         this.createChannel(urlTarget, recipients);
     }
@@ -139,23 +136,17 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     public void notifyChannelCreated(CharSequence appName, CharSequence owner,
-                                     CharSequence uri, List<CharSequence> recipients)
+                                     CharSequence uri, Set<CharSequence> recipients)
             throws ASAPException, IOException {
 
-        byte[] createClosedASAPChannelMessage =
-                ASAPManagementMessage.getCreateClosedASAPChannelMessage(
-                        owner, appName, uri, recipients);
-
-        // put into create channel
-        this.add(ASAPManagementStorage.ASAP_CREATE_CHANNEL, createClosedASAPChannelMessage);
-
+        new ASAPManagementStorageImpl(this).notifyChannelCreated(appName, owner, uri, recipients);
     }
 
     public void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException {
         this.chunkStorage.getChunk(urlTarget, this.era).addRecipient(recipient);
     }
 
-    public void setRecipients(CharSequence urlTarget, List<CharSequence> recipients) throws IOException {
+    public void setRecipients(CharSequence urlTarget, Set<CharSequence> recipients) throws IOException {
         this.chunkStorage.getChunk(urlTarget, this.era).setRecipients(recipients);
     }
 
@@ -234,19 +225,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         chunk.drop();
     }
 
-    public ASAPChunkChain getChunkChain(int position) throws IOException, ASAPException {
+    public ASAPChannelMessages getChunkChain(int position) throws IOException, ASAPException {
         return this.getChunkChain(position, this.era);
     }
 
-    public ASAPChunkChain getChunkChain(CharSequence uri, int toEra) throws IOException {
+    public ASAPChannelMessages getChunkChain(CharSequence uri, int toEra) throws IOException {
         return this.chunkStorage.getASAPChunkCache(uri, toEra);
     }
 
-    public ASAPChunkChain getChunkChain(CharSequence uri) throws IOException {
+    public ASAPChannelMessages getChunkChain(CharSequence uri) throws IOException {
         return this.getChunkChain(uri, this.getEra());
     }
 
-    public ASAPChunkChain getChunkChain(int position, int toEra)
+    public ASAPChannelMessages getChunkChain(int position, int toEra)
             throws IOException, ASAPException {
 
         List<CharSequence> channelURIs = this.getChannelURIs();

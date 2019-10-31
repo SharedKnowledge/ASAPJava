@@ -7,7 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import static net.sharksystem.asap.ASAPChunkFS.DATA_EXTENSION;
+
 import static net.sharksystem.asap.ASAPChunkFS.META_DATA_EXTENSION;
 
 /**
@@ -114,14 +114,14 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public ASAPChunkChain getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
+    public ASAPChannelMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
         // go back 1000 eras
         int fromEra = toEra;
         for(int i = 0; i < 1000; i++) {
             fromEra = ASAPEngine.previousEra(fromEra);
         }
 
-        return new ASAPInMemoChunkChain(this,
+        return new ASAPInMemoChannelMessages(this,
                 uri,
                 fromEra, // set starting era
                 toEra // anything before

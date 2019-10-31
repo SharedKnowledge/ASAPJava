@@ -19,7 +19,7 @@ import java.util.Iterator;
  * 
  * @author thsc
  */
-public interface ASAPChunkChain {
+public interface ASAPChannelMessages {
     /**
      * 
      * @return number of messages fitting to that uri regardless of era

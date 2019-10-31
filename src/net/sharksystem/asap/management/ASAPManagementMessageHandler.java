@@ -4,10 +4,7 @@ import net.sharksystem.asap.*;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
     private final MultiASAPEngineFS multiASAPEngine;
@@ -20,13 +17,31 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
     //                            chunk received listener for asap management engine                     //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private HashMap<Set<CharSequence>, CharSequence> recipientUris = new HashMap<>();
+
+    public static CharSequence createUniqueUri() {
+        return "sn2://asapManagement://" + Long.toString(System.currentTimeMillis());
+    }
+
+    CharSequence getURI(Set<CharSequence> recipients) throws IOException, ASAPException {
+        // find entry with all recipients - and only those recipients
+
+        for(Set<CharSequence> rSet : recipientUris.keySet()) {
+            // are recipients fully inside rSet?
+            if(rSet.containsAll(recipients) && recipients.containsAll(rSet)) {
+                return recipientUris.get(rSet);
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void chunkReceived(String sender, String uri, int era) {
         System.out.println(this.getLogStart()
                 + "handle received chunk (sender|uri|era) " + sender + "|" + uri + "|" + era);
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-            CharSequence owner = asapManagementEngine.getOwner();
 
             ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getIncomingChunkStorage(sender);
             ASAPChunk chunk = incomingChunkStorage.getChunk(uri, era);
@@ -34,10 +49,22 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
             System.out.println(this.getLogStart() + "iterate management messages");
             while(messageIter.hasNext()) {
                 byte[] message = messageIter.next();
-                this.handleASAPManagementMessage(message);
+                Set<CharSequence> recipients = this.handleASAPManagementMessage(message);
 
                 // add message without changes - could be signed
-                asapManagementEngine.add(uri, message);
+                CharSequence sendUri = this.getURI(recipients);
+                boolean setUpRecipients = (sendUri == null);
+                if(setUpRecipients) {
+                    sendUri = createUniqueUri();
+                }
+                // write message
+                System.out.println(this.getLogStart() + "add received message locally: ");
+                asapManagementEngine.add(sendUri, message);
+
+                if(setUpRecipients) {
+                    asapManagementEngine.setRecipients(sendUri, recipients);
+                    this.recipientUris.put(recipients, sendUri);
+                }
             }
             System.out.println(this.getLogStart() + "done iterating management messages");
             // remove incoming messages - handled
@@ -48,7 +75,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         }
     }
 
-    private void handleASAPManagementMessage(byte[] message) throws ASAPException, IOException {
+    private Set<CharSequence> handleASAPManagementMessage(byte[] message) throws ASAPException, IOException {
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("start processing asap management pdu");
@@ -60,10 +87,10 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         CharSequence owner = asapManagementCreateASAPStorageMessage.getOwner();
         CharSequence channelUri = asapManagementCreateASAPStorageMessage.getChannelUri();
         CharSequence format = asapManagementCreateASAPStorageMessage.getAppName();
-        List<CharSequence> receivedRecipients = asapManagementCreateASAPStorageMessage.getRecipients();
+        Set<CharSequence> receivedRecipients = asapManagementCreateASAPStorageMessage.getRecipients();
 
         // add owner to this list
-        List<CharSequence> recipients = new ArrayList<>();
+        Set<CharSequence> recipients = new HashSet<>();
 
         // add owner
         recipients.add(owner);
@@ -107,7 +134,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
                     }
                 }
                 // ok it the same
-                return;
+                return receivedRecipients;
             } else {
                 throw new ASAPException("channel already exists but with different settings: " + b.toString());
             }
@@ -116,6 +143,8 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         // else - channel does not exist - create by setting recipients
         System.out.println(this.getLogStart() + "create channel: " + b.toString());
         asapStorage.createChannel(owner, channelUri, recipients);
+
+        return receivedRecipients;
     }
 
     private String getLogStart() {

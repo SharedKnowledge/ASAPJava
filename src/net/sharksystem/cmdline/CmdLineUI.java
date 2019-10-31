@@ -452,7 +452,7 @@ public class CmdLineUI {
 
             ASAPStorage storage = this.storages.get(this.getStorageKey(owner, appName));
 
-            List<CharSequence> recipients = new ArrayList<>();
+            Set<CharSequence> recipients = new HashSet<>();
 
             // one recipient is mandatory - provoke an exception otherwise
             recipients.add(st.nextToken());
@@ -595,10 +595,12 @@ public class CmdLineUI {
         Set<CharSequence> recipients = channel.getRecipients();
 
         System.out.println("Owner:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
+        System.out.println("#Messages == " + channel.getMessages().getNumberMessage());
         System.out.println("#Recipients == " + recipients.size());
         for(CharSequence recipient : recipients) {
             System.out.println(recipient);
         }
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

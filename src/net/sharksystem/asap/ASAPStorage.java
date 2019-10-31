@@ -65,7 +65,7 @@ public interface ASAPStorage {
      * @param recipients
      * @throws IOException
      */
-    void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException;
+    void createChannel(CharSequence urlTarget, Set<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
      * Create channel with a maybe different and than local peer - take care!
@@ -75,7 +75,7 @@ public interface ASAPStorage {
      * @throws IOException
      * @throws ASAPException
      */
-    void createChannel(CharSequence owner, CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException;
+    void createChannel(CharSequence owner, CharSequence urlTarget, Set<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
      *
@@ -244,13 +244,13 @@ public interface ASAPStorage {
 
     void removeChannel(CharSequence uri) throws IOException;
 
-    ASAPChunkChain getChunkChain(int position) throws IOException, ASAPException;
+    ASAPChannelMessages getChunkChain(int position) throws IOException, ASAPException;
 
-    ASAPChunkChain getChunkChain(int position, int toEra) throws IOException, ASAPException;
+    ASAPChannelMessages getChunkChain(int position, int toEra) throws IOException, ASAPException;
 
-    ASAPChunkChain getChunkChain(CharSequence uri, int toEra) throws IOException;
+    ASAPChannelMessages getChunkChain(CharSequence uri, int toEra) throws IOException;
 
-    ASAPChunkChain getChunkChain(CharSequence uri) throws IOException;
+    ASAPChannelMessages getChunkChain(CharSequence uri) throws IOException;
 
     /**
      * Refresh with external system - re-read files, or whatever.

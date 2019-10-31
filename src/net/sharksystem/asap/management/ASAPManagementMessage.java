@@ -1,18 +1,19 @@
 package net.sharksystem.asap.management;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.management.ASAPManagementCreateASAPStorageMessage;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ASAPManagementMessage {
     public static byte[] getCreateClosedASAPChannelMessage(
             CharSequence owner, CharSequence appName, CharSequence channelUri,
-            List<CharSequence> recipients) throws ASAPException, IOException {
+            Set<CharSequence> recipients) throws ASAPException, IOException {
 
         if(recipients == null || recipients.size() < 1) {
             throw new ASAPException("recipients in storage/channelUri must not be null or empty: ");
@@ -51,7 +52,7 @@ public class ASAPManagementMessage {
     }
 
     private static class CreateASAPStorageMessage implements ASAPManagementCreateASAPStorageMessage {
-        private final List<CharSequence> recipients;
+        private final Set<CharSequence> recipients;
         private final CharSequence channelUri;
         private final CharSequence appName;
         private final CharSequence owner;
@@ -65,7 +66,7 @@ public class ASAPManagementMessage {
             this.channelUri = dis.readUTF();
 
             // there must be at least one recipient
-            this.recipients = new ArrayList<>();
+            this.recipients = new HashSet<>();
             this.recipients.add(dis.readUTF());
 
             // and maybe some more
@@ -80,7 +81,7 @@ public class ASAPManagementMessage {
         }
 
         @Override
-        public List<CharSequence> getRecipients() {
+        public Set<CharSequence> getRecipients() {
             return this.recipients;
         }
 

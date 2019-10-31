@@ -34,6 +34,11 @@ public class ASAPChannelImpl implements ASAPChannel {
         return this.asapEngine.getStorage().getChunk(uri, this.asapEngine.getEra()).getExtraData();
     }
 
+    @Override
+    public ASAPChannelMessages getMessages() throws IOException {
+        return this.asapEngine.getChunkStorage().getASAPChunkCache(this.getUri(), this.asapEngine.getEra());
+    }
+
     public void setOwner(CharSequence owner) throws IOException {
         this.asapEngine.putExtra(this.getUri(), CHANNEL_OWNER, owner.toString());
     }

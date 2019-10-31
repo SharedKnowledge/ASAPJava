@@ -78,9 +78,9 @@ public interface ASAPChunk {
     /**
      * set a list of recipients. Former recipients are dikscarded
      * @param recipients
-     * @throws IOException 
+     * @throws IOException
      */
-    void setRecipients(List<CharSequence> recipients) throws IOException;
+    void setRecipients(Set<CharSequence> recipients) throws IOException;
 
     /**
      * recipient is removed
