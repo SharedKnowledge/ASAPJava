@@ -368,26 +368,27 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             String uri = asapAssimiliationPDU.getChannelUri();
 
             // get local target for data to come
-            ASAPChunk incomingChunk = incomingSenderStorage.getChunk(uri, eraSender);
+            ASAPChunk localChunk = null;
 
-            if(!incomingSenderStorage.existsChunk(uri, eraSender) && asapAssimiliationPDU.recipientPeerSet()) {
+            if(!incomingSenderStorage.existsChunk(uri, eraSender)) {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
-                b.append("recipient (");
-                b.append(asapAssimiliationPDU.getRecipientPeer());
-                b.append(") no incoming chunk yet:");
+                b.append("no incoming chunk yet | ");
                 b.append(asapAssimiliationPDU.toString());
+                System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
                 // is there a local chunk - to clone recipients from?
                 if(this.channelExists(uri)) {
-                    b.append("local chunk exists - copy meta data");
-                    incomingChunk.copyMetaData(this.getChannel(uri));
-                } else {
-                    b.append("no local chunk to copy meta data from");
+                    localChunk = this.getStorage().getChunk(uri, this.getEra());
                 }
-                System.out.println(b.toString());
+            }
+
+            ASAPChunk incomingChunk = incomingSenderStorage.getChunk(uri, eraSender);
+            if(localChunk != null) {
+                System.out.println(this.getLogStart() + "copy local meta data into newly created incoming chunk");
+                incomingChunk.copyMetaData(this.getChannel(uri));
             }
 
             List<Integer> messageOffsets = asapAssimiliationPDU.getMessageOffsets();
@@ -656,6 +657,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
                             System.out.println(b.toString());
                         }
                     }
+                } else {
+                    System.out.println(this.getLogStart() + "nothing sent: empty or not on recipient list");
                 }
             }
 
