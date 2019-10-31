@@ -119,6 +119,6 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName() + /*"(" + this.getOwner() + ")*/ ": ";
+        return this.getClass().getSimpleName() + "(" + this.multiASAPEngine.getOwner() + "): ";
     }
 }

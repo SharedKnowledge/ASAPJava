@@ -35,7 +35,7 @@ public class PDUTests {
 
         ASAP_OfferPDU_1_0 offerPDU = (ASAP_OfferPDU_1_0) asap_pdu_1_0;
 
-        Assert.assertTrue(offerPDU.getChannel().equalsIgnoreCase(channel));
+        Assert.assertTrue(offerPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(offerPDU.getFormat().equalsIgnoreCase(format));
         Assert.assertTrue(offerPDU.getPeer().equalsIgnoreCase(peer));
         Assert.assertEquals(offerPDU.getEra(), era);
@@ -69,7 +69,7 @@ public class PDUTests {
 
         ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
 
-        Assert.assertTrue(interestPDU.getChannel().equalsIgnoreCase(channel));
+        Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
         Assert.assertTrue(interestPDU.getPeer().equalsIgnoreCase(peer));
         Assert.assertTrue(interestPDU.getSourcePeer().equalsIgnoreCase(sourcePeer));
@@ -114,7 +114,7 @@ public class PDUTests {
 
         ASAP_AssimilationPDU_1_0 assimilationPDU = (ASAP_AssimilationPDU_1_0) asap_pdu_1_0;
 
-        Assert.assertTrue(assimilationPDU.getChannel().equalsIgnoreCase(channel));
+        Assert.assertTrue(assimilationPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(assimilationPDU.getFormat().equalsIgnoreCase(format));
         Assert.assertTrue(assimilationPDU.getPeer().equalsIgnoreCase(peer));
         Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipientPeer));

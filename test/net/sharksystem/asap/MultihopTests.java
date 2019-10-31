@@ -34,6 +34,10 @@ public class MultihopTests {
         String parameters = "Alice twoHops sn2://abc " + messageAlice2Clara;
         ui.doCreateASAPMessage(parameters);
 
+        // remember Alice' era
+        ASAPStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:twoHops");
+        int aliceEraWhenIssuedMessage = aliceStorage.getEra();
+
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Alice with Bob                         **");
         System.out.println("**************************************************************************");
@@ -74,21 +78,22 @@ public class MultihopTests {
         Thread.sleep(1000);
         // kill connections
         ui.doKill("all");
+        // wait a moment
+        Thread.sleep(1000);
 
         // get Clara storage
-        String rootFolder = ui.getEngineRootFolderByStorageName("Clara:twoHops");
-        ASAPStorage clara = ASAPEngineFS.getExistingASAPEngineFS(rootFolder);
+        ASAPStorage clara = this.getFreshStorageByName(ui, "Clara:twoHops");
 
         /* message was actually from Bob but originated from Alice. It is put
         into a incoming folder as it would have been directly received from Alice.
         Signatures would allow ensuring if origin was really who mediator claims to be.
         */
-        ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Alice");
+        ASAPChunkStorage claraAlice = clara.getIncomingChunkStorage("Alice");
 
         // clara era was increased after connection terminated - message from bob is in era before current one
 //        int eraToLook = ASAPEngine.previousEra(clara.getEra());
         int eraToLook = clara.getEra();
-        ASAPChunk claraABCChat = claraBob.getChunk("sn2://abc", eraToLook);
+        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://abc", aliceEraWhenIssuedMessage);
         CharSequence message = claraABCChat.getMessages().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
         Assert.assertTrue(same);
@@ -153,20 +158,67 @@ public class MultihopTests {
             }
         }
 
+        // closed channel created with all recipients and owner?
         Assert.assertTrue(aliceFound && bobFound && claraFound);
         Assert.assertTrue(bobClosedChannel.getOwner().toString().equalsIgnoreCase("Alice"));
 
-        // check for a message
-        /* message was actually from Bob but originated from Alice. It is put
-        into a incoming folder as it would have been directly received from Alice.
-        Signatures would allow ensuring if origin was really who mediator claims to be.
-        */
+        // message received?
         ASAPChunkStorage bobAlice = bobStorage.getIncomingChunkStorage("Alice");
-
         // clara era was increased after connection terminated - message from bob is in era before current one
         int eraToLook = ASAPEngine.previousEra(bobStorage.getEra());
         ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", eraToLook);
         CharSequence message = bobABCChat.getMessages().next();
+        Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
+
+        System.out.println("**************************************************************************");
+        System.out.println("**                       connect Bob with Clara                         **");
+        System.out.println("**************************************************************************");
+        // connect alice with bob
+        ui.doCreateASAPMultiEngine("Bob");
+        ui.doOpen("7071 Bob");
+        // wait a moment to give server socket time to be created
+        Thread.sleep(10);
+        ui.doCreateASAPMultiEngine("Clara");
+        ui.doConnect("7071 Clara");
+
+        // alice should be in era 1 (content has changed before connection) and bob era is 0 - no changes
+        // wait a moment
+        Thread.sleep(1000);
+        // kill connections
+        ui.doKill("all");
+        // alice should stay in era 1 (no content change), bob should be in era 1 received something
+        // wait a moment
+        Thread.sleep(1000);
+        // Bob should now have created an closed asap storage with three recipients
+        ASAPStorage claraStorage = this.getFreshStorageByName(ui, "Clara:chat");
+
+        ui.doPrintChannelInformation("Clara chat sn2://closedChannel");
+
+        ASAPChannel claraClosedChannel = bobStorage.getChannel("sn2://closedChannel");
+        recipientsList = bobClosedChannel.getRecipients();
+        aliceFound = false;
+        bobFound = false;
+        claraFound = false;
+        for(CharSequence recipient : recipientsList) {
+            String recipientString = recipient.toString();
+            switch(recipient.toString()) {
+                case "Alice": aliceFound = true; break;
+                case "Bob": bobFound = true; break;
+                case "Clara": claraFound = true; break;
+                default: Assert.fail("found unexpected recipient: " + recipient);
+            }
+        }
+
+        // closed channel created with all recipients and owner?
+        Assert.assertTrue(aliceFound && bobFound && claraFound);
+        Assert.assertTrue(bobClosedChannel.getOwner().toString().equalsIgnoreCase("Alice"));
+
+        // message received?
+        ASAPChunkStorage claraAlice = claraStorage.getIncomingChunkStorage("Alice");
+        // clara era was increased after connection terminated - message from bob is in era before current one
+        eraToLook = ASAPEngine.previousEra(bobStorage.getEra());
+        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", eraToLook);
+        message = claraABCChat.getMessages().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
     }
 

@@ -221,7 +221,9 @@ public class ASAPEngineFS extends ASAPEngine {
                     ASAPEngineFS.removeFolder(fileInDir.getAbsolutePath());
                 } else {
                     try {
-                        fileInDir.delete();
+                        if(!fileInDir.delete()) {
+                            System.out.println("ASAPEngineFS: cannot delete file (try deleteOnExit):" + fileInDir);
+                        }
                     } catch (RuntimeException e) {
                         System.err.println("ASAPEngineFS: cannot file:" + e.getLocalizedMessage());
                         // try next

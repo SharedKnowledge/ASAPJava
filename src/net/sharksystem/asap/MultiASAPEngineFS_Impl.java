@@ -391,9 +391,19 @@ public class MultiASAPEngineFS_Impl implements
         } else {
             System.out.println(this.getLogStart() + "no more apps/formats on that engine - no interests to be sent");
         }
+
+        // management messages must be sent first - if any
+        try {
+            ASAPEngine managementEngine = this.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+            System.out.println(this.getLogStart() + "send interest for app/format: " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+            protocol.interest(this.owner, null, ASAP_1_0.ASAP_MANAGEMENT_FORMAT,null, -1, -1, os, false);
+        }
+        catch(Exception e) {
+            // ignore - engine does not exist
+        }
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
-//            if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already send
+            if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already sent
             System.out.println(this.getLogStart() + "send interest for app/format: " + format);
             protocol.interest(this.owner, null, format,null, -1, -1, os, false);
         }

@@ -136,7 +136,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     public String getFormat() { return this.format; }
 
     @Override
-    public String getChannel() { return this.channel; }
+    public String getChannelUri() { return this.channel; }
 
     @Override
     public int getEra() { return this.era;}

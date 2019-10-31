@@ -515,17 +515,16 @@ public class CmdLineUI {
                 return;
             }
 
-            Set<CharSequence> recipients = asapStorage.getRecipients(uri);
+            ASAPChannel channel = asapStorage.getChannel(uri);
+            Set<CharSequence> recipients = channel.getRecipients();
 
-            System.out.println("Owner:App:Channel == " + owner + ":" + appName + ":" + uri);
+            System.out.println("Owner:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
             System.out.println("#Recipients == " + recipients.size());
             for(CharSequence recipient : recipients) {
                 System.out.println(recipient);
             }
         }
-        catch(RuntimeException e) {
-            this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
-        } catch (IOException e) {
+        catch(RuntimeException | ASAPException | IOException e) {
             this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
         }
     }

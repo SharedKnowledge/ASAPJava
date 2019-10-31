@@ -24,7 +24,7 @@ public interface ASAP_PDU_1_0 {
      * It is assumed that multiple messages with same uri are floating around the
      * ASAP network
      */
-    String getChannel();
+    String getChannelUri();
 
     /**
      * @return Sender can send era in which this message was created. Can be helpful
