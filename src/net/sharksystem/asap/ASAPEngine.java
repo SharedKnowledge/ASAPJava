@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.management.ASAPManagementMessage;
+import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Log;
 
@@ -9,6 +11,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * That ASAPEngine manages exchange of stored messages with peers.
@@ -91,13 +94,20 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     @Override
-    public void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException {
-        this.setRecipients(urlTarget, recipients);
+    public void createChannel(CharSequence uri, List<CharSequence> recipients) throws IOException, ASAPException {
+        this.createChannel(this.getOwner(), uri, recipients);
+    }
+
+    @Override
+    public void createChannel(CharSequence owner, CharSequence uri, List<CharSequence> recipients)
+            throws IOException, ASAPException {
+
+        this.setRecipients(uri, recipients);
+        this.getASAPChannelImpl(uri).setOwner(owner);
 
         // inform recipients about that event
         if(this.isASAPManagementStorageSet()) {
-            ASAPManagementStorage asapManagementStorage = this.getASAPManagementStorage();
-            asapManagementStorage.addCreateClosedASAPChannelMessage(this.format, urlTarget, recipients);
+            this.getASAPManagementStorage().notifyChannelCreated(this.format, owner, uri, recipients);
         } else {
             System.out.println(this.getLogStart()
                     + "asap management storage not set - no propagation of channel creation");
@@ -128,13 +138,13 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.asapManagementStorage != null;
     }
 
-    public void addCreateClosedASAPChannelMessage(CharSequence appName, CharSequence channelUri,
-                                                  List<CharSequence> recipients)
+    public void notifyChannelCreated(CharSequence appName, CharSequence owner,
+                                     CharSequence uri, List<CharSequence> recipients)
             throws ASAPException, IOException {
 
         byte[] createClosedASAPChannelMessage =
                 ASAPManagementMessage.getCreateClosedASAPChannelMessage(
-                        this.getOwner(), appName, channelUri, recipients);
+                        owner, appName, uri, recipients);
 
         // put into create channel
         this.add(ASAPManagementStorage.ASAP_CREATE_CHANNEL, createClosedASAPChannelMessage);
@@ -149,7 +159,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         this.chunkStorage.getChunk(urlTarget, this.era).setRecipients(recipients);
     }
 
-    public List<CharSequence> getRecipients(CharSequence urlTarget) throws IOException {
+    public Set<CharSequence> getRecipients(CharSequence urlTarget) throws IOException {
         return this.chunkStorage.getChunk(urlTarget, this.era).getRecipients();
     }
 
@@ -199,6 +209,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         }
 
         return uriList;
+    }
+
+    @Override
+    public ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException {
+        return this.getASAPChannelImpl(uri);
+    }
+
+    private ASAPChannelImpl getASAPChannelImpl(CharSequence uri) throws ASAPException, IOException {
+        if(this.channelExists(uri)) {
+            return new ASAPChannelImpl(this, uri);
+        }
+
+        throw new ASAPException("channel with does not exist: " + uri);
     }
 
     @Override
@@ -463,10 +486,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         }
     }
 
-    private boolean isASAPManagementMessage(ASAP_PDU_1_0 asapPDU) {
-        return asapPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-    }
-
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
@@ -612,7 +631,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
                 // is not a public chunk
                 if (!this.isPublic(chunk)) {
-                    List<CharSequence> recipients = chunk.getRecipients();
+                    Set<CharSequence> recipients = chunk.getRecipients();
 
                     if (!recipients.contains(recipient)) {
                         continue;

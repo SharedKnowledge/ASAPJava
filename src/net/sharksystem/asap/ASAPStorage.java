@@ -1,7 +1,10 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.management.ASAPManagementStorage;
+
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -65,6 +68,31 @@ public interface ASAPStorage {
     void createChannel(CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
+     * Create channel with a maybe different and than local peer - take care!
+     * @param owner
+     * @param urlTarget
+     * @param recipients
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void createChannel(CharSequence owner, CharSequence urlTarget, List<CharSequence> recipients) throws IOException, ASAPException;
+
+    /**
+     *
+     * @return list of channel uris present in this storage
+     * @throws IOException
+     */
+    List<CharSequence> getChannelURIs() throws IOException;
+
+    /**
+     *
+     * @param uri
+     * @return channel
+     * @throws ASAPException if no channel with that uri exists in this storage
+     */
+    ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException;
+
+    /**
      * Create a channel with only two members - creator and recipient
      * @param urlTarget
      * @param recipient
@@ -95,8 +123,9 @@ public interface ASAPStorage {
      *
      * @param urlTarget chunk address
      * @throws IOException
+     * @return
      */
-    public List<CharSequence> getRecipients(CharSequence urlTarget) throws IOException;
+    public Set<CharSequence> getRecipients(CharSequence urlTarget) throws IOException;
 
     /**
      * Put some extra information on that channel
@@ -212,8 +241,6 @@ public interface ASAPStorage {
      * app. Note: That storage is changed during an AASP session.
      */
     public ASAPChunkStorage getChunkStorage();
-
-    public List<CharSequence> getChannelURIs() throws IOException;
 
     void removeChannel(CharSequence uri) throws IOException;
 

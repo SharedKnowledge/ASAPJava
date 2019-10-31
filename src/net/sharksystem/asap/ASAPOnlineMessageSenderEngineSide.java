@@ -36,7 +36,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             throw new ASAPException("no online peers");
         }
 
-        List<CharSequence> onlinePeerList = new ArrayList<>();
+        Set<CharSequence> onlinePeerList = new HashSet<>();
         for(CharSequence peerName : onlinePeers) {
             onlinePeerList.add(peerName);
             System.out.println(this.getLogStart() + peerName  + "is online");
@@ -45,8 +45,8 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         this.sendASAPAssimilate(format, uri, onlinePeerList, messageAsBytes, era);
     }
 
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
-        byte[] messageAsBytes, int era) throws IOException, ASAPException {
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
+                                   byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         if(recipients == null || recipients.size() < 1) {
             this.sendASAPAssimilate(format, uri, messageAsBytes, era);

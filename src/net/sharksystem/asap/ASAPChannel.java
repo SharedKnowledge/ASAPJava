@@ -1,0 +1,10 @@
+package net.sharksystem.asap;
+
+import java.io.IOException;
+import java.util.Set;
+
+public interface ASAPChannel {
+    CharSequence getOwner() throws IOException;
+    CharSequence getUri() throws IOException;
+    Set<CharSequence> getRecipients() throws IOException;
+}

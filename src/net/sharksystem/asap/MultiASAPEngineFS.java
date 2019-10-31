@@ -60,5 +60,10 @@ public interface MultiASAPEngineFS {
 
     void removeOnlinePeersChangedListener(ASAPOnlinePeersChangedListener listener);
 
+    /**
+     * @return true if the asap management engine is up and running
+     */
+    boolean isASAPManagementEngineRunning();
+
     EngineSetting getEngineSettings(CharSequence format) throws ASAPException;
 }

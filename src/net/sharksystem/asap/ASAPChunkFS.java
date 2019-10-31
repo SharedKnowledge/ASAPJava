@@ -16,7 +16,7 @@ class ASAPChunkFS implements ASAPChunk {
     private final ASAPChunkStorageFS storage;
     private String sender;
     private String uri = DEFAULT_URL;
-    private List<CharSequence> recipients;
+    private Set<CharSequence> recipients;
     private List<CharSequence> deliveredTo;
     private List<Long> messageStartOffsets = new ArrayList<>();
     private File metaFile;
@@ -92,7 +92,7 @@ class ASAPChunkFS implements ASAPChunk {
         if(!this.readMetaData(this.metaFile)) {
             // no metadate to be read - set defaults
             this.writeMetaData(this.metaFile);
-            this.recipients = new ArrayList<>();
+            this.recipients = new HashSet<>();
             this.deliveredTo = new ArrayList<>();
             this.messageStartOffsets = new ArrayList<>();
         }
@@ -103,7 +103,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
     
     @Override
-    public List<CharSequence> getRecipients() {
+    public Set<CharSequence> getRecipients() {
         return this.recipients;
     }
 
@@ -115,7 +115,7 @@ class ASAPChunkFS implements ASAPChunk {
 
     @Override
     public void setRecipients(List<CharSequence> newRecipients) throws IOException {
-        this.recipients = new ArrayList<>();
+        this.recipients = new HashSet<>();
         for(CharSequence recipient : newRecipients) {
             this.recipients.add(recipient);
         }
@@ -289,7 +289,7 @@ class ASAPChunkFS implements ASAPChunk {
         }
         
         try {
-            this.recipients = Helper.string2CharSequenceList(dis.readUTF());
+            this.recipients = Helper.string2CharSequenceSet(dis.readUTF());
             this.deliveredTo = Helper.string2CharSequenceList(dis.readUTF());
 
             // finally read offset list

@@ -35,4 +35,14 @@ public class Helper {
 
         return list;
     }
+
+    public static Set<CharSequence> string2CharSequenceSet(String s) {
+        List<CharSequence> charSequences = Helper.string2CharSequenceList(s);
+        Set charSet = new HashSet();
+        for(CharSequence c : charSequences) {
+            charSet.add(c);
+        }
+
+        return charSet;
+    }
 }

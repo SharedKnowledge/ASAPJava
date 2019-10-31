@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An AASP chunk contains messages regarding a topic described by an
@@ -65,7 +66,7 @@ public interface ASAPChunk {
      * 
      * @return recipients of that chunk 
      */
-    List<CharSequence> getRecipients();
+    Set<CharSequence> getRecipients();
 
     /**
      * add recipients

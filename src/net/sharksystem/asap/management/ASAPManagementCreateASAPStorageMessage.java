@@ -1,4 +1,4 @@
-package net.sharksystem.asap.protocol;
+package net.sharksystem.asap.management;
 
 import java.util.List;
 

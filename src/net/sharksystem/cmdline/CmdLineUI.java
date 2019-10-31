@@ -442,12 +442,15 @@ public class CmdLineUI {
                 recipients.add(st.nextToken());
             }
 
-            storage.createChannel(uri, recipients);
+            // finally add owner
+            recipients.add(owner);
+
+            storage.createChannel(owner, uri, recipients);
         }
         catch(RuntimeException e) {
-            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_CHANNEL, e.getLocalizedMessage());
         } catch (IOException | ASAPException e) {
-            this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_CHANNEL, e.getLocalizedMessage());
         }
     }
 
@@ -512,7 +515,7 @@ public class CmdLineUI {
                 return;
             }
 
-            List<CharSequence> recipients = asapStorage.getRecipients(uri);
+            Set<CharSequence> recipients = asapStorage.getRecipients(uri);
 
             System.out.println("Owner:App:Channel == " + owner + ":" + appName + ":" + uri);
             System.out.println("#Recipients == " + recipients.size());

@@ -6,10 +6,7 @@ import net.sharksystem.asap.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessageSender {
     private ASAPStorage source = null;
@@ -29,7 +26,7 @@ public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessa
         if(recipient == null) {
             this.sendASAPAssimilate(format, uri, messageAsBytes, era);
         } else {
-            List<CharSequence> recipients = new ArrayList<>();
+            Set<CharSequence> recipients = new HashSet<>();
             recipients.add(recipient);
             this.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
         }

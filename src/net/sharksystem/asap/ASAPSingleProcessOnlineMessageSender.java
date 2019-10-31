@@ -5,7 +5,7 @@ import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Set;
 
 public class ASAPSingleProcessOnlineMessageSender
         extends ASAPAbstractOnlineMessageSender implements ASAPOnlineMessageSource {
@@ -18,7 +18,7 @@ public class ASAPSingleProcessOnlineMessageSender
     }
 
     @Override
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, List<CharSequence> recipients,
+    public void sendASAPAssimilate(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
                                    byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);

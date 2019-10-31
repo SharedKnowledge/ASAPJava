@@ -1,6 +1,9 @@
-package net.sharksystem.asap.protocol;
+package net.sharksystem.asap.management;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.management.ASAPManagementCreateASAPStorageMessage;
+import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -20,10 +23,13 @@ public class ASAPManagementMessage {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
-        // put appName uri second
+        // put owner
+        dos.writeUTF(owner.toString());
+
+        // put appName uri
         dos.writeUTF(appName.toString());
 
-        // put channelUri uri second
+        // put channelUri uri
         dos.writeUTF(channelUri.toString());
 
         // put recipients
@@ -34,10 +40,14 @@ public class ASAPManagementMessage {
         return baos.toByteArray();
     }
 
-    public static ASAPManagementCreateASAPStorageMessage parseASAPManagementMessage(CharSequence owner, byte[] message)
+    public static ASAPManagementCreateASAPStorageMessage parseASAPManagementMessage(byte[] message)
             throws IOException {
 
-        return new CreateASAPStorageMessage(owner, message);
+        return new CreateASAPStorageMessage(message);
+    }
+
+    private static boolean isASAPManagementMessage(ASAP_PDU_1_0 asapPDU) {
+        return asapPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
     }
 
     private static class CreateASAPStorageMessage implements ASAPManagementCreateASAPStorageMessage {
@@ -46,11 +56,11 @@ public class ASAPManagementMessage {
         private final CharSequence appName;
         private final CharSequence owner;
 
-        CreateASAPStorageMessage(CharSequence owner, byte[] message) throws IOException {
-            this.owner = owner;
+        CreateASAPStorageMessage(byte[] message) throws IOException {
 
             // convert to string
             DataInputStream dis = new DataInputStream(new ByteArrayInputStream(message));
+            this.owner = dis.readUTF();
             this.appName = dis.readUTF();
             this.channelUri = dis.readUTF();
 

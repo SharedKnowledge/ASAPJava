@@ -35,7 +35,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     String getChunkContentFilename(int era, CharSequence uri) {
-        return this.getChunkFileTrunkname(era, uri.toString()) + "." +  DATA_EXTENSION;
+        return this.getChunkFileTrunkname(era, uri.toString()) + "." +  META_DATA_EXTENSION;
     }
 
     String getChunkFileTrunkname(int era, String uri) {

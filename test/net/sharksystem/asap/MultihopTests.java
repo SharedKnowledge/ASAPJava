@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 public class MultihopTests {
     /**
@@ -86,7 +86,8 @@ public class MultihopTests {
         ASAPChunkStorage claraBob = clara.getIncomingChunkStorage("Alice");
 
         // clara era was increased after connection terminated - message from bob is in era before current one
-        int eraToLook = ASAPEngine.previousEra(clara.getEra());
+//        int eraToLook = ASAPEngine.previousEra(clara.getEra());
+        int eraToLook = clara.getEra();
         ASAPChunk claraABCChat = claraBob.getChunk("sn2://abc", eraToLook);
         CharSequence message = claraABCChat.getMessages().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
@@ -137,7 +138,8 @@ public class MultihopTests {
 
         ui.doPrintChannelInformation("Bob chat sn2://closedChannel");
 
-        List<CharSequence> recipientsList = bobStorage.getRecipients("sn2://closedChannel");
+        ASAPChannel bobClosedChannel = bobStorage.getChannel("sn2://closedChannel");
+        Set<CharSequence> recipientsList = bobClosedChannel.getRecipients();
         boolean aliceFound = false;
         boolean bobFound = false;
         boolean claraFound = false;
@@ -152,6 +154,7 @@ public class MultihopTests {
         }
 
         Assert.assertTrue(aliceFound && bobFound && claraFound);
+        Assert.assertTrue(bobClosedChannel.getOwner().toString().equalsIgnoreCase("Alice"));
 
         // check for a message
         /* message was actually from Bob but originated from Alice. It is put
