@@ -100,6 +100,8 @@ public interface ASAPStorage {
      */
     void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException;
 
+    void removeChannel(CharSequence uri) throws IOException;
+
     /**
      * Chunks are delivered when seeing other peers. This flag allows to decide whether delivered chunks
      * are to be deleted.
@@ -167,9 +169,9 @@ public interface ASAPStorage {
      * @param message Message to be kept for later transmission
      * @throws IOException 
      */
-    public void add(CharSequence urlTarget, CharSequence message) throws IOException;
+    void add(CharSequence urlTarget, CharSequence message) throws IOException;
 
-    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException;
+    void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException;
 
     void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
 
@@ -215,7 +217,7 @@ public interface ASAPStorage {
      * @param era
      * @return 
      */
-    public int getPreviousEra(int era);
+    int getPreviousEra(int era);
     
     /**
      * Default behaviour of ASAPEngine: Each peer / communication partner
@@ -225,7 +227,7 @@ public interface ASAPStorage {
      * @param sender
      * @return 
      */
-    public ASAPChunkStorage getIncomingChunkStorage(CharSequence sender);
+    ASAPChunkStorage getIncomingChunkStorage(CharSequence sender);
 
     ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException;
 
@@ -233,16 +235,14 @@ public interface ASAPStorage {
      *
      * @return list of peers with an incoming chunk storage
      */
-    public List<CharSequence> getSender();
+    List<CharSequence> getSender();
 
     /**
      * 
      * @return The local chunk storage that is meant to be used by the local
-     * app. Note: That storage is changed during an AASP session.
+     * app. Note: That storage is changed during an ASAP session.
      */
-    public ASAPChunkStorage getChunkStorage();
-
-    void removeChannel(CharSequence uri) throws IOException;
+    ASAPChunkStorage getChunkStorage();
 
     ASAPChannelMessages getChunkChain(int position) throws IOException, ASAPException;
 

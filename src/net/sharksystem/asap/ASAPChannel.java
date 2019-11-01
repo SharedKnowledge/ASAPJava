@@ -10,4 +10,5 @@ public interface ASAPChannel {
     Set<CharSequence> getRecipients() throws IOException;
     HashMap<String, String> getExtraData() throws IOException;
     ASAPChannelMessages getMessages() throws IOException;
+    void addMessage(byte[] message) throws IOException;
 }

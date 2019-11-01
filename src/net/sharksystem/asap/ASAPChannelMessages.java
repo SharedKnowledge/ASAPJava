@@ -24,13 +24,13 @@ public interface ASAPChannelMessages {
      * 
      * @return number of messages fitting to that uri regardless of era
      */
-    public int getNumberMessage() throws IOException;
-    
+    int getNumberMessage() throws IOException;
+    int size() throws IOException;
+
     /**
-     * 
-     * @return uri of that chunk cache
+     * @return channel uri
      */
-    public CharSequence getURI();
+    CharSequence getURI();
     
     /**
      * 
@@ -63,7 +63,4 @@ public interface ASAPChannelMessages {
      * @throws IOException
      */
     void sync() throws IOException;
-
-    int size() throws IOException;
-
 }
