@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class ChunkCacheTests {
         aliceStorage.add(TEST_URI, message[0xF]);
 
         // now get message chain
-        ASAPChannelMessages chunkChain = aliceStorage.getChunkChain(TEST_URI);
+        ASAPMessages chunkChain = aliceStorage.getChunkChain(TEST_URI);
         for(int i = 0; i < 0x10; i++) {
             Assert.assertTrue(chunkChain.getMessage(i, true).toString()
                     .equalsIgnoreCase(message[i]));

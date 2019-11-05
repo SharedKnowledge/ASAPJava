@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,7 +12,7 @@ import java.util.NoSuchElementException;
  *
  * @author thsc
  */
-class ASAPInMemoChannelMessages implements ASAPChannelMessages {
+class ASAPInMemoMessages implements ASAPMessages {
     public static final int DEFAULT_MAX_CACHE_SIZE = 1000;
     private final CharSequence uri;
     private final ASAPChunkStorageFS chunkStorage;
@@ -27,8 +29,8 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
 
     private int numberOfMessages = 0;
 
-    public ASAPInMemoChannelMessages(ASAPChunkStorageFS chunkStorage,
-                                     CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
+    public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,
+                              CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
 
         this.uri = uri;
         this.chunkStorage = chunkStorage;
@@ -37,8 +39,8 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
         this.maxCacheLen = maxCacheLen;
     }
 
-    public ASAPInMemoChannelMessages(ASAPChunkStorageFS chunkStorage,
-                                     CharSequence uri, int fromEra, int toEra) {
+    public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,
+                              CharSequence uri, int fromEra, int toEra) {
 
         this(chunkStorage, uri, fromEra, toEra, DEFAULT_MAX_CACHE_SIZE);
     }
@@ -86,9 +88,8 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
             }
         } while (anotherLoop);
     }
-    
-    @Override
-    public int getNumberMessage() throws IOException {
+
+    public int size() throws IOException {
         this.initialize();
         return this.numberOfMessages;
     }
@@ -99,10 +100,22 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
     }
 
     @Override
-    public Iterator<CharSequence> getMessages() throws IOException {
+    public CharSequence getFormat() {
+        return null;
+    }
+
+    @Override
+    public Iterator<CharSequence> getMessagesAsCharSequence() throws IOException {
         this.initialize();
 
         return new ChunkListMessageIterator(this.chunkList);
+    }
+
+    @Override
+    public Iterator<byte[]> getMessages() throws IOException {
+        this.initialize();
+
+        return new ChunkListByteMessageIterator(this.chunkList);
     }
 
     @Override
@@ -219,15 +232,14 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
     //                          helper: message iterator implementation                     //
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    private class ChunkListMessageIterator implements Iterator<CharSequence> {
-
+    private abstract class ChunkListIterator<T> {
         private final List<ASAPChunk> chunkList;
         private ASAPChunk currentChunk;
         private int nextIndex;
-        private Iterator<CharSequence> currentIterator;
-        private CharSequence messageAhead;
+        private Iterator<T> currentIterator;
+        private T messageAhead;
 
-        public ChunkListMessageIterator(List<ASAPChunk> chunkList) throws IOException {
+        public ChunkListIterator(List<ASAPChunk> chunkList) throws IOException {
             this.chunkList = chunkList;
             this.currentChunk = null;
             this.nextIndex = 0;
@@ -254,7 +266,7 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
             // open next chunk / iterator
             this.currentChunk = this.chunkList.get(this.nextIndex++);
             try {
-                this.currentIterator = this.currentChunk.getMessages();
+                this.currentIterator = this.getMessageIterator(currentChunk);
                 this.readAhead(); // next try
             } catch (IOException e) {
                 // cannot recover from that problem
@@ -262,19 +274,18 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
             }
         }
 
-        @Override
+
         public boolean hasNext() {
             return this.messageAhead != null;
         }
 
-        @Override
-        public CharSequence next() {
+        public T next() {
             if(this.messageAhead == null) {
                 throw new NoSuchElementException("list empty or already reached end");
             }
 
             // remove that single message cache
-            CharSequence retMessage = this.messageAhead;
+            T retMessage = this.messageAhead;
             this.messageAhead = null;
 
             // read ahead - if possible
@@ -282,10 +293,35 @@ class ASAPInMemoChannelMessages implements ASAPChannelMessages {
 
             return retMessage;
         }
+
+        abstract Iterator<T> getMessageIterator(ASAPChunk chunk) throws IOException;
     }
 
-    public int size() throws IOException {
-        this.initialize();
-        return this.numberOfMessages;
+    private class ChunkListMessageIterator extends ChunkListIterator<CharSequence> implements Iterator<CharSequence> {
+        private Iterator<CharSequence> currentIterator;
+        private CharSequence messageAhead;
+
+        public ChunkListMessageIterator(List<ASAPChunk> chunkList) throws IOException {
+            super(chunkList);
+        }
+
+        @Override
+        Iterator<CharSequence> getMessageIterator(ASAPChunk chunk) throws IOException {
+            return chunk.getMessages();
+        }
+    }
+
+    private class ChunkListByteMessageIterator extends ChunkListIterator<byte[]> implements Iterator<byte[]> {
+        private Iterator<CharSequence> currentIterator;
+        private CharSequence messageAhead;
+
+        public ChunkListByteMessageIterator(List<ASAPChunk> chunkList) throws IOException {
+            super(chunkList);
+        }
+
+        @Override
+        Iterator<byte[]> getMessageIterator(ASAPChunk chunk) throws IOException {
+            return chunk.getMessagesAsBytes();
+        }
     }
 }

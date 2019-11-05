@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 
 import java.io.IOException;
@@ -244,13 +245,13 @@ public interface ASAPStorage {
      */
     ASAPChunkStorage getChunkStorage();
 
-    ASAPChannelMessages getChunkChain(int position) throws IOException, ASAPException;
+    ASAPMessages getChunkChain(int position) throws IOException, ASAPException;
 
-    ASAPChannelMessages getChunkChain(int position, int toEra) throws IOException, ASAPException;
+    ASAPMessages getChunkChain(int position, int toEra) throws IOException, ASAPException;
 
-    ASAPChannelMessages getChunkChain(CharSequence uri, int toEra) throws IOException;
+    ASAPMessages getChunkChain(CharSequence uri, int toEra) throws IOException;
 
-    ASAPChannelMessages getChunkChain(CharSequence uri) throws IOException;
+    ASAPMessages getChunkChain(CharSequence uri) throws IOException;
 
     /**
      * Refresh with external system - re-read files, or whatever.

@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
@@ -225,19 +226,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         chunk.drop();
     }
 
-    public ASAPChannelMessages getChunkChain(int position) throws IOException, ASAPException {
+    public ASAPMessages getChunkChain(int position) throws IOException, ASAPException {
         return this.getChunkChain(position, this.era);
     }
 
-    public ASAPChannelMessages getChunkChain(CharSequence uri, int toEra) throws IOException {
+    public ASAPMessages getChunkChain(CharSequence uri, int toEra) throws IOException {
         return this.chunkStorage.getASAPChunkCache(uri, toEra);
     }
 
-    public ASAPChannelMessages getChunkChain(CharSequence uri) throws IOException {
+    public ASAPMessages getChunkChain(CharSequence uri) throws IOException {
         return this.getChunkChain(uri, this.getEra());
     }
 
-    public ASAPChannelMessages getChunkChain(int position, int toEra)
+    public ASAPMessages getChunkChain(int position, int toEra)
             throws IOException, ASAPException {
 
         List<CharSequence> channelURIs = this.getChannelURIs();

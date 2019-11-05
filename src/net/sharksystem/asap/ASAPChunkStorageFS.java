@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.Utils;
+import net.sharksystem.asap.apps.ASAPMessages;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -114,14 +115,14 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public ASAPChannelMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
+    public ASAPMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
         // go back 1000 eras
         int fromEra = toEra;
         for(int i = 0; i < 1000; i++) {
             fromEra = ASAPEngine.previousEra(fromEra);
         }
 
-        return new ASAPInMemoChannelMessages(this,
+        return new ASAPInMemoMessages(this,
                 uri,
                 fromEra, // set starting era
                 toEra // anything before

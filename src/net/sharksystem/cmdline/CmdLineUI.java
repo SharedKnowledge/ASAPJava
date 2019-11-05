@@ -595,7 +595,7 @@ public class CmdLineUI {
         Set<CharSequence> recipients = channel.getRecipients();
 
         System.out.println("Owner:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
-        System.out.println("#Messages == " + channel.getMessages().getNumberMessage());
+        System.out.println("#Messages == " + channel.getMessages().size());
         System.out.println("#Recipients == " + recipients.size());
         for(CharSequence recipient : recipients) {
             System.out.println(recipient);

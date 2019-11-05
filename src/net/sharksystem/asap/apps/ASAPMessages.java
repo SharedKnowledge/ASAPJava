@@ -1,4 +1,6 @@
-package net.sharksystem.asap;
+package net.sharksystem.asap.apps;
+
+import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -19,27 +21,38 @@ import java.util.Iterator;
  * 
  * @author thsc
  */
-public interface ASAPChannelMessages {
+public interface ASAPMessages {
     /**
-     * 
-     * @return number of messages fitting to that uri regardless of era
+     * @return number of messages
      */
-    int getNumberMessage() throws IOException;
     int size() throws IOException;
 
     /**
      * @return channel uri
      */
     CharSequence getURI();
-    
+
     /**
-     * 
+     * @return format which - in most cases - matches with an application name
+     */
+    CharSequence getFormat();
+
+    /**
+     *
      * first, false: newest message comes first
      * @return iterator of all messages in that chunk cache
-     * @throws IOException 
+     * @throws IOException
      */
-    Iterator<CharSequence> getMessages() throws IOException;
-    
+    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
+
+    /**
+     *
+     * first, false: newest message comes first
+     * @return iterator of all messages in that chunk cache
+     * @throws IOException
+     */
+    Iterator<byte[]> getMessages() throws IOException;
+
     /**
      * Returns a message with a given position
      * @param position
@@ -50,17 +63,8 @@ public interface ASAPChannelMessages {
      * not exist
      * @throws IOException couldn't read from storage
      */
-    CharSequence getMessage(int position, boolean chronologically) 
+    CharSequence getMessage(int position, boolean chronologically)
             throws ASAPException, IOException;
-    
-    /**
-     * Synchronizes cache. It is up to real implemenations what really
-     * happens. That method is meant to be called whenever the underlying
-     * chunk storage has been changed. After that call, cache and storage are
-     * in sync agin. Implemenations whoch don't have an internal cache don't
-     * have to do anything.
-     *
-     * @throws IOException
-     */
-    void sync() throws IOException;
+
+
 }

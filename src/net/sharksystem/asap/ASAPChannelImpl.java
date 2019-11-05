@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -35,7 +37,7 @@ public class ASAPChannelImpl implements ASAPChannel {
     }
 
     @Override
-    public ASAPChannelMessages getMessages() throws IOException {
+    public ASAPMessages getMessages() throws IOException {
         return this.asapEngine.getChunkStorage().getASAPChunkCache(this.getUri(), this.asapEngine.getEra());
     }
 

@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -9,6 +11,6 @@ public interface ASAPChannel {
     CharSequence getUri() throws IOException;
     Set<CharSequence> getRecipients() throws IOException;
     HashMap<String, String> getExtraData() throws IOException;
-    ASAPChannelMessages getMessages() throws IOException;
+    ASAPMessages getMessages() throws IOException;
     void addMessage(byte[] message) throws IOException;
 }

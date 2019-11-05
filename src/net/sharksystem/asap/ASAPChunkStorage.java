@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.apps.ASAPMessages;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -30,5 +32,5 @@ public interface ASAPChunkStorage {
      * @return a chunk cache which hides details of era
      * @throws IOException 
      */
-    public ASAPChannelMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException;
+    public ASAPMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException;
 }
