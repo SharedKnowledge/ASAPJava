@@ -16,14 +16,15 @@ import java.util.List;
  * @author thsc
  */
 public interface ASAPChunkStorage {
+    String getFormat();
 
-    public ASAPChunk getChunk(CharSequence uri, int era) throws IOException;
+    ASAPChunk getChunk(CharSequence uri, int era) throws IOException;
 
-    public boolean existsChunk(CharSequence uri, int era) throws IOException;
+    boolean existsChunk(CharSequence uri, int era) throws IOException;
 
-    public List<ASAPChunk> getChunks(int era) throws IOException;
+    List<ASAPChunk> getChunks(int era) throws IOException;
 
-    public void dropChunks(int era) throws IOException;
+    void dropChunks(int era) throws IOException;
     
     /**
      * 

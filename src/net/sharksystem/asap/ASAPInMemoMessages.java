@@ -18,6 +18,7 @@ class ASAPInMemoMessages implements ASAPMessages {
     private final ASAPChunkStorageFS chunkStorage;
     private final int fromEra;
     private final int toEra;
+    private final String format;
 
     private List<ASAPChunk> chunkList;
 
@@ -30,8 +31,9 @@ class ASAPInMemoMessages implements ASAPMessages {
     private int numberOfMessages = 0;
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,
-                              CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
+                              String format, CharSequence uri, int fromEra, int toEra, int maxCacheLen) {
 
+        this.format = format;
         this.uri = uri;
         this.chunkStorage = chunkStorage;
         this.fromEra = fromEra;
@@ -40,9 +42,9 @@ class ASAPInMemoMessages implements ASAPMessages {
     }
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,
-                              CharSequence uri, int fromEra, int toEra) {
+                              String format, CharSequence uri, int fromEra, int toEra) {
 
-        this(chunkStorage, uri, fromEra, toEra, DEFAULT_MAX_CACHE_SIZE);
+        this(chunkStorage, format, uri, fromEra, toEra, DEFAULT_MAX_CACHE_SIZE);
     }
 
     private boolean initialized = false;

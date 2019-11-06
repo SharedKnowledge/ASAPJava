@@ -22,7 +22,7 @@ public class ASAPEngineFS extends ASAPEngine {
                          String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
         throws ASAPException, IOException {
         
-        super(new ASAPChunkStorageFS(rootDirectory), format);
+        super(new ASAPChunkStorageFS(rootDirectory, format.toString()), format);
 
         this.owner = owner;
         this.rootDirectory = rootDirectory;
@@ -84,10 +84,11 @@ public class ASAPEngineFS extends ASAPEngine {
             throw new ASAPException("chunk root directory must exist when creating an ASAPEngine");
         }
 
+        String formatString = format != null ? format.toString() : ASAP_1_0.ANY_FORMAT;
         ASAPEngineFS engine = new ASAPEngineFS(
                 owner,
                 rootDirectory, 
-                new ASAPChunkStorageFS(rootDirectory),
+                new ASAPChunkStorageFS(rootDirectory, formatString),
                 ASAP_1_0.ANY_FORMAT // set to default - real value is restored by memento anyway
         );
 
@@ -168,7 +169,7 @@ public class ASAPEngineFS extends ASAPEngine {
     @Override
     public ASAPChunkStorage getIncomingChunkStorage(CharSequence sender) {
         String dir = this.rootDirectory + "/" + sender;
-        return new ASAPChunkStorageFS(dir);
+        return new ASAPChunkStorageFS(dir, this.format);
     }
 
     public ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {

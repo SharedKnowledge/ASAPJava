@@ -18,9 +18,15 @@ import static net.sharksystem.asap.ASAPChunkFS.META_DATA_EXTENSION;
 class ASAPChunkStorageFS implements ASAPChunkStorage {
 
     private final String rootDirectory;
+    private final String format;
 
-    ASAPChunkStorageFS(String rootDirectory) {
+    ASAPChunkStorageFS(String rootDirectory, String format) {
         this.rootDirectory = rootDirectory;
+        this.format = format;
+    }
+
+    public String getFormat() {
+        return format;
     }
 
     @Override
@@ -123,6 +129,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         }
 
         return new ASAPInMemoMessages(this,
+                this.getFormat(),
                 uri,
                 fromEra, // set starting era
                 toEra // anything before
