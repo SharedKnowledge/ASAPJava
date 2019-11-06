@@ -435,7 +435,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
-                listener.chunkReceived(sender, uri, eraSender);
+                listener.chunkReceived(this.format, sender, uri, eraSender);
             } else {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();

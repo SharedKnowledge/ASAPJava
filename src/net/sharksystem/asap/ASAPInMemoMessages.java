@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.apps.ASAPMessages;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- *
  * @author thsc
  */
 class ASAPInMemoMessages implements ASAPMessages {
@@ -101,7 +101,7 @@ class ASAPInMemoMessages implements ASAPMessages {
 
     @Override
     public CharSequence getFormat() {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override

@@ -36,10 +36,9 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         return null;
     }
 
-    @Override
-    public void chunkReceived(String sender, String uri, int era) {
+    public void chunkReceived(String format, String sender, String uri, int era) {
         System.out.println(this.getLogStart()
-                + "handle received chunk (sender|uri|era) " + sender + "|" + uri + "|" + era);
+                + "handle received chunk (format|sender|uri|era) " + format + sender + "|" + uri + "|" + era);
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
