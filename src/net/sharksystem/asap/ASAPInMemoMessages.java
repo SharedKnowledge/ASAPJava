@@ -103,7 +103,7 @@ class ASAPInMemoMessages implements ASAPMessages {
 
     @Override
     public CharSequence getFormat() {
-        throw new NotImplementedException();
+        return this.format;
     }
 
     @Override
