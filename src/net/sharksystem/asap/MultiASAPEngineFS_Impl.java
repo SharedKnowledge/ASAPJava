@@ -150,7 +150,7 @@ public class MultiASAPEngineFS_Impl implements
         }
 
         String folderName = this.getEngineFolderByAppName(format);
-        ASAPEngine asapEngine = this.getASAPEngine(format);
+        ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(String.valueOf(this.getOwner()), folderName, format);
         this.folderMap.put(format, new EngineSetting(folderName, listener));
 
         return asapEngine;

@@ -49,6 +49,15 @@ public class ASAPEngineFS extends ASAPEngine {
         return ASAPEngineFS.getASAPEngineFS(null, rootDirectory, null);
     }
 
+    /**
+     * get / create engine
+     * @param owner
+     * @param rootDirectory
+     * @param format
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
     public static ASAPEngine getASAPEngine(String owner, String rootDirectory, CharSequence format)
             throws IOException, ASAPException {
 
@@ -129,9 +138,11 @@ public class ASAPEngineFS extends ASAPEngine {
                 && !owner.equalsIgnoreCase(DEFAULT_OWNER)
         ) {
             engine.owner = owner;
-            mementoFS.save(engine);
         }
-        
+
+        // save changes
+        mementoFS.save(engine);
+
         return engine;
     }
     
