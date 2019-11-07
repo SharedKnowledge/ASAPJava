@@ -20,18 +20,34 @@ import java.util.Set;
  * That interface hides those different engines.
  */
 public interface MultiASAPEngineFS {
-    public static final long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
+    long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
-    public ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
+    /**
+     * get an existing engine
+     * @param format
+     * @return
+     * @throws ASAPException engine does not exist
+     * @throws IOException
+     */
+    ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
+
+    /**
+     * create an engine for a given format / application name
+     * @param format
+     * @return
+     * @throws ASAPException
+     * @throws IOException
+     */
+    ASAPEngine createEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
     ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException;
 
     /**
      * get or create engine for a given application - mainly means: setup folder
-     * @param appName
+     * @param format
      * @return
      */
-    ASAPEngine getASAPEngine(CharSequence appName, CharSequence format) throws IOException, ASAPException;
+    ASAPEngine getASAPEngine(CharSequence format) throws IOException, ASAPException;
 
     /**
      * handle that newly established connection to another ASAP peer

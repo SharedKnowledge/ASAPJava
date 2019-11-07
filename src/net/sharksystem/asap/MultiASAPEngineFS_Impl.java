@@ -141,6 +141,22 @@ public class MultiASAPEngineFS_Impl implements
     }
 
     @Override
+    public ASAPEngine createEngineByFormat(CharSequence format) throws ASAPException, IOException {
+        try {
+            return this.getEngineByFormat(format);
+        }
+        catch(ASAPException e) {
+            // does not exist yet
+        }
+
+        String folderName = this.getEngineFolderByAppName(format);
+        ASAPEngine asapEngine = this.getASAPEngine(format);
+        this.folderMap.put(format, new EngineSetting(folderName, listener));
+
+        return asapEngine;
+    }
+
+    @Override
     public ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException {
         EngineSetting engineSetting = this.folderMap.get(format);
         if(engineSetting == null) throw new ASAPException("unknown format: " + format);
@@ -148,11 +164,15 @@ public class MultiASAPEngineFS_Impl implements
         return engineSetting.listener;
     }
 
+    private String getEngineFolderByAppName(CharSequence appName) {
+        return this.rootFolderName.toString() + "/" + appName;
+    }
+
     @Override
-    public ASAPEngine getASAPEngine(CharSequence appName, CharSequence format)
+    public ASAPEngine getASAPEngine(CharSequence format)
             throws IOException, ASAPException {
 
-        String foldername = this.rootFolderName.toString() + "/" + appName.toString();
+        String foldername = this.getEngineFolderByAppName(format);
         // already exists?
         try {
             ASAPEngine existingASAPEngineFS = ASAPEngineFS.getExistingASAPEngineFS(foldername);
