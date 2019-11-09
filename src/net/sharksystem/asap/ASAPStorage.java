@@ -4,6 +4,7 @@ import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -62,21 +63,21 @@ public interface ASAPStorage {
      *
      * Peers must not forward messages from a closed to other peers than those in recipient list.
      *
-     * @param urlTarget
+     * @param uri
      * @param recipients
      * @throws IOException
      */
-    void createChannel(CharSequence urlTarget, Set<CharSequence> recipients) throws IOException, ASAPException;
+    void createChannel(CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
      * Create channel with a maybe different and than local peer - take care!
      * @param owner
-     * @param urlTarget
+     * @param uri
      * @param recipients
      * @throws IOException
      * @throws ASAPException
      */
-    void createChannel(CharSequence owner, CharSequence urlTarget, Set<CharSequence> recipients) throws IOException, ASAPException;
+    void createChannel(CharSequence owner, CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
      *

@@ -2,10 +2,7 @@ package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An AASP chunk contains messages regarding a topic described by an
@@ -80,7 +77,7 @@ public interface ASAPChunk {
      * @param recipients
      * @throws IOException
      */
-    void setRecipients(Set<CharSequence> recipients) throws IOException;
+    void setRecipients(Collection<CharSequence> recipients) throws IOException;
 
     /**
      * recipient is removed

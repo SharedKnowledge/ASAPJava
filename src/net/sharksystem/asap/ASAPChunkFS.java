@@ -123,7 +123,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     @Override
-    public void setRecipients(Set<CharSequence> newRecipients) throws IOException {
+    public void setRecipients(Collection<CharSequence> newRecipients) throws IOException {
         this.recipients = new HashSet<>();
         for(CharSequence recipient : newRecipients) {
             this.recipients.add(recipient);

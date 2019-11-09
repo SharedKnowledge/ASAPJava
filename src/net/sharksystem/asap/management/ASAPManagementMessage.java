@@ -5,15 +5,12 @@ import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ASAPManagementMessage {
     public static byte[] getCreateClosedASAPChannelMessage(
             CharSequence owner, CharSequence appName, CharSequence channelUri,
-            Set<CharSequence> recipients) throws ASAPException, IOException {
+            Collection<CharSequence> recipients) throws ASAPException, IOException {
 
         if(recipients == null || recipients.size() < 1) {
             throw new ASAPException("recipients in storage/channelUri must not be null or empty: ");

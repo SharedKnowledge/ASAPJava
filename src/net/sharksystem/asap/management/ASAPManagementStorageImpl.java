@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPEngine;
 import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 
 public class ASAPManagementStorageImpl implements ASAPManagementStorage {
     private final ASAPEngine asapEngine;
@@ -15,7 +15,7 @@ public class ASAPManagementStorageImpl implements ASAPManagementStorage {
 
     @Override
     public void notifyChannelCreated(CharSequence appName, CharSequence channelUri, CharSequence uri,
-                                     Set<CharSequence> recipients) throws ASAPException, IOException {
+                                     Collection<CharSequence> recipients) throws ASAPException, IOException {
 
         byte[] createClosedASAPChannelMessage = ASAPManagementMessage.getCreateClosedASAPChannelMessage(
                 this.asapEngine.getOwner(),

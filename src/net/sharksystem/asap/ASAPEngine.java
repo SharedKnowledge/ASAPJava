@@ -92,12 +92,12 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     @Override
-    public void createChannel(CharSequence uri, Set<CharSequence> recipients) throws IOException, ASAPException {
+    public void createChannel(CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException {
         this.createChannel(this.getOwner(), uri, recipients);
     }
 
     @Override
-    public void createChannel(CharSequence owner, CharSequence uri, Set<CharSequence> recipients)
+    public void createChannel(CharSequence owner, CharSequence uri, Collection<CharSequence> recipients)
             throws IOException, ASAPException {
 
         this.setRecipients(uri, recipients);
@@ -137,7 +137,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     public void notifyChannelCreated(CharSequence appName, CharSequence owner,
-                                     CharSequence uri, Set<CharSequence> recipients)
+                                     CharSequence uri, Collection<CharSequence> recipients)
             throws ASAPException, IOException {
 
         new ASAPManagementStorageImpl(this).notifyChannelCreated(appName, owner, uri, recipients);
@@ -147,7 +147,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         this.chunkStorage.getChunk(urlTarget, this.era).addRecipient(recipient);
     }
 
-    public void setRecipients(CharSequence urlTarget, Set<CharSequence> recipients) throws IOException {
+    public void setRecipients(CharSequence urlTarget, Collection<CharSequence> recipients) throws IOException {
         this.chunkStorage.getChunk(urlTarget, this.era).setRecipients(recipients);
     }
 
