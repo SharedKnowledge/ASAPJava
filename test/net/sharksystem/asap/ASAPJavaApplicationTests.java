@@ -3,6 +3,7 @@ package net.sharksystem.asap;
 import net.sharksystem.asap.apps.*;
 import net.sharksystem.asap.util.ASAPEngineThread;
 import net.sharksystem.cmdline.TCPChannel;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,14 +13,16 @@ import java.util.HashSet;
 public class ASAPJavaApplicationTests {
     public static final String ALICE = "Alice";
     public static final String BOB = "Bob";
-    public static final String ALICE_ROOT_FOLDER = "tests/Alice";
-    public static final String BOB_ROOT_FOLDER = "tests/Bob";
+    public static final String TESTS_ROOT_FOLDER = "tests/";
+    public static final String ALICE_ROOT_FOLDER = TESTS_ROOT_FOLDER + "Alice";
+    public static final String BOB_ROOT_FOLDER = TESTS_ROOT_FOLDER + "Bob";
     private static final CharSequence APP_FORMAT = "TEST_FORMAT";
     private static final byte[] TESTMESSAGE = "TestMessage".getBytes();
     private static final int PORT = 7777;
 
     @Test
     public void usageTest() throws IOException, ASAPException, InterruptedException {
+        ASAPEngineFS.removeFolder(TESTS_ROOT_FOLDER);
         Collection<CharSequence> formats = new HashSet<>();
         formats.add(APP_FORMAT);
 
@@ -40,7 +43,8 @@ public class ASAPJavaApplicationTests {
         ASAPJavaApplication asapJavaApplicationBob =
                 ASAPJavaApplicationFS.createASAPJavaApplication(BOB, BOB_ROOT_FOLDER, formats);
 
-        asapJavaApplicationBob.setASAPMessageReceivedListener(APP_FORMAT, new ListenerExample());
+        ListenerExample listenerBob = new ListenerExample();
+        asapJavaApplicationBob.setASAPMessageReceivedListener(APP_FORMAT, listenerBob);
 
         // create connections for both sides
         TCPChannel aliceChannel = new TCPChannel(PORT, true, "a2b");
@@ -86,18 +90,26 @@ public class ASAPJavaApplicationTests {
         //                                            test results                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // TODO: should test something
+        // received?
+        Assert.assertTrue(listenerBob.hasReceivedMessage());
     }
 
     private class ListenerExample implements ASAPMessageReceivedListener {
+
+        private boolean hasReceivedMessage = false;
 
         @Override
         public void asapMessagesReceived(ASAPMessages messages) {
             try {
                 System.out.println("#message == " + messages.size());
+                this.hasReceivedMessage = true;
             } catch (IOException e) {
                 // do something with it.
             }
+        }
+
+        public boolean hasReceivedMessage() {
+            return this.hasReceivedMessage;
         }
     }
 }

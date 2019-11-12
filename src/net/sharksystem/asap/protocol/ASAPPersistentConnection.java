@@ -211,51 +211,29 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 System.out.println(this.getLogStart() + "read valid pdu");
                 this.setRemotePeer(asappdu.getPeer());
 
-                // process received pdu
-                boolean pduExecuted = false;
-                /*
-                if(asappdu.getFormat().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) {
-                    System.out.println(this.getLogStart()
-                            + "got asap management message - let multi-engine handle this one");
+                try {
+                    this.executor = new ASAPPDUExecutor(asappdu,
+                                        this.is, this.os,
+                                        this.multiASAPEngineFS.getEngineSettings(asappdu.getFormat()),
+                                        protocol,this);
 
+                    // get exclusive access to streams
+                    System.out.println(this.getLogStart() + "asap pdu executor going to wait for stream access");
+                    this.wait4ExclusiveStreamsAccess();
                     try {
-                        // if return true - message was handled. No further actions required
-                        pduExecuted = this.multiASAPEngineFS.handleASAPManagementPDU(asappdu, protocol, is);
-                    } catch (ASAPException e) {
-                        System.err.println("asap management pdu processing failed - go ahead in read/process loop: "
-                                + e.getLocalizedMessage());
-                        pduExecuted = false; // failed to execute - forget and go ahead
-                    } catch (IOException e) {
-                        this.terminate("asap management pdu processing failed", e);
+                        System.out.println(this.getLogStart() + "asap pdu executor got stream access - process pdu");
+                        this.runObservedThread(executor, maxExecutionTime);
+                    } catch (ASAPExecTimeExceededException e) {
+                        System.out.println(this.getLogStart() + "asap pdu processing took longer than allowed");
+                        this.terminate("asap pdu processing took longer than allowed", e);
                         break;
+                    } finally {
+                        // wake waiting thread if any
+                        this.releaseStreamsLock();
+                        System.out.println(this.getLogStart() + "asap pdu executor release locks");
                     }
-                }
-                */
-                if(!pduExecuted) { // not (completely executed by multi engine
-                    try {
-                        this.executor = new ASAPPDUExecutor(asappdu,
-                                            this.is, this.os,
-                                            this.multiASAPEngineFS.getEngineSettings(asappdu.getFormat()),
-                                            protocol,this);
-
-                        // get exclusive access to streams
-                        System.out.println(this.getLogStart() + "asap pdu executor going to wait for stream access");
-                        this.wait4ExclusiveStreamsAccess();
-                        try {
-                            System.out.println(this.getLogStart() + "asap pdu executor got stream access - process pdu");
-                            this.runObservedThread(executor, maxExecutionTime);
-                        } catch (ASAPExecTimeExceededException e) {
-                            System.out.println(this.getLogStart() + "asap pdu processing took longer than allowed");
-                            this.terminate("asap pdu processing took longer than allowed", e);
-                            break;
-                        } finally {
-                            // wake waiting thread if any
-                            this.releaseStreamsLock();
-                            System.out.println(this.getLogStart() + "asap pdu executor release locks");
-                        }
-                    } catch (ASAPException e) {
-                        System.out.println(this.getLogStart() + " problem when executing asap received pdu: " + e);
-                    }
+                } catch (ASAPException e) {
+                    System.out.println(this.getLogStart() + " problem when executing asap received pdu: " + e);
                 }
             }
         }
