@@ -30,6 +30,11 @@ public class ASAPJavaApplicationFS implements ASAPJavaApplication {
             // ensure that supported format engine are up and running
             for(CharSequence format : supportedFormats) {
                 this.multiEngine.createEngineByFormat(format);
+
+                // setup inter era message delivery
+                System.out.println(this.getLogStart() + "setup inter era message exchange for " + format);
+                ASAPEngine engine = multiEngine.getEngineByFormat(format);
+                new ASAPSingleProcessOnlineMessageSender(this.multiEngine, engine);
             }
         }
     }
