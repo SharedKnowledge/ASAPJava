@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  *
- * Communication break down in ad-hoc networks is normal and no failure.
+ * Break down of a communication channel in ad-hoc networks is normal and barely failure.
  * That chunk storage is meant to keep messages which are produced by an
  * app for later transmission.
  * 
@@ -18,7 +18,7 @@ import java.util.Set;
  * Each chunk is addressed with an URI (comparable to URIs e.g. in Android
  * Content Provider)
  * 
- * Applications can easlily store their messages by calling add(URI, message).
+ * Applications can easily store their messages by calling add(URI, message).
  * That message is stored in a chunk addressed by the URI. 
  * 
  * Each chunk has a recipient list which can be changed anytime. The ASAPEngine
@@ -33,7 +33,7 @@ import java.util.Set;
  * ASAPStorage myStorage = ASAPEngineFS.getASAPEngine("EngineName", "ChunkStorageRootFolder", reader);
  * </pre>
  * 
- * An AASPReader must be implemented prior using that framework. Objects of
+ * An ASAPReader must be implemented prior using that framework. Objects of
  * that class are called whenever another peer transmits messages to the
  * local peer. @see AASPReader
  * 
@@ -43,7 +43,7 @@ import java.util.Set;
  * current era is declared to be finished and an new era is opened. 
  * Any new message is now tagged as message from that new era. The ASAPEngine
  * transmits all message to the peer which are stored after the final
- * encounter. If no encounter ever happened - all availablee messages are
+ * encounter. If no encounter ever happened - all available messages are
  * transmitted. 
  *
  * @see ASAPEngine
@@ -177,7 +177,7 @@ public interface ASAPStorage {
 
     void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
 
-    void detachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
+    void detachASAPMessageAddListener();
 
     void setASAPManagementStorage(ASAPManagementStorage asapManagementStorage);
 

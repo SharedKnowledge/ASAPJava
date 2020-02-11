@@ -68,7 +68,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         this.asapOnlineMessageSender = asapOnlineMessageSender;
     }
 
-    public void detachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender) {
+    public void detachASAPMessageAddListener() {
         this.asapOnlineMessageSender = null;
     }
 
@@ -213,7 +213,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             return new ASAPChannelImpl(this, uri);
         }
 
-        throw new ASAPException("channel with does not exist: " + uri);
+        throw new ASAPException("channel with this uri does not exist: " + uri);
     }
 
     @Override
@@ -264,13 +264,15 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         StringBuilder b = new StringBuilder();
         b.append("ASAPEngine (");
         b.append(this.owner);
+        b.append(", format: ");
+        b.append(this.format);
         b.append(", era: ");
         b.append(this.era);
         b.append("): ");
 
         return b.toString();
     }
-
+/*
     public void handleConnection(InputStream is, OutputStream os,
                                  ASAPChunkReceivedListener listener) {
 
@@ -291,17 +293,17 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
             this.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
         }
-        catch(Exception ioe) {
+        catch(Exception e) {
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
             b.append(this.getLogStart());
-            b.append("IOEXception: ");
-            b.append(ioe.getLocalizedMessage());
+            b.append("Exception: ");
+            b.append(e.getLocalizedMessage());
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
         }
     }
-
+*/
     public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 

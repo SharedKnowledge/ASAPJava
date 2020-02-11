@@ -17,7 +17,7 @@ public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessa
 
     public void detachFromStorage() {
         if(this.source != null) {
-            this.source.detachASAPMessageAddListener(this);
+            this.source.detachASAPMessageAddListener();
         }
     }
 

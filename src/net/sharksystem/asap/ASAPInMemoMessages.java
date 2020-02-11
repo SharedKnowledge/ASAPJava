@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.apps.ASAPMessages;
+import net.sharksystem.asap.util.Log;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
@@ -39,6 +40,10 @@ class ASAPInMemoMessages implements ASAPMessages {
         this.fromEra = fromEra;
         this.toEra = toEra;
         this.maxCacheLen = maxCacheLen;
+
+        Log.writeLog(this, "format: " + format + "uri: " + uri
+                + "rootDir: " + chunkStorage.getRootDirectory()
+                + "fromEra: " + fromEra+ "toEra: " + toEra+ "maxCacheLen: " + maxCacheLen);
     }
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,

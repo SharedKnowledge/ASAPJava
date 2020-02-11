@@ -87,4 +87,7 @@ public interface MultiASAPEngineFS {
      * @return all formats currently supported by this mulit engine
      */
     Set<CharSequence> getFormats();
+
+    void activateOnlineMessages();
+    void deactivateOnlineMessages();
 }

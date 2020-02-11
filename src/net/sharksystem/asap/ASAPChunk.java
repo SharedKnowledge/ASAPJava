@@ -92,7 +92,7 @@ public interface ASAPChunk {
      * @throws IOException
      * @deprecated
      */
-    void addMessage(CharSequence message) throws IOException;
+    //void addMessage(CharSequence message) throws IOException;
 
     void addMessage(byte[] messageAsBytes) throws IOException;
 

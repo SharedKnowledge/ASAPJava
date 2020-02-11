@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -374,9 +375,12 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         System.err.println(getLogStart() + ": " + "unknown ASAP command: " + asapPDU.getCommand());
                 }
             }
-            catch(IOException | ASAPException e) {
+            catch(ASAPException asape) {
+                Log.writeLogErr(this, "asap exception while processing PDU - but go ahead: " + asape.getLocalizedMessage());
+            }
+            catch(IOException ioe) {
                 System.err.println(getLogStart()
-                        + "Exception while processing ASAP PDU - close streams" + e.getLocalizedMessage());
+                        + "IOException while processing ASAP PDU - close streams: " + ioe.getLocalizedMessage());
                 try {
                     os.close(); // more important to close than input stream - do it first
                     is.close();

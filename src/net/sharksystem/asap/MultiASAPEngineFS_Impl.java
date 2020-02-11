@@ -15,12 +15,22 @@ import java.util.*;
 
 public class MultiASAPEngineFS_Impl implements
         MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener/*, ASAPChunkReceivedListener */ {
+
     private static final String DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER = "ASAPManagement";
     private final CharSequence rootFolderName;
     private final ASAPChunkReceivedListener listener;
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
+
+    public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder,
+                                                      long maxExecutionTime,
+                                                      Collection<CharSequence> supportFormats,
+                                                      ASAPChunkReceivedListener listener)
+                            throws ASAPException, IOException {
+
+        return new MultiASAPEngineFS_Impl(owner, rootFolder, maxExecutionTime, supportFormats, listener);
+    }
 
     public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder, long maxExecutionTime,
                                                       ASAPChunkReceivedListener listener) throws ASAPException, IOException {
@@ -41,6 +51,11 @@ public class MultiASAPEngineFS_Impl implements
      */
     private MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
                                    ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+        this(owner, rootFolderName, maxExecutionTime, null, listener);
+    }
+
+    private MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
+        Collection<CharSequence> apps, ASAPChunkReceivedListener listener) throws ASAPException, IOException {
         this.owner = owner;
         this.maxExecutionTime = maxExecutionTime;
         this.rootFolderName = rootFolderName;
@@ -59,10 +74,14 @@ public class MultiASAPEngineFS_Impl implements
 
         this.setupFolderMap();
 
+        /////////////////// asap management app //////////////////////////////////////////////////////
         // check if management engine running
         if(!this.isASAPManagementEngineRunning()) {
-            String fileName = rootFolderName + "/" + DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER;
             System.out.println(this.getLogStart() + "no asap management engine yet - set it up.");
+
+            this.setupEngine(DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER, ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+            /*
+            String fileName = rootFolderName + "/" + DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER;
             ASAPEngine asapManagementEngine = ASAPEngineFS.getASAPStorage(this.getOwner().toString(),
                     fileName, ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
@@ -72,6 +91,7 @@ public class MultiASAPEngineFS_Impl implements
             );
             setting.setASAPEngine(asapManagementEngine);
             this.folderMap.put(ASAP_1_0.ASAP_MANAGEMENT_FORMAT, setting);
+            */
         }
 
         // set listener to asap management app
@@ -79,6 +99,33 @@ public class MultiASAPEngineFS_Impl implements
         if(folderAndListener != null) {
             folderAndListener.listener = new ASAPManagementMessageHandler(this);
         }
+
+        /////////////////// not yet created engines////////////////////////////////////////////////////
+        if(apps != null) {
+            for (CharSequence appFormat : apps) {
+                // check if exists
+                try {
+                    this.getEngineByFormat(appFormat);
+                } catch (ASAPException e) {
+                    // set it up
+                    this.setupEngine(appFormat, appFormat);
+                }
+            }
+        }
+    }
+
+    private void setupEngine(CharSequence folderName, CharSequence formatName) throws IOException, ASAPException {
+        String fileName = this.rootFolderName + "/" + folderName;
+        System.out.println(this.getLogStart() + "set up: " + formatName + " in folder " + fileName);
+        ASAPEngine asapEngine = ASAPEngineFS.getASAPStorage(this.getOwner().toString(),
+                fileName, formatName);
+
+        EngineSetting setting = new EngineSetting(
+                fileName, // folder
+                this.listener// listener
+        );
+        setting.setASAPEngine(asapEngine);
+        this.folderMap.put(formatName, setting);
     }
 
     private void setupFolderMap() throws IOException, ASAPException {
@@ -206,7 +253,6 @@ public class MultiASAPEngineFS_Impl implements
         return this.folderMap.keySet();
     }
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                          connection management                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +314,7 @@ public class MultiASAPEngineFS_Impl implements
         System.out.println(sb.toString());
     }
 
-    // thread connected to a peer
+    // threads connected to a peer
     private Map<CharSequence, ASAPConnection> connectedThreads = new HashMap<>();
     private Map<ASAPConnection, CharSequence> threadPeerNames = new HashMap<>();
 
@@ -434,7 +480,42 @@ public class MultiASAPEngineFS_Impl implements
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                            Online management                                           //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void activateOnlineMessages() {
+        ASAPOnlineMessageSender asapOnlineMessageSender =
+                new ASAPOnlineMessageSenderEngineSide(this);
+
+        // iterate engines
+        for(ASAPEngine engine : this.getEngines()) {
+            engine.attachASAPMessageAddListener(asapOnlineMessageSender);
+        }
+    }
+
+    @Override
+    public void deactivateOnlineMessages() {
+        // iterate engines
+        for(ASAPEngine engine : this.getEngines()) {
+            engine.detachASAPMessageAddListener();
+        }
+    }
+
+    private Collection<ASAPEngine> getEngines() {
+        Collection<ASAPEngine> engineList = new ArrayList<>();
+
+        if(this.folderMap.values() != null) {
+            for (EngineSetting engineSetting : this.folderMap.values()) {
+                engineList.add(engineSetting.engine);
+            }
+        }
+
+        return engineList;
+    }
+
     private String getLogStart() {
-        return this.getClass().getSimpleName() + "(" + this.getOwner() + "): ";
+        return this.getClass().getSimpleName() /* + "(" + this + ")" */ + "(" + this.getOwner() + "): ";
     }
 }

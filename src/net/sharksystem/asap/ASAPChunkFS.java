@@ -143,11 +143,12 @@ class ASAPChunkFS implements ASAPChunk {
         return (String) this.uri;
     }
 
+    /*
     @Override
     public void addMessage(CharSequence message) throws IOException {
         this.addMessage(message.toString().getBytes());
     }
-
+*/
     @Override
     public void addMessage(byte[] messageAsBytes) throws IOException {
         if(messageAsBytes.length > Integer.MAX_VALUE) {

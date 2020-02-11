@@ -49,6 +49,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
                                    byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         if(recipients == null || recipients.size() < 1) {
+            // replace empty recipient list with list of online peers.
             this.sendASAPAssimilate(format, uri, messageAsBytes, era);
         }
 
@@ -109,7 +110,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName();
+        return this.getClass().getSimpleName() + ": ";
     }
 
     @Override

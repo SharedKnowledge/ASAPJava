@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import net.sharksystem.Utils;
 import net.sharksystem.asap.apps.ASAPMessages;
+import net.sharksystem.asap.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -26,7 +27,11 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     public String getFormat() {
-        return format;
+        return this.format;
+    }
+
+    public String getRootDirectory() {
+        return this.rootDirectory;
     }
 
     @Override
@@ -38,7 +43,8 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     public boolean existsChunk(CharSequence uri, int era) throws IOException {
         String fullContentFileName = this.getChunkContentFilename(era, uri);
 
-        return(new File(fullContentFileName).exists());
+        boolean exists = (new File(fullContentFileName).exists());
+        return exists;
     }
 
     String getChunkContentFilename(int era, CharSequence uri) {
@@ -127,6 +133,8 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         for(int i = 0; i < 1000; i++) {
             fromEra = ASAPEngine.previousEra(fromEra);
         }
+
+        Log.writeLog(this, "create ASAPInMemoMessages");
 
         return new ASAPInMemoMessages(this,
                 this.getFormat(),

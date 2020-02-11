@@ -21,7 +21,8 @@ public class ASAPSingleProcessOnlineMessageSender
     public void sendASAPAssimilate(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
                                    byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
-        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
+        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(
+                format, uri, recipients, messageAsBytes, era);
     }
 
     @Override
