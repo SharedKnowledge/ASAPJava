@@ -41,9 +41,9 @@ class ASAPInMemoMessages implements ASAPMessages {
         this.toEra = toEra;
         this.maxCacheLen = maxCacheLen;
 
-        Log.writeLog(this, "format: " + format + "uri: " + uri
-                + "rootDir: " + chunkStorage.getRootDirectory()
-                + "fromEra: " + fromEra+ "toEra: " + toEra+ "maxCacheLen: " + maxCacheLen);
+        Log.writeLog(this, "format: " + format + " | uri: " + uri
+                + " | rootDir: " + chunkStorage.getRootDirectory()
+                + " | fromEra: " + fromEra+ " | toEra: " + toEra);
     }
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,

@@ -60,8 +60,8 @@ class ASAPChunkFS implements ASAPChunk {
         return this.deliveredTo;
     }
 
-    ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era) throws IOException {
-        this(storage, targetUri, era, null);
+    ASAPChunkFS(ASAPChunkStorageFS storage, String uri, int era) throws IOException {
+        this(storage, uri, era, null);
     }
 
     ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {

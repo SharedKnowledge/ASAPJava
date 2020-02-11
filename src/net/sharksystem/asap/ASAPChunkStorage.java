@@ -34,4 +34,6 @@ public interface ASAPChunkStorage {
      * @throws IOException 
      */
     public ASAPMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException;
+
+    public ASAPMessages getASAPChunkCache(CharSequence uri, int fromEra, int toEra) throws IOException;
 }

@@ -134,9 +134,15 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
             fromEra = ASAPEngine.previousEra(fromEra);
         }
 
+        return this.getASAPChunkCache(uri, fromEra, toEra);
+    }
+
+    @Override
+    public ASAPMessages getASAPChunkCache(CharSequence uri, int fromEra, int toEra) throws IOException {
         Log.writeLog(this, "create ASAPInMemoMessages");
 
-        return new ASAPInMemoMessages(this,
+        return new ASAPInMemoMessages(
+                this,
                 this.getFormat(),
                 uri,
                 fromEra, // set starting era
