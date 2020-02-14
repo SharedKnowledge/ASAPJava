@@ -726,6 +726,11 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     public int getEra() {
         return this.era;
     }
+
+    public CharSequence getFormat()  {
+        return this.format;
+    }
+
     
 //    public int getNextEra(int era) {
 //        return this.

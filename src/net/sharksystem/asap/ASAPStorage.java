@@ -58,6 +58,12 @@ public interface ASAPStorage {
     CharSequence getOwner();
 
     /**
+     *
+     * @return storage format / app
+     */
+    CharSequence getFormat();
+
+    /**
      * Creates a channel with named recipients - we call it a closed channel in opposite
      * to an open channel.
      *
