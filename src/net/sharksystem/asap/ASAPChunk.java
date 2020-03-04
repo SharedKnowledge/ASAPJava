@@ -88,7 +88,7 @@ public interface ASAPChunk {
 
     /**
      * adds a message
-     * @param message
+     * @param messageAsBytes
      * @throws IOException
      * @deprecated
      */

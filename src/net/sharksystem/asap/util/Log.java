@@ -5,8 +5,8 @@ public class Log {
         return Log.startLog(o.getClass());
     }
 
-    public static StringBuilder startLog(Class c) {
-        StringBuilder sb = new StringBuilder();
+        public static StringBuilder startLog(Class c) {
+            StringBuilder sb = new StringBuilder();
         sb.append(c.getSimpleName());
         sb.append(": ");
         return sb;

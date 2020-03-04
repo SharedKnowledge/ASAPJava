@@ -137,6 +137,8 @@ public interface ASAPStorage {
      */
     public Set<CharSequence> getRecipients(CharSequence urlTarget) throws IOException;
 
+    void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
+    public void removeRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
     /**
      * Put some extra information on that channel
      * @param uri describing the channel

@@ -155,8 +155,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.chunkStorage.getChunk(urlTarget, this.era).getRecipients();
     }
 
-    public void removeRecipient(CharSequence urlTarget, CharSequence recipients) throws IOException {
-        this.chunkStorage.getChunk(urlTarget, this.era).removeRecipient(recipients);
+    public void removeRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException {
+        this.chunkStorage.getChunk(urlTarget, this.era).removeRecipient(recipient);
     }
 
     @Override

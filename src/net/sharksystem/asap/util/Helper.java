@@ -25,6 +25,16 @@ public class Helper {
         return sb.toString();
     }
 
+    public static byte[] characterSequence2bytes(CharSequence cs) {
+        // TODO - that's ok?
+        return cs.toString().getBytes();
+    }
+
+    public static CharSequence bytes2characterSequence(byte[] bytes) {
+        // TODO - that's ok?
+        return  new String(bytes);
+    }
+
     public static List<CharSequence> string2CharSequenceList(String s) {
         StringTokenizer t = new StringTokenizer(s, SERIALIZATION_DELIMITER);
         ArrayList<CharSequence> list = new ArrayList<CharSequence>();
