@@ -55,4 +55,26 @@ public class Helper {
 
         return charSet;
     }
+
+    public static ArrayList set2arraylist(Set aSet) {
+        ArrayList aList = new ArrayList();
+        if(aSet == null) return aList;
+
+        for(Object o : aSet) {
+            aList.add(o);
+        }
+
+        return aList;
+    }
+
+    public static Set list2set(List aList) {
+        Set aSet = new HashSet();
+        if(aList == null) return aSet;
+
+        for(Object o : aList) {
+            aSet.add(o);
+        }
+
+        return aSet;
+    }
 }
