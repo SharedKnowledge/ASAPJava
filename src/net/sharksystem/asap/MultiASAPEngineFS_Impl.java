@@ -6,6 +6,7 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
+import net.sharksystem.asap.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -506,7 +507,9 @@ public class MultiASAPEngineFS_Impl implements
             Set<CharSequence> recipients, byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         // setup online message sender thread
+        Log.writeLog(this, "setup online message sender object");
         ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
+        Log.writeLog(this, "call send asap assimilate message with online message sender");
         asapOnlineMessageSender.sendASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, era);
     }
 
