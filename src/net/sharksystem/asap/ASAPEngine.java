@@ -175,7 +175,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
         if(this.asapOnlineMessageSender != null) {
             try {
-                this.asapOnlineMessageSender.sendASAPAssimilate(
+                this.asapOnlineMessageSender.sendASAPAssimilateMessage(
                         this.format, urlTarget, chunk.getRecipients(),
                         messageAsBytes, this.era);
             } catch (IOException | ASAPException e) {

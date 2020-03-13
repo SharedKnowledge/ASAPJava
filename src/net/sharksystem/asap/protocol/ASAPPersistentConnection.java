@@ -128,7 +128,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             sb.append(this.getLogStart());
             sb.append("going to send online message");
             System.out.println(sb.toString());
-            asapOnline.sendMessages(this, this.os);
+            asapOnline.sendStoredMessages(this, this.os);
         }
     }
 

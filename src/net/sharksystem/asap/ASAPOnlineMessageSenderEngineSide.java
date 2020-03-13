@@ -27,7 +27,22 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         this.multiEngine = multiEngine;
     }
 
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, byte[] messageAsBytes, int era)
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes)
+            throws IOException, ASAPException {
+
+        // can I determine an era?
+        int era = ASAPEngineFS.DEFAULT_INIT_ERA;
+        try {
+            ASAPEngine asapEngine = this.multiEngine.getASAPEngine(format);
+            era = asapEngine.getEra();
+        } catch (ASAPException e) {
+            Log.writeLog(this, "no engine for online message found with format: " + format);
+        }
+
+        this.sendASAPAssimilateMessage(format, uri, messageAsBytes, era);
+    }
+
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes, int era)
             throws IOException, ASAPException {
 
         Set<CharSequence> onlinePeers = this.multiEngine.getOnlinePeers();
@@ -42,15 +57,15 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             System.out.println(this.getLogStart() + peerName  + "is online");
         }
 
-        this.sendASAPAssimilate(format, uri, onlinePeerList, messageAsBytes, era);
+        this.sendASAPAssimilateMessage(format, uri, onlinePeerList, messageAsBytes, era);
     }
 
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
-                                   byte[] messageAsBytes, int era) throws IOException, ASAPException {
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
+                                          byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         if(recipients == null || recipients.size() < 1) {
             // replace empty recipient list with list of online peers.
-            this.sendASAPAssimilate(format, uri, messageAsBytes, era);
+            this.sendASAPAssimilateMessage(format, uri, messageAsBytes, era);
         }
 
         StringBuilder sb = Log.startLog(this);
@@ -82,10 +97,6 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
                 sb.append("got asap connection, subscribe / and store message");
                 System.out.println(sb.toString());
 
-                // subscribe and remember it
-                asapConnection.addOnlineMessageSource(this);
-                this.connectionPeers.put(asapConnection, recipient);
-
                 // serialize message for this recipient
                 ByteArrayOutputStream asapPDUBytes = new ByteArrayOutputStream();
                 protocol.assimilate(this.multiEngine.getOwner(), recipient, format, uri, era, null, // no offsets
@@ -99,6 +110,10 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
                 }
 
                 messageList.add(asapPDUBytes.toByteArray());
+
+                // subscribe and remember it
+                asapConnection.addOnlineMessageSource(this);
+                this.connectionPeers.put(asapConnection, recipient);
 
             } else {
                 sb = Log.startLog(this);
@@ -114,7 +129,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
     }
 
     @Override
-    public void sendMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
+    public void sendStoredMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
         CharSequence recipient = this.connectionPeers.get(asapConnection);
 
         List<byte[]> messageList = this.messages.get(recipient);

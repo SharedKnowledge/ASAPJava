@@ -90,4 +90,19 @@ public interface MultiASAPEngineFS {
 
     void activateOnlineMessages();
     void deactivateOnlineMessages();
+
+    /**
+     * This message is only transmitted with open connections. Message is not stored. Nothing happens if no open
+     * connection is present.
+     * @param format
+     * @param urlTarget
+     * @param recipients
+     * @param messageAsBytes
+     * @param era
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
+                                   byte[] messageAsBytes, int era) throws IOException, ASAPException;
+
 }

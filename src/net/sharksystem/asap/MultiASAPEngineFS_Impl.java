@@ -486,8 +486,7 @@ public class MultiASAPEngineFS_Impl implements
 
     @Override
     public void activateOnlineMessages() {
-        ASAPOnlineMessageSender asapOnlineMessageSender =
-                new ASAPOnlineMessageSenderEngineSide(this);
+        ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
 
         // iterate engines
         for(ASAPEngine engine : this.getEngines()) {
@@ -502,6 +501,15 @@ public class MultiASAPEngineFS_Impl implements
             engine.detachASAPMessageAddListener();
         }
     }
+
+    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+            Set<CharSequence> recipients, byte[] messageAsBytes, int era) throws IOException, ASAPException {
+
+        // setup online message sender thread
+        ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
+        asapOnlineMessageSender.sendASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, era);
+    }
+
 
     private Collection<ASAPEngine> getEngines() {
         Collection<ASAPEngine> engineList = new ArrayList<>();

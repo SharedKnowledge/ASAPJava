@@ -1,11 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.protocol.*;
-import net.sharksystem.asap.util.Log;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 
 public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessageSender {
@@ -21,14 +16,14 @@ public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessa
         }
     }
 
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, CharSequence recipient,
-                                            byte[] messageAsBytes, int era) throws IOException, ASAPException {
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, CharSequence recipient,
+                                          byte[] messageAsBytes, int era) throws IOException, ASAPException {
         if(recipient == null) {
-            this.sendASAPAssimilate(format, uri, messageAsBytes, era);
+            this.sendASAPAssimilateMessage(format, uri, messageAsBytes, era);
         } else {
             Set<CharSequence> recipients = new HashSet<>();
             recipients.add(recipient);
-            this.sendASAPAssimilate(format, uri, recipients, messageAsBytes, era);
+            this.sendASAPAssimilateMessage(format, uri, recipients, messageAsBytes, era);
         }
     }
 }

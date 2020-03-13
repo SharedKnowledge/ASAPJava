@@ -18,22 +18,22 @@ public class ASAPSingleProcessOnlineMessageSender
     }
 
     @Override
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
-                                   byte[] messageAsBytes, int era) throws IOException, ASAPException {
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
+                                          byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
-        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(
+        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilateMessage(
                 format, uri, recipients, messageAsBytes, era);
     }
 
     @Override
-    public void sendASAPAssimilate(CharSequence format, CharSequence uri, byte[] messageAsBytes, int era)
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes, int era)
             throws IOException, ASAPException {
 
-        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilate(format, uri, messageAsBytes, era);
+        this.asapOnlineMessageSenderEngineSide.sendASAPAssimilateMessage(format, uri, messageAsBytes, era);
     }
 
     @Override
-    public void sendMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
-        this.asapOnlineMessageSenderEngineSide.sendMessages(asapConnection, os);
+    public void sendStoredMessages(ASAPConnection asapConnection, OutputStream os) throws IOException {
+        this.asapOnlineMessageSenderEngineSide.sendStoredMessages(asapConnection, os);
     }
 }

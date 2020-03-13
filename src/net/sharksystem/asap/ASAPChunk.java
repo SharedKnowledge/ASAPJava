@@ -86,14 +86,6 @@ public interface ASAPChunk {
      */
     void removeRecipient(CharSequence recipients) throws IOException;
 
-    /**
-     * adds a message
-     * @param messageAsBytes
-     * @throws IOException
-     * @deprecated
-     */
-    //void addMessage(CharSequence message) throws IOException;
-
     void addMessage(byte[] messageAsBytes) throws IOException;
 
     void addMessage(InputStream messageByteIS, long length) throws IOException;
