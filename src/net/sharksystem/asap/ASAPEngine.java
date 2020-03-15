@@ -678,30 +678,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         this.saveStatus();
     }
 
-    static int nextEra(int workingEra) {
-        if(workingEra == Integer.MAX_VALUE) {
-            return 0;
-        }
-        
-        return workingEra+1;
-    }
-    
     @Override
     public int getNextEra(int workingEra) {
-        return ASAPEngine.nextEra(workingEra);
+        return ASAP.nextEra(workingEra);
     }
 
-    static int previousEra(int workingEra) {
-        if(workingEra == 0) {
-            return Integer.MAX_VALUE;
-        }
-        
-        return workingEra-1;
-    }
-    
     @Override
     public int getPreviousEra(int workingEra) {
-        return ASAPEngine.previousEra(workingEra);
+        return ASAP.previousEra(workingEra);
     }
 
     private int getEraStartSync(String peer) {

@@ -2,7 +2,6 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.util.Log;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,7 +88,7 @@ class ASAPInMemoMessages implements ASAPMessages {
                 if (finalLoop) {
                     anotherLoop = false;
                 } else {
-                    thisEra = ASAPEngine.nextEra(thisEra);
+                    thisEra = ASAP.nextEra(thisEra);
                     finalLoop = thisEra == this.toEra;
                 }
             }

@@ -131,7 +131,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         // go back 1000 eras
         int fromEra = toEra;
         for(int i = 0; i < 1000; i++) {
-            fromEra = ASAPEngine.previousEra(fromEra);
+            fromEra = ASAP.previousEra(fromEra);
         }
 
         return this.getASAPChunkCache(uri, fromEra, toEra);

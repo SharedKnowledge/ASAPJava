@@ -513,7 +513,6 @@ public class MultiASAPEngineFS_Impl implements
         asapOnlineMessageSender.sendASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, era);
     }
 
-
     private Collection<ASAPEngine> getEngines() {
         Collection<ASAPEngine> engineList = new ArrayList<>();
 

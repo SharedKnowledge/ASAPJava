@@ -431,7 +431,7 @@ public class Point2PointTests {
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
 
         // #2 is in another era
-        aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, ASAPEngine.nextEra(bobInitialEra));
+        aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, ASAP.nextEra(bobInitialEra));
         aliceReceivedMessages = aliceReceivedChunk.getMessages();
         aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE2, aliceReceivedMessage);
@@ -446,7 +446,7 @@ public class Point2PointTests {
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
 
         // #2 - in next era
-        bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, ASAPEngine.nextEra(aliceInitialEra));
+        bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, ASAP.nextEra(aliceInitialEra));
         bobReceivedMessages = bobReceivedChunk.getMessages();
         bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
