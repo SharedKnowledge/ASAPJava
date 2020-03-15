@@ -1,19 +1,20 @@
 package net.sharksystem.asap;
 
 public class ASAP {
-    public static int nextEra(int workingEra) {
-        if(workingEra == Integer.MAX_VALUE) {
-            return 0;
-        }
+    public static final int INITIAL_ERA = 0;
+    public static final int MAX_ERA = Integer.MAX_VALUE;
 
+    static int nextEra(int workingEra) {
+        if(workingEra == ASAP.MAX_ERA) {
+            return ASAP.INITIAL_ERA;
+        }
         return workingEra+1;
     }
 
-    public static int previousEra(int workingEra) {
-        if(workingEra == 0) {
-            return Integer.MAX_VALUE;
+    static int previousEra(int workingEra) {
+        if(workingEra == ASAP.INITIAL_ERA) {
+            return ASAP.MAX_ERA;
         }
-
         return workingEra-1;
     }
 }
