@@ -95,7 +95,8 @@ public interface ASAPStorage {
     /**
      *
      * @param uri
-     * @return channel
+     * @return channel containing all message issued by owner of this storage. Received messages are <b>not</b> part
+     * of this channel. (See makan implementation)
      * @throws ASAPException if no channel with that uri exists in this storage
      */
     ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException;

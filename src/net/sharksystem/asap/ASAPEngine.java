@@ -222,8 +222,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     public void removeChannel(CharSequence uri) throws IOException {
-        ASAPChunk chunk = this.chunkStorage.getChunk(uri, this.getEra());
-        chunk.drop();
+        int currentEra;
+        int nextEra = this.getOldestEra();
+        do {
+            currentEra = nextEra;
+            ASAPChunk chunk = this.chunkStorage.getChunk(uri, currentEra);
+            chunk.drop();
+            nextEra = ASAP.nextEra(currentEra);
+        } while(currentEra != this.getEra());
     }
 
     public ASAPMessages getChunkChain(int position) throws IOException, ASAPException {
