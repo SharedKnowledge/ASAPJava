@@ -232,8 +232,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         } while(currentEra != this.getEra());
     }
 
-    public ASAPMessages getChunkChain(int position) throws IOException, ASAPException {
-        return this.getChunkChain(position, this.era);
+    public ASAPMessages getChunkChain(int uriPosition) throws IOException, ASAPException {
+        return this.getChunkChain(uriPosition, this.era);
     }
 
     public ASAPMessages getChunkChain(CharSequence uri, int toEra) throws IOException {
@@ -244,17 +244,17 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.getChunkChain(uri, this.getEra());
     }
 
-    public ASAPMessages getChunkChain(int position, int toEra)
+    public ASAPMessages getChunkChain(int uriPosition, int toEra)
             throws IOException, ASAPException {
 
         List<CharSequence> channelURIs = this.getChannelURIs();
-        if(channelURIs.size() - 1 < position) {
+        if(channelURIs.size() - 1 < uriPosition) {
             throw new ASAPException("position greater than number of channels");
         }
 
-        CharSequence uri = channelURIs.get(position);
+        CharSequence uri = channelURIs.get(uriPosition);
         if(uri == null) {
-            throw new ASAPException("uri at postion is null. Position: " + position);
+            throw new ASAPException("uri at postion is null. Position: " + uriPosition);
         }
 
         return this.chunkStorage.getASAPChunkCache(uri, toEra);

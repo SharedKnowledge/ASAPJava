@@ -255,9 +255,9 @@ public interface ASAPStorage {
      */
     ASAPChunkStorage getChunkStorage();
 
-    ASAPMessages getChunkChain(int position) throws IOException, ASAPException;
+    ASAPMessages getChunkChain(int uriPosition) throws IOException, ASAPException;
 
-    ASAPMessages getChunkChain(int position, int toEra) throws IOException, ASAPException;
+    ASAPMessages getChunkChain(int uriPosition, int toEra) throws IOException, ASAPException;
 
     ASAPMessages getChunkChain(CharSequence uri, int toEra) throws IOException;
 

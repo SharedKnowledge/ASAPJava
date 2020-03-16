@@ -141,6 +141,8 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     public ASAPMessages getASAPChunkCache(CharSequence uri, int fromEra, int toEra) throws IOException {
         Log.writeLog(this, "create ASAPInMemoMessages");
 
+        Log.writeLogErr(this, "PLEASE: Implement a method getValidEra() which delivers set of all era which are present int that store - would increase performance!");
+
         return new ASAPInMemoMessages(
                 this,
                 this.getFormat(),
