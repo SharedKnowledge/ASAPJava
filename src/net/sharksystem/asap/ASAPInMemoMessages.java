@@ -1,13 +1,11 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.Utils;
 import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * @author thsc
@@ -40,9 +38,13 @@ class ASAPInMemoMessages implements ASAPMessages {
         this.toEra = toEra;
         this.maxCacheLen = maxCacheLen;
 
-        Log.writeLog(this, "format: " + format + " | uri: " + uri
+        Log.writeLog(this, this.toString());
+    }
+
+    public String toString() {
+        return "format: " + format + " | uri: " + uri
                 + " | rootDir: " + chunkStorage.getRootDirectory()
-                + " | fromEra: " + fromEra+ " | toEra: " + toEra);
+                + " | fromEra: " + fromEra+ " | toEra: " + toEra;
     }
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,
@@ -59,31 +61,42 @@ class ASAPInMemoMessages implements ASAPMessages {
             this.initialized = true;
         }
     }
-    
+
     private void syncChunkList() throws IOException {
         // get all chunks in chronological order
-        
+        Collection<Integer> erasInFolder = Utils.getErasInFolder(this.chunkStorage.getRootDirectory());
+        if(erasInFolder.isEmpty()) return;
+
+        Collection<Integer> erasToUse = Utils.getErasInRange(erasInFolder, this.fromEra, this.toEra);
+        if(erasToUse.isEmpty()) return;
+
+        /*
         // current era in following loop
         int thisEra = this.fromEra;
-        
+
         // do we need more than one loop?
         boolean anotherLoop = this.fromEra != this.toEra;
         
         // are we in the final loop?
         boolean finalLoop = !anotherLoop;
+         */
         
         // drop old vunk list - if any
         this.chunkList = new ArrayList<>();
         
-        do {
+//        do {
+        for(Integer thisEra : erasToUse) {
             // check if chunk exists - don't create on
-            if(this.chunkStorage.existsChunk(this.uri, thisEra)) {
+            Log.writeLog(this, "reached era: " + thisEra);
+            if (erasInFolder.contains(thisEra) && this.chunkStorage.existsChunk(this.uri, thisEra)) {
                 // is there - get it
+                Log.writeLog(this, "getChunk with era: " + thisEra);
                 ASAPChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
                 this.chunkList.add(chunk);
                 this.numberOfMessages += chunk.getNumberMessage();
             }
 
+            /*
             if (anotherLoop) {
                 if (finalLoop) {
                     anotherLoop = false;
@@ -93,6 +106,8 @@ class ASAPInMemoMessages implements ASAPMessages {
                 }
             }
         } while (anotherLoop);
+             */
+        }
     }
 
     public int size() throws IOException {

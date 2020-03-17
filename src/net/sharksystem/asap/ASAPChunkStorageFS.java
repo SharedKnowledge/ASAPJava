@@ -128,20 +128,22 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
 
     @Override
     public ASAPMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
+        // INIT ++++++++++++++++++++++ toEra +++++++++++++++++++++ MAX
+
+        int fromEra = ASAP.nextEra(toEra); // the whole cycle
+/*
         // go back 1000 eras
         int fromEra = toEra;
         for(int i = 0; i < 1000; i++) {
             fromEra = ASAP.previousEra(fromEra);
         }
-
+ */
         return this.getASAPChunkCache(uri, fromEra, toEra);
     }
 
     @Override
     public ASAPMessages getASAPChunkCache(CharSequence uri, int fromEra, int toEra) throws IOException {
         Log.writeLog(this, "create ASAPInMemoMessages");
-
-        Log.writeLogErr(this, "PLEASE: Implement a method getValidEra() which delivers set of all era which are present int that store - would increase performance!");
 
         return new ASAPInMemoMessages(
                 this,
