@@ -30,6 +30,22 @@ public class ASAPEngineFS extends ASAPEngine {
         this.rootDirectory = rootDirectory;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("owner: ");
+        sb.append(this.getClass().getSimpleName());
+        sb.append(" | ");
+        sb.append(this.getOwner());
+        sb.append(" | oldestEra: ");
+        sb.append(this.getOldestEra());
+        sb.append(" | era: ");
+        sb.append(this.getEra());
+        sb.append(" | rootFolder: ");
+        sb.append(this.rootDirectory);
+
+        return sb.toString();
+    }
+
     public String getRootFolder() {
         return this.rootDirectory;
     }

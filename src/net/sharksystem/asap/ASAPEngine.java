@@ -166,15 +166,19 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
     @Override
     public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException {
+        Log.writeLog(this, "reached add(uri, byte[] message");
         ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
 
+        Log.writeLog(this, "call chunk.addMessage()");
         chunk.addMessage(messageAsBytes);
 
         // remember - something changed in that era
         this.contentChanged();
 
+        Log.writeLog(this, "online?");
         if(this.asapOnlineMessageSender != null) {
             try {
+                Log.writeLog(this, "send online message...");
                 this.asapOnlineMessageSender.sendASAPAssimilateMessage(
                         this.format, urlTarget, chunk.getRecipients(),
                         messageAsBytes, this.era);
@@ -184,6 +188,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
                 sb.append(e.getLocalizedMessage());
                 System.err.println(sb.toString());
             }
+            Log.writeLog(this, "... done sending online message");
         }
     }
 

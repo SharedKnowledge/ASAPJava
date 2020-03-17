@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.util.Helper;
+import net.sharksystem.asap.util.Log;
 
 import java.io.*;
 import java.util.*;
@@ -169,12 +170,15 @@ class ASAPChunkFS implements ASAPChunk {
 
         long offset = this.messageFile.length();
 
+//        Log.writeLog(this, "chunk file offset == " + offset);
         OutputStream os = new FileOutputStream(this.messageFile, true);
 
+//        Log.writeLog(this, "write message to the end of chunk file");
         while(length-- > 0) {
             os.write(messageByteIS.read());
         }
 
+//        Log.writeLog(this, "closing");
         os.close();
 
         // remember offset if not 0
