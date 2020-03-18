@@ -112,6 +112,10 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         }
     }
 
+    public void createChannel(CharSequence urlTarget) throws IOException, ASAPException {
+        this.createChannel(urlTarget, (CharSequence) null);
+    }
+
     @Override
     public void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException {
         Set<CharSequence> recipients = new HashSet<>();

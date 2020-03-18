@@ -109,6 +109,14 @@ public interface ASAPStorage {
      */
     void createChannel(CharSequence urlTarget, CharSequence recipient) throws IOException, ASAPException;
 
+    /**
+     * Create open channel
+     * @param urlTarget
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void createChannel(CharSequence urlTarget) throws IOException, ASAPException;
+
     void removeChannel(CharSequence uri) throws IOException;
 
     /**

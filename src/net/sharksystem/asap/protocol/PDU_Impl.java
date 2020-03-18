@@ -47,10 +47,10 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
             case ASAP_1_0.OFFER_CMD: sb.append("O"); break;
             case ASAP_1_0.ASSIMILATE_CMD: sb.append("A"); break;
         }
-        sb.append(" | sender: "); if(peerSet) sb.append(this.peer); else sb.append("X");
+        sb.append(" | sender: "); if(peerSet) sb.append(this.peer); else sb.append("not set");
         sb.append(" | format: "); sb.append(format);
-        sb.append(" | channel: "); if(channelSet) sb.append(this.channel); else sb.append("X");
-        sb.append(" | era: "); if(eraSet) sb.append(era); else sb.append("X");
+        sb.append(" | channel: "); if(channelSet) sb.append(this.channel); else sb.append("not set");
+        sb.append(" | era: "); if(eraSet) sb.append(era); else sb.append("not set");
 
         return sb.toString();
     }
