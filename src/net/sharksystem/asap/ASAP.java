@@ -26,6 +26,7 @@ public class ASAP {
      */
     public static String createUniqueID() {
         long now = System.currentTimeMillis();
+        long nowUnchanged = now;
 
         /* now is a 64 bit value. Actually, only 63 bits are relevant because it is positive value.
         Moreover, we are already in the 21. century - could reduce bit even more. We ignore that obvious fact
@@ -64,7 +65,7 @@ public class ASAP {
         i = timeDigits;
 
         // random digits
-        long rValue = now + rest;
+        long rValue = now + nowUnchanged;
         Random random = new Random(rValue);
         for(int j = 0; j < randomDigits; j++) {
             int r = random.nextInt(basis);
