@@ -52,7 +52,7 @@ import java.util.Set;
  */
 public interface ASAPStorage {
     /**
-     * Get owner name (or id) of this storage
+     * Get owner name (better an id) of this storage
      * @return owner name (or id)
      */
     CharSequence getOwner();
