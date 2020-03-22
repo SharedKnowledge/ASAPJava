@@ -62,7 +62,7 @@ public class ASAP {
         }
 
         // set index
-        //i = timeDigits;
+        i = timeDigits;
 
         // random digits
         long rValue = now + nowUnchanged;
