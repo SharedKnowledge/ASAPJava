@@ -48,10 +48,10 @@ public class ASAP {
          */
 
         char[] idChars = new char[digits];
-        // init
+        // init with random number
         for(int i = 0;  i < digits; i++) idChars[i] = '0';
 
-        // let's fill it
+        // let's fill it with code time stamp
         int i = 0;
         long rest = 0;
         while(now > 0) {
@@ -62,16 +62,20 @@ public class ASAP {
         }
 
         // set index
-        i = timeDigits;
+        //i = timeDigits;
 
         // random digits
         long rValue = now + nowUnchanged;
         Random random = new Random(rValue);
-        for(int j = 0; j < randomDigits; j++) {
+        //char lastC = ' '; // not value space
+        while(i < digits) {
             int r = random.nextInt(basis);
-            idChars[i++] = ASAP.int2charID(r);
-            rValue = (rValue * r) % basis;
-            random.setSeed(rValue);
+            char c = ASAP.int2charID(r);
+            //if(c == lastC) continue;
+            idChars[i++] = c;
+            rValue = (rValue * r * nowUnchanged) % basis;
+            random = new Random(rValue);
+            //random.setSeed(rValue);
         }
 
         return new String(idChars);
