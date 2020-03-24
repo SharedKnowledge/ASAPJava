@@ -5,7 +5,7 @@ public class Log {
         return Log.startLog(o.getClass());
     }
 
-        public static StringBuilder startLog(Class c) {
+    public static StringBuilder startLog(Class c) {
             StringBuilder sb = new StringBuilder();
         sb.append(c.getSimpleName());
         sb.append(": ");
@@ -13,18 +13,18 @@ public class Log {
     }
 
     public static void writeLog(Object o, String message) {
-        System.out.println(Log.startLog(o) +": " + message);
+        System.out.println(Log.startLog(o) + message);
     }
 
     public static void writeLog(Class c, String message) {
-        System.out.println(Log.startLog(c) +": " + message);
+        System.out.println(Log.startLog(c) + message);
     }
 
     public static void writeLogErr(Object o, String message) {
-        System.err.println(Log.startLog(o) +": " + message);
+        System.err.println(Log.startLog(o) + message);
     }
 
     public static void writeLogErr(Class c, String message) {
-        System.err.println(Log.startLog(c) +": " + message);
+        System.err.println(Log.startLog(c) + message);
     }
 }

@@ -12,4 +12,7 @@ public interface ASAPOnlineMessageSender {
 
     void sendASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes, int era)
             throws IOException, ASAPException;
+
+    void sendASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
+            throws IOException, ASAPException;
 }

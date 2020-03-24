@@ -1,5 +1,13 @@
 package net.sharksystem.asap.util;
 
+import net.sharksystem.Utils;
+import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPEngine;
+import net.sharksystem.asap.ASAPEngineFS;
+import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.apps.ASAPMessages;
+
+import java.io.IOException;
 import java.util.*;
 
 public class Helper {
@@ -76,5 +84,29 @@ public class Helper {
         }
 
         return aSet;
+    }
+
+    public static ASAPMessages getMessageByChunkReceivedInfos(String format, String sender, String uri,
+                                  String folderName, int era) {
+        try {
+            String rootIncomingStorage = folderName + "/" + Utils.url2FileName(format);
+            Log.writeLog(Helper.class, "try getting storage in folder " + rootIncomingStorage);
+            ASAPEngine existingASAPEngineFS =
+                    ASAPEngineFS.getExistingASAPEngineFS(rootIncomingStorage);
+            Log.writeLog(Helper.class, "got existing asap engine");
+
+            ASAPChunkStorage chunkStorage = existingASAPEngineFS.getIncomingChunkStorage(sender);
+            Log.writeLog(Helper.class, "got incoming channel of " + sender);
+
+            ASAPMessages asapMessages = chunkStorage.getASAPChunkCache(uri, era, era);
+            Log.writeLog(Helper.class, "got messages uri: " + uri + " / era: " + era);
+
+            return asapMessages;
+        } catch (IOException | ASAPException e) {
+            Log.writeLog(Helper.class, "could not access message after be informed about new chunk arrival"
+                            + e.getLocalizedMessage());
+        }
+
+        return null;
     }
 }

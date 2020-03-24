@@ -487,11 +487,12 @@ public class MultiASAPEngineFS_Impl implements
 
     @Override
     public void activateOnlineMessages() {
-        ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
+//        ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
 
         // iterate engines
         for(ASAPEngine engine : this.getEngines()) {
-            engine.attachASAPMessageAddListener(asapOnlineMessageSender);
+//            engine.attachASAPMessageAddListener(asapOnlineMessageSender);
+            engine.activateOnlineMessages(this);
         }
     }
 
@@ -499,12 +500,24 @@ public class MultiASAPEngineFS_Impl implements
     public void deactivateOnlineMessages() {
         // iterate engines
         for(ASAPEngine engine : this.getEngines()) {
-            engine.detachASAPMessageAddListener();
+            engine.deactivateOnlineMessages();
         }
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-            Set<CharSequence> recipients, byte[] messageAsBytes, int era) throws IOException, ASAPException {
+                                        byte[] messageAsBytes) throws IOException, ASAPException {
+
+        this.sendOnlineASAPAssimilateMessage(format, urlTarget, null, messageAsBytes, ASAP.INITIAL_ERA);
+    }
+
+    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+                                                Set<CharSequence> recipients, byte[] messageAsBytes) throws IOException, ASAPException {
+
+        this.sendOnlineASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, ASAP.INITIAL_ERA);
+    }
+
+    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+                                                Set<CharSequence> recipients, byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
         // setup online message sender thread
         Log.writeLog(this, "setup online message sender object");

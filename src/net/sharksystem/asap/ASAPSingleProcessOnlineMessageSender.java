@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
+import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,6 +24,11 @@ public class ASAPSingleProcessOnlineMessageSender
 
         this.asapOnlineMessageSenderEngineSide.sendASAPAssimilateMessage(
                 format, uri, recipients, messageAsBytes, era);
+    }
+
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes)
+            throws IOException, ASAPException {
+        this.sendASAPAssimilateMessage(format, uri, messageAsBytes, ASAPEngineFS.DEFAULT_INIT_ERA);
     }
 
     @Override

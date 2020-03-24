@@ -42,9 +42,12 @@ class ASAPInMemoMessages implements ASAPMessages {
     }
 
     public String toString() {
-        return "format: " + format + " | uri: " + uri
-                + " | rootDir: " + chunkStorage.getRootDirectory()
-                + " | fromEra: " + fromEra+ " | toEra: " + toEra;
+        return "format: "
+                + format
+                + " | uri: " + uri
+                + " | fromEra: " + fromEra
+                + " | toEra: " + toEra
+                + " | rootDir: " + chunkStorage.getRootDirectory();
     }
 
     public ASAPInMemoMessages(ASAPChunkStorageFS chunkStorage,

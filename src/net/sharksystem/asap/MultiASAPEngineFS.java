@@ -103,6 +103,11 @@ public interface MultiASAPEngineFS {
      * @throws ASAPException
      */
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
-                                   byte[] messageAsBytes, int era) throws IOException, ASAPException;
+                                         byte[] messageAsBytes, int era) throws IOException, ASAPException;
 
+    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
+                                         byte[] messageAsBytes) throws IOException, ASAPException;
+
+    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
+            throws IOException, ASAPException;
 }

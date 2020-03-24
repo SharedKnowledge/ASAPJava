@@ -193,6 +193,8 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
                 System.err.println(sb.toString());
             }
             Log.writeLog(this, "... done sending online message");
+        } else {
+            Log.writeLog(this, "online sending no active");
         }
     }
 
@@ -810,5 +812,22 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             sb.append("content not changed - era not changed");
             System.out.println(sb.toString());
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                            Online management                                           //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void activateOnlineMessages(MultiASAPEngineFS multiEngine) {
+        if(this.asapOnlineMessageSender == null) {
+            Log.writeLog(this, "created new online message sender");
+            this.attachASAPMessageAddListener(new ASAPOnlineMessageSenderEngineSide(multiEngine));
+        } else {
+            Log.writeLog(this, "online message sender was already active");
+        }
+    }
+
+    public void deactivateOnlineMessages() {
+        this.detachASAPMessageAddListener();
     }
 }
