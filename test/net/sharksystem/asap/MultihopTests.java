@@ -99,6 +99,38 @@ public class MultihopTests {
     }
 
     @Test
+    public void connectionWithNoDataExchange() throws IOException, ASAPException, InterruptedException {
+        CmdLineUI ui = new CmdLineUI(System.out);
+
+        ui.doResetASAPStorages();
+
+        // create storages
+        ui.doCreateASAPApp("Alice silent");
+        ui.doCreateASAPApp("Bob silent");
+
+        System.out.println("**************************************************************************");
+        System.out.println("**                       connect Alice with Bob                         **");
+        System.out.println("**************************************************************************");
+        // connect alice with bob
+        ui.doCreateASAPMultiEngine("Alice");
+        ui.doOpen("7070 Alice");
+        // wait a moment to give server socket time to be created
+        Thread.sleep(10);
+        ui.doCreateASAPMultiEngine("Bob");
+
+        ui.doConnect("7070 Bob");
+
+        // wait a moment
+        Thread.sleep(1000);
+        System.out.println("**************************************************************************");
+        System.out.println("**                       going to kill connection                       **");
+        System.out.println("**************************************************************************");
+
+        // kill connections
+        ui.doKill("all");
+    }
+
+    @Test
     public void closedChannelTest() throws IOException, ASAPException, InterruptedException {
         CmdLineUI ui = new CmdLineUI(System.out);
         ui.doResetASAPStorages();
