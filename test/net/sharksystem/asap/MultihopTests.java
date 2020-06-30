@@ -42,11 +42,11 @@ public class MultihopTests {
         System.out.println("**                       connect Alice with Bob                         **");
         System.out.println("**************************************************************************");
         // connect alice with bob
-        ui.doCreateASAPMultiEngine("Alice");
+        ui.doCreateASAPPeer("Alice");
         ui.doOpen("7070 Alice");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
-        ui.doCreateASAPMultiEngine("Bob");
+        ui.doCreateASAPPeer("Bob");
 
         ui.doConnect("7070 Bob");
 
@@ -66,7 +66,7 @@ public class MultihopTests {
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Bob with Clara                         **");
         System.out.println("**************************************************************************");
-        ui.doCreateASAPMultiEngine("Clara");
+        ui.doCreateASAPPeer("Clara");
         ui.doOpen("8080 Clara");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
@@ -88,12 +88,12 @@ public class MultihopTests {
         into a incoming folder as it would have been directly received from Alice.
         Signatures would allow ensuring if origin was really who mediator claims to be.
         */
-        ASAPChunkStorage claraAlice = clara.getIncomingChunkStorage("Alice");
+        ASAPChunkStorage claraAlice = clara.getReceivedChunksStorage("Alice");
 
         // clara era was increased after connection terminated - message from bob is in era before current one
 //        int eraToLook = ASAPEngine.previousEra(clara.getEra());
         ASAPChunk claraABCChat = claraAlice.getChunk("sn2://abc", aliceEraWhenIssuedMessage);
-        CharSequence message = claraABCChat.getMessages().next();
+        CharSequence message = claraABCChat.getMessagesAsCharSequence().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
         Assert.assertTrue(same);
     }
@@ -112,11 +112,11 @@ public class MultihopTests {
         System.out.println("**                       connect Alice with Bob                         **");
         System.out.println("**************************************************************************");
         // connect alice with bob
-        ui.doCreateASAPMultiEngine("Alice");
+        ui.doCreateASAPPeer("Alice");
         ui.doOpen("7070 Alice");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
-        ui.doCreateASAPMultiEngine("Bob");
+        ui.doCreateASAPPeer("Bob");
 
         ui.doConnect("7070 Bob");
 
@@ -164,11 +164,11 @@ public class MultihopTests {
         System.out.println("**                       connect Alice with Bob                         **");
         System.out.println("**************************************************************************");
         // connect alice with bob
-        ui.doCreateASAPMultiEngine("Alice");
+        ui.doCreateASAPPeer("Alice");
         ui.doOpen("7070 Alice");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
-        ui.doCreateASAPMultiEngine("Bob");
+        ui.doCreateASAPPeer("Bob");
         ui.doConnect("7070 Bob");
 
         // alice should be in era 1 (content has changed before connection) and bob era is 0 - no changes
@@ -204,21 +204,21 @@ public class MultihopTests {
         Assert.assertTrue(bobClosedChannel.getOwner().toString().equalsIgnoreCase("Alice"));
 
         // message received?
-        ASAPChunkStorage bobAlice = bobStorage.getIncomingChunkStorage("Alice");
+        ASAPChunkStorage bobAlice = bobStorage.getReceivedChunksStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
         ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
-        CharSequence message = bobABCChat.getMessages().next();
+        CharSequence message = bobABCChat.getMessagesAsCharSequence().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Bob with Clara                         **");
         System.out.println("**************************************************************************");
         // connect alice with bob
-        ui.doCreateASAPMultiEngine("Bob");
+        ui.doCreateASAPPeer("Bob");
         ui.doOpen("7071 Bob");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
-        ui.doCreateASAPMultiEngine("Clara");
+        ui.doCreateASAPPeer("Clara");
         ui.doConnect("7071 Clara");
 
         // alice should be in era 1 (content has changed before connection) and bob era is 0 - no changes
@@ -254,21 +254,21 @@ public class MultihopTests {
         Assert.assertTrue(bobClosedChannel.getOwner().toString().equalsIgnoreCase("Alice"));
 
         // message received?
-        ASAPChunkStorage claraAlice = claraStorage.getIncomingChunkStorage("Alice");
+        ASAPChunkStorage claraAlice = claraStorage.getReceivedChunksStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
         ASAPChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
-        message = claraABCChat.getMessages().next();
+        message = claraABCChat.getMessagesAsCharSequence().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
 
         System.out.println("**************************************************************************");
         System.out.println("**                       connect Clara with David                       **");
         System.out.println("**************************************************************************");
         // connect alice with bob
-        ui.doCreateASAPMultiEngine("Clara");
+        ui.doCreateASAPPeer("Clara");
         ui.doOpen("7072 Clara");
         // wait a moment to give server socket time to be created
         Thread.sleep(10);
-        ui.doCreateASAPMultiEngine("David");
+        ui.doCreateASAPPeer("David");
         ui.doConnect("7072 David");
 
         // wait a moment

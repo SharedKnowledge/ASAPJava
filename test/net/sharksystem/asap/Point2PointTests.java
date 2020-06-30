@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
-import net.sharksystem.asap.util.ASAPEngineThread;
-import net.sharksystem.cmdline.TCPChannel;
+import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
+import net.sharksystem.cmdline.TCPStream;
 import org.junit.Test;
 import org.junit.Assert;
 
-import static net.sharksystem.asap.MultiASAPEngineFS.DEFAULT_MAX_PROCESSING_TIME;
+import static net.sharksystem.asap.ASAPPeer.DEFAULT_MAX_PROCESSING_TIME;
 
 /**
  * Here are some basic tests and usage examples.
@@ -67,10 +67,10 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
+        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(ALICE_ROOT_FOLDER, aliceListener);
 
         ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
+        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(BOB_ROOT_FOLDER, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -78,8 +78,8 @@ public class Point2PointTests {
 
         int portNumber = this.getPortNumber();
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(portNumber, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(portNumber, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(portNumber, true, "a2b");
+        TCPStream bobChannel = new TCPStream(portNumber, false, "b2a");
 
         aliceChannel.start();
         bobChannel.start();
@@ -93,7 +93,7 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // run engine as thread
-        ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
+        ASAPPeerHandleConnectionThread aliceEngineThread = new ASAPPeerHandleConnectionThread(aliceEngine,
                 aliceChannel.getInputStream(), aliceChannel.getOutputStream());
 
         aliceEngineThread.start();
@@ -130,14 +130,14 @@ public class Point2PointTests {
 
         // get messages alice received
         ASAPChunkStorage aliceSenderStored =
-                aliceStorage.getIncomingChunkStorage(aliceListener.getSender());
+                aliceStorage.getReceivedChunksStorage(aliceListener.getSender());
 
         ASAPChunk aliceReceivedChunk =
                 aliceSenderStored.getChunk(aliceListener.getUri(),
                         aliceListener.getEra());
 
         // #1
-        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessages();
+        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
         CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
         // #2
@@ -146,14 +146,14 @@ public class Point2PointTests {
 
         // get message bob received
         ASAPChunkStorage bobSenderStored =
-                bobStorage.getIncomingChunkStorage(bobListener.getSender());
+                bobStorage.getReceivedChunksStorage(bobListener.getSender());
 
         ASAPChunk bobReceivedChunk =
                 bobSenderStored.getChunk(bobListener.getUri(),
                         bobListener.getEra());
 
         // #1
-        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessages();
+        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
         CharSequence bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
         // #2
@@ -204,11 +204,11 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(
                 ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
         ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(
                 BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,8 +217,8 @@ public class Point2PointTests {
 
         int portNumber = this.getPortNumber();
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(portNumber, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(portNumber, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(portNumber, true, "a2b");
+        TCPStream bobChannel = new TCPStream(portNumber, false, "b2a");
 
         aliceChannel.start();
         bobChannel.start();
@@ -232,7 +232,7 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // run engine as thread
-        ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
+        ASAPPeerHandleConnectionThread aliceEngineThread = new ASAPPeerHandleConnectionThread(aliceEngine,
                 aliceChannel.getInputStream(), aliceChannel.getOutputStream());
 
         aliceEngineThread.start();
@@ -269,14 +269,14 @@ public class Point2PointTests {
 
         // get messages alice received
         ASAPChunkStorage aliceSenderStored =
-                aliceStorage.getIncomingChunkStorage(aliceListener.getSender());
+                aliceStorage.getReceivedChunksStorage(aliceListener.getSender());
 
         ASAPChunk aliceReceivedChunk =
                 aliceSenderStored.getChunk(aliceListener.getUri(),
                         aliceListener.getEra());
 
         // #1
-        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessages();
+        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
         CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
         // #2
@@ -285,14 +285,14 @@ public class Point2PointTests {
 
         // get message bob received
         ASAPChunkStorage bobSenderStored =
-                bobStorage.getIncomingChunkStorage(bobListener.getSender());
+                bobStorage.getReceivedChunksStorage(bobListener.getSender());
 
         ASAPChunk bobReceivedChunk =
                 bobSenderStored.getChunk(bobListener.getUri(),
                         bobListener.getEra());
 
         // #1
-        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessages();
+        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
         CharSequence bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
         // #2
@@ -345,11 +345,11 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(
                 ALICE, ALICE_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, aliceListener);
 
         ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(
+        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(
                 BOB, BOB_ROOT_FOLDER, DEFAULT_MAX_PROCESSING_TIME, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,8 +365,8 @@ public class Point2PointTests {
 
         int portNumber = this.getPortNumber();
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(portNumber, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(portNumber, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(portNumber, true, "a2b");
+        TCPStream bobChannel = new TCPStream(portNumber, false, "b2a");
 
         aliceChannel.start();
         bobChannel.start();
@@ -380,7 +380,7 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // run engine as thread
-        ASAPEngineThread aliceEngineThread = new ASAPEngineThread(aliceEngine,
+        ASAPPeerHandleConnectionThread aliceEngineThread = new ASAPPeerHandleConnectionThread(aliceEngine,
                 aliceChannel.getInputStream(), aliceChannel.getOutputStream());
 
         aliceEngineThread.start();
@@ -422,32 +422,32 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // get messages alice received
-        ASAPChunkStorage aliceIncomingBobStorage = aliceStorage.getIncomingChunkStorage(BOB);
+        ASAPChunkStorage aliceIncomingBobStorage = aliceStorage.getReceivedChunksStorage(BOB);
         ASAPChunk aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, bobInitialEra);
 
         // must be one message
-        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessages();
+        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
         CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
 
         // #2 is in another era
         aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, ASAP.nextEra(bobInitialEra));
-        aliceReceivedMessages = aliceReceivedChunk.getMessages();
+        aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
         aliceReceivedMessage = aliceReceivedMessages.next();
         Assert.assertEquals(BOB2ALICE_MESSAGE2, aliceReceivedMessage);
 
         // get message bob received
-        ASAPChunkStorage bobIncomingAliceStorage = bobStorage.getIncomingChunkStorage(ALICE);
+        ASAPChunkStorage bobIncomingAliceStorage = bobStorage.getReceivedChunksStorage(ALICE);
         ASAPChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
 
         // #1
-        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessages();
+        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
         CharSequence bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
 
         // #2 - in next era
         bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, ASAP.nextEra(aliceInitialEra));
-        bobReceivedMessages = bobReceivedChunk.getMessages();
+        bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
         bobReceivedMessage = bobReceivedMessages.next();
         Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
 
@@ -484,10 +484,10 @@ public class Point2PointTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS aliceEngine = MultiASAPEngineFS_Impl.createMultiEngine(ALICE_ROOT_FOLDER, aliceListener);
+        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(ALICE_ROOT_FOLDER, aliceListener);
 
         ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
-        MultiASAPEngineFS bobEngine = MultiASAPEngineFS_Impl.createMultiEngine(BOB_ROOT_FOLDER, bobListener);
+        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(BOB_ROOT_FOLDER, bobListener);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -495,8 +495,8 @@ public class Point2PointTests {
 
         int portNumber = this.getPortNumber();
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(portNumber, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(portNumber, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(portNumber, true, "a2b");
+        TCPStream bobChannel = new TCPStream(portNumber, false, "b2a");
 
         aliceChannel.start();
         bobChannel.start();

@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 
 import java.io.IOException;
@@ -76,7 +75,7 @@ public interface ASAPStorage {
     void createChannel(CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
-     * Create channel with a maybe different and than local peer - take care!
+     * Create channel (owner can differ from local peer owing this asap engine)
      * @param owner
      * @param uri
      * @param recipients
@@ -144,10 +143,11 @@ public interface ASAPStorage {
      * @throws IOException
      * @return
      */
-    public Set<CharSequence> getRecipients(CharSequence urlTarget) throws IOException;
+    Set<CharSequence> getRecipients(CharSequence urlTarget) throws IOException;
 
     void addRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
-    public void removeRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
+    void removeRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
+
     /**
      * Put some extra information on that channel
      * @param uri describing the channel
@@ -155,7 +155,7 @@ public interface ASAPStorage {
      * @param value
      * @throws IOException
      */
-    public void putExtra(CharSequence uri, String key, String value) throws IOException;
+    void putExtra(CharSequence uri, String key, String value) throws IOException;
 
     /**
      * Remove a string from extra information set
@@ -164,7 +164,7 @@ public interface ASAPStorage {
      * @return
      * @throws IOException
      */
-    public CharSequence removeExtra(CharSequence uri, String key) throws IOException;
+    CharSequence removeExtra(CharSequence uri, String key) throws IOException;
 
     /**
      * Get a string from extra information set without removing
@@ -173,7 +173,7 @@ public interface ASAPStorage {
      * @return
      * @throws IOException
      */
-    public CharSequence getExtra(CharSequence uri, String key) throws IOException;
+    CharSequence getExtra(CharSequence uri, String key) throws IOException;
 
     /**
      *
@@ -184,13 +184,13 @@ public interface ASAPStorage {
     
     /**
      * Add a message to that chunk.
-     * @param urlTarget chunk address
+     * @param uri message topic
      * @param message Message to be kept for later transmission
      * @throws IOException 
      */
-    void add(CharSequence urlTarget, CharSequence message) throws IOException;
+    void add(CharSequence uri, CharSequence message) throws IOException;
 
-    void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException;
+    void add(CharSequence uri, byte[] messageAsBytes) throws IOException;
 
     void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
 
@@ -246,7 +246,7 @@ public interface ASAPStorage {
      * @param sender
      * @return 
      */
-    ASAPChunkStorage getIncomingChunkStorage(CharSequence sender);
+    ASAPChunkStorage getReceivedChunksStorage(CharSequence sender);
 
     ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException;
 

@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * That interface hides those different engines.
  */
-public interface MultiASAPEngineFS {
+public interface ASAPPeer {
     long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
     /**
@@ -32,7 +32,7 @@ public interface MultiASAPEngineFS {
     ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
     /**
-     * create an engine for a given format / application name
+     * return already existing or create an engine for a given format / application name
      * @param format
      * @return
      * @throws ASAPException

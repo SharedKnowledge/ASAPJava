@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.*;
 
 public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
-    private final MultiASAPEngineFS multiASAPEngine;
+    private final ASAPPeer multiASAPEngine;
 
-    public ASAPManagementMessageHandler(MultiASAPEngineFS multiASAPEngine) throws IOException, ASAPException {
+    public ASAPManagementMessageHandler(ASAPPeer multiASAPEngine) throws IOException, ASAPException {
         this.multiASAPEngine = multiASAPEngine;
     }
 
@@ -42,9 +42,9 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
-            ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getIncomingChunkStorage(sender);
+            ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getReceivedChunksStorage(sender);
             ASAPChunk chunk = incomingChunkStorage.getChunk(uri, era);
-            Iterator<byte[]> messageIter = chunk.getMessagesAsBytes();
+            Iterator<byte[]> messageIter = chunk.getMessages();
             System.out.println(this.getLogStart() + "iterate management messages");
             while(messageIter.hasNext()) {
                 byte[] message = messageIter.next();
@@ -67,7 +67,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
             }
             System.out.println(this.getLogStart() + "done iterating management messages");
             // remove incoming messages - handled
-            asapManagementEngine.getIncomingChunkStorage(sender).dropChunks(era);
+            asapManagementEngine.getReceivedChunksStorage(sender).dropChunks(era);
             System.out.println(this.getLogStart() + "incoming asap management messages dropped");
         } catch (ASAPException | IOException e) {
             System.out.println("could get asap management engine but received chunk - looks like a bug");

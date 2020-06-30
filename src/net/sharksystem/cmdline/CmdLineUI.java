@@ -1,7 +1,6 @@
 package net.sharksystem.cmdline;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.protocol.ASAP_1_0;
 
 import java.io.*;
 import java.util.*;
@@ -17,7 +16,7 @@ public class CmdLineUI {
     public static final String LIST = "list";
     public static final String KILL = "kill";
     public static final String SETWAITING = "setwaiting";
-    public static final String CREATE_ASAP_ENGINE = "newengine";
+    public static final String CREATE_ASAP_PEER = "newpeer";
     public static final String CREATE_ASAP_APP = "newapp";
     public static final String CREATE_ASAP_CHANNEL = "newchannel";
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
@@ -30,14 +29,10 @@ public class CmdLineUI {
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
 
-    public static final String TESTS_ROOT_FOLDER = "tests";
-    private Map<String, MultiASAPEngineFS> engines = new HashMap();
-    private String getStorageKey(String owner, String appName) {
-        return owner + ":" + appName;
-    }
-    private Map<String, ASAPStorage> storages = new HashMap();
+    public static final String PEERS_ROOT_FOLDER = "asapPeers";
+    private Map<String, ASAPPeer> peers = new HashMap();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ASAPException {
         PrintStream os = System.out;
 
         os.println("Welcome SN2 version 0.1");
@@ -47,14 +42,25 @@ public class CmdLineUI {
         userCmd.runCommandLoop();
     }
 
-    public CmdLineUI(PrintStream os, InputStream is) {
-        this.consoleOutput = os;
-        this.userInput = new BufferedReader(new InputStreamReader(is));
+    public CmdLineUI(PrintStream out) throws IOException, ASAPException {
+        this(out, null);
     }
 
-    public CmdLineUI(PrintStream out) {
-        this.consoleOutput = out;
-        this.userInput = null;
+    public CmdLineUI(PrintStream os, InputStream is) throws IOException, ASAPException {
+        this.consoleOutput = os;
+        this.userInput = is != null ? new BufferedReader(new InputStreamReader(is)) : null;
+
+        // set up peers
+        File rootFolder = new File(PEERS_ROOT_FOLDER);
+        if(rootFolder.exists()) {
+            // each root folder is a peer - per definition in this very application
+            String[] peerNames = rootFolder.list();
+
+            // set up peers
+            for(String peerName : peerNames) {
+                this.createPeer(peerName);
+            }
+        }
     }
 
     public void printUsage() {
@@ -79,26 +85,26 @@ public class CmdLineUI {
         b.append(SETWAITING);
         b.append(".. set waiting period");
         b.append("\n");
-        b.append(CREATE_ASAP_ENGINE);
-        b.append(".. create new asap engine");
+        b.append(CREATE_ASAP_PEER);
+        b.append(".. create new asap peer");
         b.append("\n");
         b.append(CREATE_ASAP_APP);
-        b.append(".. create new asap app (==storage)");
+        b.append(".. create new asap app (==engine)");
         b.append("\n");
         b.append(CREATE_ASAP_CHANNEL);
         b.append(".. create new closed asap channel");
         b.append("\n");
         b.append(CREATE_ASAP_MESSAGE);
-        b.append(".. add message to storage");
+        b.append(".. add message to engine");
         b.append("\n");
         b.append(RESET_ASAP_STORAGES);
-        b.append(".. removes all asap storages");
+        b.append(".. removes all asap engines");
         b.append("\n");
         b.append(SET_SEND_RECEIVED_MESSAGES);
         b.append(".. set whether received message are to be sent");
         b.append("\n");
         b.append(PRINT_ALL_INFORMATION);
-        b.append(".. print general information of all storages of a user");
+        b.append(".. print general information of peers");
         b.append("\n");
         b.append(PRINT_STORAGE_INFORMATION);
         b.append(".. print general information about a storage");
@@ -120,11 +126,12 @@ public class CmdLineUI {
         out.println("use:");
         switch(cmdString) {
             case CONNECT:
-                out.println(CONNECT + " [IP/DNS-Name_remoteHost] remotePort engineName");
+                out.println(CONNECT + " [IP/DNS-Name_remoteHost] remotePort localEngineName");
                 out.println("omitting remote host: localhost is assumed");
                 out.println("example: " + CONNECT + " localhost 7070 Bob");
                 out.println("example: " + CONNECT + " 7070 Bob");
-                out.println("in both cases try to connect to localhost:7070 and let engine Bob handle connection when established");
+                out.println("in both cases try to connect to localhost:7070 and let engine Bob handle " +
+                        "connection when established");
                 break;
             case OPEN:
                 out.println(OPEN + " localPort engineName");
@@ -139,28 +146,29 @@ public class CmdLineUI {
                 out.println("example: " + KILL + " localhost:7070");
                 out.println("kills channel named localhost:7070");
                 out.println("channel names are produced by using list");
-                out.println(KILL + "all .. kills all open connections");
+                out.println(KILL + " all .. kills all open connections");
                 break;
             case SETWAITING:
                 out.println(SETWAITING + " number of millis to wait between two connection attempts");
                 out.println("example: " + KILL + " 1000");
                 out.println("set waiting period to one second");
                 break;
-            case CREATE_ASAP_ENGINE:
-                out.println(CREATE_ASAP_ENGINE + " name");
-                out.println("example: " + CREATE_ASAP_ENGINE + " Alice");
-                out.println("create engine called Alice - data kept under a folder called tests/Alice");
+            case CREATE_ASAP_PEER:
+                out.println(CREATE_ASAP_PEER + " name");
+                out.println("example: " + CREATE_ASAP_PEER + " Alice");
+                out.println("create peer called Alice - data kept under a folder called "
+                        + PEERS_ROOT_FOLDER + "/Alice");
                 break;
             case CREATE_ASAP_APP:
-                out.println(CREATE_ASAP_APP + " owner appName");
+                out.println(CREATE_ASAP_APP + " peername appName");
                 out.println("example: " + CREATE_ASAP_APP + " Alice chat");
                 break;
             case CREATE_ASAP_CHANNEL:
-                out.println(CREATE_ASAP_CHANNEL + " owner appName uri (recipient)+");
+                out.println(CREATE_ASAP_CHANNEL + " peername appName uri (recipient)+");
                 out.println("example: " + CREATE_ASAP_CHANNEL + " Alice chat sn2://abChat Bob Clara");
                 break;
             case CREATE_ASAP_MESSAGE:
-                out.println(CREATE_ASAP_MESSAGE + " owner appName uri message");
+                out.println(CREATE_ASAP_MESSAGE + " peername appName uri message");
                 out.println("example: " + CREATE_ASAP_MESSAGE + " Alice chat sn2://abChat HiBob");
                 out.println("note: message can only be ONE string. That would not work:");
                 out.println("does not work: " + CREATE_ASAP_MESSAGE + " Alice chat sn2://abChat Hi Bob");
@@ -176,16 +184,15 @@ public class CmdLineUI {
                 out.println("example: " + SET_SEND_RECEIVED_MESSAGES + " Alice:chat on");
                 break;
             case PRINT_CHANNEL_INFORMATION:
-                out.println(PRINT_CHANNEL_INFORMATION + " user appName uri");
+                out.println(PRINT_CHANNEL_INFORMATION + " peername appName uri");
                 out.println("example: " + PRINT_CHANNEL_INFORMATION + " Alice chat sn2://abChat");
                 break;
             case PRINT_STORAGE_INFORMATION:
-                out.println(PRINT_STORAGE_INFORMATION + " user appName");
+                out.println(PRINT_STORAGE_INFORMATION + " peername appName");
                 out.println("example: " + PRINT_STORAGE_INFORMATION + " Alice chat");
                 break;
             case PRINT_ALL_INFORMATION:
-                out.println(PRINT_ALL_INFORMATION + "user");
-                out.println("example: " + PRINT_ALL_INFORMATION + " Alice ");
+                out.println(PRINT_ALL_INFORMATION);
                 break;
             default:
                 out.println("unknown command: " + cmdString);
@@ -193,7 +200,6 @@ public class CmdLineUI {
     }
 
     public void runCommandLoop() {
-
         boolean again = true;
         while(again) {
 
@@ -230,8 +236,8 @@ public class CmdLineUI {
                         this.doKill(parameterString); break;
                     case SETWAITING:
                         this.doSetWaiting(parameterString); break;
-                    case CREATE_ASAP_ENGINE:
-                        this.doCreateASAPMultiEngine(parameterString); break;
+                    case CREATE_ASAP_PEER:
+                        this.doCreateASAPPeer(parameterString); break;
                     case CREATE_ASAP_APP: // same
                         this.doCreateASAPApp(parameterString); break;
                     case CREATE_ASAP_CHANNEL:
@@ -247,7 +253,7 @@ public class CmdLineUI {
                     case PRINT_STORAGE_INFORMATION:
                         this.doPrintStorageInformation(parameterString); break;
                     case PRINT_ALL_INFORMATION:
-                        this.doPrintAllInformation(parameterString); break;
+                        this.doPrintAllInformation(); break;
                     case "q": // convenience
                     case EXIT:
                         this.doKill("all");
@@ -265,29 +271,79 @@ public class CmdLineUI {
         }
     }
 
-    private Map<String, TCPChannel> channels = new HashMap<>();
+    private Map<String, TCPStream> streams = new HashMap<>();
     private long waitPeriod = 1000*30; // 30 seconds
 
     private void setWaitPeriod(long period) {
         this.waitPeriod = period;
     }
 
-    private MultiASAPEngineFS getMultiEngine(String engineName) throws ASAPException {
-        MultiASAPEngineFS multiASAPEngineFS = this.engines.get(engineName);
-        if(multiASAPEngineFS == null) {
-            throw new ASAPException("engine does not exist: " + engineName);
-        }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                         ASAP API usage                                             //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        return multiASAPEngineFS;
+    private void createPeer(String name) throws IOException, ASAPException {
+        ExampleASAPChunkReceivedListener asapChunkReceivedListener =
+                new ExampleASAPChunkReceivedListener(PEERS_ROOT_FOLDER + "/" + name);
+
+        ASAPPeer asapPeer = ASAPPeerFS.createASAPPeer(name, // peer name
+                PEERS_ROOT_FOLDER + "/" + name, // peer folder
+                asapChunkReceivedListener);
+
+        this.peers.put(name, asapPeer);
     }
 
-    private void startChannel(String name, TCPChannel channel, String engineName) throws ASAPException {
-        channel.setWaitPeriod(this.waitPeriod);
-        MultiASAPEngineFS multiASAPEngineFS = this.getMultiEngine(engineName);
+    private ASAPStorage getStorage(String peername, String appName) throws ASAPException, IOException {
+        ASAPPeer asapPeer = this.peers.get(peername);
+        if(asapPeer == null) {
+            throw new ASAPException("peer does not exist: " + peername);
+        }
 
-        channel.setListener(new TCPChannelCreatedHandler(multiASAPEngineFS));
-        channel.start();
-        this.channels.put(name, channel);
+        return asapPeer.getEngineByFormat(appName);
+    }
+
+    private ASAPPeer getASAPPeer(String peerName) throws ASAPException {
+        ASAPPeer asapPeer = this.peers.get(peerName);
+        if(asapPeer == null) {
+            throw new ASAPException("engine does not exist: " + peerName);
+        }
+
+        return asapPeer;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                               attach layer 2 (ad-hoc) protocol to ASAP                                 //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void startTCPStream(String name, TCPStream stream, String peerName) throws ASAPException {
+        stream.setWaitPeriod(this.waitPeriod);
+        ASAPPeer asapPeer = this.getASAPPeer(peerName);
+
+        stream.setListener(new TCPStreamCreatedHandler(asapPeer));
+        stream.start();
+        this.streams.put(name, stream);
+    }
+
+    private class TCPStreamCreatedHandler implements TCPStreamCreatedListener {
+        private final ASAPPeer asapPeer;
+
+        public TCPStreamCreatedHandler(ASAPPeer asapPeer) {
+            this.asapPeer = asapPeer;
+        }
+
+        @Override
+        public void streamCreated(TCPStream channel) {
+            CmdLineUI.this.consoleOutput.println("Channel created");
+
+            try {
+                this.asapPeer.handleConnection(
+                        channel.getInputStream(),
+                        channel.getOutputStream());
+            } catch (IOException | ASAPException e) {
+                CmdLineUI.this.consoleOutput.println("call of engine.handleConnection failed: "
+                        + e.getLocalizedMessage());
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,7 +369,7 @@ public class CmdLineUI {
 
             String name =  remoteHost + ":" + remotePortString;
 
-            this.startChannel(name,  new TCPChannel(remotePort, false, name), engineName);
+            this.startTCPStream(name,  new TCPStream(remotePort, false, name), engineName);
         }
         catch(RuntimeException re) {
             this.printUsage(CONNECT, re.getLocalizedMessage());
@@ -332,7 +388,7 @@ public class CmdLineUI {
             int port = Integer.parseInt(portString);
             String name =  "server:" + port;
 
-            this.startChannel(name,  new TCPChannel(port, true, name), engineName);
+            this.startTCPStream(name,  new TCPStream(port, true, name), engineName);
         }
         catch(RuntimeException re) {
             this.printUsage(OPEN, re.getLocalizedMessage());
@@ -342,18 +398,12 @@ public class CmdLineUI {
     }
 
     public void doList() {
-        System.out.println("connections:");
-        for(String connectionName : this.channels.keySet()) {
-            System.out.println(connectionName);
+        this.consoleOutput.println("connections:");
+        for(String connectionName : this.streams.keySet()) {
+            this.consoleOutput.println(connectionName);
         }
-        System.out.println("storages:");
-        for(String storageName : this.storages.keySet()) {
-            System.out.println(storageName);
-        }
-        System.out.println("engines:");
-        for(String engineName : this.engines.keySet()) {
-            System.out.println(engineName);
-        }
+
+        this.doPrintAllInformation();
     }
 
     public void doKill(String parameterString) {
@@ -363,14 +413,14 @@ public class CmdLineUI {
             String channelName = st.nextToken();
             if(channelName.equalsIgnoreCase("all")) {
                 System.out.println("kill all open channels..");
-                for(TCPChannel channel : this.channels.values()) {
+                for(TCPStream channel : this.streams.values()) {
                     channel.kill();
                 }
-                this.channels = new HashMap<>();
+                this.streams = new HashMap<>();
                 System.out.println(".. done");
             } else {
 
-                TCPChannel channel = this.channels.remove(channelName);
+                TCPStream channel = this.streams.remove(channelName);
                 if (channel == null) {
                     System.err.println("channel does not exist: " + channelName);
                     return;
@@ -399,21 +449,17 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPMultiEngine(String parameterString) {
+    public void doCreateASAPPeer(String parameterString) {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String engineName = st.nextToken();
-            this.engines.put(
-                    engineName,
-                    MultiASAPEngineFS_Impl.createMultiEngine(engineName,
-                            TESTS_ROOT_FOLDER + "/" + engineName,
-                            this.waitPeriod, null));
+            String peerName = st.nextToken();
+            this.createPeer(peerName);
         }
         catch(RuntimeException e) {
-            this.printUsage(CREATE_ASAP_ENGINE, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_PEER, e.getLocalizedMessage());
         } catch (IOException | ASAPException e) {
-            this.printUsage(CREATE_ASAP_ENGINE, e.getLocalizedMessage());
+            this.printUsage(CREATE_ASAP_PEER, e.getLocalizedMessage());
         }
     }
 
@@ -421,19 +467,19 @@ public class CmdLineUI {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String owner = st.nextToken();
+            String peer = st.nextToken();
             String appName = st.nextToken();
 
-            String appFolderName = TESTS_ROOT_FOLDER + "/" + owner + "/" + appName;
-
-            ASAPStorage storage = ASAPEngineFS.getASAPStorage(owner, appFolderName, appName);
-            if(!storage.isASAPManagementStorageSet()) {
-                storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(owner,
-                        TESTS_ROOT_FOLDER + "/" + owner + "/ASAPManagement",
-                        ASAP_1_0.ASAP_MANAGEMENT_FORMAT));
+            ASAPPeer asapPeer = this.peers.get(peer);
+            if(asapPeer != null) {
+                ASAPStorage storage = asapPeer.createEngineByFormat(appName);
+                /*
+                if(!storage.isASAPManagementStorageSet()) {
+                    storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(peer,
+                            PEERS_ROOT_FOLDER + "/" + peer + "/ASAPManagement",
+                            ASAP_1_0.ASAP_MANAGEMENT_FORMAT));
+                }*/
             }
-
-            this.storages.put(this.getStorageKey(owner, appName), storage);
         }
         catch(RuntimeException e) {
             this.printUsage(CREATE_ASAP_APP, e.getLocalizedMessage());
@@ -446,11 +492,11 @@ public class CmdLineUI {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String owner = st.nextToken();
+            String peername = st.nextToken();
             String appName = st.nextToken();
             String uri = st.nextToken();
 
-            ASAPStorage storage = this.storages.get(this.getStorageKey(owner, appName));
+            ASAPStorage storage = this.getStorage(peername, appName);
 
             Set<CharSequence> recipients = new HashSet<>();
 
@@ -462,10 +508,10 @@ public class CmdLineUI {
                 recipients.add(st.nextToken());
             }
 
-            // finally add owner
-            recipients.add(owner);
+            // finally add peername
+            recipients.add(peername);
 
-            storage.createChannel(owner, uri, recipients);
+            storage.createChannel(peername, uri, recipients);
         }
         catch(RuntimeException e) {
             this.printUsage(CREATE_ASAP_CHANNEL, e.getLocalizedMessage());
@@ -478,28 +524,28 @@ public class CmdLineUI {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String owner = st.nextToken();
+            String peername = st.nextToken();
             String appName = st.nextToken();
             String uri = st.nextToken();
             String message = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.storages.get(this.getStorageKey(owner, appName));
+            ASAPStorage asapStorage = this.getStorage(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + this.getStorageKey(owner, appName));
+                System.err.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
             asapStorage.add(uri, message);
         }
         catch(RuntimeException e) {
             this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
-        } catch (IOException e) {
+        } catch (IOException | ASAPException e) {
             this.printUsage(CREATE_ASAP_MESSAGE, e.getLocalizedMessage());
         }
     }
 
     public void doResetASAPStorages() {
-        ASAPEngineFS.removeFolder("tests");
+        ASAPEngineFS.removeFolder(PEERS_ROOT_FOLDER);
     }
 
     public void doSetSendReceivedMessage(String parameterString) {
@@ -519,21 +565,22 @@ public class CmdLineUI {
         }
     }
 
-    public void doPrintAllInformation(String parameterString) {
-        StringTokenizer st = new StringTokenizer(parameterString);
-
+    public void doPrintAllInformation() {
         try {
-            String owner = st.nextToken();
+            this.consoleOutput.println(this.peers.keySet().size() + " peers in folder: " + PEERS_ROOT_FOLDER);
+            for(String peername : this.peers.keySet()) {
+                this.consoleOutput.println("+++++++++++++++++++");
+                this.consoleOutput.println("Peer: " + peername);
+                ASAPPeer asapPeer = this.peers.get(peername);
 
-            MultiASAPEngineFS multiEngine =
-                    MultiASAPEngineFS_Impl.createMultiEngine(TESTS_ROOT_FOLDER + "/" + owner, null);
-
-            for(CharSequence format : multiEngine.getFormats()) {
-                ASAPEngine asapStorage = multiEngine.getEngineByFormat(format);
-                System.out.println("storage: " + format);
-                for (CharSequence uri : asapStorage.getChannelURIs()) {
-                    this.printChannelInfo(asapStorage, uri, format);
+                for (CharSequence format : asapPeer.getFormats()) {
+                    ASAPEngine asapStorage = asapPeer.getEngineByFormat(format);
+                    System.out.println("storage: " + format);
+                    for (CharSequence uri : asapStorage.getChannelURIs()) {
+                        this.printChannelInfo(asapStorage, uri, format);
+                    }
                 }
+                this.consoleOutput.println("+++++++++++++++++++\n");
             }
         }
         catch(RuntimeException | IOException | ASAPException e) {
@@ -545,22 +592,25 @@ public class CmdLineUI {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String owner = st.nextToken();
+            String peername = st.nextToken();
             String appName = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.storages.get(this.getStorageKey(owner, appName));
+            ASAPStorage asapStorage = this.getStorage(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + this.getStorageKey(owner, appName));
+                System.err.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
 
             // iterate URI
+            this.consoleOutput.println(asapStorage.getChannelURIs().size() +
+                    " channels in storage " + appName +
+                    " (note: channels without messages are considered non-existent)");
             for(CharSequence uri : asapStorage.getChannelURIs()) {
                 this.doPrintChannelInformation(parameterString + " " + uri);
             }
         }
-        catch(RuntimeException | IOException e) {
+        catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(PRINT_STORAGE_INFORMATION, e.getLocalizedMessage());
         }
     }
@@ -570,14 +620,14 @@ public class CmdLineUI {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
-            String owner = st.nextToken();
+            String peername = st.nextToken();
             String appName = st.nextToken();
             String uri = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.storages.get(this.getStorageKey(owner, appName));
+            ASAPStorage asapStorage = this.getStorage(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + this.getStorageKey(owner, appName));
+                System.err.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
 
@@ -591,16 +641,17 @@ public class CmdLineUI {
 
     private void printChannelInfo(ASAPStorage asapStorage, CharSequence uri, CharSequence appName)
             throws IOException, ASAPException {
+
         ASAPChannel channel = asapStorage.getChannel(uri);
         Set<CharSequence> recipients = channel.getRecipients();
 
-        System.out.println("Owner:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
-        System.out.println("#Messages == " + channel.getMessages().size());
-        System.out.println("#Recipients == " + recipients.size());
+        this.consoleOutput.println("Peer:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
+        this.consoleOutput.println("#Messages == " + channel.getMessages().size());
+        this.consoleOutput.println("#Recipients == " + recipients.size() +
+                " (0 means: open channel - no restrictions - anybody receives from this channel)");
         for(CharSequence recipient : recipients) {
-            System.out.println(recipient);
+            this.consoleOutput.println(recipient);
         }
-
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,8 +665,11 @@ public class CmdLineUI {
         return storageName.substring(i);
     }
 
-    private ASAPStorage getStorage(String storageName) throws ASAPException {
-        ASAPStorage asapStorage = this.storages.get(storageName);
+    private ASAPStorage getStorage(String storageName) throws ASAPException, IOException {
+        // split name into peer and storage
+        String[] split = storageName.split(":");
+
+        ASAPStorage asapStorage = this.getStorage(split[0], split[1]);
         if(asapStorage == null) throw new ASAPException("no storage with name: " + storageName);
 
         return asapStorage;
@@ -629,8 +683,7 @@ public class CmdLineUI {
 
     }
 
-    public String getEngineRootFolderByStorageName(String storageName) throws ASAPException {
-
+    public String getEngineRootFolderByStorageName(String storageName) throws ASAPException, IOException {
         ASAPEngineFS asapEngineFS = (ASAPEngineFS) this.getStorage(storageName);
         return asapEngineFS.getRootFolder();
     }

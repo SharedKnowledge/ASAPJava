@@ -1,8 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.apps.*;
-import net.sharksystem.asap.util.ASAPEngineThread;
-import net.sharksystem.cmdline.TCPChannel;
+import net.sharksystem.cmdline.TCPStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,8 +46,8 @@ public class ASAPJavaApplicationTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(PORT, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(PORT, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(PORT, true, "a2b");
+        TCPStream bobChannel = new TCPStream(PORT, false, "b2a");
 
         aliceChannel.start(); bobChannel.start();
         // wait to connect
@@ -105,8 +104,8 @@ public class ASAPJavaApplicationTests {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         // create connections for both sides
-        TCPChannel aliceChannel = new TCPChannel(PORT, true, "a2b");
-        TCPChannel bobChannel = new TCPChannel(PORT, false, "b2a");
+        TCPStream aliceChannel = new TCPStream(PORT, true, "a2b");
+        TCPStream bobChannel = new TCPStream(PORT, false, "b2a");
 
         aliceChannel.start(); bobChannel.start();
         // wait to connect

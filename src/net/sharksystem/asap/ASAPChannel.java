@@ -1,7 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.apps.ASAPMessages;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;

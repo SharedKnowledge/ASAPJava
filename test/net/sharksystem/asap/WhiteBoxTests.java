@@ -37,7 +37,7 @@ public class WhiteBoxTests {
         messageBytes = secondMessage.getBytes();
         storage.add(uri, messageBytes);
 
-        Iterator<byte[]> byteArrayIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessagesAsBytes();
+        Iterator<byte[]> byteArrayIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessages();
         messageBytes = byteArrayIter.next();
         String message = new String(messageBytes);
         Assert.assertTrue(message.equals(firstMessage));
@@ -61,7 +61,7 @@ public class WhiteBoxTests {
         storage.add(uri, firstMessage);
         storage.add(uri, secondMessage);
 
-        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessages();
+        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessagesAsCharSequence();
         String message = messageIter.next().toString();
         Assert.assertTrue(message.equals(firstMessage));
 
@@ -85,7 +85,7 @@ public class WhiteBoxTests {
 
         Assert.assertEquals(storage.getChannelURIs().get(0), uri);
 
-        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessages();
+        Iterator<CharSequence> messageIter = storage.getChunkStorage().getChunk(uri, storage.getEra()).getMessagesAsCharSequence();
         String message = messageIter.next().toString();
         Assert.assertTrue(message.equals(firstMessage));
     }

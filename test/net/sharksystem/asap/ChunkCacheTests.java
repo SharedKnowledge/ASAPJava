@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.apps.ASAPMessages;
 import org.junit.Assert;
 import org.junit.Test;
 

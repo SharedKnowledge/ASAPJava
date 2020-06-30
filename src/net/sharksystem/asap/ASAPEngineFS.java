@@ -173,12 +173,12 @@ public class ASAPEngineFS extends ASAPEngine {
     }
 
     @Override
-    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException {
+    public void add(CharSequence uri, byte[] messageAsBytes) throws IOException {
         // always re-read metainformation
         this.restoreFromMemento();
         
         // do the real work
-        super.add(urlTarget, messageAsBytes);
+        super.add(uri, messageAsBytes);
     }
 
     /*
@@ -196,7 +196,7 @@ public class ASAPEngineFS extends ASAPEngine {
     private HashMap<CharSequence, ASAPChunkStorage> storageList = new HashMap<>();
 
     @Override
-    public ASAPChunkStorage getIncomingChunkStorage(CharSequence sender) {
+    public ASAPChunkStorage getReceivedChunksStorage(CharSequence sender) {
         String dir = this.rootDirectory + "/" + sender;
         return new ASAPChunkStorageFS(dir, this.format);
     }
@@ -263,5 +263,10 @@ public class ASAPEngineFS extends ASAPEngine {
         }
 
         dir.delete();
+        try {
+            Thread.sleep(1); // give file system a moment
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

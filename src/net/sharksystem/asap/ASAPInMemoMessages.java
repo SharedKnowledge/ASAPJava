@@ -1,7 +1,6 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.Utils;
-import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
@@ -194,7 +193,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         // simple approach in that first implementation ... we keep fitting chunk in memory
         /////////////////////////////////////////////////////////////////
 
-        Iterator<CharSequence> messages = fittingChunk.getMessages();
+        Iterator<CharSequence> messages = fittingChunk.getMessagesAsCharSequence();
 
         // chunk bigger than max cache size?
         int chunkSize = fittingChunk.getNumberMessage();
@@ -331,7 +330,7 @@ class ASAPInMemoMessages implements ASAPMessages {
 
         @Override
         Iterator<CharSequence> getMessageIterator(ASAPChunk chunk) throws IOException {
-            return chunk.getMessages();
+            return chunk.getMessagesAsCharSequence();
         }
     }
 
@@ -345,7 +344,7 @@ class ASAPInMemoMessages implements ASAPMessages {
 
         @Override
         Iterator<byte[]> getMessageIterator(ASAPChunk chunk) throws IOException {
-            return chunk.getMessagesAsBytes();
+            return chunk.getMessages();
         }
     }
 }

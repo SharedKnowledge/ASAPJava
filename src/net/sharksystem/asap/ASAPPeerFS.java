@@ -1,9 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.management.ASAPManagementCreateASAPStorageMessage;
-import net.sharksystem.asap.management.ASAPManagementMessage;
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
-import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
@@ -14,8 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-public class MultiASAPEngineFS_Impl implements
-        MultiASAPEngineFS, ASAPConnectionListener, ThreadFinishedListener/*, ASAPChunkReceivedListener */ {
+public class ASAPPeerFS implements
+        ASAPPeer, ASAPConnectionListener, ThreadFinishedListener/*, ASAPChunkReceivedListener */ {
 
     private static final String DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER = "ASAPManagement";
     private final CharSequence rootFolderName;
@@ -24,24 +21,38 @@ public class MultiASAPEngineFS_Impl implements
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
 
-    public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder,
-                                                      long maxExecutionTime,
-                                                      Collection<CharSequence> supportFormats,
-                                                      ASAPChunkReceivedListener listener)
-                            throws ASAPException, IOException {
-
-        return new MultiASAPEngineFS_Impl(owner, rootFolder, maxExecutionTime, supportFormats, listener);
-    }
-
-    public static MultiASAPEngineFS createMultiEngine(CharSequence owner, CharSequence rootFolder, long maxExecutionTime,
-                                                      ASAPChunkReceivedListener listener) throws ASAPException, IOException {
-        return new MultiASAPEngineFS_Impl(owner, rootFolder, maxExecutionTime, listener);
-    }
-
-    public static MultiASAPEngineFS createMultiEngine(CharSequence folder, ASAPChunkReceivedListener listener)
+    public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
+                                          long maxExecutionTime,
+                                          Collection<CharSequence> supportFormats,
+                                          ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
-        return MultiASAPEngineFS_Impl.createMultiEngine(ASAPEngine.DEFAULT_OWNER, folder,
+        return new ASAPPeerFS(owner, rootFolder, maxExecutionTime, supportFormats, listener);
+    }
+
+    public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
+                                          Collection<CharSequence> supportFormats,
+                                          ASAPChunkReceivedListener listener)
+            throws ASAPException, IOException {
+
+        return new ASAPPeerFS(owner, rootFolder, DEFAULT_MAX_PROCESSING_TIME, supportFormats, listener);
+    }
+
+    public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
+                                          long maxExecutionTime,
+                                          ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+        return new ASAPPeerFS(owner, rootFolder, maxExecutionTime, listener);
+    }
+
+    public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
+                                          ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+        return new ASAPPeerFS(owner, rootFolder, DEFAULT_MAX_PROCESSING_TIME, listener);
+    }
+
+    public static ASAPPeer createASAPPeer(CharSequence folder, ASAPChunkReceivedListener listener)
+            throws ASAPException, IOException {
+
+        return ASAPPeerFS.createASAPPeer(ASAPEngine.DEFAULT_OWNER, folder,
                 DEFAULT_MAX_PROCESSING_TIME, listener);
     }
 
@@ -50,13 +61,13 @@ public class MultiASAPEngineFS_Impl implements
      * root directory. setting list can be created by iterating those storages.
      * @param rootFolderName
      */
-    private MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                                   ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+    private ASAPPeerFS(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
+                       ASAPChunkReceivedListener listener) throws ASAPException, IOException {
         this(owner, rootFolderName, maxExecutionTime, null, listener);
     }
 
-    private MultiASAPEngineFS_Impl(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-        Collection<CharSequence> apps, ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+    private ASAPPeerFS(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
+                       Collection<CharSequence> apps, ASAPChunkReceivedListener listener) throws ASAPException, IOException {
         this.owner = owner;
         this.maxExecutionTime = maxExecutionTime;
         this.rootFolderName = rootFolderName;

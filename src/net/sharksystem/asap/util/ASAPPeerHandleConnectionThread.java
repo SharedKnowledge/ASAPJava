@@ -5,18 +5,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.MultiASAPEngineFS;
+import net.sharksystem.asap.ASAPPeer;
 
 /**
  *
  * @author thsc
  */
-public class ASAPEngineThread extends Thread {
-    private final MultiASAPEngineFS engine;
+public class ASAPPeerHandleConnectionThread extends Thread {
+    private final ASAPPeer engine;
     private final InputStream is;
     private final OutputStream os;
 
-    public ASAPEngineThread(MultiASAPEngineFS engine, InputStream is, OutputStream os) {
+    public ASAPPeerHandleConnectionThread(ASAPPeer engine, InputStream is, OutputStream os) {
         this.engine = engine;
         this.is = is;
         this.os = os;

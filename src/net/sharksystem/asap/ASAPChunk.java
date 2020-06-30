@@ -41,14 +41,14 @@ public interface ASAPChunk {
      * @return iterator of all messages in the chunk
      * @throws IOException
      */
-    Iterator<CharSequence> getMessages() throws IOException;
+    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
 
     /**
      *
      * @return iterator of all messages in the chunk
      * @throws IOException
      */
-    Iterator<byte[]> getMessagesAsBytes() throws IOException;
+    Iterator<byte[]> getMessages() throws IOException;
 
     /**
      * remove that chunk.. drop all object references after

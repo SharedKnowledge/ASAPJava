@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 public class ASAPJavaApplicationFS implements ASAPJavaApplication {
-    private MultiASAPEngineFS multiEngine;
+    private ASAPPeer multiEngine;
     private final CharSequence owner;
     private final CharSequence rootFolder;
 
@@ -39,10 +39,10 @@ public class ASAPJavaApplicationFS implements ASAPJavaApplication {
         }
     }
 
-    private MultiASAPEngineFS getMulitEngine() throws IOException, ASAPException {
+    private ASAPPeer getMulitEngine() throws IOException, ASAPException {
         // TODO: re-create any time - keep track of potential changes in external storage (file system)?
-        MultiASAPEngineFS multiEngine = MultiASAPEngineFS_Impl.createMultiEngine(owner, rootFolder,
-                MultiASAPEngineFS.DEFAULT_MAX_PROCESSING_TIME, null);
+        ASAPPeer multiEngine = ASAPPeerFS.createASAPPeer(owner, rootFolder,
+                ASAPPeer.DEFAULT_MAX_PROCESSING_TIME, null);
 
         for(CharSequence format : this.messageReceivedListener.keySet()) {
             ASAPMessageReceivedListener listener = this.messageReceivedListener.get(format);
@@ -97,7 +97,7 @@ public class ASAPJavaApplicationFS implements ASAPJavaApplication {
             System.out.println(getLogStart() + "chunk received - convert to asap message received");
             try {
                 ASAPEngine engine = ASAPJavaApplicationFS.this.multiEngine.getEngineByFormat(format);
-                ASAPMessages messages = engine.getIncomingChunkStorage(sender).getASAPChunkCache(uri, era);
+                ASAPMessages messages = engine.getReceivedChunksStorage(sender).getASAPChunkCache(uri, era);
                 this.listener.asapMessagesReceived(messages);
             } catch (ASAPException | IOException e) {
                 System.out.println(getLogStart() + e.getLocalizedMessage());

@@ -14,7 +14,7 @@ import java.util.*;
 public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessageSender
         implements ASAPOnlineMessageSource, ASAPOnlineMessageSender {
 
-    private final MultiASAPEngineFS multiEngine;
+    private final ASAPPeer multiEngine;
     private final ASAP_1_0 protocol = new ASAP_Modem_Impl();
 
     // connections and their remote peer (recipients)
@@ -23,7 +23,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
     // message for recipients
     private Map<CharSequence, List<byte[]>> messages = new HashMap<>();
 
-    public ASAPOnlineMessageSenderEngineSide(MultiASAPEngineFS multiEngine) {
+    public ASAPOnlineMessageSenderEngineSide(ASAPPeer multiEngine) {
         this.multiEngine = multiEngine;
     }
 

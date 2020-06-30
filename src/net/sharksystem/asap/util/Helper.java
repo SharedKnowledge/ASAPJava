@@ -5,9 +5,9 @@ import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPEngine;
 import net.sharksystem.asap.ASAPEngineFS;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.apps.ASAPMessages;
+import net.sharksystem.asap.ASAPMessages;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Helper {
@@ -86,8 +86,22 @@ public class Helper {
         return aSet;
     }
 
-    public static ASAPMessages getMessageByChunkReceivedInfos(String format, String sender, String uri,
-                                  String folderName, int era) {
+    public static byte[] str2bytes(String msg) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream daos = new DataOutputStream(baos);
+        daos.writeUTF(msg);
+
+        return baos.toByteArray();
+    }
+
+    public static String bytes2str(byte[] bytes) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        DataInputStream daos = new DataInputStream(bais);
+        return daos.readUTF();
+    }
+
+    public static ASAPMessages getMessagesByChunkReceivedInfos(String format, String sender, String uri,
+                                                               String folderName, int era) {
         try {
             String rootIncomingStorage = folderName + "/" + Utils.url2FileName(format);
             Log.writeLog(Helper.class, "try getting storage in folder " + rootIncomingStorage);
@@ -95,7 +109,7 @@ public class Helper {
                     ASAPEngineFS.getExistingASAPEngineFS(rootIncomingStorage);
             Log.writeLog(Helper.class, "got existing asap engine");
 
-            ASAPChunkStorage chunkStorage = existingASAPEngineFS.getIncomingChunkStorage(sender);
+            ASAPChunkStorage chunkStorage = existingASAPEngineFS.getReceivedChunksStorage(sender);
             Log.writeLog(Helper.class, "got incoming channel of " + sender);
 
             ASAPMessages asapMessages = chunkStorage.getASAPChunkCache(uri, era, era);

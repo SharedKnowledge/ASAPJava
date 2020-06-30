@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.ASAPChunkFS;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +29,7 @@ public class ChunkPrinter {
         
             System.out.println("url: " + chunk.getUri());
             
-            Iterator<CharSequence> messages = chunk.getMessages();
+            Iterator<CharSequence> messages = chunk.getMessagesAsCharSequence();
             if(messages == null) {
                 System.out.println("no message iterator");
                 return;

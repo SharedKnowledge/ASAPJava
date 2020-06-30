@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import java.io.IOException;
+
 /**
  *
  * @author thsc
@@ -11,5 +13,5 @@ public interface ASAPChunkReceivedListener {
      * @param uri
      * @param era
      */
-    void chunkReceived(String format, String sender, String uri, int era);
+    void chunkReceived(String format, String sender, String uri, int era) throws IOException;
 }

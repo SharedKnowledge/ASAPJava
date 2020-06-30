@@ -189,7 +189,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     @Override
-    public Iterator<byte[]> getMessagesAsBytes() throws IOException {
+    public Iterator<byte[]> getMessages() throws IOException {
         return this.getMessagesAsBytesList().iterator();
     }
 
@@ -276,7 +276,7 @@ class ASAPChunkFS implements ASAPChunk {
     }
 
     @Override
-    public Iterator<CharSequence> getMessages() throws IOException {
+    public Iterator<CharSequence> getMessagesAsCharSequence() throws IOException {
         try {
             return new MessageIter(this.getMessagesAsBytesList());
         } catch (FileNotFoundException ex) {

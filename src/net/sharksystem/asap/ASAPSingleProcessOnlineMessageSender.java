@@ -2,7 +2,6 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
-import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,7 +12,7 @@ public class ASAPSingleProcessOnlineMessageSender
 
     private final ASAPOnlineMessageSenderEngineSide asapOnlineMessageSenderEngineSide;
 
-    public ASAPSingleProcessOnlineMessageSender(MultiASAPEngineFS multiEngine, ASAPStorage source) {
+    public ASAPSingleProcessOnlineMessageSender(ASAPPeer multiEngine, ASAPStorage source) {
         this.attachToSource(source);
         this.asapOnlineMessageSenderEngineSide = new ASAPOnlineMessageSenderEngineSide(multiEngine);
     }

@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.apps.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
@@ -164,14 +163,14 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     @Override
-    public void add(CharSequence urlTarget, CharSequence message) throws IOException {
-        this.add(urlTarget, message.toString().getBytes());
+    public void add(CharSequence uri, CharSequence message) throws IOException {
+        this.add(uri, message.toString().getBytes());
     }
 
     @Override
-    public void add(CharSequence urlTarget, byte[] messageAsBytes) throws IOException {
+    public void add(CharSequence uri, byte[] messageAsBytes) throws IOException {
 //        Log.writeLog(this, "reached add(uri, byte[] message");
-        ASAPChunk chunk = this.chunkStorage.getChunk(urlTarget, this.era);
+        ASAPChunk chunk = this.chunkStorage.getChunk(uri, this.era);
 
 //        Log.writeLog(this, "call chunk.addMessage()");
         chunk.addMessage(messageAsBytes);
@@ -184,7 +183,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             try {
                 Log.writeLog(this, "send online message...");
                 this.asapOnlineMessageSender.sendASAPAssimilateMessage(
-                        this.format, urlTarget, chunk.getRecipients(),
+                        this.format, uri, chunk.getRecipients(),
                         messageAsBytes, this.era);
             } catch (IOException | ASAPException e) {
                 StringBuilder sb = Log.startLog(this);
@@ -363,7 +362,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         //>>>>>>>>>>>>>>>>>>>debug
 
         // get received storage
-        ASAPChunkStorage incomingSenderStorage = this.getIncomingChunkStorage(sender);
+        ASAPChunkStorage incomingSenderStorage = this.getReceivedChunksStorage(sender);
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
@@ -552,7 +551,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
             for(CharSequence sender : this.getSender()) {
                 System.out.println(this.getLogStart() + "send chunks received from: " + sender);
-                ASAPChunkStorage incomingChunkStorage = this.getIncomingChunkStorage(sender);
+                ASAPChunkStorage incomingChunkStorage = this.getReceivedChunksStorage(sender);
 
                 this.sendChunks(sender, peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
             }
@@ -818,7 +817,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     //                                            Online management                                           //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void activateOnlineMessages(MultiASAPEngineFS multiEngine) {
+    public void activateOnlineMessages(ASAPPeer multiEngine) {
         if(this.asapOnlineMessageSender == null) {
             Log.writeLog(this, "created new online message sender");
             this.attachASAPMessageAddListener(new ASAPOnlineMessageSenderEngineSide(multiEngine));
