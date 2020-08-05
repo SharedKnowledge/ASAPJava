@@ -10,11 +10,12 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Batchprocessor extends Thread {
+public class Batchprocessor implements Runnable {
     List<String> cmdList = new ArrayList<>();
     private CmdLineUI cmdLineUI;
     private PrintStream printStream;
     private ByteArrayInputStream inputStream;
+    private Thread runningThread;
 
     public Batchprocessor() {
         this(true);
@@ -31,8 +32,24 @@ public class Batchprocessor extends Thread {
         this.cmdList.add(cmd);
     }
 
-    @Override
-    public void run() {
+    public void execute() {
+        this.prepareExecution();
+        this.doExecution();
+    }
+
+    public void executeAsThread() {
+        this.prepareExecution();
+        this.runningThread = new Thread(this);
+        this.runningThread.start();
+    }
+
+    public void join() throws InterruptedException {
+        if(this.runningThread != null && this.runningThread.isAlive()) {
+            this.runningThread.join();
+        }
+    }
+
+    private void prepareExecution() {
         // prepare output
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
@@ -41,11 +58,16 @@ public class Batchprocessor extends Thread {
             ps.println(cmd);
         }
 
+        // clean cmd list
+        this.cmdList = new ArrayList<>();
+
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
         this.printStream = System.out;
         this.inputStream = bais;
+    }
 
+    private void doExecution() {
         this.cmdLineUI.runCommandLoop(this.printStream, this.inputStream);
 
         // in any case - give it some time to tidy up
@@ -54,5 +76,12 @@ public class Batchprocessor extends Thread {
         } catch (InterruptedException e) {
             // ignore
         }
+
+        this.runningThread = null;
+    }
+
+    @Override
+    public void run() {
+        this.doExecution();
     }
 }

@@ -301,8 +301,7 @@ public class CmdLineUI {
                         this.doKill("all");
                         again = false; break; // end loop
 
-                    default: this.consoleOutput.println("unknown command:" +
-                            cmdLineString);
+                    default: System.err.println("unknown command:" + cmdLineString);
                         this.printUsage();
                         rememberCommand = false;
                         break;
