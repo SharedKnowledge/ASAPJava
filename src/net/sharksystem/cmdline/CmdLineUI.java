@@ -21,10 +21,12 @@ public class CmdLineUI {
     public static final String CREATE_ASAP_CHANNEL = "newchannel";
     public static final String CREATE_ASAP_MESSAGE = "newmessage";
     public static final String RESET_ASAP_STORAGES = "resetstorage";
-    public static final String SET_SEND_RECEIVED_MESSAGES = "sendReceived";
+    public static final String SET_SEND_RECEIVED_MESSAGES = "setSendReceived";
     public static final String PRINT_CHANNEL_INFORMATION = "printChannelInfo";
     public static final String PRINT_STORAGE_INFORMATION = "printStorageInfo";
     public static final String PRINT_ALL_INFORMATION = "printAll";
+    public static final String SLEEP = "sleep";
+    public static final String SHOW_LOG = "showlog";
 
     private final PrintStream consoleOutput;
     private final BufferedReader userInput;
@@ -112,6 +114,12 @@ public class CmdLineUI {
         b.append(PRINT_CHANNEL_INFORMATION);
         b.append(".. print general information about a channel");
         b.append("\n");
+        b.append(SLEEP);
+        b.append(".. sleep some milliseconds - helps writing batch programs");
+        b.append("\n");
+        b.append(SHOW_LOG);
+        b.append(".. print log of entered commands of this session");
+        b.append("\n");
         b.append(EXIT);
         b.append(".. exit");
 
@@ -194,18 +202,31 @@ public class CmdLineUI {
             case PRINT_ALL_INFORMATION:
                 out.println(PRINT_ALL_INFORMATION);
                 break;
+            case SLEEP:
+                out.println(SLEEP + " milliseconds");
+                out.println("example: " + SLEEP + " sleep 1000");
+                out.println("process sleeps a second == 1000 ms");
+                break;
+            case SHOW_LOG:
+                out.println(SHOW_LOG);
+                break;
             default:
                 out.println("unknown command: " + cmdString);
         }
     }
 
+    private List<String> cmds = new ArrayList<>();
+
     public void runCommandLoop() {
         boolean again = true;
+
         while(again) {
+            boolean rememberCommand = true;
+            String cmdLineString = null;
 
             try {
                 // read user input
-                String cmdLineString = userInput.readLine();
+                cmdLineString = userInput.readLine();
 
                 // finish that loop if less than nothing came in
                 if(cmdLineString == null) break;
@@ -252,6 +273,10 @@ public class CmdLineUI {
                         this.doPrintChannelInformation(parameterString); break;
                     case PRINT_STORAGE_INFORMATION:
                         this.doPrintStorageInformation(parameterString); break;
+                    case SLEEP:
+                        this.doSleep(parameterString); break;
+                    case SHOW_LOG:
+                        this.doShowLog(); rememberCommand = false; break;
                     case PRINT_ALL_INFORMATION:
                         this.doPrintAllInformation(); break;
                     case "q": // convenience
@@ -262,11 +287,16 @@ public class CmdLineUI {
                     default: this.consoleOutput.println("unknown command:" +
                             cmdLineString);
                         this.printUsage();
+                        rememberCommand = false;
                         break;
                 }
             } catch (IOException ex) {
                 this.consoleOutput.println("cannot read from input stream");
                 System.exit(0);
+            }
+
+            if(rememberCommand) {
+                this.cmds.add(cmdLineString);
             }
         }
     }
@@ -613,6 +643,36 @@ public class CmdLineUI {
         catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(PRINT_STORAGE_INFORMATION, e.getLocalizedMessage());
         }
+    }
+
+    public void doSleep(String parameterString) {
+        StringTokenizer st = new StringTokenizer(parameterString);
+
+        try {
+            Thread.sleep(Long.parseLong(parameterString));
+        }
+        catch(InterruptedException e) {
+            this.consoleOutput.println("sleep interrupted");
+        }
+        catch(RuntimeException e) {
+            this.printUsage(PRINT_STORAGE_INFORMATION, e.getLocalizedMessage());
+        }
+    }
+
+    private void doShowLog() {
+        if(this.cmds.size() < 1) return;
+
+        boolean first = true;
+        for(String c : this.cmds) {
+            if (!first) {
+                this.consoleOutput.println("\\n\" + ");
+            } else {
+                first = false;
+            }
+            this.consoleOutput.print("\"");
+            this.consoleOutput.print(c);
+        }
+        this.consoleOutput.println("\"");
     }
 
     public void doPrintChannelInformation(String parameterString) {

@@ -8,13 +8,13 @@ import java.io.IOException;
 public class BatchprocessorTest {
     @Test
     public void basicTest() throws IOException, ASAPException {
-        Batchprocessor batchprocessor = new Batchprocessor();
-        batchprocessor.addCommand("newpeer Clara");
+        Batchprocessor claraCommands = new Batchprocessor();
 
-        batchprocessor.addCommand(
-                "newapp Clara chat\n" +
-                "newmessage Clara chat sn2://abChat HiBob");
-
-        batchprocessor.execute();
+        claraCommands.addCommand(
+                "resetstorage\n" +
+                        "newpeer Alice\n" +
+                        "newapp Alice chat\n" +
+                        "sleep 1000");
+        claraCommands.execute();
     }
 }
