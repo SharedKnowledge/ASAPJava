@@ -10,23 +10,29 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Batchprocessor {
-    private final boolean cleanup;
+public class Batchprocessor extends Thread {
     List<String> cmdList = new ArrayList<>();
+    private CmdLineUI cmdLineUI;
+    private PrintStream printStream;
+    private ByteArrayInputStream inputStream;
 
     public Batchprocessor() {
         this(true);
     }
 
     public Batchprocessor(boolean cleanup) {
-        this.cleanup = cleanup;
+        if(cleanup) {
+            System.out.println("clean asap peers folders");
+            this.cmdLineUI = new CmdLineUI();
+        }
     }
 
     public void addCommand(String cmd) {
         this.cmdList.add(cmd);
     }
 
-    public void execute() throws IOException, ASAPException {
+    @Override
+    public void run() {
         // prepare output
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
@@ -37,12 +43,16 @@ public class Batchprocessor {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
-        CmdLineUI cmdLineUI = new CmdLineUI(System.out, bais);
-        if(this.cleanup) {
-            System.out.println("clean asap peers folders");
-            cmdLineUI.doResetASAPStorages();
-        }
+        this.printStream = System.out;
+        this.inputStream = bais;
 
-        cmdLineUI.runCommandLoop();
+        this.cmdLineUI.runCommandLoop(this.printStream, this.inputStream);
+
+        // in any case - give it some time to tidy up
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
     }
 }

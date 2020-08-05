@@ -28,8 +28,8 @@ public class CmdLineUI {
     public static final String SLEEP = "sleep";
     public static final String SHOW_LOG = "showlog";
 
-    private final PrintStream consoleOutput;
-    private final BufferedReader userInput;
+    private PrintStream consoleOutput;
+    private BufferedReader userInput;
 
     public static final String PEERS_ROOT_FOLDER = "asapPeers";
     private Map<String, ASAPPeer> peers = new HashMap();
@@ -46,6 +46,15 @@ public class CmdLineUI {
 
     public CmdLineUI(PrintStream out) throws IOException, ASAPException {
         this(out, null);
+    }
+
+    /**
+     * only for batch processing - removes anything from the past
+     * @throws IOException
+     * @throws ASAPException
+     */
+    public CmdLineUI() {
+        this.doResetASAPStorages();
     }
 
     public CmdLineUI(PrintStream os, InputStream is) throws IOException, ASAPException {
@@ -126,7 +135,7 @@ public class CmdLineUI {
         this.consoleOutput.println(b.toString());
     }
 
-    public void printUsage(String cmdString, String comment) {
+    public void printUsage(String cmdString, String comment) throws ASAPException {
         PrintStream out = this.consoleOutput;
 
         if(comment == null) comment = " ";
@@ -213,9 +222,17 @@ public class CmdLineUI {
             default:
                 out.println("unknown command: " + cmdString);
         }
+        throw new ASAPException("had to print usage");
     }
 
     private List<String> cmds = new ArrayList<>();
+
+    public void runCommandLoop(PrintStream os, InputStream is) {
+        this.consoleOutput = os;
+        this.userInput = is != null ? new BufferedReader(new InputStreamReader(is)) : null;
+
+        this.runCommandLoop();
+    }
 
     public void runCommandLoop() {
         boolean again = true;
@@ -290,6 +307,8 @@ public class CmdLineUI {
                         rememberCommand = false;
                         break;
                 }
+            } catch (ASAPException ex) {
+                rememberCommand = false;
             } catch (IOException ex) {
                 this.consoleOutput.println("cannot read from input stream");
                 System.exit(0);
@@ -380,7 +399,7 @@ public class CmdLineUI {
     //                                           method implementations                                   //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void doConnect(String parameterString) {
+    public void doConnect(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -408,7 +427,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doOpen(String parameterString) {
+    public void doOpen(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -427,7 +446,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doList() {
+    public void doList() throws ASAPException {
         this.consoleOutput.println("connections:");
         for(String connectionName : this.streams.keySet()) {
             this.consoleOutput.println(connectionName);
@@ -436,7 +455,7 @@ public class CmdLineUI {
         this.doPrintAllInformation();
     }
 
-    public void doKill(String parameterString) {
+    public void doKill(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -466,7 +485,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doSetWaiting(String parameterString) {
+    public void doSetWaiting(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -479,7 +498,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPPeer(String parameterString) {
+    public void doCreateASAPPeer(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -493,7 +512,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPApp(String parameterString) {
+    public void doCreateASAPApp(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -518,7 +537,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPChannel(String parameterString) {
+    public void doCreateASAPChannel(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -550,7 +569,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doCreateASAPMessage(String parameterString) {
+    public void doCreateASAPMessage(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -576,9 +595,12 @@ public class CmdLineUI {
 
     public void doResetASAPStorages() {
         ASAPEngineFS.removeFolder(PEERS_ROOT_FOLDER);
+        File rootFolder = new File(PEERS_ROOT_FOLDER);
+        rootFolder.mkdirs();
+
     }
 
-    public void doSetSendReceivedMessage(String parameterString) {
+    public void doSetSendReceivedMessage(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -595,7 +617,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doPrintAllInformation() {
+    public void doPrintAllInformation() throws ASAPException {
         try {
             this.consoleOutput.println(this.peers.keySet().size() + " peers in folder: " + PEERS_ROOT_FOLDER);
             for(String peername : this.peers.keySet()) {
@@ -618,7 +640,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doPrintStorageInformation(String parameterString) {
+    public void doPrintStorageInformation(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -645,7 +667,7 @@ public class CmdLineUI {
         }
     }
 
-    public void doSleep(String parameterString) {
+    public void doSleep(String parameterString) throws ASAPException {
         StringTokenizer st = new StringTokenizer(parameterString);
 
         try {
@@ -675,7 +697,7 @@ public class CmdLineUI {
         this.consoleOutput.println("\"");
     }
 
-    public void doPrintChannelInformation(String parameterString) {
+    public void doPrintChannelInformation(String parameterString) throws ASAPException {
         //                     out.println("example: " + PRINT_CHANNEL_INFORMATION + " Alice chat sn2://abChat");
         StringTokenizer st = new StringTokenizer(parameterString);
 

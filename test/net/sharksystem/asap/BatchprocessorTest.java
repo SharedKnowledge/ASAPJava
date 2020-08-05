@@ -7,14 +7,38 @@ import java.io.IOException;
 
 public class BatchprocessorTest {
     @Test
-    public void basicTest() throws IOException, ASAPException {
-        Batchprocessor claraCommands = new Batchprocessor();
-
-        claraCommands.addCommand(
-                "resetstorage\n" +
-                        "newpeer Alice\n" +
+    public void secondMessageNotSendTest() throws IOException, ASAPException, InterruptedException {
+        Batchprocessor aliceCommands = new Batchprocessor();
+        Batchprocessor bobCommands = new Batchprocessor();
+        aliceCommands.addCommand(
+                "newpeer Alice\n" +
                         "newapp Alice chat\n" +
-                        "sleep 1000");
-        claraCommands.execute();
+                        "newmessage Alice chat sn2://abChat HiBob\n" +
+                        "connect 7070 Alice\n" +
+                        "sleep 2000\n" +
+                        "newmessage Alice chat sn2://abChat HiBob2\n" +
+                        "sleep 1000\n" +
+                        "kill all\n" +
+                        "open 7071 Alice\n" +
+                        "sleep 5000"
+                        );
+
+
+        bobCommands.addCommand(
+                "newpeer Bob\n" +
+                        "newapp Bob chat\n" +
+                        "newmessage Bob chat sn2://abChat HiAlice\n" +
+                        "open 7070 Bob\n" +
+                        "sleep 1000\n" +
+                        "connect 7071 Bob\n" +
+                        "sleep 1000"
+        );
+
+        // lets go
+        aliceCommands.start();
+        bobCommands.start();
+
+        aliceCommands.join();
+        bobCommands.join();
     }
 }
