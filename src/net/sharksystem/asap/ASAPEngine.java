@@ -736,7 +736,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 //        return this.
 //    }
     
-    /**
+    /* old
      * Peers in ad-hoc networks have the tendency to establish two channels
      * simultaneously. It's due to the lack of a controlling server instance
      * and the - wanted - equality of each peers. We should suppress those
@@ -745,8 +745,16 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
      * @param peer
      * @return 
      */
+
+    /**
+     * Security / Permission module is due to undergo a deep review - returns always true until than.
+     * @param peer
+     * @return
+     */
     private synchronized boolean permission2ProceedConversation(String peer) {
+        return true;
         // if that peer is not in the list - go ahead
+        /*
         boolean goAhead = !this.activePeers.contains(peer);
         if(goAhead) {
             // add that peer - an other call will fail.
@@ -754,6 +762,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         }
         
         return goAhead;
+         */
     }
 
     /**
