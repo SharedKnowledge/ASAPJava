@@ -247,7 +247,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
     }
 
     public ASAPMessages getChunkChain(CharSequence uri, int toEra) throws IOException {
-        return this.chunkStorage.getASAPChunkCache(uri, toEra);
+        return this.chunkStorage.getASAPMessages(uri, toEra);
     }
 
     public ASAPMessages getChunkChain(CharSequence uri) throws IOException {
@@ -267,7 +267,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
             throw new ASAPException("uri at postion is null. Position: " + uriPosition);
         }
 
-        return this.chunkStorage.getASAPChunkCache(uri, toEra);
+        return this.chunkStorage.getASAPMessages(uri, toEra);
     }
 
     //////////////////////////////////////////////////////////////////////

@@ -16,13 +16,19 @@ import static net.sharksystem.asap.ASAPChunkFS.META_DATA_EXTENSION;
  * @author thsc
  */
 class ASAPChunkStorageFS implements ASAPChunkStorage {
-
     private final String rootDirectory;
     private final String format;
+    private int era = -1;
 
     ASAPChunkStorageFS(String rootDirectory, String format) {
         this.rootDirectory = rootDirectory;
         this.format = format;
+    }
+
+    ASAPChunkStorageFS(String rootDirectory, String format, int era) {
+        this.rootDirectory = rootDirectory;
+        this.format = format;
+        this.era = era;
     }
 
     public String getFormat() {
@@ -126,22 +132,15 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public ASAPMessages getASAPChunkCache(CharSequence uri, int toEra) throws IOException {
+    public ASAPMessages getASAPMessages(CharSequence uri, int toEra) throws IOException {
         // INIT ++++++++++++++++++++++ toEra +++++++++++++++++++++ MAX
 
         int fromEra = ASAP.nextEra(toEra); // the whole cycle
-/*
-        // go back 1000 eras
-        int fromEra = toEra;
-        for(int i = 0; i < 1000; i++) {
-            fromEra = ASAP.previousEra(fromEra);
-        }
- */
-        return this.getASAPChunkCache(uri, fromEra, toEra);
+        return this.getASAPMessages(uri, fromEra, toEra);
     }
 
     @Override
-    public ASAPMessages getASAPChunkCache(CharSequence uri, int fromEra, int toEra) throws IOException {
+    public ASAPMessages getASAPMessages(CharSequence uri, int fromEra, int toEra) throws IOException {
         Log.writeLog(this, "create ASAPInMemoMessages");
 
         return new ASAPInMemoMessages(
@@ -151,5 +150,13 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
                 fromEra, // set starting era
                 toEra // anything before
         );
+    }
+
+    @Override
+    public ASAPMessages getASAPMessages(String uri) throws ASAPException, IOException {
+        if(this.era == -1) {
+            throw new ASAPException("internal error: era not set - use other constructor or method");
+        }
+        return this.getASAPMessages(uri, this.era);
     }
 }

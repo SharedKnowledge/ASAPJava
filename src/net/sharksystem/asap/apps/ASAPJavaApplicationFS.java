@@ -97,7 +97,7 @@ public class ASAPJavaApplicationFS implements ASAPJavaApplication {
             System.out.println(getLogStart() + "chunk received - convert to asap message received");
             try {
                 ASAPEngine engine = ASAPJavaApplicationFS.this.multiEngine.getEngineByFormat(format);
-                ASAPMessages messages = engine.getReceivedChunksStorage(sender).getASAPChunkCache(uri, era);
+                ASAPMessages messages = engine.getReceivedChunksStorage(sender).getASAPMessages(uri, era);
                 this.listener.asapMessagesReceived(messages);
             } catch (ASAPException | IOException e) {
                 System.out.println(getLogStart() + e.getLocalizedMessage());

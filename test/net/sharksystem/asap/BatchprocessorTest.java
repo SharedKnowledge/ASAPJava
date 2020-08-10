@@ -1,9 +1,13 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.util.Batchprocessor;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class BatchprocessorTest {
     @Test
@@ -69,6 +73,10 @@ public class BatchprocessorTest {
         bobCommands.join();
 
         // problem Alice' second message is not transmitted
-
+        ASAPPeer bobPeer = bobCommands.getASAPPeer("Bob");
+        ASAPEngine bobChatEngine = bobPeer.getASAPEngine("chat");
+        ASAPChunkStorage receivedFromAlice = bobChatEngine.getReceivedChunksStorage("Alice");
+        ASAPMessages messagesFromAlice = receivedFromAlice.getASAPMessages("sn2://abChat");
+        Assert.assertEquals(2, messagesFromAlice.size());
     }
 }

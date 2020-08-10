@@ -36,7 +36,7 @@ public class ASAPChannelImpl implements ASAPChannel {
 
     @Override
     public ASAPMessages getMessages() throws IOException {
-        return this.asapEngine.getChunkStorage().getASAPChunkCache(this.getUri(), this.asapEngine.getEra());
+        return this.asapEngine.getChunkStorage().getASAPMessages(this.getUri(), this.asapEngine.getEra());
     }
 
     @Override

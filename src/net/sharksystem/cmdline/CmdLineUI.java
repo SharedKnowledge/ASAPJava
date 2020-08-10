@@ -28,7 +28,9 @@ public class CmdLineUI {
     public static final String SLEEP = "sleep";
     public static final String SHOW_LOG = "showlog";
 
-    private PrintStream consoleOutput;
+    private PrintStream standardOut = System.out;
+    private PrintStream standardError = System.err;
+
     private BufferedReader userInput;
 
     public static final String PEERS_ROOT_FOLDER = "asapPeers";
@@ -48,6 +50,11 @@ public class CmdLineUI {
         this(out, null);
     }
 
+    public void setOutStreams(PrintStream ps) {
+        this.standardOut = ps;
+        this.standardError = ps;
+    }
+
     /**
      * only for batch processing - removes anything from the past
      * @throws IOException
@@ -58,7 +65,7 @@ public class CmdLineUI {
     }
 
     public CmdLineUI(PrintStream os, InputStream is) throws IOException, ASAPException {
-        this.consoleOutput = os;
+        this.standardOut = os;
         this.userInput = is != null ? new BufferedReader(new InputStreamReader(is)) : null;
 
         // set up peers
@@ -132,11 +139,11 @@ public class CmdLineUI {
         b.append(EXIT);
         b.append(".. exit");
 
-        this.consoleOutput.println(b.toString());
+        this.standardOut.println(b.toString());
     }
 
     public void printUsage(String cmdString, String comment) throws ASAPException {
-        PrintStream out = this.consoleOutput;
+        PrintStream out = this.standardOut;
 
         if(comment == null) comment = " ";
         out.println("malformed command: " + comment);
@@ -228,7 +235,7 @@ public class CmdLineUI {
     private List<String> cmds = new ArrayList<>();
 
     public void runCommandLoop(PrintStream os, InputStream is) {
-        this.consoleOutput = os;
+        this.standardOut = os;
         this.userInput = is != null ? new BufferedReader(new InputStreamReader(is)) : null;
 
         this.runCommandLoop();
@@ -301,7 +308,7 @@ public class CmdLineUI {
                         this.doKill("all");
                         again = false; break; // end loop
 
-                    default: System.err.println("unknown command:" + cmdLineString);
+                    default: this.standardError.println("unknown command:" + cmdLineString);
                         this.printUsage();
                         rememberCommand = false;
                         break;
@@ -309,7 +316,7 @@ public class CmdLineUI {
             } catch (ASAPException ex) {
                 rememberCommand = false;
             } catch (IOException ex) {
-                this.consoleOutput.println("cannot read from input stream");
+                this.standardOut.println("cannot read from input stream");
                 System.exit(0);
             }
 
@@ -350,7 +357,7 @@ public class CmdLineUI {
         return asapPeer.getEngineByFormat(appName);
     }
 
-    private ASAPPeer getASAPPeer(String peerName) throws ASAPException {
+    public ASAPPeer getASAPPeer(String peerName) throws ASAPException {
         ASAPPeer asapPeer = this.peers.get(peerName);
         if(asapPeer == null) {
             throw new ASAPException("engine does not exist: " + peerName);
@@ -381,14 +388,14 @@ public class CmdLineUI {
 
         @Override
         public void streamCreated(TCPStream channel) {
-            CmdLineUI.this.consoleOutput.println("Channel created");
+            CmdLineUI.this.standardOut.println("Channel created");
 
             try {
                 this.asapPeer.handleConnection(
                         channel.getInputStream(),
                         channel.getOutputStream());
             } catch (IOException | ASAPException e) {
-                CmdLineUI.this.consoleOutput.println("call of engine.handleConnection failed: "
+                CmdLineUI.this.standardOut.println("call of engine.handleConnection failed: "
                         + e.getLocalizedMessage());
             }
         }
@@ -446,9 +453,9 @@ public class CmdLineUI {
     }
 
     public void doList() throws ASAPException {
-        this.consoleOutput.println("connections:");
+        this.standardOut.println("connections:");
         for(String connectionName : this.streams.keySet()) {
-            this.consoleOutput.println(connectionName);
+            this.standardOut.println(connectionName);
         }
 
         this.doPrintAllInformation();
@@ -460,23 +467,23 @@ public class CmdLineUI {
         try {
             String channelName = st.nextToken();
             if(channelName.equalsIgnoreCase("all")) {
-                System.out.println("kill all open channels..");
+                this.standardOut.println("kill all open channels..");
                 for(TCPStream channel : this.streams.values()) {
                     channel.kill();
                 }
                 this.streams = new HashMap<>();
-                System.out.println(".. done");
+                this.standardOut.println(".. done");
             } else {
 
                 TCPStream channel = this.streams.remove(channelName);
                 if (channel == null) {
-                    System.err.println("channel does not exist: " + channelName);
+                    this.standardError.println("channel does not exist: " + channelName);
                     return;
                 }
-                System.out.println("kill channel");
+                this.standardOut.println("kill channel");
                 channel.kill();
 
-                System.out.println(".. done");
+                this.standardOut.println(".. done");
             }
         }
         catch(RuntimeException e) {
@@ -580,7 +587,7 @@ public class CmdLineUI {
             // first - get storage
             ASAPStorage asapStorage = this.getStorage(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + peername + ":" + appName);
+                this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
             asapStorage.add(uri, message);
@@ -618,10 +625,10 @@ public class CmdLineUI {
 
     public void doPrintAllInformation() throws ASAPException {
         try {
-            this.consoleOutput.println(this.peers.keySet().size() + " peers in folder: " + PEERS_ROOT_FOLDER);
+            this.standardOut.println(this.peers.keySet().size() + " peers in folder: " + PEERS_ROOT_FOLDER);
             for(String peername : this.peers.keySet()) {
-                this.consoleOutput.println("+++++++++++++++++++");
-                this.consoleOutput.println("Peer: " + peername);
+                this.standardOut.println("+++++++++++++++++++");
+                this.standardOut.println("Peer: " + peername);
                 ASAPPeer asapPeer = this.peers.get(peername);
 
                 for (CharSequence format : asapPeer.getFormats()) {
@@ -631,7 +638,7 @@ public class CmdLineUI {
                         this.printChannelInfo(asapStorage, uri, format);
                     }
                 }
-                this.consoleOutput.println("+++++++++++++++++++\n");
+                this.standardOut.println("+++++++++++++++++++\n");
             }
         }
         catch(RuntimeException | IOException | ASAPException e) {
@@ -654,7 +661,7 @@ public class CmdLineUI {
             }
 
             // iterate URI
-            this.consoleOutput.println(asapStorage.getChannelURIs().size() +
+            this.standardOut.println(asapStorage.getChannelURIs().size() +
                     " channels in storage " + appName +
                     " (note: channels without messages are considered non-existent)");
             for(CharSequence uri : asapStorage.getChannelURIs()) {
@@ -673,7 +680,7 @@ public class CmdLineUI {
             Thread.sleep(Long.parseLong(parameterString));
         }
         catch(InterruptedException e) {
-            this.consoleOutput.println("sleep interrupted");
+            this.standardOut.println("sleep interrupted");
         }
         catch(RuntimeException e) {
             this.printUsage(PRINT_STORAGE_INFORMATION, e.getLocalizedMessage());
@@ -686,14 +693,14 @@ public class CmdLineUI {
         boolean first = true;
         for(String c : this.cmds) {
             if (!first) {
-                this.consoleOutput.println("\\n\" + ");
+                this.standardOut.println("\\n\" + ");
             } else {
                 first = false;
             }
-            this.consoleOutput.print("\"");
-            this.consoleOutput.print(c);
+            this.standardOut.print("\"");
+            this.standardOut.print(c);
         }
-        this.consoleOutput.println("\"");
+        this.standardOut.println("\"");
     }
 
     public void doPrintChannelInformation(String parameterString) throws ASAPException {
@@ -708,7 +715,7 @@ public class CmdLineUI {
             // first - get storage
             ASAPStorage asapStorage = this.getStorage(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + peername + ":" + appName);
+                this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
 
@@ -726,12 +733,12 @@ public class CmdLineUI {
         ASAPChannel channel = asapStorage.getChannel(uri);
         Set<CharSequence> recipients = channel.getRecipients();
 
-        this.consoleOutput.println("Peer:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
-        this.consoleOutput.println("#Messages == " + channel.getMessages().size());
-        this.consoleOutput.println("#Recipients == " + recipients.size() +
+        this.standardOut.println("Peer:App:Channel == " + channel.getOwner() + ":" + appName + ":" + channel.getUri());
+        this.standardOut.println("#Messages == " + channel.getMessages().size());
+        this.standardOut.println("#Recipients == " + recipients.size() +
                 " (0 means: open channel - no restrictions - anybody receives from this channel)");
         for(CharSequence recipient : recipients) {
-            this.consoleOutput.println(recipient);
+            this.standardOut.println(recipient);
         }
     }
 

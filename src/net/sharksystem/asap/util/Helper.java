@@ -112,7 +112,7 @@ public class Helper {
             ASAPChunkStorage chunkStorage = existingASAPEngineFS.getReceivedChunksStorage(sender);
             Log.writeLog(Helper.class, "got incoming channel of " + sender);
 
-            ASAPMessages asapMessages = chunkStorage.getASAPChunkCache(uri, era, era);
+            ASAPMessages asapMessages = chunkStorage.getASAPMessages(uri, era, era);
             Log.writeLog(Helper.class, "got messages uri: " + uri + " / era: " + era);
 
             return asapMessages;

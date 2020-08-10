@@ -1,6 +1,7 @@
 package net.sharksystem.asap.util;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPPeer;
 import net.sharksystem.cmdline.CmdLineUI;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +27,10 @@ public class Batchprocessor implements Runnable {
             System.out.println("clean asap peers folders");
             this.cmdLineUI = new CmdLineUI();
         }
+    }
+
+    public void setOutputstream(PrintStream ps) {
+        this.cmdLineUI.setOutStreams(ps);
     }
 
     public void addCommand(String cmd) {
@@ -83,5 +88,9 @@ public class Batchprocessor implements Runnable {
     @Override
     public void run() {
         this.doExecution();
+    }
+
+    public ASAPPeer getASAPPeer(String peerName) throws ASAPException {
+        return this.cmdLineUI.getASAPPeer(peerName);
     }
 }
