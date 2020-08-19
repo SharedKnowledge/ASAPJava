@@ -327,12 +327,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         return this.chunkStorage.getASAPMessages(uri, toEra);
     }
 
-    //////////////////////////////////////////////////////////////////////
-    //                       ProtocolEngine                             //
-    //////////////////////////////////////////////////////////////////////
-    
-    List<String> activePeers = new ArrayList<>();
-    
     private String getLogStart() {
         StringBuilder b = new StringBuilder();
         b.append("ASAPEngine (");
@@ -345,6 +339,14 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
 
         return b.toString();
     }
+
+    //////////////////////////////////////////////////////////////////////
+    //                       ProtocolEngine                             //
+    //////////////////////////////////////////////////////////////////////
+
+    // TODO: extract those algorithms to another class (ASAPDefaultProtocolEngine).
+
+    private ASAPProtocolEngine protocolEngine = null;
 
     public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {

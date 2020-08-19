@@ -9,7 +9,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * TODO: extract protocol engine algorithms here..
+ */
 public class ASAPDefaultProtocolEngine implements ASAPProtocolEngine {
+    private final ASAPStorage asapStorage;
+
+    ASAPDefaultProtocolEngine(ASAPStorage asapStorage) {
+        this.asapStorage = asapStorage;
+    }
+
     @Override
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os) throws ASAPException, IOException {
 

@@ -11,7 +11,7 @@ import java.io.PrintStream;
 
 public class BatchprocessorTest {
     @Test
-    public void secondMessageNotSendTest() throws IOException, ASAPException, InterruptedException {
+    public void secondMessageSentAfterReconnectTest() throws IOException, ASAPException, InterruptedException {
         Batchprocessor aliceCommands = new Batchprocessor();
         Batchprocessor bobCommands = new Batchprocessor();
 
