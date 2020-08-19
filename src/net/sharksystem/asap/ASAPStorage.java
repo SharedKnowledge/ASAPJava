@@ -123,7 +123,7 @@ public interface ASAPStorage {
      * are to be deleted.
      * @param drop
      */
-    void setDropDeliveredChunks(boolean drop) throws IOException;
+//    void setDropDeliveredChunks(boolean drop) throws IOException;
 
     /**
      * Chunks are delivered when seeing other peers. Default behaviour is to send only message which
@@ -133,7 +133,7 @@ public interface ASAPStorage {
      *
      * @param drop
      */
-    void setSendReceivedChunks(boolean drop) throws IOException;
+//    void setSendReceivedChunks(boolean drop) throws IOException;
 
     /**
      /**

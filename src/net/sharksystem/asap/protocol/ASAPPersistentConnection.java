@@ -13,7 +13,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         implements ASAPConnection, Runnable, ThreadFinishedListener {
 
     private final ASAPConnectionListener asapConnectionListener;
-    private final ASAPPeer ASAPPeer;
+    private final ASAPPeer asapPeer;
     private final ThreadFinishedListener threadFinishedListener;
     private Thread managementThread = null;
     private final long maxExecutionTime;
@@ -23,14 +23,14 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private Thread threadWaiting4StreamsLock;
     private boolean terminated = false;
 
-    public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPPeer ASAPPeer,
+    public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPPeer asapPeer,
                                     ASAP_1_0 protocol,
                                     long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                                     ThreadFinishedListener threadFinishedListener) {
 
         super(is, os, protocol);
 
-        this.ASAPPeer = ASAPPeer;
+        this.asapPeer = asapPeer;
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
@@ -179,7 +179,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         try {
             // let engine write their interest - at least management interest is sent which als introduces
             // this peer to the other one
-            this.ASAPPeer.pushInterests(this.os);
+            this.asapPeer.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
             return;
@@ -215,7 +215,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 try {
                     this.executor = new ASAPPDUExecutor(asappdu,
                                         this.is, this.os,
-                                        this.ASAPPeer.getEngineSettings(asappdu.getFormat()),
+                                        this.asapPeer.getEngineSettings(asappdu.getFormat()),
                                         protocol,this);
 
                     // get exclusive access to streams

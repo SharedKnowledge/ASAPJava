@@ -348,7 +348,7 @@ public class CmdLineUI {
         this.peers.put(name, asapPeer);
     }
 
-    private ASAPStorage getStorage(String peername, String appName) throws ASAPException, IOException {
+    private ASAPEngine getEngine(String peername, String appName) throws ASAPException, IOException {
         ASAPPeer asapPeer = this.peers.get(peername);
         if(asapPeer == null) {
             throw new ASAPException("peer does not exist: " + peername);
@@ -551,7 +551,7 @@ public class CmdLineUI {
             String appName = st.nextToken();
             String uri = st.nextToken();
 
-            ASAPStorage storage = this.getStorage(peername, appName);
+            ASAPStorage storage = this.getEngine(peername, appName);
 
             Set<CharSequence> recipients = new HashSet<>();
 
@@ -585,7 +585,7 @@ public class CmdLineUI {
             String message = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getStorage(peername, appName);
+            ASAPStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -615,8 +615,8 @@ public class CmdLineUI {
 
             boolean on = this.parseOnOffValue(onOff);
 
-            ASAPStorage storage = this.getStorage(storageName);
-            storage.setSendReceivedChunks(on);
+            ASAPEngine engine = this.getEngine(storageName);
+            engine.setBehaviourSendReceivedChunks(on);
         }
         catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());
@@ -654,7 +654,7 @@ public class CmdLineUI {
             String appName = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getStorage(peername, appName);
+            ASAPStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 System.err.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -713,7 +713,7 @@ public class CmdLineUI {
             String uri = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getStorage(peername, appName);
+            ASAPStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -753,14 +753,14 @@ public class CmdLineUI {
         return storageName.substring(i);
     }
 
-    private ASAPStorage getStorage(String storageName) throws ASAPException, IOException {
+    private ASAPEngine getEngine(String storageName) throws ASAPException, IOException {
         // split name into peer and storage
         String[] split = storageName.split(":");
 
-        ASAPStorage asapStorage = this.getStorage(split[0], split[1]);
-        if(asapStorage == null) throw new ASAPException("no storage with name: " + storageName);
+        ASAPEngine asapEngine = this.getEngine(split[0], split[1]);
+        if(asapEngine == null) throw new ASAPException("no storage with name: " + storageName);
 
-        return asapStorage;
+        return asapEngine;
     }
 
     private boolean parseOnOffValue(String onOff) throws ASAPException {
@@ -772,7 +772,7 @@ public class CmdLineUI {
     }
 
     public String getEngineRootFolderByStorageName(String storageName) throws ASAPException, IOException {
-        ASAPEngineFS asapEngineFS = (ASAPEngineFS) this.getStorage(storageName);
+        ASAPEngineFS asapEngineFS = (ASAPEngineFS) this.getEngine(storageName);
         return asapEngineFS.getRootFolder();
     }
 }

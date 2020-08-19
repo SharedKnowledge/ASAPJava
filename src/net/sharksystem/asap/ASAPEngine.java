@@ -17,7 +17,7 @@ import java.util.*;
  * @see ASAPStorage
  * @author thsc
  */
-public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
+public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -69,6 +69,63 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
     public void detachASAPMessageAddListener() {
         this.asapOnlineMessageSender = null;
+    }
+
+    /**
+     * We interpret an existing chunk with *no* recipients as
+     * public chunk
+     * @param chunk
+     * @return
+     */
+    private boolean isPublic(ASAPChunk chunk) {
+        return chunk.getRecipients().isEmpty();
+    }
+
+    @Override
+    public void newEra() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("newEra() | owner: ");
+        sb.append(this.owner);
+        sb.append(" | format: ");
+        sb.append(this.format);
+        sb.append(" | ");
+
+        if(this.contentChanged) {
+            sb.append("content changed - increment era...");
+            System.out.println(sb.toString());
+            try {
+                int oldEra = this.era;
+                int nextEra = this.getNextEra(this.era);
+
+                // set as fast as possible to make race conditions less likely
+                this.contentChanged = false;
+
+                // we are done here - we are in a new era.
+                this.era = nextEra;
+
+                // persistent values
+                if(this.memento != null) this.memento.save(this);
+
+                // drop very very old chunks - if available
+                this.chunkStorage.dropChunks(nextEra);
+
+                // setup new era - copy all chunks
+                for(ASAPChunk chunk : this.chunkStorage.getChunks(oldEra)) {
+                    ASAPChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
+                    copyChunk.clone(chunk);
+                }
+
+                System.out.println(this.getLogStart() + "era incremented");
+            } catch (IOException ex) {
+                sb.append("IOException while incrementing era: ");
+                sb.append(ex.getLocalizedMessage());
+                System.err.println(sb.toString());
+            }
+        } else {
+            sb.append("content not changed - era not changed");
+            System.out.println(sb.toString());
+        }
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -288,38 +345,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
 
         return b.toString();
     }
-/*
-    public void handleConnection(InputStream is, OutputStream os,
-                                 ASAPChunkReceivedListener listener) {
 
-        try {
-            ASAP_1_0 protocol = new ASAP_Modem_Impl();
-
-            // tell who I am - send a interest message
-            protocol.interest(this.owner, null, null,
-                    null, -1, -1, os, false);
-
-            // read interest from the other side
-            ASAP_PDU_1_0 asapPDU = protocol.readPDU(is);
-
-            // must be an interest
-            if(asapPDU.getCommand() != ASAP_1_0.INTEREST_CMD) {
-                throw new ASAPException("protocol error: expected asap interest - got something else");
-            }
-
-            this.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
-        }
-        catch(Exception e) {
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("Exception: ");
-            b.append(e.getLocalizedMessage());
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-        }
-    }
-*/
     public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
@@ -487,18 +513,6 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        // check conflict
-        if(!this.permission2ProceedConversation(peer)) {
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("no permission to communicate with remote peer: ");
-            b.append(peer);
-            System.err.println(b.toString());
-            throw new ASAPException("no permission to communicate with remote peer: " + peer);
-        } else {
-            System.out.println(this.getLogStart() + "permission ok, process interest");
-        }
-
         // era we are about to transmit
         int workingEra = this.getEraStartSync(peer);
         System.out.println(this.getLogStart() + "last_seen: " + workingEra + " | era: " + this.era);
@@ -564,7 +578,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.sendReceivedChunks;
     }
 
-    public void setSendReceivedChunks(boolean on) throws IOException {
+    public void setBehaviourSendReceivedChunks(boolean on) throws IOException {
         this.sendReceivedChunks = on;
         this.saveStatus();
     }
@@ -689,7 +703,7 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.dropDeliveredChunks;
     }
 
-    public void setDropDeliveredChunks(boolean drop) throws IOException {
+    public void setBehaviourDropDeliveredChunks(boolean drop) throws IOException {
         this.dropDeliveredChunks = drop;
         this.saveStatus();
     }
@@ -727,101 +741,12 @@ public abstract class ASAPEngine implements ASAPStorage, ASAPProtocolEngine, ASA
         return this.era;
     }
 
+    @Override
     public CharSequence getFormat()  {
         return this.format;
     }
 
     
-//    public int getNextEra(int era) {
-//        return this.
-//    }
-    
-    /* old
-     * Peers in ad-hoc networks have the tendency to establish two channels
-     * simultaneously. It's due to the lack of a controlling server instance
-     * and the - wanted - equality of each peers. We should suppress those
-     * useless double conversations.
-     * 
-     * @param peer
-     * @return 
-     */
-
-    /**
-     * Security / Permission module is due to undergo a deep review - returns always true until than.
-     * @param peer
-     * @return
-     */
-    private synchronized boolean permission2ProceedConversation(String peer) {
-        return true;
-        // if that peer is not in the list - go ahead
-        /*
-        boolean goAhead = !this.activePeers.contains(peer);
-        if(goAhead) {
-            // add that peer - an other call will fail.
-            this.activePeers.add(peer);
-        }
-        
-        return goAhead;
-         */
-    }
-
-    /**
-     * We interpret an existing chunk with *no* recipients as
-     * public chunk
-     * @param chunk
-     * @return 
-     */
-    private boolean isPublic(ASAPChunk chunk) {
-        return chunk.getRecipients().isEmpty();
-    }
-
-    @Override
-    public void newEra() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getLogStart());
-        sb.append("newEra() | owner: ");
-        sb.append(this.owner);
-        sb.append(" | format: ");
-        sb.append(this.format);
-        sb.append(" | ");
-
-        if(this.contentChanged) {
-            sb.append("content changed - increment era...");
-            System.out.println(sb.toString());
-            try {
-                int oldEra = this.era;
-                int nextEra = this.getNextEra(this.era);
-
-                // set as fast as possible to make race conditions less likely
-                this.contentChanged = false;
-
-                // we are done here - we are in a new era.
-                this.era = nextEra;
-
-                // persistent values
-                if(this.memento != null) this.memento.save(this);
-
-                // drop very very old chunks - if available
-                this.chunkStorage.dropChunks(nextEra);
-
-                // setup new era - copy all chunks
-                for(ASAPChunk chunk : this.chunkStorage.getChunks(oldEra)) {
-                    ASAPChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
-                    copyChunk.clone(chunk);
-                }
-
-                System.out.println(this.getLogStart() + "era incremented");
-            } catch (IOException ex) {
-                sb.append("IOException while incrementing era: ");
-                sb.append(ex.getLocalizedMessage());
-                System.err.println(sb.toString());
-            }
-        } else {
-            sb.append("content not changed - era not changed");
-            System.out.println(sb.toString());
-        }
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                            Online management                                           //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

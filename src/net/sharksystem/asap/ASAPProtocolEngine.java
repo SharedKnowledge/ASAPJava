@@ -26,17 +26,17 @@ public interface ASAPProtocolEngine {
     /**
      * Chunks are (tried to be) delivered to their recipients during each encounter
      * with another peer. After successful delivery, recipient is withdrawn from recipient
-     * list to prevent mutliple delivery.
+     * list to prevent multiple delivery.
      *
      * If this flag is set, chunk are removed permanently if their are delivered
-     * to all their recipients. If no set, they remain intact.
+     * to all their recipients. There are kept in local storage otherwise.
      * @param drop
      */
-    void setDropDeliveredChunks(boolean drop) throws IOException;
+    void setBehaviourDropDeliveredChunks(boolean drop) throws IOException;
 
     /**
      * engine can deliver local message but also received messages - default false - send no received messages
      * @param on
      */
-    void setSendReceivedChunks(boolean on) throws IOException;
+    void setBehaviourSendReceivedChunks(boolean on) throws IOException;
 }
