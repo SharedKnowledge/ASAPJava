@@ -18,6 +18,8 @@ import java.util.*;
  * @author thsc
  */
 public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
+    private DefaultPeerSecurityAdministrator securityAdministrator = new DefaultPeerSecurityAdministrator();
+
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
     static int DEFAULT_INIT_ERA = 0;
@@ -382,7 +384,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("going to assimilate pdu sender: ");
+        b.append("handle assimilate pdu received from ");
         b.append(sender);
         b.append(" | era: ");
         b.append(eraSender);
@@ -400,6 +402,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         //>>>>>>>>>>>>>>>>>>>debug
 
         boolean changed = false;
+        boolean allowedAssimilation = true;
 
         try {
             // read URI
@@ -409,17 +412,23 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             ASAPChunk localChunk = null;
 
             if(!incomingSenderStorage.existsChunk(uri, eraSender)) {
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append(this.getLogStart());
-                b.append("no incoming chunk yet | ");
-                b.append(asapAssimiliationPDU.toString());
-                System.out.println(b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
                 // is there a local chunk - to clone recipients from?
                 if(this.channelExists(uri)) {
                     localChunk = this.getStorage().getChunk(uri, this.getEra());
+                } else {
+                    System.out.println(this.getLogStart()
+                            + "asked to set up new channel: (uri/sender): " + uri + " | " + sender);
+                    // this channel is new to local peer - am I allowed to create it?
+                    if(!this.securityAdministrator.allowedToCreateChannel(asapAssimiliationPDU)) {
+                        System.out.println(this.getLogStart()
+                                + ".. not allowed .. TODO not yet implemented .. always set up");
+
+                        allowedAssimilation = false; // TODO
+                    } else {
+                        System.out.println(this.getLogStart()
+                                + "allowed. Set it up.");
+                        this.createChannel(uri);
+                    }
                 }
             }
 

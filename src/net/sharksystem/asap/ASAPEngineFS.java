@@ -108,7 +108,7 @@ public class ASAPEngineFS extends ASAPEngine {
         // root directory must exist when setting up an engine
         File root = new File(rootDirectory);
         if(!root.exists() || !root.isDirectory()) {
-            throw new ASAPException("chunk root directory must exist when creating an ASAPEngine");
+            throw new ASAPException("chunk root directory must exist when creating an ASAPEngine: " + rootDirectory);
         }
 
         String formatString = format != null ? format.toString() : ASAP_1_0.ANY_FORMAT;
@@ -263,10 +263,11 @@ public class ASAPEngineFS extends ASAPEngine {
         }
 
         dir.delete();
+        dir.deleteOnExit();
         try {
             Thread.sleep(1); // give file system a moment
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            // nobody wants to know
         }
     }
 }

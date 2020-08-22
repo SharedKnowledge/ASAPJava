@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.*;
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.TCPStream;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-public class Point2PointTests2 {
+public class CreateNewChannelFromOutsideTest {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
     public static final String ALICE_ROOT_FOLDER = "tests/Alice";
@@ -51,19 +52,14 @@ public class Point2PointTests2 {
         ASAPStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
-        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
-        bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
-        //bobStorage.addRecipient(ALICE_BOB_CHAT_URL, ALICE);
+        // there is only Bobs storage - nothing else. That's important.
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                        prepare multi engines                                  //
+        //                                        prepare peers                                          //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPChunkReceivedTester aliceListener = new ASAPChunkReceivedTester();
-        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(ALICE_ROOT_FOLDER, aliceListener);
-
-        ASAPChunkReceivedTester bobListener = new ASAPChunkReceivedTester();
-        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(BOB_ROOT_FOLDER, bobListener);
+        ASAPPeer aliceEngine = ASAPPeerFS.createASAPPeer(ALICE_ROOT_FOLDER, null);
+        ASAPPeer bobEngine = ASAPPeerFS.createASAPPeer(BOB_ROOT_FOLDER, null);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        setup connection                                       //
@@ -110,61 +106,15 @@ public class Point2PointTests2 {
         System.out.flush();
         System.err.flush();
 
-        // check results
-
-        // listener must have been informed about new messages
-        Assert.assertTrue(aliceListener.chunkReceived());
-        Assert.assertTrue(bobListener.chunkReceived());
-
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                     open incoming storages                                    //
+        //                                             tests                                             //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // get messages alice received
-        ASAPChunkStorage aliceSenderStored =
-                aliceStorage.getReceivedChunksStorage(aliceListener.getSender());
+        // there is a new channel
+        List<CharSequence> channelURIs = bobStorage.getChannelURIs();
+        Assert.assertEquals(1, channelURIs.size());
 
-        ASAPChunk aliceReceivedChunk =
-                aliceSenderStored.getChunk(aliceListener.getUri(),
-                        aliceListener.getEra());
-
-        // #1
-        Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
-        CharSequence aliceReceivedMessage = aliceReceivedMessages.next();
-        Assert.assertEquals(BOB2ALICE_MESSAGE, aliceReceivedMessage);
-        // #2
-        aliceReceivedMessage = aliceReceivedMessages.next();
-        Assert.assertEquals(BOB2ALICE_MESSAGE2, aliceReceivedMessage);
-
-        // get message bob received
-        ASAPChunkStorage bobSenderStored =
-                bobStorage.getReceivedChunksStorage(bobListener.getSender());
-
-        ASAPChunk bobReceivedChunk =
-                bobSenderStored.getChunk(bobListener.getUri(),
-                        bobListener.getEra());
-
-        // #1
-        Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
-        CharSequence bobReceivedMessage = bobReceivedMessages.next();
-        Assert.assertEquals(ALICE2BOB_MESSAGE, bobReceivedMessage);
-        // #2
-        bobReceivedMessage = bobReceivedMessages.next();
-        Assert.assertEquals(ALICE2BOB_MESSAGE2, bobReceivedMessage);
-
-        List<CharSequence> senderList = aliceStorage.getSender();
-        // expect bob
-        Assert.assertEquals(1, senderList.size());
-        Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
-
-        // simulate a sync
-        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
-        Assert.assertEquals(2, bobStorage.getEra());
-
-        Assert.assertEquals(1, bobStorage.getChannelURIs().size());
-
-        Thread.sleep(1000);
+        // and the one and only is...
+        Assert.assertEquals(ALICE_BOB_CHAT_URL, channelURIs.get(0));
     }
-
 }

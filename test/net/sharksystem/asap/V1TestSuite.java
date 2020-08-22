@@ -9,7 +9,9 @@ import org.junit.runners.Suite;
         BasisMethodsTests.class,
         Point2PointTests.class,
         Point2PointTests2.class,
-        UsageExamples.class})
+        UsageExamples.class,
+        CreateNewChannelFromOutsideTest.class
+})
 public class V1TestSuite {
 
 }

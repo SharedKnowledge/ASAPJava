@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
+
 import java.io.IOException;
 
 public class DefaultPeerSecurityAdministrator implements PeerSecurityAdministrator, PeerSecuritySettings {
@@ -31,5 +33,10 @@ public class DefaultPeerSecurityAdministrator implements PeerSecurityAdministrat
     @Override
     public boolean setSendOpenMessages(String peerName) {
         return false;
+    }
+
+    @Override
+    public boolean allowedToCreateChannel(ASAP_AssimilationPDU_1_0 asapAssimiliationPDU) {
+        return true; // it is a dummy
     }
 }
