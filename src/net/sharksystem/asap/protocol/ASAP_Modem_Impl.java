@@ -20,13 +20,14 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     public void offer(CharSequence peer, CharSequence format, CharSequence channel, int era,
                       OutputStream os, boolean signed) throws IOException, ASAPException {
 
+        if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
         OfferPDU_Impl.sendPDU(peer, format, channel, era, os, signed);
     }
 
     @Override
     public void offer(CharSequence peer, CharSequence format, CharSequence channel,
                       OutputStream os, boolean signed) throws IOException, ASAPException {
-        this.offer(peer, format, channel, -1, os, signed);
+        this.offer(peer, format, channel, 0, os, signed);
     }
 
     @Override
@@ -34,6 +35,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                          CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
+        // TODO - should throw an exception!
+        //if(eraFrom < 0 || eraTo < 0) throw new ASAPException("era must be a non-negative value: from|to): " + eraFrom + "|" + eraTo);
         InterestPDU_Impl.sendPDU(peer, sourcePeer, format, channel, eraFrom, eraTo, os, signed);
     }
 
@@ -58,6 +61,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
+        if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
 
         this.assimilate(peer, recipientPeer, format, channel, era, data.length, offsets,
                 new ByteArrayInputStream(data), os, signed);
