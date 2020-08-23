@@ -425,6 +425,15 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 this.asapPDU = protocol.readPDU(is);
             } catch (IOException e) {
                 this.ioException = e;
+                System.out.println(ASAPPersistentConnection.this.getLogStart()
+                        + "ioException when reading from stream, close stream");
+                try {
+                    this.is.close();
+                } catch (IOException exception) {
+                    System.out.println(ASAPPersistentConnection.this.getLogStart()
+                            + "closing a stream we could not read from: "
+                            + exception.getLocalizedMessage());
+                }
             } catch (ASAPException e) {
                 this.asapException = e;
             }
