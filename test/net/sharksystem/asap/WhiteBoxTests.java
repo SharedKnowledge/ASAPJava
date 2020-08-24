@@ -18,6 +18,12 @@ public class WhiteBoxTests {
     }
 
     @Test
+    public void scratch() {
+        int maxEra = 2^8-1;
+        int i = 42;
+    }
+
+    @Test
     public void writeReadByteMessages() throws IOException, ASAPException {
         String folder = "tests/writeReadByteMessagesTest";
         ASAPEngineFS.removeFolder(folder);

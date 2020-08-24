@@ -299,8 +299,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
 
     static void checkValidEra(int era) throws ASAPException {
         if(era < -1) throw new ASAPException("era cannot be smaller than -1");
-        int maxEra = 2^8-1;
-        if(era > maxEra) throw new ASAPException("era exceeded max limit of 2^8-1");
+        int maxEra = Integer.MAX_VALUE;
+        if(era > maxEra) throw new ASAPException("era exceeded max limit of " + Integer.MAX_VALUE);
     }
 
 }
