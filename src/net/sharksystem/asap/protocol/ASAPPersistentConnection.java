@@ -202,7 +202,14 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 Exception e = pduReader.getIoException() != null ?
                         pduReader.getIoException() : pduReader.getAsapException();
 
-                this.terminate("exception when reading from stream (stop asap session): ", e);
+                try {
+                    this.is.close();
+                } catch (IOException exception) {
+                    System.out.println(this.getLogStart()
+                            + "tried to close stream after exception caught: " + exception.getLocalizedMessage());
+                }
+
+                this.terminate("exception when reading from stream (stop asap session, stream closed): ", e);
                 break;
             }
 
@@ -426,15 +433,10 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             } catch (IOException e) {
                 this.ioException = e;
                 System.out.println(ASAPPersistentConnection.this.getLogStart()
-                        + "ioException when reading from stream, close stream");
-                try {
-                    this.is.close();
-                } catch (IOException exception) {
-                    System.out.println(ASAPPersistentConnection.this.getLogStart()
-                            + "closing a stream we could not read from: "
-                            + exception.getLocalizedMessage());
-                }
+                        + "IOException when reading from stream");
             } catch (ASAPException e) {
+                System.out.println(ASAPPersistentConnection.this.getLogStart()
+                        + "ASAPException when reading from stream");
                 this.asapException = e;
             }
             finally {
