@@ -5,10 +5,7 @@ import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 public class ASAPPeerFS implements
@@ -269,7 +266,7 @@ public class ASAPPeerFS implements
     //                                          connection management                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
                 maxExecutionTime, this, this);
