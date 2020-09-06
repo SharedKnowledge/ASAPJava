@@ -9,7 +9,7 @@ import java.util.List;
 
 import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
 
-abstract class PDU_Impl implements ASAP_PDU_1_0{
+abstract class PDU_Impl implements ASAP_PDU_1_0 {
     public static final int PEER_BIT_POSITION = 0;
     public static final int CHANNEL_BIT_POSITION = 1;
     public static final int ERA_BIT_POSITION = 2;
@@ -300,6 +300,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0{
     static void checkValidEra(int era) throws ASAPException {
         if(era < -1) throw new ASAPException("era cannot be smaller than -1");
         int maxEra = Integer.MAX_VALUE;
+        // that's impossible but ... never change a running system...
         if(era > maxEra) throw new ASAPException("era exceeded max limit of " + Integer.MAX_VALUE);
     }
 

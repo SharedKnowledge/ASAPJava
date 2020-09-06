@@ -32,11 +32,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-                         CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
+            CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
-        // TODO - should throw an exception!
-        //if(eraFrom < 0 || eraTo < 0) throw new ASAPException("era must be a non-negative value: from|to): " + eraFrom + "|" + eraTo);
         InterestPDU_Impl.sendPDU(peer, sourcePeer, format, channel, eraFrom, eraTo, os, signed);
     }
 
@@ -44,7 +42,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
                          CharSequence channel, OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        this.interest(peer, sourcePeer, format, channel, -1, -1, os, signed);
+        this.interest(peer, sourcePeer, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os, signed);
     }
 
     @Override
