@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +69,26 @@ public interface ASAP_1_0 {
     void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean signed) throws IOException, ASAPException;
+
+    /**
+     * @param peer identifies a peer - can be null
+     * @param sourcePeer wished source (authority) of information (optional, can be null)
+     * @param eraFrom lower limit of era range (-1 means undefined)
+     * @param eraTo upper limit of era range (-1 means undefined)
+     * @param channel whished / required channel (can be null)
+     * @param format describes format - used to describe an application that can deal with transmitted data format.
+     * @param os stream that PDU is to be sent
+     * @param sign sign message when sending
+     * @param encrypted encrypt method - of possible
+     * @param mustBeEncrypted encrypt can be set true. There could not bot a public key of receipient. If hit flag ist
+     *           set true - an exception is thrown. Otherwise. message is sent unencrypted.
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+                  CharSequence channel, int eraFrom, int eraTo,
+                  OutputStream os, boolean sign, boolean encrypted, boolean mustBeEncrypted)
+            throws IOException, ASAPException, ASAPSecurityException;
 
     /**
      * @param peer wished source (authority) of information

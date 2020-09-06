@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -304,4 +305,38 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         if(era > maxEra) throw new ASAPException("era exceeded max limit of " + Integer.MAX_VALUE);
     }
 
+    /**
+     * basis tests. if sign or encrypted true - at least a key store must be there. If sign. Public key must be there.
+     * @param sign
+     * @param encrypted
+     * @param keyStorage
+     * @throws ASAPSecurityException
+     */
+    static void checkBasicSecurityRequirements(boolean sign, boolean encrypted,
+                                               ASAPSignAndEncryptionKeyStorage keyStorage) throws ASAPSecurityException {
+        if(sign) {
+            // there must be a keyStorage
+            if(keyStorage == null) {
+                throw new ASAPSecurityException("asap message is to be signed but there is not key store - fatal, give up");
+            }
+
+            // signing needs a private key - check of available
+            if(keyStorage.getPrivateKey() == null) {
+                // assume, an exception already documented lack of a private key. if not
+                throw new ASAPSecurityException("asap message is to be signed but no private key - fatal, give up");
+            }
+
+            // ok, we can sign
+        }
+
+        if(encrypted) {
+            // there must be a keyStorage
+            if(keyStorage == null) {
+                throw new ASAPSecurityException("asap message is to be encrypted if possible " +
+                        "but there is not key store at all - fatal, give up");
+            }
+
+            // we have at least the chance
+        }
+    }
 }

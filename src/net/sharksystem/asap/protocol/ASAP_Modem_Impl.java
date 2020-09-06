@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,7 +10,17 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
+    private final ASAPSignAndEncryptionKeyStorage signAndEncryptionKeyStorage;
+
+    public ASAP_Modem_Impl() {
+        this.signAndEncryptionKeyStorage = null; // no key storage
+    }
+
+    public ASAP_Modem_Impl(ASAPSignAndEncryptionKeyStorage signAndEncryptionKeyStorage) {
+        this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
+    }
     // Character are transmitted as bytes: number of bytes (first byte), content following, 0 mean no content
+
 
     /*
     general structure:
@@ -32,17 +43,28 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-            CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
-            throws IOException, ASAPException {
+                         CharSequence channel, OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        InterestPDU_Impl.sendPDU(peer, sourcePeer, format, channel, eraFrom, eraTo, os, signed);
+        this.interest(peer, sourcePeer, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os, signed);
     }
 
     @Override
     public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-                         CharSequence channel, OutputStream os, boolean signed) throws IOException, ASAPException {
+             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
+            throws IOException, ASAPException {
 
-        this.interest(peer, sourcePeer, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os, signed);
+        this.interest(peer, sourcePeer, format, channel, eraFrom, eraTo, os,
+                signed, false, false);
+    }
+
+    @Override
+    public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+            CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
+                         boolean encryted, boolean mustBeEncrypted)
+            throws IOException, ASAPException, ASAPSecurityException {
+
+        InterestPDU_Impl.sendPDU(peer, sourcePeer, format, channel, eraFrom, eraTo, os,
+                signed, encryted, mustBeEncrypted, this.signAndEncryptionKeyStorage);
     }
 
     @Override
