@@ -24,8 +24,8 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
         evaluateFlags(flagsInt);
 
-        if(this.peerSet()) { this.readPeer(is); }
-        if(this.recipientPeerSet()) { this.readRecipientPeer(is); }
+        if(this.senderSet()) { this.readSender(is); }
+        if(this.recipientSet()) { this.readRecipientPeer(is); }
         this.readFormat(is);
         if(this.channelSet()) { this.readChannel(is); }
         if(this.eraSet()) { this.readEra(is); }
@@ -56,7 +56,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
         // create parameter bytes
         int flags = 0;
-        flags = PDU_Impl.setFlag(peer, flags, PEER_BIT_POSITION);
+        flags = PDU_Impl.setFlag(peer, flags, SENDER_BIT_POSITION);
         flags = PDU_Impl.setFlag(recipientPeer, flags, RECIPIENT_PEER_BIT_POSITION);
         flags = PDU_Impl.setFlag(channel, flags, CHANNEL_BIT_POSITION);
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);

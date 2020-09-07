@@ -378,7 +378,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
-        String sender = asapAssimiliationPDU.getPeer();
+        String sender = asapAssimiliationPDU.getSender();
         int eraSender = asapAssimiliationPDU.getEra();
 
         //<<<<<<<<<<<<<<<<<<debug
@@ -514,7 +514,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             throws ASAPException, IOException {
 
         // get remote peer
-        String peer = asapInterest.getPeer();
+        String peer = asapInterest.getSender();
 
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();

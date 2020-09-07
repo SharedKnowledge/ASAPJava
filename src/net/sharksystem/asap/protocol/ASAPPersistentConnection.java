@@ -217,7 +217,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             /////////////////////////////// process
             if(asappdu != null) {
                 System.out.println(this.getLogStart() + "read valid pdu");
-                this.setRemotePeer(asappdu.getPeer());
+                this.setRemotePeer(asappdu.getSender());
 
                 try {
                     this.executor = new ASAPPDUExecutor(asappdu,

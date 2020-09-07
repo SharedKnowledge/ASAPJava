@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
+
 public class PDUTests {
 
     @Test
@@ -37,16 +39,17 @@ public class PDUTests {
 
         Assert.assertTrue(offerPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(offerPDU.getFormat().equalsIgnoreCase(format));
-        Assert.assertTrue(offerPDU.getPeer().equalsIgnoreCase(peer));
+        Assert.assertTrue(offerPDU.getSender().equalsIgnoreCase(peer));
         Assert.assertEquals(offerPDU.getEra(), era);
     }
 
+    ////////////////////           interest          /////////////////////////////////////////
     @Test
     public void sendAndReceiveInterest() throws IOException, ASAPException {
         ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
 
-        String peer = "Alice";
-        String sourcePeer = "Bob";
+        String sender = "Alice";
+        String recipient = "Bob";
         String channel = "AliceURI";
         String format = "format";
         int eraFrom = 1;
@@ -54,13 +57,7 @@ public class PDUTests {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        /*
-    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-                  CharSequence channel, int eraFrom, int eraTo,
-                  OutputStream os, boolean signed) throws IOException, ASAPException;
-         */
-
-        protocolEngine.interest(peer, sourcePeer, format, channel, eraFrom, eraTo, os, false);
+        protocolEngine.interest(sender, recipient, format, channel, eraFrom, eraTo, os, false);
 
         // try t read output
         InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -71,18 +68,81 @@ public class PDUTests {
 
         Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
-        Assert.assertTrue(interestPDU.getPeer().equalsIgnoreCase(peer));
-        Assert.assertTrue(interestPDU.getSourcePeer().equalsIgnoreCase(sourcePeer));
+        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(interestPDU.getRecipient().equalsIgnoreCase(recipient));
         Assert.assertEquals(interestPDU.getEraFrom(), eraFrom);
         Assert.assertEquals(interestPDU.getEraTo(), eraTo);
     }
 
+    // protocol.interest(this.owner, null, null, null, -1, -1, os, false);
+    @Test
+    public void sendAndReceiveInterest2() throws IOException, ASAPException {
+        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
+
+        String sender = "Alice";
+        String recipient = null;
+        String channel = null;
+        String format = null; // will be corrected
+        /*
+        int eraFrom = ERA_NOT_DEFINED;
+        int eraTo = ERA_NOT_DEFINED;
+         */
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        protocolEngine.interest(sender, recipient, format, channel, os);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = protocolEngine.readPDU(is);
+
+        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
+
+        Assert.assertFalse(interestPDU.channelSet());
+        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ANY_FORMAT.toString()));
+        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(interestPDU.senderSet());
+        Assert.assertFalse(interestPDU.recipientSet());
+        Assert.assertFalse(interestPDU.eraFromSet());
+        Assert.assertFalse(interestPDU.eraToSet());
+    }
+
+    @Test
+    public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
+        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
+
+        String sender = "Alice";
+        String recipient = "Bob";
+        String channel = "AliceURI";
+        String format = "format";
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        /////////////////////// can be encrypted
+        protocolEngine.interest(sender, recipient, format, channel, os,
+                false, true, false);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = protocolEngine.readPDU(is);
+
+        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
+
+        Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
+        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
+        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(recipient));
+    }
+
+    ////////////////////           assimilate          /////////////////////////////////////////
     @Test
     public void sendAndReceiveAssimilate() throws IOException, ASAPException {
         ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
 
-        String peer = "Alice";
-        String recipientPeer = "Bob";
+        String sender = "Alice";
+        String recipient = "Bob";
         String channel = "AliceURI";
         String format = "format";
         int era = 1;
@@ -105,7 +165,7 @@ public class PDUTests {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        protocolEngine.assimilate(peer, recipientPeer, format, channel, era, offsetsList, data, os,false);
+        protocolEngine.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,false);
 
         // try t read output
         InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -116,8 +176,8 @@ public class PDUTests {
 
         Assert.assertTrue(assimilationPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(assimilationPDU.getFormat().equalsIgnoreCase(format));
-        Assert.assertTrue(assimilationPDU.getPeer().equalsIgnoreCase(peer));
-        Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipientPeer));
+        Assert.assertTrue(assimilationPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipient));
         Assert.assertEquals(assimilationPDU.getEra(), era);
 
         byte[] data_received = assimilationPDU.getData();
@@ -138,42 +198,5 @@ public class PDUTests {
 
         Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
         Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
-    }
-
-    // protocol.interest(this.owner, null, null, null, -1, -1, os, false);
-    @Test
-    public void sendAndReceiveInterest2() throws IOException, ASAPException {
-        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
-
-        String peer = "Alice";
-        String sourcePeer = null;
-        String channel = null;
-        String format = null;
-        int eraFrom = -1;
-        int eraTo = -1;
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        /*
-    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-                  CharSequence channel, int eraFrom, int eraTo,
-                  OutputStream os, boolean signed) throws IOException, ASAPException;
-         */
-
-        protocolEngine.interest(peer, sourcePeer, format, channel, eraFrom, eraTo, os, false);
-
-        // try t read output
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-        ASAP_PDU_1_0 asap_pdu_1_0 = protocolEngine.readPDU(is);
-
-        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
-
-        Assert.assertFalse(interestPDU.channelSet());
-        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(ASAP_1_0.ANY_FORMAT.toString()));
-        Assert.assertTrue(interestPDU.getPeer().equalsIgnoreCase(peer));
-        Assert.assertFalse(interestPDU.sourcePeerSet());
-        Assert.assertFalse(interestPDU.eraFromSet());
-        Assert.assertFalse(interestPDU.eraToSet());
     }
 }

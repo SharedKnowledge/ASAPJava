@@ -11,25 +11,24 @@ import java.util.List;
 import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
 
 abstract class PDU_Impl implements ASAP_PDU_1_0 {
-    public static final int PEER_BIT_POSITION = 0;
-    public static final int CHANNEL_BIT_POSITION = 1;
-    public static final int ERA_BIT_POSITION = 2;
-    public static final int SOURCE_PEER_BIT_POSITION = 3;
+    public static final int SENDER_BIT_POSITION = 0;
+    public static final int RECIPIENT_PEER_BIT_POSITION = 1;
+    public static final int CHANNEL_BIT_POSITION = 2;
+    public static final int ERA_BIT_POSITION = 3;
     public static final int ERA_FROM_BIT_POSITION = 4;
     public static final int ERA_TO_BIT_POSITION = 5;
-    public static final int RECIPIENT_PEER_BIT_POSITION = 6;
-    public static final int OFFSETS_BIT_POSITION = 7;
+    public static final int OFFSETS_BIT_POSITION = 6;
 
-    private boolean peerSet = false;
+    private boolean senderSet = false;
+    private boolean recipientSet = false;
     private boolean channelSet = false;
     private boolean eraSet = false;
-    private boolean sourcePeerSet = false;
     private boolean eraFrom = false;
     private boolean eraTo = false;
-    private boolean recipientPeerSet = false;
     private boolean offsetsSet = false;
 
-    private String peer;
+    private String sender;
+    private String recipient;
     private String format;
     private String channel;
     private int era;
@@ -48,7 +47,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
             case ASAP_1_0.OFFER_CMD: sb.append("O"); break;
             case ASAP_1_0.ASSIMILATE_CMD: sb.append("A"); break;
         }
-        sb.append(" | sender: "); if(peerSet) sb.append(this.peer); else sb.append("not set");
+        sb.append(" | sender: "); if(senderSet) sb.append(this.sender); else sb.append("not set");
         sb.append(" | format: "); sb.append(format);
         sb.append(" | channel: "); if(channelSet) sb.append(this.channel); else sb.append("not set");
         sb.append(" | era: "); if(eraSet) sb.append(era); else sb.append("not set");
@@ -62,11 +61,17 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     }
 
     protected void evaluateFlags(int flag) {
-        // peer parameter set ?
+        // sender parameter set ?
         int testFlag = 1;
-        testFlag = testFlag << PEER_BIT_POSITION;
+        testFlag = testFlag << SENDER_BIT_POSITION;
         int result = flag & testFlag;
-        peerSet = result != 0;
+        senderSet = result != 0;
+
+        // recipient peer parameter set ?
+        testFlag = 1;
+        testFlag = testFlag << RECIPIENT_PEER_BIT_POSITION;
+        result = flag & testFlag;
+        recipientSet = result != 0;
 
         // channel parameter set ?
         testFlag = 1;
@@ -80,12 +85,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         result = flag & testFlag;
         eraSet = result != 0;
 
-        // source peer parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << SOURCE_PEER_BIT_POSITION;
-        result = flag & testFlag;
-        sourcePeerSet = result != 0;
-
         // era from parameter set ?
         testFlag = 1;
         testFlag = testFlag << ERA_FROM_BIT_POSITION;
@@ -98,12 +97,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         result = flag & testFlag;
         eraTo = result != 0;
 
-        // recipient peer parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << RECIPIENT_PEER_BIT_POSITION;
-        result = flag & testFlag;
-        recipientPeerSet = result != 0;
-
         // offsets parameter set ?
         testFlag = 1;
         testFlag = testFlag << OFFSETS_BIT_POSITION;
@@ -112,7 +105,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     }
 
     @Override
-    public boolean peerSet() { return this.peerSet; }
+    public boolean senderSet() { return this.senderSet; }
 
     @Override
     public boolean channelSet() { return this.channelSet; }
@@ -120,18 +113,19 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     @Override
     public boolean eraSet() { return this.eraSet; }
 
-    public boolean sourcePeerSet() { return this.sourcePeerSet; }
-
     public boolean eraFromSet() { return this.eraFrom; }
 
     public boolean eraToSet() { return this.eraTo; }
 
-    public boolean recipientPeerSet() { return this.recipientPeerSet; }
+    public boolean recipientSet() { return this.recipientSet; }
 
     public boolean offsetsSet() { return this.offsetsSet; }
 
     @Override
-    public String getPeer() { return this.peer; }
+    public String getSender() { return this.sender; }
+
+    @Override
+    public String getRecipient() { return this.recipient; }
 
     @Override
     public String getFormat() { return this.format; }
@@ -231,10 +225,13 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     }
 
 
-    protected void readPeer(InputStream is) throws IOException, ASAPException {
-        this.peer = this.readCharSequenceParameter(is);
+    protected void readSender(InputStream is) throws IOException, ASAPException {
+        this.sender = this.readCharSequenceParameter(is);
     }
 
+    protected void readRecipient(InputStream is) throws IOException, ASAPException {
+        this.recipient = this.readCharSequenceParameter(is);
+    }
 
     protected void readFormat(InputStream is) throws IOException, ASAPException {
         this.format = this.readCharSequenceParameter(is);
@@ -305,15 +302,12 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         if(era > maxEra) throw new ASAPException("era exceeded max limit of " + Integer.MAX_VALUE);
     }
 
-    /**
-     * basis tests. if sign or encrypted true - at least a key store must be there. If sign. Public key must be there.
-     * @param sign
-     * @param encrypted
-     * @param keyStorage
-     * @throws ASAPSecurityException
-     */
-    static void checkBasicSecurityRequirements(boolean sign, boolean encrypted,
-                                               ASAPSignAndEncryptionKeyStorage keyStorage) throws ASAPSecurityException {
+    protected static OutputStream prepareCrypto(
+            OutputStream os, boolean sign, boolean encrypted, boolean mustEncrypt,
+            CharSequence recipient,
+            ASAPSignAndEncryptionKeyStorage keyStorage) throws ASAPSecurityException {
+
+        /*
         if(sign) {
             // there must be a keyStorage
             if(keyStorage == null) {
@@ -327,6 +321,27 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
             }
 
             // ok, we can sign
+        if(sign) {
+            // anything was written into a bytearray
+
+            // produce signature
+            Signature signature = null;
+            try {
+                signature = Signature.getInstance("TODO_signing_algorithm");
+                signature.initSign(keyStorage.getPrivateKey()); // desperate try
+                byte[] bytes2Sign = bufferOS.toByteArray();
+                signature.update(bytes2Sign);
+                byte[] signatureBytes = signature.sign();
+
+                // send out anything, including signature
+
+                // TODO need number of bytes payload to find signature later.
+                os.write(bytes2Sign);
+                os.write(signatureBytes);
+            } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+                throw new ASAPSecurityException(e.getLocalizedMessage());
+            }
+        }
         }
 
         if(encrypted) {
@@ -337,6 +352,29 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
             }
 
             // we have at least the chance
+            // encryption?
+            try {
+                Cipher cipher = Cipher.getInstance("TODO_Cipher_Algorithm");
+                cipher.init(Cipher.ENCRYPT_MODE, keyStorage.getPublicKey(peer));
+
+                byte[] message = new byte[0];
+                cipher.doFinal(message);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (NoSuchPaddingException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            } catch (BadPaddingException e) {
+                e.printStackTrace();
+            } catch (IllegalBlockSizeException e) {
+                e.printStackTrace();
+            }
+
+
         }
+         */
+
+        return os;
     }
 }

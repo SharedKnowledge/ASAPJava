@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
-    boolean recipientPeerSet();
-
     String getRecipientPeer();
 
     byte[] getData() throws IOException;

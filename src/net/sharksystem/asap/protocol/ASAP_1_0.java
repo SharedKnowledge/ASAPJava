@@ -12,10 +12,14 @@ import java.util.List;
  * Descriptions of ASAP protocol data units and some constants
  */
 public interface ASAP_1_0 {
-    byte OFFER_CMD = 'O';
-    byte INTEREST_CMD = 'I';
-    byte ASSIMILATE_CMD = 'A';
-    String ANY_FORMAT = "any_asap";
+    int CMD_MASK = 0x6; // 0110
+    byte OFFER_CMD = 0;
+    byte INTEREST_CMD = 2;
+    byte ASSIMILATE_CMD = 4;
+
+    int ENCRYPTED_MASK = 0x1; // 0001
+    byte ENCRYPTED_CMD = 1;
+    String ANY_FORMAT = "ASAP_ANY_FORMAT";
     String ASAP_MANAGEMENT_FORMAT = "asap/control";
     int ERA_NOT_DEFINED = -1;
 
@@ -38,7 +42,7 @@ public interface ASAP_1_0 {
             throws IOException, ASAPException;
 
     /**
-     * @param peer identifies a peer - can be null
+     * @param recipient identifies a peer - can be null
      * @param channel describes a channel (can be null)
      * @param format describes format - used to describe an application that can deal with transmitted data format.
      * @param os stream that PDU is to be sent
@@ -46,7 +50,7 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void offer(CharSequence peer, CharSequence format, CharSequence channel, OutputStream os, boolean signed)
+    void offer(CharSequence recipient, CharSequence format, CharSequence channel, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
     /*
@@ -55,8 +59,8 @@ public interface ASAP_1_0 {
     */
 
     /**
-     * @param peer identifies a peer - can be null
-     * @param sourcePeer wished source (authority) of information (optional, can be null)
+     * @param sender identifies sender - can be null
+     * @param recipient can be null - no restriction - any encountered peer will get it.
      * @param eraFrom lower limit of era range (-1 means undefined)
      * @param eraTo upper limit of era range (-1 means undefined)
      * @param channel whished / required channel (can be null)
@@ -66,13 +70,26 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean signed) throws IOException, ASAPException;
 
+
     /**
-     * @param peer identifies a peer - can be null
-     * @param sourcePeer wished source (authority) of information (optional, can be null)
+     * @param sender identifies sender - can be null
+     * @param recipient can be null - no restriction - any encountered peer will get it.
+     * @param channel whished / required channel (can be null)
+     * @param format describes format - used to describe an application that can deal with transmitted data format.
+     * @param os stream that PDU is to be sent
+     * @throws IOException exception during writing on stream
+     * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
+     */
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                  CharSequence channel, OutputStream os) throws IOException, ASAPException;
+
+    /**
+     * @param sender identifies sender - can be null
+     * @param recipient can be null - no restriction - any encountered peer will get it.
      * @param eraFrom lower limit of era range (-1 means undefined)
      * @param eraTo upper limit of era range (-1 means undefined)
      * @param channel whished / required channel (can be null)
@@ -85,13 +102,13 @@ public interface ASAP_1_0 {
      * @throws IOException
      * @throws ASAPException
      */
-    void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean sign, boolean encrypted, boolean mustBeEncrypted)
             throws IOException, ASAPException, ASAPSecurityException;
 
     /**
-     * @param peer wished source (authority) of information
+     * @param sender identifies sender - can be null
      * @param channel whished / required channel (can be null)
      * @param format describes format - used to describe an application that can deal with transmitted data format.
      * @param os stream that PDU is to be sent
@@ -99,8 +116,9 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void interest(CharSequence peer, CharSequence format, CharSequence sourcePeer, CharSequence channel,
-                  OutputStream os, boolean signed) throws IOException, ASAPException;
+    void interest(CharSequence sender, CharSequence format, CharSequence sourcePeer,
+                  CharSequence channel, OutputStream os, boolean signed, boolean encrypted,
+                  boolean mustBeEncrypted) throws IOException, ASAPException;
 
     /*
     ASSIMILATE: Peer (optional) issues data (mandatory) to a channel (mandatory) in a format (mandatory) of a
@@ -109,8 +127,8 @@ public interface ASAP_1_0 {
 
     /**
      *
-     * @param peer sender (optional, can be null)
-     * @param recipientPeer wished recipient (optional, can be null)
+     * @param sender sender (optional, can be null)
+     * @param recipient wished recipient (optional, can be null)
      * @param channelUri mandatory
      * @param format mandatory
      * @param offsets applications will probably store a number of messages in a data block. This (optional) list
@@ -121,14 +139,14 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channelUri, int era,
+    void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channelUri, int era,
                     long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
     /**
      *
-     * @param peer sender (optional, can be null)
-     * @param recipientPeer wished recipient (optional, can be null)
+     * @param sender sender (optional, can be null)
+     * @param recipient wished recipient (optional, can be null)
      * @param channel mandatory
      * @param format mandatory
      * @param offsets applications will probably store a number of messages in a data block. This (optional) list
@@ -139,7 +157,7 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel, int era,
+    void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channel, int era,
                     List<Long> offsets, byte[] data, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 

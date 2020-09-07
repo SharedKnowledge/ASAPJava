@@ -19,77 +19,93 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     public ASAP_Modem_Impl(ASAPSignAndEncryptionKeyStorage signAndEncryptionKeyStorage) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
     }
+
     // Character are transmitted as bytes: number of bytes (first byte), content following, 0 mean no content
-
-
     /*
-    general structure:
+    general structure (asap message)
+    a) no encryption
     CMD | FLAGS | ... specifics
-     */
+
+    b) encryption
+    CMD | algorithm | recipient | encrypted message len | encrypted FLAGS | ... specifics
+    */
 
     @Override
     public void offer(CharSequence peer, CharSequence format, CharSequence channel, int era,
                       OutputStream os, boolean signed) throws IOException, ASAPException {
-
-        if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
         OfferPDU_Impl.sendPDU(peer, format, channel, era, os, signed);
     }
 
     @Override
-    public void offer(CharSequence peer, CharSequence format, CharSequence channel,
+    public void offer(CharSequence recipient, CharSequence format, CharSequence channel,
                       OutputStream os, boolean signed) throws IOException, ASAPException {
-        this.offer(peer, format, channel, 0, os, signed);
+        this.offer(recipient, format, channel, ERA_NOT_DEFINED, os, signed);
     }
 
     @Override
-    public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
-                         CharSequence channel, OutputStream os, boolean signed) throws IOException, ASAPException {
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                         CharSequence channel, OutputStream os, boolean signed,
+                         boolean encryted, boolean mustBeEncrypted) throws IOException, ASAPException {
 
-        this.interest(peer, sourcePeer, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os, signed);
+        this.interest(sender, recipient, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os,
+                signed, encryted, mustBeEncrypted);
     }
 
     @Override
-    public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                         CharSequence channel, OutputStream os) throws IOException, ASAPException {
+
+        this.interest(sender, recipient, format, channel, os, false, false, false);
+    }
+
+    @Override
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
              CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
-        this.interest(peer, sourcePeer, format, channel, eraFrom, eraTo, os,
+        this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
                 signed, false, false);
     }
 
     @Override
-    public void interest(CharSequence peer, CharSequence sourcePeer, CharSequence format,
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
                          boolean encryted, boolean mustBeEncrypted)
             throws IOException, ASAPException, ASAPSecurityException {
 
-        InterestPDU_Impl.sendPDU(peer, sourcePeer, format, channel, eraFrom, eraTo, os,
+        InterestPDU_Impl.sendPDU(sender, recipient, format, channel, eraFrom, eraTo, os,
                 signed, encryted, mustBeEncrypted, this.signAndEncryptionKeyStorage);
     }
 
     @Override
-    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        AssimilationPDU_Impl.sendPDU(peer, recipientPeer, format, channel, era, length, offsets, dataIS, os, signed);
+        AssimilationPDU_Impl.sendPDU(sender, recipient, format, channel, era, length, offsets, dataIS, os, signed);
     }
 
     @Override
-    public void assimilate(CharSequence peer, CharSequence recipientPeer, CharSequence format,
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, List<Long> offsets, byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
         if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
 
-        this.assimilate(peer, recipientPeer, format, channel, era, data.length, offsets,
+        this.assimilate(sender, recipient, format, channel, era, data.length, offsets,
                 new ByteArrayInputStream(data), os, signed);
     }
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
         byte cmd = PDU_Impl.readByte(is);
+
+        // encrypted?
+        boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
+        // remove encrypted flag anyway
+        cmd = (byte)(cmd & CMD_MASK);
+
         int flagsInt = PDU_Impl.readByte(is);
 
         ASAP_PDU_1_0 pdu = null;

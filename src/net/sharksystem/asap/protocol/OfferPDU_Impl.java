@@ -12,7 +12,7 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
         super(ASAP_1_0.OFFER_CMD);
         evaluateFlags(flagsInt);
 
-        if(this.peerSet()) { this.readPeer(is); }
+        if(this.senderSet()) { this.readSender(is); }
         this.readFormat(is);
         if(this.channelSet()) { this.readChannel(is); }
         if(this.eraSet()) { this.readEra(is); }
@@ -29,7 +29,7 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
 
         // create parameter bytes
         int flags = 0;
-        flags = PDU_Impl.setFlag(peer, flags, PEER_BIT_POSITION);
+        flags = PDU_Impl.setFlag(peer, flags, SENDER_BIT_POSITION);
         flags = PDU_Impl.setFlag(channel, flags, CHANNEL_BIT_POSITION);
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);
 

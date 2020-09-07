@@ -7,9 +7,14 @@ public interface ASAP_PDU_1_0 {
     byte getCommand();
 
     /**
-     * @return ID of sender of this message
+     * @return ID of sender of this message  - optional
      */
-    String getPeer();
+    String getSender();
+
+    /**
+     * @return ID of recipient of this message - optional
+     */
+    String getRecipient();
 
     /**
      * @return format A URI style is strongly recommended.
@@ -33,9 +38,14 @@ public interface ASAP_PDU_1_0 {
     int getEra();
 
     /**
-     * @return a flag that indicates whether the optional peer parameter was transmitted
+     * @return a flag that indicates whether the optional sender parameter was transmitted
      */
-    boolean peerSet();
+    boolean senderSet();
+
+    /**
+     * @return a flag that indicates whether the optional recipient parameter was transmitted
+     */
+    boolean recipientSet();
     /**
      * @return a flag that indicates whether the optional channel parameter was transmitted
      */
