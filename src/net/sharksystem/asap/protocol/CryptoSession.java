@@ -9,12 +9,10 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 
 class CryptoSession {
+    private Signature signature;
     private CharSequence recipient;
     private ASAPReadonlyKeyStorage keyStorage;
     private Cipher cipher = null;
@@ -24,36 +22,9 @@ class CryptoSession {
     private OutputStream effectivOS;
     private OutputStream realOS;
     private ByteArrayOutputStream asapMessageOS;
-    private byte[] asapMessageAsBytes;
 
     CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
-    }
-
-    InputStream decrypt(InputStream is) throws ASAPSecurityException {
-        return this.decrypt(is, this.keyStorage.getPrivateKey());
-    }
-
-    private InputStream decrypt(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
-        try {
-            this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
-            this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
-
-            // read len
-            int len = PDU_Impl.readIntegerParameter(is);
-            byte[] messageBytes = new byte[len];
-
-            // read encrypted bytes from stream
-            is.read(messageBytes);
-
-            // debugging
-            // decrypt
-            byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
-            return new ByteArrayInputStream(decryptedBytes);
-        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
-                NoSuchPaddingException | InvalidKeyException | IOException | ASAPException e) {
-            throw new ASAPSecurityException(this.getLogStart(), e);
-        }
     }
 
     CryptoSession(byte cmd, OutputStream os, boolean sign, boolean encrypted,
@@ -93,13 +64,9 @@ class CryptoSession {
             }
 
             // cipher is ready - we can encrypt
-            this.asapMessageOS = new ByteArrayOutputStream();
-            // pud will make a detour
-            this.effectivOS = this.asapMessageOS;
+            this.setupTempMessageStorage();
         }
 
-
-        /*
         if(sign) {
             // there must be a keyStorage
             if(keyStorage == null) {
@@ -113,32 +80,26 @@ class CryptoSession {
             }
 
             // ok, we can sign
-        if(sign) {
-            // anything was written into a bytearray
 
             // produce signature
-            Signature signature = null;
             try {
-                signature = Signature.getInstance("TODO_signing_algorithm");
-                signature.initSign(keyStorage.getPrivateKey()); // desperate try
-                byte[] bytes2Sign = bufferOS.toByteArray();
-                signature.update(bytes2Sign);
-                byte[] signatureBytes = signature.sign();
+                this.signature = Signature.getInstance(this.keyStorage.getRSASigningAlgorithm());
 
-                // send out anything, including signature
+                // we could sign
+                this.setupTempMessageStorage();
 
-                // TODO need number of bytes payload to find signature later.
-                os.write(bytes2Sign);
-                os.write(signatureBytes);
-            } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            } catch (NoSuchAlgorithmException e) {
                 throw new ASAPSecurityException(e.getLocalizedMessage());
             }
         }
+    }
+
+    private void setupTempMessageStorage() {
+        if(this.asapMessageOS == null) {
+            this.asapMessageOS = new ByteArrayOutputStream();
+            // pud will make a detour
+            this.effectivOS = this.asapMessageOS;
         }
-
-         */
-
-
     }
 
     public void sendCmd() throws IOException {
@@ -154,42 +115,111 @@ class CryptoSession {
         return this.effectivOS;
     }
 
+    private void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
+        PDU_Impl.sendNonNegativeIntegerParameter(bytes2Write.length, os);
+        os.write(bytes2Write);
+    }
+
+    private byte[] readByteArray(InputStream is) throws IOException, ASAPException {
+        // read len
+        int len = PDU_Impl.readIntegerParameter(is);
+        byte[] messageBytes = new byte[len];
+
+        // read encrypted bytes from stream
+        is.read(messageBytes);
+
+        return messageBytes;
+    }
+
     public void finish() throws ASAPSecurityException {
-        if(cipher != null) {
-            // that is our asap message in clear text
-            this.asapMessageAsBytes = this.asapMessageOS.toByteArray();
+        // signing must come first
+        if(this.signature != null) {
+            try {
+                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
+                this.signature.initSign(this.keyStorage.getPrivateKey());
+                this.signature.update(asapMessageAsBytes);
+                byte[] signatureBytes = signature.sign();
+
+                if(this.cipher != null) {
+                    // have to store it - anything will be encrypted
+                    this.writeByteArray(signatureBytes, this.asapMessageOS);
+                } else {
+                    // can write anything now
+                    this.realOS.write(asapMessageAsBytes);
+                    this.writeByteArray(signatureBytes, this.realOS);
+                }
+            } catch (InvalidKeyException | SignatureException | IOException e) {
+                throw new ASAPSecurityException(this.getLogStart(), e);
+            }
+        }
+
+        if(this.cipher != null) {
             try {
                 // encrypted asap message
-                byte[] encryptedBytes = this.cipher.doFinal(this.asapMessageAsBytes);
-                //this.debuggingRememberEncryptedASAPMessage = encryptedBytes;
+                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
+                byte[] encryptedBytes = this.cipher.doFinal(asapMessageAsBytes);
 
-                // write len
-                PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, this.realOS);
-                // write data
+                this.writeByteArray(encryptedBytes, this.realOS);
                 this.realOS.write(encryptedBytes);
-
-                /*
-                // debugging - decrypt
-
-                // make a test
-                ByteArrayOutputStream senderSiteTest = new ByteArrayOutputStream();
-                PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, senderSiteTest);
-                senderSiteTest.write(encryptedBytes);
-
-                this.debuggingEncryptedASAPMessageWithLen = senderSiteTest.toByteArray();
-
-                PrivateKey privateKey = this.keyStorage.getPrivateKey(this.recipient);
-//                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(senderSiteTest.toByteArray()), privateKey);
-                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(this.debuggingEncryptedASAPMessageWithLen), privateKey);
-                int i = 42;
- */
             } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);
             }
         }
     }
 
+    ////////////////////////////////// verify
+
+    public boolean verify(String sender, InputStream is) throws IOException, ASAPException {
+        // try to get senders' public key
+        PublicKey publicKey = this.keyStorage.getPublicKey(sender);
+        if(publicKey == null) return false;
+
+        try {
+            this.signature = Signature.getInstance(this.keyStorage.getRSASigningAlgorithm());
+            this.signature.initVerify(publicKey);
+            byte[] signatureBytes = this.readByteArray(is);
+            boolean wasVerified = this.signature.verify(signatureBytes);
+            return wasVerified;
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new ASAPSecurityException(this.getLogStart(), e);
+        }
+    }
+
+    ////////////////////////////////// decrypt
+
+    InputStream decrypt(InputStream is) throws ASAPSecurityException {
+        return this.decrypt(is, this.keyStorage.getPrivateKey());
+    }
+
+    // parameter private key is usually no option. There is just one - burt was good for debugging
+    private InputStream decrypt(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
+        try {
+            this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
+            this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+            // read encrypted message
+            byte[] messageBytes = this.readByteArray(is);
+
+            /*
+            // read len
+            int len = PDU_Impl.readIntegerParameter(is);
+            byte[] messageBytes = new byte[len];
+
+            // read encrypted bytes from stream
+            is.read(messageBytes);
+             */
+
+            // decrypt
+            byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
+            return new ByteArrayInputStream(decryptedBytes);
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
+                NoSuchPaddingException | InvalidKeyException | IOException | ASAPException e) {
+            throw new ASAPSecurityException(this.getLogStart(), e);
+        }
+    }
+
     private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
+
 }

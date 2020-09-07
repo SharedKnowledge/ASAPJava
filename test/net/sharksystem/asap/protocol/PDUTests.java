@@ -113,7 +113,7 @@ public class PDUTests {
     }
 
     @Test
-    public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
+    public void sendAndReceiveInterestEncrypted() throws IOException, ASAPException {
         TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage();
 
         // add Bob

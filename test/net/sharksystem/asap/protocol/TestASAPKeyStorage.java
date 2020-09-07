@@ -7,8 +7,7 @@ import java.security.*;
 import java.util.HashMap;
 
 public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
+    private final KeyPair keyPair;
     private long timeInMillis = 0;
 
     public static final String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
@@ -18,16 +17,12 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
 
     TestASAPKeyStorage() throws ASAPSecurityException {
         // generate owners key pair;
-        KeyPair keyPair = this.generateKeyPair();
-
-        this.privateKey = keyPair.getPrivate();
-        this.publicKey = keyPair.getPublic();
+        this.keyPair = this.generateKeyPair();
         this.timeInMillis = System.currentTimeMillis();
     }
 
     public TestASAPKeyStorage(KeyPair ownerKeyPair) {
-        this.privateKey = ownerKeyPair.getPrivate();
-        this.publicKey = ownerKeyPair.getPublic();
+        this.keyPair = ownerKeyPair;
     }
 
     private KeyPair generateKeyPair() throws ASAPSecurityException {
@@ -55,10 +50,22 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
         return keyPair;
     }
 
+    public KeyPair getKeyPair() {
+        return this.keyPair;
+    }
+
     @Override
     public PrivateKey getPrivateKey() throws ASAPSecurityException {
-        if(this.privateKey == null) throw new ASAPSecurityException("private key does not exist");
-        return this.privateKey;
+        PrivateKey aPrivate = this.keyPair.getPrivate();
+        if(aPrivate == null) throw new ASAPSecurityException("private key does not exist");
+        return aPrivate;
+    }
+
+    @Override
+    public PublicKey getPublicKey() throws ASAPSecurityException {
+        PublicKey aPublic = this.keyPair.getPublic();
+        if(aPublic == null) throw new ASAPSecurityException("public key does not exist");
+        return aPublic;
     }
 
     @Override
@@ -83,12 +90,6 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
     }
 
     @Override
-    public PublicKey getPublicKey() throws ASAPSecurityException {
-        if(this.publicKey == null) throw new ASAPSecurityException("public key does not exist");
-        return this.publicKey;
-    }
-
-    @Override
     public String getRSAEncryptionAlgorithm() {
         return DEFAULT_RSA_ENCRYPTION_ALGORITHM;
     }
@@ -96,5 +97,9 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
     @Override
     public String getRSASigningAlgorithm() {
         return DEFAULT_SIGNATURE_METHOD;
+    }
+
+    public void addKeyPair(String peerID, KeyPair keyPair) {
+        this.peerKeyPairs.put(peerID, keyPair);
     }
 }

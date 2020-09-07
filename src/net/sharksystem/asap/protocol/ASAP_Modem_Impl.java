@@ -81,7 +81,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cryptoSession.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
-                cryptoSession.getOutputStream());
+                cryptoSession.getOutputStream(), signed);
 
         // finish crypto session - if any
         cryptoSession.finish();
@@ -124,7 +124,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         int flagsInt = PDU_Impl.readByte(is);
 
-        ASAP_PDU_1_0 pdu = null;
+        PDU_Impl pdu = null;
 
         switch(cmd) {
             case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, encrypted, is); break;
@@ -133,6 +133,27 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             default: throw new ASAPException("unknown command: " + cmd);
         }
 
+        if(pdu.signed()) {
+            String sender = pdu.getSender();
+            if(sender != null) {
+                // read signature and try to verify
+                try {
+                    CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
+                    if(cryptoSession.verify(sender, is)) {
+                        pdu.setVerified(true);
+                    }
+                }
+                catch(ASAPException e) {
+                    System.out.println(this.getLogStart() + " cannot verify message");
+                }
+            }
+        }
+
         return pdu;
     }
+
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + ": ";
+    }
+
 }

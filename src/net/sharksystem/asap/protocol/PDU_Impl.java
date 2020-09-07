@@ -10,7 +10,7 @@ import java.util.List;
 
 import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
 
-abstract class PDU_Impl implements ASAP_PDU_1_0 {
+abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     public static final int SENDER_BIT_POSITION = 0;
     public static final int RECIPIENT_PEER_BIT_POSITION = 1;
     public static final int CHANNEL_BIT_POSITION = 2;
@@ -18,6 +18,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     public static final int ERA_FROM_BIT_POSITION = 4;
     public static final int ERA_TO_BIT_POSITION = 5;
     public static final int OFFSETS_BIT_POSITION = 6;
+    public static final int SIGNED_TO_BIT_POSITION = 7;
 
     private boolean senderSet = false;
     private boolean recipientSet = false;
@@ -48,6 +49,10 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     public boolean signed() { return this.signed; }
     public boolean verified() { return this.verified; };
 
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
@@ -61,8 +66,16 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         sb.append(" | format: "); sb.append(format);
         sb.append(" | channel: "); if(channelSet) sb.append(this.channel); else sb.append("not set");
         sb.append(" | era: "); if(eraSet) sb.append(era); else sb.append("not set");
+        sb.append(" | signed: "); this.appendTrueFalse(this.signed, sb);
+        sb.append(" | verified: "); this.appendTrueFalse(this.verified, sb);
+        sb.append(" | encrypted: "); this.appendTrueFalse(this.encrypted, sb);
 
         return sb.toString();
+    }
+
+    private void appendTrueFalse(boolean value, StringBuilder sb) {
+        if(value) sb.append("true");
+        else sb.append("false");
     }
 
     /**
@@ -127,6 +140,12 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         testFlag = testFlag << OFFSETS_BIT_POSITION;
         result = flag & testFlag;
         offsetsSet = result != 0;
+
+        // signed parameter set ?
+        testFlag = 1;
+        testFlag = testFlag << SIGNED_TO_BIT_POSITION;
+        result = flag & testFlag;
+        this.signed = result != 0;
     }
 
     @Override
@@ -299,6 +318,17 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
 
     static int setFlag(int parameter, int flags, int bit_position) {
         if(parameter != ERA_NOT_DEFINED) {
+            int newFlag = 1;
+            newFlag = newFlag << bit_position;
+
+            return flags | newFlag;
+        }
+
+        return flags;
+    }
+
+    static int setFlag(boolean parameter, int flags, int bit_position) {
+        if(parameter) {
             int newFlag = 1;
             newFlag = newFlag << bit_position;
 
