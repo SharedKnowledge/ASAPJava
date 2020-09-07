@@ -111,37 +111,6 @@ public class PDUTests {
         Assert.assertFalse(interestPDU.eraToSet());
     }
 
-    @Test
-    public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
-        TestASAPKeyStorage keyStorage = new TestASAPKeyStorage();
-        // add Bob
-        keyStorage.createTestPeer(BOB_ID);
-
-        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl(keyStorage);
-
-        String sender = ALICE_ID;
-        String recipient = BOB_ID;
-        String channel = "AliceURI";
-        String format = "format";
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        /////////////////////// encrypted
-        protocolEngine.interest(sender, recipient, format, channel, os,false, true);
-
-        // try t read output
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-        ASAP_PDU_1_0 asap_pdu_1_0 = protocolEngine.readPDU(is);
-
-        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
-
-        Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
-        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
-        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
-        Assert.assertTrue(interestPDU.getRecipient().equalsIgnoreCase(recipient));
-    }
-
     ////////////////////           assimilate          /////////////////////////////////////////
     @Test
     public void sendAndReceiveAssimilate() throws IOException, ASAPException {

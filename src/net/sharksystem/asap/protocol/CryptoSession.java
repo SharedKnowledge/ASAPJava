@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
-import jdk.internal.util.xml.impl.Input;
+import net.sharksystem.Utils;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 
 import javax.crypto.BadPaddingException;
@@ -10,9 +11,11 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 class CryptoSession {
+    private CharSequence recipient;
     private ASAPReadonlyKeyStorage keyStorage;
     private Cipher cipher = null;
     private PublicKey publicKey;
@@ -22,26 +25,36 @@ class CryptoSession {
     private OutputStream realOS;
     private ByteArrayOutputStream asapMessageOS;
     private byte[] asapMessageAsBytes;
+    private ByteArrayOutputStream senderSiteTest;
+    private byte[] byte2Send;
 
     CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
     }
 
     InputStream decrypt(InputStream is) throws ASAPSecurityException {
+        return this.decrypt(is, this.keyStorage.getPrivateKey());
+    }
+
+    private InputStream decrypt(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
         try {
             this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
-            this.cipher.init(Cipher.DECRYPT_MODE, this.keyStorage.getPrivateKey());
+            this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
             // read len
-            int len = 42; // TODO
-
+            int len = PDU_Impl.readIntegerParameter(is);
             byte[] messageBytes = new byte[len];
+
+            // read encrypted bytes from stream
             is.read(messageBytes);
+
+            Utils.compareArrays(messageBytes, this.byte2Send);
+
+            // decrypt
             byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
             return new ByteArrayInputStream(decryptedBytes);
-        } catch (BadPaddingException | IllegalBlockSizeException |
-                NoSuchAlgorithmException | NoSuchPaddingException |
-                InvalidKeyException | IOException e) {
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
+                NoSuchPaddingException | InvalidKeyException | IOException | ASAPException e) {
             throw new ASAPSecurityException(this.getLogStart(), e);
         }
     }
@@ -54,6 +67,8 @@ class CryptoSession {
         this.cmd = cmd;
         this.realOS = os;
         this.effectivOS = os; // still this one
+        this.keyStorage = keyStorage;
+        this.recipient = recipient;
 
         if(encrypted) {
             // add to command
@@ -149,9 +164,24 @@ class CryptoSession {
             try {
                 byte[] encryptedBytes = this.cipher.doFinal(this.asapMessageAsBytes);
                 // write data len
+
+                // write len
                 PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, this.realOS);
                 // write data
                 this.realOS.write(encryptedBytes);
+
+                // debug - decrypt
+
+                // make a test
+                this.senderSiteTest = new ByteArrayOutputStream();
+                PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, senderSiteTest);
+                senderSiteTest.write(encryptedBytes);
+                PrivateKey privateKey = this.keyStorage.getPrivateKey(this.recipient);
+                this.byte2Send = encryptedBytes;
+                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(senderSiteTest.toByteArray()), privateKey);
+                int i = 42;
+                /*
+ */
             } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);
             }

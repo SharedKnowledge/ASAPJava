@@ -13,6 +13,9 @@ public interface ASAPReadonlyKeyStorage {
      */
     PrivateKey getPrivateKey() throws ASAPSecurityException;
 
+    // debugging
+    PrivateKey getPrivateKey(CharSequence subjectID) throws ASAPSecurityException;
+
     /**
      *
      * @param subjectID

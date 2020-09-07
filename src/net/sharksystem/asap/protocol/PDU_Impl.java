@@ -204,7 +204,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         sendNonNegativeIntegerParameter((int) longValue, os);
     }
 
-    protected byte readByteParameter(InputStream is) throws IOException, ASAPException {
+    static byte readByteParameter(InputStream is) throws IOException, ASAPException {
         return PDU_Impl.readByte(is);
     }
 
@@ -216,18 +216,18 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         return (byte) value;
     }
 
-    protected short readShortParameter(InputStream is) throws IOException, ASAPException {
-        int value = this.readByteParameter(is);
+    static short readShortParameter(InputStream is) throws IOException, ASAPException {
+        int value = readByteParameter(is);
         value = value << 8;
-        int right = this.readByteParameter(is);
+        int right = readByteParameter(is);
         value += right;
         return (short) value;
     }
 
-    protected int readIntegerParameter(InputStream is) throws IOException, ASAPException {
-        int value = this.readShortParameter(is);
+    static int readIntegerParameter(InputStream is) throws IOException, ASAPException {
+        int value = readShortParameter(is);
         value = value << 16;
-        int right = this.readShortParameter(is);
+        int right = readShortParameter(is);
         value += right;
         return value;
     }

@@ -84,4 +84,26 @@ public class Utils {
 
     }
 
+    public static boolean compareArrays(byte[] a, byte[] b) {
+        if(a.length != b.length) {
+            System.out.println("not same length");
+            return false;
+        }
+
+        if(a.length == 0) {
+            System.out.println("len zero");
+            return false;
+        }
+
+        for(int i = 0; i < a.length; i++) {
+            System.out.println(i + ": " + a[i] + " == " + b[i]);
+            if(a[i] != b[i]) {
+                System.out.println("no longer same");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

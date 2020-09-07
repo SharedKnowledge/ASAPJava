@@ -78,6 +78,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 os, signed, encrypted, recipient,
                 this.signAndEncryptionKeyStorage);
 
+        // debugging
+        this.c = cryptoSession;
+
         cryptoSession.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
@@ -107,6 +110,16 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 new ByteArrayInputStream(data), os, signed);
     }
 
+    // debug
+    private CryptoSession c = null;
+    private CryptoSession getSameCryptoSession() {
+        if(c == null) {
+            this.c = new CryptoSession(this.signAndEncryptionKeyStorage);
+        }
+
+        return this.c;
+    }
+
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
         byte cmd = PDU_Impl.readByte(is);
@@ -117,6 +130,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cmd = (byte)(cmd & CMD_MASK);
 
         if(encrypted) {
+//            CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
+            // debugging
+            CryptoSession cryptoSession = this.getSameCryptoSession();
+            InputStream decryptedIS = cryptoSession.decrypt(is);
+            is = decryptedIS;
         }
 
         int flagsInt = PDU_Impl.readByte(is);
