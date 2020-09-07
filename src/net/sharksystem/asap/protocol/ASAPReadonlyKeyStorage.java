@@ -5,7 +5,7 @@ import net.sharksystem.asap.ASAPSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public interface ASAPSignAndEncryptionKeyStorage {
+public interface ASAPReadonlyKeyStorage {
     /**
      *
      * @return private key of local device - for signing
@@ -20,4 +20,14 @@ public interface ASAPSignAndEncryptionKeyStorage {
      * @throws ASAPSecurityException if key cannot be found
      */
     PublicKey getPublicKey(CharSequence subjectID) throws ASAPSecurityException;
+
+    /**
+     * @return public key of local device - for signing
+     * @throws ASAPSecurityException
+     */
+    PublicKey getPublicKey() throws ASAPSecurityException;
+
+    String getRSAEncryptionAlgorithm();
+
+    String getRSASigningAlgorithm();
 }

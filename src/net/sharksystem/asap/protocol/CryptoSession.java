@@ -1,28 +1,59 @@
 package net.sharksystem.asap.protocol;
 
+import jdk.internal.util.xml.impl.Input;
 import net.sharksystem.asap.ASAPSecurityException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 class CryptoSession {
+    private ASAPReadonlyKeyStorage keyStorage;
+    private Cipher cipher = null;
+    private PublicKey publicKey;
     private byte cmd;
-    private final OutputStream os;
+
+    private OutputStream effectivOS;
+    private OutputStream realOS;
+    private ByteArrayOutputStream asapMessageOS;
+    private byte[] asapMessageAsBytes;
+
+    CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
+        this.keyStorage = keyStorage;
+    }
+
+    InputStream decrypt(InputStream is) throws ASAPSecurityException {
+        try {
+            this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
+            this.cipher.init(Cipher.DECRYPT_MODE, this.keyStorage.getPrivateKey());
+
+            // read len
+            int len = 42; // TODO
+
+            byte[] messageBytes = new byte[len];
+            is.read(messageBytes);
+            byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
+            return new ByteArrayInputStream(decryptedBytes);
+        } catch (BadPaddingException | IllegalBlockSizeException |
+                NoSuchAlgorithmException | NoSuchPaddingException |
+                InvalidKeyException | IOException e) {
+            throw new ASAPSecurityException(this.getLogStart(), e);
+        }
+    }
 
     CryptoSession(byte cmd, OutputStream os, boolean sign, boolean encrypted,
                   CharSequence recipient,
-                  ASAPSignAndEncryptionKeyStorage keyStorage)
+                  ASAPReadonlyKeyStorage keyStorage)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
-        this.os = os;
+        this.realOS = os;
+        this.effectivOS = os; // still this one
 
         if(encrypted) {
             // add to command
@@ -34,32 +65,25 @@ class CryptoSession {
                         "but there is not key store at all - fatal, give up");
             }
 
-            PublicKey publicKey = keyStorage.getPublicKey(recipient);
+            this.publicKey = keyStorage.getPublicKey(recipient);
             // there should be an exception - but better safe than sorry
-            if(publicKey == null) {
+            if(this.publicKey == null) {
                 throw new ASAPSecurityException(
                         "message must be encrypted but recipients' public key cannot be found");
             }
 
-            // we have at least the chance
-            // encryption?
+            // let's see if we can setup cipher
             try {
-                Cipher cipher = Cipher.getInstance("TODO_Cipher_Algorithm");
-                cipher.init(Cipher.ENCRYPT_MODE, keyStorage.getPublicKey(recipient));
-
-                byte[] message = new byte[0];
-                cipher.doFinal(message);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
+                this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
+                this.cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
+            } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
+                throw new ASAPSecurityException(this.getLogStart(), e);
             }
+
+            // cipher is ready - we can encrypt
+            this.asapMessageOS = new ByteArrayOutputStream();
+            // pud will make a detour
+            this.effectivOS = this.asapMessageOS;
         }
 
 
@@ -105,8 +129,9 @@ class CryptoSession {
 
     }
 
-    public void sendHeader() throws IOException {
-        PDU_Impl.sendCmd(this.cmd, this.os);
+    public void sendCmd() throws IOException {
+        // send cmd in clear
+        PDU_Impl.sendCmd(this.cmd, this.realOS);
     }
 
     byte getCMD() {
@@ -114,11 +139,23 @@ class CryptoSession {
     }
 
     OutputStream getOutputStream() {
-        return this.os;
+        return this.effectivOS;
     }
 
-    public void finish() {
-
+    public void finish() throws ASAPSecurityException {
+        if(cipher != null) {
+            // we are to encrypt
+            this.asapMessageAsBytes = this.asapMessageOS.toByteArray();
+            try {
+                byte[] encryptedBytes = this.cipher.doFinal(this.asapMessageAsBytes);
+                // write data len
+                PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, this.realOS);
+                // write data
+                this.realOS.write(encryptedBytes);
+            } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
+                throw new ASAPSecurityException(this.getLogStart(), e);
+            }
+        }
     }
 
     private String getLogStart() {

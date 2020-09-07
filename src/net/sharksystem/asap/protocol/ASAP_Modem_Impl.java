@@ -10,13 +10,13 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final ASAPSignAndEncryptionKeyStorage signAndEncryptionKeyStorage;
+    private final ASAPReadonlyKeyStorage signAndEncryptionKeyStorage;
 
     public ASAP_Modem_Impl() {
         this.signAndEncryptionKeyStorage = null; // no key storage
     }
 
-    public ASAP_Modem_Impl(ASAPSignAndEncryptionKeyStorage signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(ASAPReadonlyKeyStorage signAndEncryptionKeyStorage) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
     }
 
@@ -75,9 +75,10 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         // prepare encryption and signing if required
         CryptoSession cryptoSession = new CryptoSession(ASAP_1_0.INTEREST_CMD,
-                os, signed, encrypted, recipient, this.signAndEncryptionKeyStorage);
+                os, signed, encrypted, recipient,
+                this.signAndEncryptionKeyStorage);
 
-        cryptoSession.sendHeader();
+        cryptoSession.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
                 cryptoSession.getOutputStream());
@@ -114,6 +115,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
         // remove encrypted flag
         cmd = (byte)(cmd & CMD_MASK);
+
+        if(encrypted) {
+        }
 
         int flagsInt = PDU_Impl.readByte(is);
 

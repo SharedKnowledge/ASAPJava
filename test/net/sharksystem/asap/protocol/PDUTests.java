@@ -11,9 +11,12 @@ import java.util.List;
 import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
 
 public class PDUTests {
+    public static final String ALICE_ID = "Alice";
+    public static final String BOB_ID = "Bob";
 
     @Test
     public void sendAndReceiveOffer() throws IOException, ASAPException {
+
         ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
 
         String peer = "Alice";
@@ -110,10 +113,14 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
-        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl();
+        TestASAPKeyStorage keyStorage = new TestASAPKeyStorage();
+        // add Bob
+        keyStorage.createTestPeer(BOB_ID);
 
-        String sender = "Alice";
-        String recipient = "Bob";
+        ASAP_1_0 protocolEngine = new ASAP_Modem_Impl(keyStorage);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
         String channel = "AliceURI";
         String format = "format";
 
