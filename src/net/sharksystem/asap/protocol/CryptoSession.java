@@ -25,8 +25,6 @@ class CryptoSession {
     private OutputStream realOS;
     private ByteArrayOutputStream asapMessageOS;
     private byte[] asapMessageAsBytes;
-    private ByteArrayOutputStream senderSiteTest;
-    private byte[] byte2Send;
 
     CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
@@ -48,8 +46,7 @@ class CryptoSession {
             // read encrypted bytes from stream
             is.read(messageBytes);
 
-            Utils.compareArrays(messageBytes, this.byte2Send);
-
+            // debugging
             // decrypt
             byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
             return new ByteArrayInputStream(decryptedBytes);
@@ -159,28 +156,32 @@ class CryptoSession {
 
     public void finish() throws ASAPSecurityException {
         if(cipher != null) {
-            // we are to encrypt
+            // that is our asap message in clear text
             this.asapMessageAsBytes = this.asapMessageOS.toByteArray();
             try {
+                // encrypted asap message
                 byte[] encryptedBytes = this.cipher.doFinal(this.asapMessageAsBytes);
-                // write data len
+                //this.debuggingRememberEncryptedASAPMessage = encryptedBytes;
 
                 // write len
                 PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, this.realOS);
                 // write data
                 this.realOS.write(encryptedBytes);
 
-                // debug - decrypt
+                /*
+                // debugging - decrypt
 
                 // make a test
-                this.senderSiteTest = new ByteArrayOutputStream();
+                ByteArrayOutputStream senderSiteTest = new ByteArrayOutputStream();
                 PDU_Impl.sendNonNegativeIntegerParameter(encryptedBytes.length, senderSiteTest);
                 senderSiteTest.write(encryptedBytes);
+
+                this.debuggingEncryptedASAPMessageWithLen = senderSiteTest.toByteArray();
+
                 PrivateKey privateKey = this.keyStorage.getPrivateKey(this.recipient);
-                this.byte2Send = encryptedBytes;
-                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(senderSiteTest.toByteArray()), privateKey);
+//                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(senderSiteTest.toByteArray()), privateKey);
+                ByteArrayInputStream decrypt = (ByteArrayInputStream) this.decrypt(new ByteArrayInputStream(this.debuggingEncryptedASAPMessageWithLen), privateKey);
                 int i = 42;
-                /*
  */
             } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);

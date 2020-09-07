@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
+import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,6 +110,40 @@ public class PDUTests {
         Assert.assertFalse(interestPDU.recipientSet());
         Assert.assertFalse(interestPDU.eraFromSet());
         Assert.assertFalse(interestPDU.eraToSet());
+    }
+
+    @Test
+    public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage();
+
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(bobKeyPair);
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
+        String channel = "AliceURI";
+        String format = "format";
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        /////////////////////// encrypted
+        asapModemAlice.interest(sender, recipient, format, channel, os,false, true);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemBob.readPDU(is);
+
+        ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
+
+        Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
+        Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
+        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(interestPDU.getRecipient().equalsIgnoreCase(recipient));
     }
 
     ////////////////////           assimilate          /////////////////////////////////////////

@@ -25,6 +25,11 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
         this.timeInMillis = System.currentTimeMillis();
     }
 
+    public TestASAPKeyStorage(KeyPair ownerKeyPair) {
+        this.privateKey = ownerKeyPair.getPrivate();
+        this.publicKey = ownerKeyPair.getPublic();
+    }
+
     private KeyPair generateKeyPair() throws ASAPSecurityException {
         Log.writeLog(this, "create key pair");
         KeyPairGenerator keyGen = null;
@@ -44,8 +49,10 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
         }
     }
 
-    public void createTestPeer(String id) throws ASAPSecurityException {
-        this.peerKeyPairs.put(id, this.generateKeyPair());
+    public KeyPair createTestPeer(String id) throws ASAPSecurityException {
+        KeyPair keyPair = this.generateKeyPair();
+        this.peerKeyPairs.put(id, keyPair);
+        return keyPair;
     }
 
     @Override

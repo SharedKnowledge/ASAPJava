@@ -8,18 +8,22 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyPair;
 
-public class EncryptionTests {
+public class Workbench {
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";
 
     @Test
     public void sendAndReceiveInterestCanBeEncrypted() throws IOException, ASAPException {
-        TestASAPKeyStorage keyStorage = new TestASAPKeyStorage();
-        // add Bob
-        keyStorage.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage();
 
-        ASAP_1_0 asapModem = new ASAP_Modem_Impl(keyStorage);
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(bobKeyPair);
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
 
         String sender = ALICE_ID;
         String recipient = BOB_ID;
@@ -29,12 +33,12 @@ public class EncryptionTests {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         /////////////////////// encrypted
-        asapModem.interest(sender, recipient, format, channel, os,false, true);
+        asapModemAlice.interest(sender, recipient, format, channel, os,false, true);
 
         // try t read output
         InputStream is = new ByteArrayInputStream(os.toByteArray());
 
-        ASAP_PDU_1_0 asap_pdu_1_0 = asapModem.readPDU(is);
+        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemBob.readPDU(is);
 
         ASAP_Interest_PDU_1_0 interestPDU = (ASAP_Interest_PDU_1_0) asap_pdu_1_0;
 
