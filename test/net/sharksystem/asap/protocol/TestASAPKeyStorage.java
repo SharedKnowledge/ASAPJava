@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
     private final KeyPair keyPair;
+    private final String name;
     private long timeInMillis = 0;
 
     public static final String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
@@ -15,13 +16,15 @@ public class TestASAPKeyStorage implements ASAPReadonlyKeyStorage {
 
     private HashMap<String, KeyPair> peerKeyPairs = new HashMap<>();
 
-    TestASAPKeyStorage() throws ASAPSecurityException {
+    TestASAPKeyStorage(String name) throws ASAPSecurityException {
         // generate owners key pair;
+        this.name = name;
         this.keyPair = this.generateKeyPair();
         this.timeInMillis = System.currentTimeMillis();
     }
 
-    public TestASAPKeyStorage(KeyPair ownerKeyPair) {
+    public TestASAPKeyStorage(String name, KeyPair ownerKeyPair) {
+        this.name = name;
         this.keyPair = ownerKeyPair;
     }
 

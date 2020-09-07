@@ -47,7 +47,7 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
         // create parameter bytes
         int flags = 0;
         flags = PDU_Impl.setFlag(sender, flags, SENDER_BIT_POSITION);
-        flags = PDU_Impl.setFlag(recipient, flags, RECIPIENT_PEER_BIT_POSITION);
+        flags = PDU_Impl.setFlag(recipient, flags, RECIPIENT_BIT_POSITION);
         flags = PDU_Impl.setFlag(channel, flags, CHANNEL_BIT_POSITION);
         flags = PDU_Impl.setFlag(eraFrom, flags, ERA_FROM_BIT_POSITION);
         flags = PDU_Impl.setFlag(eraTo, flags, ERA_TO_BIT_POSITION);

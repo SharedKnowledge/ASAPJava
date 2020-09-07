@@ -57,7 +57,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         // create parameter bytes
         int flags = 0;
         flags = PDU_Impl.setFlag(peer, flags, SENDER_BIT_POSITION);
-        flags = PDU_Impl.setFlag(recipientPeer, flags, RECIPIENT_PEER_BIT_POSITION);
+        flags = PDU_Impl.setFlag(recipientPeer, flags, RECIPIENT_BIT_POSITION);
         flags = PDU_Impl.setFlag(channel, flags, CHANNEL_BIT_POSITION);
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);
         flags = PDU_Impl.setFlag(offsets, flags, OFFSETS_BIT_POSITION);

@@ -12,6 +12,7 @@ import java.io.*;
 import java.security.*;
 
 class CryptoSession {
+    public static final int MAX_ENCRYPTION_BLOCK_SIZE = 240;
     private Signature signature;
     private CharSequence recipient;
     private ASAPReadonlyKeyStorage keyStorage;
@@ -22,6 +23,7 @@ class CryptoSession {
     private OutputStream effectivOS;
     private OutputStream realOS;
     private ByteArrayOutputStream asapMessageOS;
+    private InputStreamCopy verifyStream;
 
     CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
@@ -157,7 +159,18 @@ class CryptoSession {
             try {
                 // encrypted asap message
                 byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
-                byte[] encryptedBytes = this.cipher.doFinal(asapMessageAsBytes);
+
+                // TODO: create AES key, encrypt with RSA, send and encrypt rest with that AES key
+
+                // that stuff will not work.
+                int i = 0;
+                while(i +  MAX_ENCRYPTION_BLOCK_SIZE < asapMessageAsBytes.length) {
+                    this.cipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
+                    i += MAX_ENCRYPTION_BLOCK_SIZE;
+                }
+
+                int lastStepLen = asapMessageAsBytes.length - i;
+                byte[] encryptedBytes = this.cipher.doFinal(asapMessageAsBytes, i, lastStepLen);
 
                 this.writeByteArray(encryptedBytes, this.realOS);
                 this.realOS.write(encryptedBytes);
@@ -168,6 +181,39 @@ class CryptoSession {
     }
 
     ////////////////////////////////// verify
+    private class InputStreamCopy extends InputStream {
+        private final InputStream is;
+        ByteArrayOutputStream copy = new ByteArrayOutputStream();
+
+        InputStreamCopy(byte[] bytes, InputStream is) throws IOException {
+            // add byte if any
+            if(bytes != null && bytes.length > 0) {
+                copy.write(bytes);
+            }
+
+            this.is = is;
+        }
+
+        @Override
+        public int read() throws IOException {
+            int read = is.read();
+            copy.write(read);
+            return read;
+        }
+
+        byte[] getCopy() {
+            return copy.toByteArray();
+        }
+    }
+
+    public InputStream setupInputStreamListener(InputStream is, int flagsInt) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PDU_Impl.sendFlags(flagsInt, baos);
+
+        this.verifyStream = new InputStreamCopy(baos.toByteArray(), is);
+
+        return this.verifyStream;
+    }
 
     public boolean verify(String sender, InputStream is) throws IOException, ASAPException {
         // try to get senders' public key
@@ -177,6 +223,9 @@ class CryptoSession {
         try {
             this.signature = Signature.getInstance(this.keyStorage.getRSASigningAlgorithm());
             this.signature.initVerify(publicKey);
+            // get data which are to be verified
+            byte[] signedData = this.verifyStream.getCopy();
+            this.signature.update(signedData);
             byte[] signatureBytes = this.readByteArray(is);
             boolean wasVerified = this.signature.verify(signatureBytes);
             return wasVerified;
@@ -221,5 +270,4 @@ class CryptoSession {
     private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
-
 }

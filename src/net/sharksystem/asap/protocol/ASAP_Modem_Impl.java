@@ -117,12 +117,24 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cmd = (byte)(cmd & CMD_MASK);
 
         if(encrypted) {
-            CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
-            InputStream decryptedIS = cryptoSession.decrypt(is);
-            is = decryptedIS;
+            try {
+                CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
+                InputStream decryptedIS = cryptoSession.decrypt(is);
+                is = decryptedIS;
+            }
+            catch(ASAPSecurityException e) {
+                System.out.println(this.getLogStart() + "cannot decrypt message. TODO: Store (according to some rules) and forward it?!");
+            }
         }
 
         int flagsInt = PDU_Impl.readByte(is);
+
+        InputStream realIS = is;
+        CryptoSession verifyCryptoSession = null;
+        if(PDU_Impl.flagSet(PDU_Impl.SIGNED_TO_BIT_POSITION, flagsInt)) {
+            verifyCryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
+            is = verifyCryptoSession.setupInputStreamListener(is, flagsInt);
+        }
 
         PDU_Impl pdu = null;
 
@@ -133,15 +145,12 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             default: throw new ASAPException("unknown command: " + cmd);
         }
 
-        if(pdu.signed()) {
+        if(verifyCryptoSession != null) {
             String sender = pdu.getSender();
             if(sender != null) {
                 // read signature and try to verify
                 try {
-                    CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
-                    if(cryptoSession.verify(sender, is)) {
-                        pdu.setVerified(true);
-                    }
+                    pdu.setVerified(verifyCryptoSession.verify(sender, realIS));
                 }
                 catch(ASAPException e) {
                     System.out.println(this.getLogStart() + " cannot verify message");
