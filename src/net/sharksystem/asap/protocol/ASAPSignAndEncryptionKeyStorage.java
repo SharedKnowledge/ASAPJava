@@ -17,6 +17,7 @@ public interface ASAPSignAndEncryptionKeyStorage {
      *
      * @param subjectID
      * @return public key of recipient - to encrypt
+     * @throws ASAPSecurityException if key cannot be found
      */
     PublicKey getPublicKey(CharSequence subjectID) throws ASAPSecurityException;
 }

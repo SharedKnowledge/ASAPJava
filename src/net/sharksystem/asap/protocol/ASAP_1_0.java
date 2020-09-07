@@ -97,14 +97,12 @@ public interface ASAP_1_0 {
      * @param os stream that PDU is to be sent
      * @param sign sign message when sending
      * @param encrypted encrypt method - of possible
-     * @param mustBeEncrypted encrypt can be set true. There could not bot a public key of receipient. If hit flag ist
-     *           set true - an exception is thrown. Otherwise. message is sent unencrypted.
      * @throws IOException
      * @throws ASAPException
      */
     void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
-                  OutputStream os, boolean sign, boolean encrypted, boolean mustBeEncrypted)
+                  OutputStream os, boolean sign, boolean encrypted)
             throws IOException, ASAPException, ASAPSecurityException;
 
     /**
@@ -117,8 +115,8 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void interest(CharSequence sender, CharSequence format, CharSequence sourcePeer,
-                  CharSequence channel, OutputStream os, boolean signed, boolean encrypted,
-                  boolean mustBeEncrypted) throws IOException, ASAPException;
+                  CharSequence channel, OutputStream os, boolean signed, boolean encrypted)
+            throws IOException, ASAPException;
 
     /*
     ASSIMILATE: Peer (optional) issues data (mandatory) to a channel (mandatory) in a format (mandatory) of a

@@ -43,6 +43,21 @@ public interface ASAP_PDU_1_0 {
     boolean senderSet();
 
     /**
+     * @return true if received message was encrypted and could obviously be encrypted
+     */
+    boolean encrypted();
+
+    /**
+     * @return true if received message was signed
+     */
+    boolean signed();
+
+    /**
+     * @return true if received message was signed and signature could be verified
+     */
+    boolean verified();
+
+    /**
      * @return a flag that indicates whether the optional recipient parameter was transmitted
      */
     boolean recipientSet();

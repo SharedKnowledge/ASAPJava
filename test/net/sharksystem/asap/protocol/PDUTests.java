@@ -119,9 +119,8 @@ public class PDUTests {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        /////////////////////// can be encrypted
-        protocolEngine.interest(sender, recipient, format, channel, os,
-                false, true, false);
+        /////////////////////// encrypted
+        protocolEngine.interest(sender, recipient, format, channel, os,false, true);
 
         // try t read output
         InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -133,7 +132,7 @@ public class PDUTests {
         Assert.assertTrue(interestPDU.getChannelUri().equalsIgnoreCase(channel));
         Assert.assertTrue(interestPDU.getFormat().equalsIgnoreCase(format));
         Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(sender));
-        Assert.assertTrue(interestPDU.getSender().equalsIgnoreCase(recipient));
+        Assert.assertTrue(interestPDU.getRecipient().equalsIgnoreCase(recipient));
     }
 
     ////////////////////           assimilate          /////////////////////////////////////////

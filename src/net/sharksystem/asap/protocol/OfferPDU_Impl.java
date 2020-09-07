@@ -8,8 +8,8 @@ import java.io.OutputStream;
 
 class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
 
-    public OfferPDU_Impl(int flagsInt, InputStream is) throws IOException, ASAPException {
-        super(ASAP_1_0.OFFER_CMD);
+    public OfferPDU_Impl(int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
+        super(ASAP_1_0.OFFER_CMD, encrypted);
         evaluateFlags(flagsInt);
 
         if(this.senderSet()) { this.readSender(is); }
@@ -24,7 +24,7 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
         // first: check protocol errors
         PDU_Impl.checkValidEra(era);
         PDU_Impl.checkValidFormat(format);
-        PDU_Impl.checkValidSign(peer, signed);
+//        PDU_Impl.checkValidSign(peer, signed);
         PDU_Impl.checkValidStream(os);
 
         // create parameter bytes

@@ -1,20 +1,17 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPSecurityException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.*;
 
 class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
     private int eraFrom;
     private int eraTo;
 
-    InterestPDU_Impl(int flagsInt, InputStream is) throws IOException, ASAPException {
-        super(ASAP_1_0.INTEREST_CMD);
+    InterestPDU_Impl(int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
+        super(ASAP_1_0.INTEREST_CMD, encrypted);
 
         evaluateFlags(flagsInt);
 
@@ -34,10 +31,8 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
         this.eraFrom = this.readIntegerParameter(is);
     }
 
-    static void sendPDU(CharSequence sender, CharSequence recipient, CharSequence format,
-                        CharSequence channel, int eraFrom, int eraTo, OutputStream os,
-                        boolean sign, boolean encrypted, boolean mustBeEncrypted,
-                        ASAPSignAndEncryptionKeyStorage keyStorage)
+    static void sendPDUWithoutCmd(CharSequence sender, CharSequence recipient, CharSequence format,
+                                  CharSequence channel, int eraFrom, int eraTo, OutputStream os)
             throws IOException, ASAPException {
 
         if(format == null || format.length() < 1) format = ASAP_1_0.ANY_FORMAT;
@@ -46,11 +41,7 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
         PDU_Impl.checkValidEra(eraFrom);
         PDU_Impl.checkValidEra(eraTo);
         PDU_Impl.checkValidFormat(format);
-        PDU_Impl.checkValidSign(sender, sign);
         PDU_Impl.checkValidStream(os);
-
-        // Basis test
-        os = PDU_Impl.prepareCrypto(os, sign, encrypted, mustBeEncrypted, recipient, keyStorage);
 
         // create parameter bytes
         int flags = 0;
@@ -60,7 +51,7 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
         flags = PDU_Impl.setFlag(eraFrom, flags, ERA_FROM_BIT_POSITION);
         flags = PDU_Impl.setFlag(eraTo, flags, ERA_TO_BIT_POSITION);
 
-        PDU_Impl.sendHeader(ASAP_1_0.INTEREST_CMD, flags, os);
+        PDU_Impl.sendFlags(flags, os);
 
         PDU_Impl.sendCharSequenceParameter(sender, os); // opt
         PDU_Impl.sendCharSequenceParameter(recipient, os); // opt

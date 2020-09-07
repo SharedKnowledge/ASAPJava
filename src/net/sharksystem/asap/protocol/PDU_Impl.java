@@ -27,16 +27,26 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
     private boolean eraTo = false;
     private boolean offsetsSet = false;
 
+    private final boolean encrypted;
+    private final byte cmd;
+
+    private boolean signed = false;
+    private boolean verified = false;
+
     private String sender;
     private String recipient;
     private String format;
     private String channel;
     private int era;
-    private final byte cmd;
 
-    PDU_Impl(byte cmd) {
+    PDU_Impl(byte cmd, boolean encrypted) {
         this.cmd = cmd;
+        this.encrypted = encrypted;
     }
+
+    public boolean encrypted() { return this.encrypted; }
+    public boolean signed() { return this.signed; }
+    public boolean verified() { return this.verified; };
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -55,9 +65,24 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         return sb.toString();
     }
 
+    /**
+     * @param cmd
+     * @param flags
+     * @param os
+     * @throws IOException
+     * @deprecated
+     */
     protected static void sendHeader(byte cmd, int flags, OutputStream os) throws IOException {
         PDU_Impl.sendByteParameter(cmd, os); // mand
         PDU_Impl.sendByteParameter((byte)flags, os); // mand
+    }
+
+    protected static void sendFlags(int flags, OutputStream os) throws IOException {
+        PDU_Impl.sendByteParameter((byte)flags, os); // mand
+    }
+
+    protected static void sendCmd(byte cmd, OutputStream os) throws IOException {
+        PDU_Impl.sendByteParameter(cmd, os); // mand
     }
 
     protected void evaluateFlags(int flag) {
@@ -287,10 +312,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         if(os == null) throw new ASAPException("outputstream must not be null");
     }
 
-    static void checkValidSign(CharSequence peer, boolean signed) throws ASAPException {
-        if(peer == null || signed) throw new ASAPException("cannot sign with peer == null");
-    }
-
     static void checkValidFormat(CharSequence format) throws ASAPException {
         if(format == null) throw new ASAPException("format must not be null");
     }
@@ -300,81 +321,5 @@ abstract class PDU_Impl implements ASAP_PDU_1_0 {
         int maxEra = Integer.MAX_VALUE;
         // that's impossible but ... never change a running system...
         if(era > maxEra) throw new ASAPException("era exceeded max limit of " + Integer.MAX_VALUE);
-    }
-
-    protected static OutputStream prepareCrypto(
-            OutputStream os, boolean sign, boolean encrypted, boolean mustEncrypt,
-            CharSequence recipient,
-            ASAPSignAndEncryptionKeyStorage keyStorage) throws ASAPSecurityException {
-
-        /*
-        if(sign) {
-            // there must be a keyStorage
-            if(keyStorage == null) {
-                throw new ASAPSecurityException("asap message is to be signed but there is not key store - fatal, give up");
-            }
-
-            // signing needs a private key - check of available
-            if(keyStorage.getPrivateKey() == null) {
-                // assume, an exception already documented lack of a private key. if not
-                throw new ASAPSecurityException("asap message is to be signed but no private key - fatal, give up");
-            }
-
-            // ok, we can sign
-        if(sign) {
-            // anything was written into a bytearray
-
-            // produce signature
-            Signature signature = null;
-            try {
-                signature = Signature.getInstance("TODO_signing_algorithm");
-                signature.initSign(keyStorage.getPrivateKey()); // desperate try
-                byte[] bytes2Sign = bufferOS.toByteArray();
-                signature.update(bytes2Sign);
-                byte[] signatureBytes = signature.sign();
-
-                // send out anything, including signature
-
-                // TODO need number of bytes payload to find signature later.
-                os.write(bytes2Sign);
-                os.write(signatureBytes);
-            } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-                throw new ASAPSecurityException(e.getLocalizedMessage());
-            }
-        }
-        }
-
-        if(encrypted) {
-            // there must be a keyStorage
-            if(keyStorage == null) {
-                throw new ASAPSecurityException("asap message is to be encrypted if possible " +
-                        "but there is not key store at all - fatal, give up");
-            }
-
-            // we have at least the chance
-            // encryption?
-            try {
-                Cipher cipher = Cipher.getInstance("TODO_Cipher_Algorithm");
-                cipher.init(Cipher.ENCRYPT_MODE, keyStorage.getPublicKey(peer));
-
-                byte[] message = new byte[0];
-                cipher.doFinal(message);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            }
-
-
-        }
-         */
-
-        return os;
     }
 }

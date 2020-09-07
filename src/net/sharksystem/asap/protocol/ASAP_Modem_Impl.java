@@ -45,17 +45,17 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                          CharSequence channel, OutputStream os, boolean signed,
-                         boolean encryted, boolean mustBeEncrypted) throws IOException, ASAPException {
+                         boolean encryted) throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, ERA_NOT_DEFINED, ERA_NOT_DEFINED, os,
-                signed, encryted, mustBeEncrypted);
+                signed, encryted);
     }
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                          CharSequence channel, OutputStream os) throws IOException, ASAPException {
 
-        this.interest(sender, recipient, format, channel, os, false, false, false);
+        this.interest(sender, recipient, format, channel, os, false, false);
     }
 
     @Override
@@ -64,17 +64,26 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
-                signed, false, false);
+                signed, false);
     }
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
-                         boolean encryted, boolean mustBeEncrypted)
+                         boolean encrypted)
             throws IOException, ASAPException, ASAPSecurityException {
 
-        InterestPDU_Impl.sendPDU(sender, recipient, format, channel, eraFrom, eraTo, os,
-                signed, encryted, mustBeEncrypted, this.signAndEncryptionKeyStorage);
+        // prepare encryption and signing if required
+        CryptoSession cryptoSession = new CryptoSession(ASAP_1_0.INTEREST_CMD,
+                os, signed, encrypted, recipient, this.signAndEncryptionKeyStorage);
+
+        cryptoSession.sendHeader();
+
+        InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
+                cryptoSession.getOutputStream());
+
+        // finish crypto session - if any
+        cryptoSession.finish();
     }
 
     @Override
@@ -103,7 +112,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         // encrypted?
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
-        // remove encrypted flag anyway
+        // remove encrypted flag
         cmd = (byte)(cmd & CMD_MASK);
 
         int flagsInt = PDU_Impl.readByte(is);
@@ -111,9 +120,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         ASAP_PDU_1_0 pdu = null;
 
         switch(cmd) {
-            case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, is); break;
-            case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, is); break;
-            case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, is); break;
+            case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, encrypted, is); break;
+            case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, encrypted, is); break;
+            case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, encrypted, is); break;
             default: throw new ASAPException("unknown command: " + cmd);
         }
 
