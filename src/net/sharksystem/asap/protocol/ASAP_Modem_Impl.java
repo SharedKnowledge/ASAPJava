@@ -2,7 +2,9 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
 import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,13 +14,24 @@ import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
     private final ASAPBasicKeyStorage signAndEncryptionKeyStorage;
+    private final ASAPUndecryptableMessageHandler unencryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
-        this.signAndEncryptionKeyStorage = null; // no key storage
+        this(null, null);
+    }
+
+    public ASAP_Modem_Impl(ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
+        this(null, unencryptableMessageHandler);
     }
 
     public ASAP_Modem_Impl(ASAPBasicKeyStorage signAndEncryptionKeyStorage) {
+        this(signAndEncryptionKeyStorage, null);
+    }
+
+    public ASAP_Modem_Impl(ASAPBasicKeyStorage signAndEncryptionKeyStorage,
+                           ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
+        this.unencryptableMessageHandler = unencryptableMessageHandler;
     }
 
     // Character are transmitted as bytes: number of bytes (first byte), content following, 0 mean no content
@@ -98,6 +111,15 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+                           OutputStream os, ASAPCommunicationCryptoSettings secureSetting) throws IOException, ASAPException {
+
+        this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os,
+                secureSetting.mustSign(), secureSetting.mustEncrypt());
+    }
+
+    @Override
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
         // prepare encryption and signing if required
@@ -151,8 +173,15 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             } else {
                 // we cannot decrypt this message - we are not recipient - but we keep and redistribute
                 byte[] encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
-                System.out.println(this.getLogStart() + "TODO: handle unencryptable message - redistribute?!");
-                throw new ASAPSecurityException("recived encrypted message which is not for me - TODO: keep it and redistribute. That's not an error but a missing feature.");
+                if(this.unencryptableMessageHandler != null) {
+                    System.out.println(this.getLogStart() + "call handler to handle unencryptable message");
+                    this.unencryptableMessageHandler.handleUndecryptableMessage(
+                            encryptedASAPMessage, cryptoMessage.getReceiver());
+                } else {
+                    System.out.println(this.getLogStart() + "no handler for unencryptable messages found");
+                }
+                // throw exception anyway - could not create PDU
+                throw new ASAPSecurityException("encryptable message received");
             }
         }
 
@@ -195,5 +224,4 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
-
 }

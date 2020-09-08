@@ -4,6 +4,7 @@ import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Log;
+import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +19,7 @@ import java.util.*;
  * @author thsc
  */
 public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
-    private DefaultPeerSecurityAdministrator securityAdministrator = new DefaultPeerSecurityAdministrator();
+    private DefaultSecurityAdministrator securityAdministrator = new DefaultSecurityAdministrator();
 
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
@@ -54,6 +55,22 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         if (this.memento != null) {
             this.memento.save(this);
         }
+    }
+
+    PermissionControl getPermissionControl() {
+        return this.securityAdministrator;
+    }
+
+    public ASAPEnginePermissionSettings getASAPEnginePermissionSettings() {
+        return this.securityAdministrator;
+    }
+
+    public ASAPCommunicationSetting getASAPCommunicationControl() {
+        return this.securityAdministrator;
+    }
+
+    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
+        return this.securityAdministrator;
     }
 
     @Override
@@ -374,12 +391,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
 //        }
     }
 
-    public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimiliationPDU, ASAP_1_0 protocol,
+    public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocol,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
-        String sender = asapAssimiliationPDU.getSender();
-        int eraSender = asapAssimiliationPDU.getEra();
+        String sender = asapAssimilationPDU.getSender();
+        int eraSender = asapAssimilationPDU.getEra();
 
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
@@ -406,7 +423,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
 
         try {
             // read URI
-            String uri = asapAssimiliationPDU.getChannelUri();
+            String uri = asapAssimilationPDU.getChannelUri();
 
             // get local target for data to come
             ASAPChunk localChunk = null;
@@ -419,7 +436,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                     System.out.println(this.getLogStart()
                             + "asked to set up new channel: (uri/sender): " + uri + " | " + sender);
                     // this channel is new to local peer - am I allowed to create it?
-                    if(!this.securityAdministrator.allowedToCreateChannel(asapAssimiliationPDU)) {
+                    if(!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
                         System.out.println(this.getLogStart()
                                 + ".. not allowed .. TODO not yet implemented .. always set up");
 
@@ -438,10 +455,10 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                 incomingChunk.copyMetaData(this.getChannel(uri));
             }
 
-            List<Integer> messageOffsets = asapAssimiliationPDU.getMessageOffsets();
+            List<Integer> messageOffsets = asapAssimilationPDU.getMessageOffsets();
 
             // iterate messages and stream into chunk
-            InputStream protocolInputStream = asapAssimiliationPDU.getInputStream();
+            InputStream protocolInputStream = asapAssimilationPDU.getInputStream();
             long offset = 0;
             for(long nextOffset : messageOffsets) {
                 //<<<<<<<<<<<<<<<<<<debug
@@ -466,11 +483,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             b.append("going to read last message: from offset ");
             b.append(offset);
             b.append(" to end of file - total length: ");
-            b.append(asapAssimiliationPDU.getLength());
+            b.append(asapAssimilationPDU.getLength());
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
-            incomingChunk.addMessage(protocolInputStream, asapAssimiliationPDU.getLength() - offset);
+            incomingChunk.addMessage(protocolInputStream, asapAssimilationPDU.getLength() - offset);
             if(!changed) { changed = true; this.contentChanged();}
 
             // read all messages
@@ -664,7 +681,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                             chunk.getOffsetList(),
                             chunk.getMessageInputStream(),
                             os,
-                            false);
+                            this.getASAPCommunicationCryptoSettings());
 
                     // remember sent
                     chunk.deliveredTo(remotePeer);

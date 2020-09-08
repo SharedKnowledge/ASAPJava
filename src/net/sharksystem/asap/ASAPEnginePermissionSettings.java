@@ -2,7 +2,7 @@ package net.sharksystem.asap;
 
 import java.io.IOException;
 
-interface PeerSecuritySettings {
+interface ASAPEnginePermissionSettings {
     /**
      * Engine can remember peers they encountered. It is assumed that those peers are kept with the local peer (not only
      * in this engine)
@@ -16,14 +16,14 @@ interface PeerSecuritySettings {
      * @param on
      * @throws IOException
      */
-    void setEncryptedMessagesOnly(boolean on) throws IOException;
+    void setReceivedMessagesMustBeEncrypted(boolean on) throws IOException;
 
     /**
      * Engine would ignore all unsigned messages if set true.
      * @param on
      * @throws IOException
      */
-    void setSignedMessagesOnly(boolean on) throws IOException;
+    void setReceivedMessagesMustBeSigned(boolean on) throws IOException;
 
     /**
      * Define with what peers an engine is allowed to communicate

@@ -4,12 +4,13 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
+import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
 import java.util.*;
 
 public class ASAPPeerFS implements
-        ASAPPeer, ASAPConnectionListener, ThreadFinishedListener/*, ASAPChunkReceivedListener */ {
+        ASAPPeer, ASAPConnectionListener, ThreadFinishedListener, ASAPUndecryptableMessageHandler/*, ASAPChunkReceivedListener */ {
 
     private static final String DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER = "ASAPManagement";
     private final CharSequence rootFolderName;
@@ -121,6 +122,8 @@ public class ASAPPeerFS implements
                 }
             }
         }
+
+        System.out.println(this.getLogStart() + "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
     }
 
     private void setupEngine(CharSequence folderName, CharSequence formatName) throws IOException, ASAPException {
@@ -268,12 +271,12 @@ public class ASAPPeerFS implements
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
-                is, os, this, new ASAP_Modem_Impl(),
+                is, os, this, new ASAP_Modem_Impl(), this,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("handleConnection: ask any asapStorage to increment era.");
+        sb.append("handleConnection");
         System.out.println(sb.toString());
 
         // this.announceNewEra(); announce when connection is actually established
@@ -459,6 +462,15 @@ public class ASAPPeerFS implements
     //                                              ASAP management                                           //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private DefaultSecurityAdministrator defaultSecurityAdministrator = null;
+    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
+        if(this.defaultSecurityAdministrator == null) {
+            this.defaultSecurityAdministrator = new DefaultSecurityAdministrator();
+        }
+
+        return this.defaultSecurityAdministrator;
+    }
+
     public void pushInterests(OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 /*
@@ -548,5 +560,20 @@ public class ASAPPeerFS implements
 
     private String getLogStart() {
         return this.getClass().getSimpleName() /* + "(" + this + ")" */ + "(" + this.getOwner() + "): ";
+    }
+
+    //////////////////////////////// handle message this peer cannot decrypt
+    @Override
+    public void handleUndecryptableMessage(byte[] encryptedMessage, CharSequence receiver) {
+        System.out.println(this.getLogStart() + "handle undecryptable messages from " + receiver);
+
+        try {
+            ASAPEngine undecryptEngine =
+                    this.getASAPEngine(ASAPUndecryptableMessageHandler.FORMAT_UNDECRYPTABLE_MESSAGES);
+
+            undecryptEngine.add(URI_UNDECRYPTABLE_MESSAGES, encryptedMessage);
+        } catch (IOException | ASAPException e) {
+            System.out.println(this.getLogStart() + "cannot handle undecrypted messages - no engine present");
+        }
     }
 }

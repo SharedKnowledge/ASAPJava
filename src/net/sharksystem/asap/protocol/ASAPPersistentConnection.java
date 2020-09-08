@@ -24,11 +24,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private boolean terminated = false;
 
     public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPPeer asapPeer,
-                                    ASAP_1_0 protocol,
-                                    long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
-                                    ThreadFinishedListener threadFinishedListener) {
+                ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
+                long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
+                ThreadFinishedListener threadFinishedListener) {
 
-        super(is, os, protocol);
+        super(is, os, protocol, unencryptableMessageHandler);
 
         this.asapPeer = asapPeer;
         this.maxExecutionTime = maxExecutionTime;
@@ -174,7 +174,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     public void run() {
-        ASAP_1_0 protocol = new ASAP_Modem_Impl();
+        ASAP_1_0 protocol = new ASAP_Modem_Impl(this.unencryptableMessageHandler);
 
         try {
             // let engine write their interest - at least management interest is sent which als introduces
@@ -401,6 +401,9 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
     }
 
+    /**
+     * Waits for one PDU and goes away if read.
+     */
     private class ASAPPDUReader extends Thread {
         private final ASAP_1_0 protocol;
         private final InputStream is;

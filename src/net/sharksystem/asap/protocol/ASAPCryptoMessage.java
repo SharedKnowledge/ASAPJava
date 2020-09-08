@@ -207,6 +207,10 @@ class ASAPCryptoMessage {
         }
     }
 
+    public CharSequence getReceiver() {
+        return this.recipient;
+    }
+
     ////////////////////////////////// verify
     private class InputStreamCopy extends InputStream {
         private final InputStream is;

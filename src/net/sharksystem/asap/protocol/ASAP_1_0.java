@@ -2,6 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -140,6 +141,11 @@ public interface ASAP_1_0 {
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channelUri, int era,
                     long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
+
+
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+                           OutputStream os, ASAPCommunicationCryptoSettings secureSetting) throws IOException, ASAPException;
 
     /**
      *
