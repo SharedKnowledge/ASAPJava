@@ -155,11 +155,9 @@ class CryptoSession {
             }
         }
 
+        // must be after signing
         if(this.cipher != null) {
             try {
-                // encrypted asap message
-                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
-
                 // get symmetric key
                 SecretKey encryptionKey = this.keyStorage.generateSymmetricKey();
                 byte[] encodedSymmetricKey = encryptionKey.getEncoded();
@@ -170,21 +168,28 @@ class CryptoSession {
                 // send encrypted key
                 this.writeByteArray(encryptedSymmetricKeyBytes, this.realOS);
 
+                // get maybe signed asap message
+                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
+
                 // encrypt message with symmetric key
                 try {
-                    this.cipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
-                    this.cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+                    Cipher symmetricCipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
+                    symmetricCipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
 
+                    /*
                     // block by block
                     int i = 0;
                     while(i +  MAX_ENCRYPTION_BLOCK_SIZE < asapMessageAsBytes.length) {
-                        this.cipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
+                        symmetricCipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
                         i += MAX_ENCRYPTION_BLOCK_SIZE;
                     }
 
                     int lastStepLen = asapMessageAsBytes.length - i;
-                    byte[] encryptedContent = this.cipher.doFinal(asapMessageAsBytes, i, lastStepLen);
+                    symmetricCipher.update(asapMessageAsBytes, i, lastStepLen);
+                    byte[] encryptedContent = symmetricCipher.doFinal();
+                     */
 
+                    byte[] encryptedContent = symmetricCipher.doFinal(asapMessageAsBytes);
                     this.writeByteArray(encryptedContent, this.realOS);
                 } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
                     throw new ASAPSecurityException(this.getLogStart(), e);
