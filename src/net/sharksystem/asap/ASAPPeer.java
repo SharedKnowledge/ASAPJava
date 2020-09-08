@@ -113,4 +113,6 @@ public interface ASAPPeer {
             throws IOException, ASAPException;
 
     void setASAPBasicKeyStorage(ASAPBasicKeyStorage asapBasicKeyStorage);
+
+    ASAPCommunicationSetting getASAPCommunicationControl();
 }

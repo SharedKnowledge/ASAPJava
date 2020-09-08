@@ -1,20 +1,15 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
-import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.cmdline.TCPStream;
-import net.sharksystem.crypto.TestASAPKeyStorage;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.security.KeyPair;
-import java.util.Iterator;
 import java.util.List;
 
-public class Workbench {
-    // copy back to UsageExamples
+public class CryptoTests {
     public static final String WORKING_SUB_DIRECTORY = "cryptoTests/";
     public static final String ALICE_PEER_NAME = "Alice";
     public static final String BOB_PEER_NAME = "Bob";
@@ -25,48 +20,47 @@ public class Workbench {
     public static final String EXAMPLE_MESSAGE_STRING = "Hi";
 
     @Test
-    public void routeEncryptedMessage() throws IOException, ASAPException, InterruptedException {
-        /*
-        Alice produces an encrypted message with recipient Clara. It is sent to Bob. He cannot encrypt message,
-        keeps and finally forwards it to Clara.
-         */
-
-        // Still something to do.
-
-        // setup keystores
-        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_PEER_NAME);
-
-        // alice produces a key pair for alice. This would not work in real life
-        KeyPair keyPairClara = keyStorageAlice.createTestPeer(CLARA_PEER_NAME);
-
-        // there is a keystore but no key excepts Bobs' He cannot verify or encrypt anybody or anything
-        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_PEER_NAME);
-
-        TestASAPKeyStorage keyStorageClara = new TestASAPKeyStorage(CLARA_PEER_NAME, keyPairClara);
-        // clara knows Alice as well
-        keyStorageClara.addKeyPair(ALICE_PEER_NAME, keyStorageAlice.getKeyPair());
-
-        // clean up ASAP
+    public void noExchangeNotSigned() throws IOException, ASAPException, InterruptedException {
         ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;
+
+        // ASAPChunkReceivedListener - an example
         ExampleASAPChunkReceivedListener aliceChunkListener = new ExampleASAPChunkReceivedListener(aliceFolder);
+
+        // setup alice peer
         ASAPPeer alicePeer = ASAPPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, aliceChunkListener);
-        alicePeer.setASAPBasicKeyStorage(keyStorageAlice); // set keystore
-        alicePeer.getASAPCommunicationControl().setSendEncryptedMessages(true); // send encrypted messages
-        ASAPEngine aliceChatEngine = alicePeer.createEngineByFormat(APPNAME); // create engine
+
+        // setup chat on alice peer
+        ASAPEngine aliceChatEngine = alicePeer.createEngineByFormat(APPNAME);
+        // false is default but makes test more obvious
+        aliceChatEngine.getASAPCommunicationControl().setSendEncryptedMessages(false);
+        aliceChatEngine.getASAPCommunicationControl().setSendSignedMessages(false);
 
         // create a message
         String messageAlice = EXAMPLE_MESSAGE_STRING;
+
+        // transform to bytes - there are more elaborate ways to produce a byte array of course
         byte[] messageBytes = messageAlice.getBytes();
-        aliceChatEngine.add(CHAT_TOPIC, messageBytes); // and write to chat
+
+        // write a message - we are still offline
+        aliceChatEngine.add(CHAT_TOPIC, messageBytes);
 
         ///// Prepare Bob
         String bobFolder = WORKING_SUB_DIRECTORY + BOB_PEER_NAME;
+
+        // ASAPChunkReceivedListener - an example
         ExampleASAPChunkReceivedListener bobChunkListener = new ExampleASAPChunkReceivedListener(bobFolder);
+
+        // setup bob peer
         ASAPPeer bobPeer = ASAPPeerFS.createASAPPeer(BOB_PEER_NAME, bobFolder, bobChunkListener);
+
+        // setup chat on alice peer
         ASAPEngine bobChatEngine = bobPeer.createEngineByFormat(APPNAME);
+        // bob expects signed and encrypted what Alice not provides
+        bobChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeEncrypted(true);
+        bobChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeSigned(true);
 
         /////////////// create a connection - in real apps it is presumably a bluetooth wifi direct etc. connection
         // TCPStream is a helper class for connection establishment
@@ -74,32 +68,33 @@ public class Workbench {
         TCPStream bobStream = new TCPStream(EXAMPLE_PORT, false, "b2a");
 
         // start tcp server or client and try to connect
-            aliceStream.start();
-            bobStream.start();
+        aliceStream.start();
+        bobStream.start();
 
         // wait until connection is established
-            aliceStream.waitForConnection();
-            bobStream.waitForConnection();
+        aliceStream.waitForConnection();
+        bobStream.waitForConnection();
         //////////////// end of connection establishment - a simulation in some way - but real enough. It is real tcp.
 
         // let both asap peers run an asap session
         ASAPPeerHandleConnectionThread aliceThread = new ASAPPeerHandleConnectionThread(alicePeer,
                 aliceStream.getInputStream(), aliceStream.getOutputStream());
+
+        // alice is up and running in a thread
         aliceThread.start();
+
+        // run bob in this test thread
         bobPeer.handleConnection(bobStream.getInputStream(), bobStream.getOutputStream());
+
+        // at this point give both asap engines some time to run their asap session - then we check what happened.
         Thread.sleep(1000);
 
-        // now Bob should have stored that encrypted message in a special store.
-
-        int i = 42;
-
-            /*
         // we assume the asap session was performed
 
         // bob chunk received listener must have received something
         List<ExampleASAPChunkReceivedListener.ASAPChunkReceivedParameters> receivedList =
                 bobChunkListener.getReceivedList();
-            Assert.assertTrue(receivedList.isEmpty());
-         */
+        Assert.assertTrue(receivedList.isEmpty());
+
     }
 }

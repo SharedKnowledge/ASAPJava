@@ -9,8 +9,8 @@ import java.io.IOException;
 public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
         ASAPEnginePermissionSettings, CryptoControl, ASAPCommunicationCryptoSettings {
 
-    private boolean encryptedMessagesOnly = false;
-    private boolean signedMessagesOnly = false;
+    private boolean receivedMessageMustBeEncrypted = false;
+    private boolean receivedMessagesMustBeSigned = false;
     private boolean sendEncrypted = false;
     private boolean sendSigned;
 
@@ -21,12 +21,12 @@ public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
 
     @Override
     public void setReceivedMessagesMustBeEncrypted(boolean on) throws IOException {
-        this.encryptedMessagesOnly = on;
+        this.receivedMessageMustBeEncrypted = on;
     }
 
     @Override
     public void setReceivedMessagesMustBeSigned(boolean on) throws IOException {
-        this.signedMessagesOnly = on;
+        this.receivedMessagesMustBeSigned = on;
     }
 
     @Override
@@ -61,10 +61,25 @@ public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
 
     @Override
     public boolean allowed2Process(ASAP_PDU_1_0 pdu) {
-        if(this.signedMessagesOnly && !pdu.signed()) return false;
-        if(this.encryptedMessagesOnly && !pdu.encrypted()) return false;
+        if(this.receivedMessagesMustBeSigned && !pdu.signed()) {
+            System.out.println(this);
+            System.out.println(this.getLogStart() + "checked: " + pdu);
+            System.out.println(this.getLogStart() + "not signed");
+            return false;
+        }
+        if(this.receivedMessageMustBeEncrypted && !pdu.encrypted()) {
+            System.out.println(this);
+            System.out.println(this.getLogStart() + "checked: " + pdu);
+            System.out.println(this.getLogStart() + "not encrypted");
+            return false;
+        }
 
+        System.out.println(this.getLogStart() + "ok");
         return true;
+    }
+
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + ": ";
     }
 
     @Override
@@ -75,5 +90,22 @@ public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
     @Override
     public boolean mustSign() {
         return this.sendSigned;
+    }
+
+    /*
+    private boolean encryptedMessagesOnly = false;
+    private boolean signedMessagesOnly = false;
+    private boolean sendEncrypted = false;
+    private boolean sendSigned;
+
+     */
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getLogStart());
+        sb.append("recEncrypted: " + this.receivedMessageMustBeEncrypted);
+        sb.append(" | recSigned: " + this.receivedMessagesMustBeSigned);
+        sb.append(" | sendEncrypted: " + this.sendEncrypted);
+        sb.append(" | sendSigned: " + this.sendSigned);
+        return sb.toString();
     }
 }

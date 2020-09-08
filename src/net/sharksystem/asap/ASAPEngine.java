@@ -19,7 +19,11 @@ import java.util.*;
  * @author thsc
  */
 public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
-    private DefaultSecurityAdministrator securityAdministrator = new DefaultSecurityAdministrator();
+    private DefaultSecurityAdministrator securityAdministrator;
+
+    public void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator) {
+        this.securityAdministrator = securityAdministrator;
+    }
 
     public static final String ANONYMOUS_OWNER = "anon";
     static String DEFAULT_OWNER = ANONYMOUS_OWNER;
@@ -533,6 +537,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
     }
 
     private boolean hasSufficientCrypto(ASAP_PDU_1_0 pdu) {
+        if(this.getCryptoControl() == null) {
+            System.out.println(this.getLogStart() + "crypto control set allow anything");
+            return true;
+        }
+
         boolean proceed = this.getCryptoControl().allowed2Process(pdu);
         if(!proceed) {
             System.out.println(this.getLogStart() + "no sufficient crypto: " + pdu);

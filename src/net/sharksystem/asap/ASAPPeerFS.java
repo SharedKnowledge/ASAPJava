@@ -20,6 +20,15 @@ public class ASAPPeerFS implements
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
     private ASAPBasicKeyStorage asapBasicKeyStorage;
+    private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
+
+    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
+        return this.defaultSecurityAdministrator;
+    }
+
+    public ASAPCommunicationSetting getASAPCommunicationControl() {
+        return this.defaultSecurityAdministrator;
+    }
 
     public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
                                           long maxExecutionTime,
@@ -134,6 +143,8 @@ public class ASAPPeerFS implements
         ASAPEngine asapEngine = ASAPEngineFS.getASAPStorage(this.getOwner().toString(),
                 fileName, formatName);
 
+        asapEngine.setSecurityAdministrator(this.defaultSecurityAdministrator);
+
         EngineSetting setting = new EngineSetting(
                 fileName, // folder
                 this.listener// listener
@@ -198,6 +209,7 @@ public class ASAPPeerFS implements
             asapEngine = ASAPEngineFS.getASAPEngine(owner.toString(), engineSetting.folder.toString(), format);
             engineSetting.setASAPEngine(asapEngine); // remember - keep that object
         }
+        asapEngine.setSecurityAdministrator(this.defaultSecurityAdministrator);
         return asapEngine;
     }
 
@@ -213,6 +225,8 @@ public class ASAPPeerFS implements
         String folderName = this.getEngineFolderByAppName(format);
         ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(String.valueOf(this.getOwner()), folderName, format);
         this.folderMap.put(format, new EngineSetting(folderName, listener));
+
+        asapEngine.setSecurityAdministrator(this.defaultSecurityAdministrator);
 
         return asapEngine;
     }
@@ -464,15 +478,6 @@ public class ASAPPeerFS implements
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                              ASAP management                                           //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private DefaultSecurityAdministrator defaultSecurityAdministrator = null;
-    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
-        if(this.defaultSecurityAdministrator == null) {
-            this.defaultSecurityAdministrator = new DefaultSecurityAdministrator();
-        }
-
-        return this.defaultSecurityAdministrator;
-    }
 
     public void pushInterests(OutputStream os) throws IOException, ASAPException {
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
