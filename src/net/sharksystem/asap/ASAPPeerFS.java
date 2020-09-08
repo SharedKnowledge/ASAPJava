@@ -4,6 +4,7 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
+import net.sharksystem.crypto.ASAPBasicKeyStorage;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
@@ -18,6 +19,7 @@ public class ASAPPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
+    private ASAPBasicKeyStorage asapBasicKeyStorage;
 
     public static ASAPPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
                                           long maxExecutionTime,
@@ -271,7 +273,8 @@ public class ASAPPeerFS implements
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
-                is, os, this, new ASAP_Modem_Impl(), this,
+                is, os, this, new ASAP_Modem_Impl(),
+                this, this.asapBasicKeyStorage,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
@@ -488,7 +491,11 @@ public class ASAPPeerFS implements
         try {
             ASAPEngine managementEngine = this.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
             System.out.println(this.getLogStart() + "send interest for app/format: " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-            protocol.interest(this.owner, null, ASAP_1_0.ASAP_MANAGEMENT_FORMAT,null, -1, -1, os, false);
+            protocol.interest(this.owner, null,
+                    ASAP_1_0.ASAP_MANAGEMENT_FORMAT,
+                    null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
+                    os,
+                    this.getASAPCommunicationCryptoSettings());
         }
         catch(Exception e) {
             // ignore - engine does not exist
@@ -497,7 +504,14 @@ public class ASAPPeerFS implements
         for(CharSequence format : this.folderMap.keySet()) {
             if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already sent
             System.out.println(this.getLogStart() + "send interest for app/format: " + format);
-            protocol.interest(this.owner, null, format,null, -1, -1, os, false);
+            try {
+                protocol.interest(this.owner, null,
+                        format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
+                        os, this.getASAPCommunicationCryptoSettings());
+            }
+            catch(ASAPSecurityException e) {
+                // give next engine a try
+            }
         }
     }
 
@@ -528,6 +542,11 @@ public class ASAPPeerFS implements
                                         byte[] messageAsBytes) throws IOException, ASAPException {
 
         this.sendOnlineASAPAssimilateMessage(format, urlTarget, null, messageAsBytes, ASAP.INITIAL_ERA);
+    }
+
+    @Override
+    public void setASAPBasicKeyStorage(ASAPBasicKeyStorage asapBasicKeyStorage) {
+        this.asapBasicKeyStorage = asapBasicKeyStorage;
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,

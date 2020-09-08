@@ -57,7 +57,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         }
     }
 
-    PermissionControl getPermissionControl() {
+    CryptoControl getCryptoControl() {
         return this.securityAdministrator;
     }
 
@@ -370,6 +370,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
     public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
+        if(!hasSufficientCrypto(asapOffer)) return;
+
         /*
         if(this.isASAPManagementMessage(asapOffer)) {
             //<<<<<<<<<<<<<<<<<<debug
@@ -394,6 +396,9 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocol,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
+
+        // before we start - lets crypto
+        if(!hasSufficientCrypto(asapAssimilationPDU)) return;
 
         String sender = asapAssimilationPDU.getSender();
         int eraSender = asapAssimilationPDU.getEra();
@@ -527,8 +532,20 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         }
     }
 
+    private boolean hasSufficientCrypto(ASAP_PDU_1_0 pdu) {
+        boolean proceed = this.getCryptoControl().allowed2Process(pdu);
+        if(!proceed) {
+            System.out.println(this.getLogStart() + "no sufficient crypto: " + pdu);
+        }
+
+        return proceed;
+    }
+
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
+
+        // before we start - lets crypto
+        if(!hasSufficientCrypto(asapInterest)) return;
 
         // get remote peer
         String peer = asapInterest.getSender();

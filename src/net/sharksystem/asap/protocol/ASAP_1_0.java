@@ -75,6 +75,9 @@ public interface ASAP_1_0 {
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean signed) throws IOException, ASAPException;
 
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                  CharSequence channel, int eraFrom, int eraTo,
+                  OutputStream os, ASAPCommunicationCryptoSettings cryptoSettings) throws IOException, ASAPException;
 
     /**
      * @param sender identifies sender - can be null

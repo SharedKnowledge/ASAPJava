@@ -5,6 +5,7 @@ import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.cmdline.TCPStream;
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -21,8 +22,8 @@ public class Workbench {
     public static final int EXAMPLE_PORT = 7070;
     public static final String EXAMPLE_MESSAGE_STRING = "Hi";
 
-    // TODO
-    public void routeEncryptedMessageTest() throws IOException, ASAPException, InterruptedException {
+    @Test
+    public void noExchangeNotSigned() throws IOException, ASAPException, InterruptedException {
         ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
@@ -36,10 +37,9 @@ public class Workbench {
 
         // setup chat on alice peer
         ASAPEngine aliceChatEngine = alicePeer.createEngineByFormat(APPNAME);
-        aliceChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeEncrypted(true);
-        aliceChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeSigned(true);
-        aliceChatEngine.getASAPCommunicationControl().setSendEncryptedMessages(true);
-        aliceChatEngine.getASAPCommunicationControl().setSendSignedMessages(true);
+        // false is default but makes test more obvious
+        aliceChatEngine.getASAPCommunicationControl().setSendEncryptedMessages(false);
+        aliceChatEngine.getASAPCommunicationControl().setSendSignedMessages(false);
 
         // create a message
         String messageAlice = EXAMPLE_MESSAGE_STRING;
@@ -61,10 +61,9 @@ public class Workbench {
 
         // setup chat on alice peer
         ASAPEngine bobChatEngine = bobPeer.createEngineByFormat(APPNAME);
-        aliceChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeEncrypted(true);
-        aliceChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeSigned(true);
-        aliceChatEngine.getASAPCommunicationControl().setSendEncryptedMessages(true);
-        aliceChatEngine.getASAPCommunicationControl().setSendSignedMessages(true);
+        // bob expects signed and encrypted what Alice not provides
+        bobChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeEncrypted(true);
+        bobChatEngine.getASAPEnginePermissionSettings().setReceivedMessagesMustBeSigned(true);
 
         /////////////// create a connection - in real apps it is presumably a bluetooth wifi direct etc. connection
         // TCPStream is a helper class for connection establishment
@@ -98,44 +97,7 @@ public class Workbench {
         // bob chunk received listener must have received something
         List<ExampleASAPChunkReceivedListener.ASAPChunkReceivedParameters> receivedList =
                 bobChunkListener.getReceivedList();
+            Assert.assertTrue(receivedList.isEmpty());
 
-            Assert.assertNotNull(receivedList);
-            Assert.assertFalse(receivedList.isEmpty());
-
-        // there must be a single entry - get it
-            Assert.assertTrue(receivedList.size() == 1);
-        ExampleASAPChunkReceivedListener.ASAPChunkReceivedParameters parameters = receivedList.get(0);
-
-        // get chunk storage
-        ASAPChunkStorage receivedChunkStorage = bobChatEngine.getReceivedChunksStorage(parameters.getSender());
-
-        // get chunk
-        ASAPChunk chunk = receivedChunkStorage.getChunk(parameters.getUri(), parameters.getEra());
-
-        Iterator<byte[]> messages = chunk.getMessages();
-
-        // there must a one and only one
-        byte[] messageBytesReceived = messages.next();
-
-        // convert to String
-        String receivedMessage = new String(messageBytesReceived);
-
-            System.out.println(bobChatEngine.getOwner() + " received a message: " + receivedMessage);
-
-            Assert.assertTrue(receivedMessage.equals(EXAMPLE_MESSAGE_STRING));
-
-        // make it a bit easier with a helper class
-        ASAPMessages receivedMessages =
-                Helper.getMessagesByChunkReceivedInfos(parameters.getFormat(), parameters.getSender(),
-                        parameters.getUri(),
-                        bobFolder, // peers' root directory!
-                        parameters.getEra());
-
-        Iterator<byte[]> msgInter = receivedMessages.getMessages();
-            while(msgInter.hasNext()) {
-            byte[] msgBytes = msgInter.next();
-            String msg = new String(msgBytes);
-            System.out.println("message received: " + msg);
-        }
     }
 }

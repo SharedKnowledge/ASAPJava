@@ -7,7 +7,7 @@ import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 import java.io.IOException;
 
 public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
-        ASAPEnginePermissionSettings, PermissionControl, ASAPCommunicationCryptoSettings {
+        ASAPEnginePermissionSettings, CryptoControl, ASAPCommunicationCryptoSettings {
 
     private boolean encryptedMessagesOnly = false;
     private boolean signedMessagesOnly = false;

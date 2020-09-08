@@ -2,6 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.util.Log;
+import net.sharksystem.crypto.ASAPBasicKeyStorage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,10 +26,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
     public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPPeer asapPeer,
                 ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
+                ASAPBasicKeyStorage asapBasicKeyStorage,
                 long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                 ThreadFinishedListener threadFinishedListener) {
 
-        super(is, os, protocol, unencryptableMessageHandler);
+        super(is, os, protocol, unencryptableMessageHandler, asapBasicKeyStorage);
 
         this.asapPeer = asapPeer;
         this.maxExecutionTime = maxExecutionTime;
@@ -174,7 +176,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     public void run() {
-        ASAP_1_0 protocol = new ASAP_Modem_Impl(this.unencryptableMessageHandler);
+        ASAP_1_0 protocol = new ASAP_Modem_Impl(this.asapBasicKeyStorage, this.undecryptableMessageHandler);
 
         try {
             // let engine write their interest - at least management interest is sent which als introduces

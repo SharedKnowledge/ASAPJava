@@ -74,12 +74,23 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
-             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
+                         CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed)
             throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
                 signed, false);
     }
+
+    @Override
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                         CharSequence channel, int eraFrom, int eraTo, OutputStream os,
+                         ASAPCommunicationCryptoSettings cryptoSettings)
+            throws IOException, ASAPException {
+
+        this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
+                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt());
+    }
+
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
