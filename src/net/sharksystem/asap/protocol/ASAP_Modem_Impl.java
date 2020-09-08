@@ -75,17 +75,17 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             throws IOException, ASAPException, ASAPSecurityException {
 
         // prepare encryption and signing if required
-        CryptoSession cryptoSession = new CryptoSession(ASAP_1_0.INTEREST_CMD,
+        CryptoMessage cryptoMessage = new CryptoMessage(ASAP_1_0.INTEREST_CMD,
                 os, signed, encrypted, recipient,
                 this.signAndEncryptionKeyStorage);
 
-        cryptoSession.sendCmd();
+        cryptoMessage.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
-                cryptoSession.getOutputStream(), signed);
+                cryptoMessage.getOutputStream(), signed);
 
         // finish crypto session - if any
-        cryptoSession.finish();
+        cryptoMessage.finish();
     }
 
     @Override
@@ -114,31 +114,35 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         // encrypted?
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
-        // remove encrypted flag
-        cmd = (byte)(cmd & CMD_MASK);
 
         if(encrypted) {
-            try {
-                CryptoSession cryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
-                InputStream decryptedIS = cryptoSession.decrypt(is);
+            CryptoMessage cryptoMessage = new CryptoMessage(this.signAndEncryptionKeyStorage);
+            boolean ownerIsRecipient = cryptoMessage.initDecryption(cmd, is);
+            if(ownerIsRecipient) {
+                // peer is recipient - decrypt and go ahead
+                InputStream decryptedIS = cryptoMessage.doDecryption(is);
                 is = decryptedIS;
-            }
-            catch(ASAPSecurityException e) {
-                System.out.println(this.getLogStart() + "cannot decrypt message. TODO: Store (according to some rules) and forward it?!");
+            } else {
+                // we cannot decrypt this message - we are not recipient - but we keep and redistribute
+                byte[] encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
+                System.out.println(this.getLogStart() + "TODO: handle unencryptable message - redistribute?!");
+                throw new ASAPSecurityException("recived encrypted message which is not for me - TODO: keep it and redistribute. That's not an error but a missing feature.");
             }
         }
 
         int flagsInt = PDU_Impl.readByte(is);
 
         InputStream realIS = is;
-        CryptoSession verifyCryptoSession = null;
+        CryptoMessage verifyCryptoMessage = null;
         if(PDU_Impl.flagSet(PDU_Impl.SIGNED_TO_BIT_POSITION, flagsInt)) {
-            verifyCryptoSession = new CryptoSession(this.signAndEncryptionKeyStorage);
-            is = verifyCryptoSession.setupInputStreamListener(is, flagsInt);
+            verifyCryptoMessage = new CryptoMessage(this.signAndEncryptionKeyStorage);
+            is = verifyCryptoMessage.setupInputStreamCopier(flagsInt, is);
         }
 
         PDU_Impl pdu = null;
 
+        // remove encrypted flag
+        cmd = (byte)(cmd & CMD_MASK);
         switch(cmd) {
             case ASAP_1_0.OFFER_CMD: pdu = new OfferPDU_Impl(flagsInt, encrypted, is); break;
             case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, encrypted, is); break;
@@ -146,12 +150,12 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             default: throw new ASAPException("unknown command: " + cmd);
         }
 
-        if(verifyCryptoSession != null) {
+        if(verifyCryptoMessage != null) {
             String sender = pdu.getSender();
             if(sender != null) {
                 // read signature and try to verify
                 try {
-                    pdu.setVerified(verifyCryptoSession.verify(sender, realIS));
+                    pdu.setVerified(verifyCryptoMessage.verify(sender, realIS));
                 }
                 catch(ASAPException e) {
                     System.out.println(this.getLogStart() + " cannot verify message");

@@ -40,4 +40,11 @@ public interface ASAPBasicKeyStorage {
     String getSymmetricEncryptionAlgorithm();
 
     String getSymmetricKeyType();
+
+    /**
+     *
+     * @param peerID
+     * @return true if peerID is owners' id.
+     */
+    boolean isOwner(CharSequence peerID);
 }

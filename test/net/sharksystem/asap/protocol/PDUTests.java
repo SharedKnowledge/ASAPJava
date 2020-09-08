@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.crypto.TestASAPKeyStorage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import java.util.List;
 public class PDUTests {
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";
+    public static final String CLARA_ID = "Clara";
 
     @Test
     public void sendAndReceiveOffer() throws IOException, ASAPException {
@@ -216,6 +218,40 @@ public class PDUTests {
         Assert.assertTrue(interestPDU.getRecipient().equalsIgnoreCase(recipient));
         Assert.assertTrue(interestPDU.encrypted());
         Assert.assertTrue(interestPDU.verified());
+    }
+
+    @Test(expected = ASAPSecurityException.class)
+    public void sendEncryptedMessageNotToRecipient() throws IOException, ASAPException {
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_ID);
+
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_ID, bobKeyPair);
+
+        // add Clara
+        TestASAPKeyStorage keyStorageClara = new TestASAPKeyStorage(CLARA_ID);
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        //ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
+        ASAP_1_0 asapModemClara = new ASAP_Modem_Impl(keyStorageClara);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
+        String channel = "AliceURI";
+        String format = "format";
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        /////////////////////// create encrypted message for bob
+        asapModemAlice.interest(sender, recipient, format, channel, os,false, true);
+
+        // try to read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        // and send to clara. It should fail, but:
+        System.out.println("We need a feature that handles / redistributes unencryptable messages");
+        asapModemClara.readPDU(is);
+//        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemClara.readPDU(is);
     }
 
     ////////////////////           assimilate          /////////////////////////////////////////

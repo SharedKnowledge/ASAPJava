@@ -217,16 +217,16 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         return value;
     }
 
-    protected long readLongParameter(InputStream is) throws IOException, ASAPException {
-        long value = this.readIntegerParameter(is);
+    static long readLongParameter(InputStream is) throws IOException, ASAPException {
+        long value = readIntegerParameter(is);
         value = value << 32;
-        long right = this.readIntegerParameter(is);
+        long right = readIntegerParameter(is);
         value += right;
         return value;
     }
 
-    protected String readCharSequenceParameter(InputStream is) throws IOException, ASAPException {
-        int length = this.readIntegerParameter(is);
+    static String readCharSequenceParameter(InputStream is) throws IOException, ASAPException {
+        int length = readIntegerParameter(is);
         byte[] parameterBytes = new byte[length];
 
         is.read(parameterBytes);

@@ -10,27 +10,27 @@ import java.util.HashMap;
 
 public class TestASAPKeyStorage implements ASAPBasicKeyStorage {
     private final KeyPair keyPair;
-    private final String name;
+    private final CharSequence ownerID;
     private long timeInMillis = 0;
 
     public static final String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
     public static final String DEFAULT_SYMMETRIC_KEY_TYPE = "AES";
     public static final String DEFAULT_SYMMETRIC_ENCRYPTION_ALGORITHM = "AES/ECB/PKCS5Padding";
-//    public static int DEFAULT_AES_KEY_SIZE = 256; TODO we need a better one
-    public static int DEFAULT_AES_KEY_SIZE = 128;
+//    public static int DEFAULT_AES_KEY_SIZE = 256;
+    public static int DEFAULT_AES_KEY_SIZE = 128; // TODO we can do better
     public static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     private HashMap<String, KeyPair> peerKeyPairs = new HashMap<>();
 
-    public TestASAPKeyStorage(String name) throws ASAPSecurityException {
+    public TestASAPKeyStorage(String ownerID) throws ASAPSecurityException {
         // generate owners key pair;
-        this.name = name;
+        this.ownerID = ownerID;
         this.keyPair = this.generateKeyPair();
         this.timeInMillis = System.currentTimeMillis();
     }
 
-    public TestASAPKeyStorage(String name, KeyPair ownerKeyPair) {
-        this.name = name;
+    public TestASAPKeyStorage(CharSequence ownerID, KeyPair ownerKeyPair) {
+        this.ownerID = ownerID;
         this.keyPair = ownerKeyPair;
     }
 
@@ -129,11 +129,17 @@ public class TestASAPKeyStorage implements ASAPBasicKeyStorage {
     }
 
     @Override
+    public boolean isOwner(CharSequence peerID) {
+        return peerID.equals(this.ownerID);
+    }
+
+    @Override
     public String getRSASigningAlgorithm() {
         return DEFAULT_SIGNATURE_ALGORITHM;
     }
 
     public void addKeyPair(String peerID, KeyPair keyPair) {
+
         this.peerKeyPairs.put(peerID, keyPair);
     }
 }
