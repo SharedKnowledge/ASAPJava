@@ -38,11 +38,11 @@ public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
      * @param os
      * @throws IOException
      */
-    void streamData(OutputStream os, long length) throws IOException;
+    void streamData(OutputStream os) throws IOException;
 
     /**
      * return row input stream from protocol - handle with care!
      * @return
      */
-    public InputStream getInputStream();
+    public InputStream getInputStream() throws IOException;
 }

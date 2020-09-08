@@ -317,4 +317,253 @@ public class PDUTests {
         Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
         Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
     }
+
+    @Test
+    public void sendAndReceiveAssimilateSignedAndEncrypted() throws IOException, ASAPException {
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_ID);
+
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_ID,bobKeyPair);
+        keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
+        String channel = "AliceURI";
+        String format = "format";
+        int era = 1;
+
+        String testString1 = "data1";
+        String testString2 = "data2 longer";
+        List<Long> offsetsList = new ArrayList<Long>();
+
+        byte[] testData1 = testString1.getBytes();
+        byte[] testData2 = testString2.getBytes();
+        long len = testData1.length;
+        offsetsList.add(len);
+
+        ByteArrayOutputStream testDataOutputStream = new ByteArrayOutputStream();
+
+        testDataOutputStream.write(testData1);
+        testDataOutputStream.write(testData2);
+
+        byte[] data = testDataOutputStream.toByteArray();
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+                true, true);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemBob.readPDU(is);
+
+        ASAP_AssimilationPDU_1_0 assimilationPDU = (ASAP_AssimilationPDU_1_0) asap_pdu_1_0;
+
+        Assert.assertTrue(assimilationPDU.getChannelUri().equalsIgnoreCase(channel));
+        Assert.assertTrue(assimilationPDU.getFormat().equalsIgnoreCase(format));
+        Assert.assertTrue(assimilationPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipient));
+        Assert.assertEquals(assimilationPDU.getEra(), era);
+
+        byte[] data_received = assimilationPDU.getData();
+        List<Integer> offsets_received = assimilationPDU.getMessageOffsets();
+        // one entry assumed
+        int offset = offsets_received.get(0);
+
+        byte[] data_r1 = new byte[offset];
+        for(int i = 0; i < offset; i++) {
+            data_r1[i] = data_received[i];
+        }
+
+        int remainingByteNumber = data_received.length-offset;
+        byte[] data_r2 = new byte[remainingByteNumber];
+        for(int i = 0; i < remainingByteNumber; i++) {
+            data_r2[i] = data_received[i+offset];
+        }
+
+        Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
+        Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
+    }
+
+    @Test
+    public void sendAndReceiveAssimilateSigned() throws IOException, ASAPException {
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_ID);
+
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_ID,bobKeyPair);
+        keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
+        String channel = "AliceURI";
+        String format = "format";
+        int era = 1;
+
+        String testString1 = "data1";
+        String testString2 = "data2 longer";
+        List<Long> offsetsList = new ArrayList<Long>();
+
+        byte[] testData1 = testString1.getBytes();
+        byte[] testData2 = testString2.getBytes();
+        long len = testData1.length;
+        offsetsList.add(len);
+
+        ByteArrayOutputStream testDataOutputStream = new ByteArrayOutputStream();
+
+        testDataOutputStream.write(testData1);
+        testDataOutputStream.write(testData2);
+
+        byte[] data = testDataOutputStream.toByteArray();
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+                true, false);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemBob.readPDU(is);
+
+        ASAP_AssimilationPDU_1_0 assimilationPDU = (ASAP_AssimilationPDU_1_0) asap_pdu_1_0;
+
+        Assert.assertTrue(assimilationPDU.getChannelUri().equalsIgnoreCase(channel));
+        Assert.assertTrue(assimilationPDU.getFormat().equalsIgnoreCase(format));
+        Assert.assertTrue(assimilationPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipient));
+        Assert.assertEquals(assimilationPDU.getEra(), era);
+
+        byte[] data_received = assimilationPDU.getData();
+        List<Integer> offsets_received = assimilationPDU.getMessageOffsets();
+        // one entry assumed
+        int offsetInt = offsets_received.get(0);
+
+        byte[] data_r1 = new byte[offsetInt];
+        for(int i = 0; i < offsetInt; i++) {
+            data_r1[i] = data_received[i];
+        }
+
+        int remainingByteNumber = data_received.length-offsetInt;
+        byte[] data_r2 = new byte[remainingByteNumber];
+        for(int i = 0; i < remainingByteNumber; i++) {
+            data_r2[i] = data_received[i+offsetInt];
+        }
+
+        Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
+        Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
+
+        //// taken from ASAPEngine.handleAssimilate
+        List<Integer> messageOffsets = assimilationPDU.getMessageOffsets();
+
+        // iterate messages and stream into chunk
+        InputStream protocolInputStream = assimilationPDU.getInputStream();
+        long offset = 0;
+        for(long nextOffset : messageOffsets) {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append("going to read message: [");
+            b.append(offset);
+            b.append(", ");
+            b.append(nextOffset);
+            b.append(")");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            // simulate read
+            long length = nextOffset - offsetInt;
+            while(length-- > 0) {
+                protocolInputStream.read();
+            }
+            offset = nextOffset;
+        }
+        StringBuilder b = new StringBuilder();
+        b.append("going to read last message: from offset ");
+        b.append(offset);
+        b.append(" to end of file - total length: ");
+        b.append(assimilationPDU.getLength());
+        System.out.println(b.toString());
+    }
+
+    @Test
+    public void sendAndReceiveAssimilateEncrypted() throws IOException, ASAPException {
+        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_ID);
+
+        // add Bob
+        KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
+        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_ID,bobKeyPair);
+        keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
+
+        ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
+        ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
+
+        String sender = ALICE_ID;
+        String recipient = BOB_ID;
+        String channel = "AliceURI";
+        String format = "format";
+        int era = 1;
+
+        String testString1 = "data1";
+        String testString2 = "data2 longer";
+        List<Long> offsetsList = new ArrayList<Long>();
+
+        byte[] testData1 = testString1.getBytes();
+        byte[] testData2 = testString2.getBytes();
+        long len = testData1.length;
+        offsetsList.add(len);
+
+        ByteArrayOutputStream testDataOutputStream = new ByteArrayOutputStream();
+
+        testDataOutputStream.write(testData1);
+        testDataOutputStream.write(testData2);
+
+        byte[] data = testDataOutputStream.toByteArray();
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+                false, true);
+
+        // try t read output
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        ASAP_PDU_1_0 asap_pdu_1_0 = asapModemBob.readPDU(is);
+
+        ASAP_AssimilationPDU_1_0 assimilationPDU = (ASAP_AssimilationPDU_1_0) asap_pdu_1_0;
+
+        Assert.assertTrue(assimilationPDU.getChannelUri().equalsIgnoreCase(channel));
+        Assert.assertTrue(assimilationPDU.getFormat().equalsIgnoreCase(format));
+        Assert.assertTrue(assimilationPDU.getSender().equalsIgnoreCase(sender));
+        Assert.assertTrue(assimilationPDU.getRecipientPeer().equalsIgnoreCase(recipient));
+        Assert.assertEquals(assimilationPDU.getEra(), era);
+
+        byte[] data_received = assimilationPDU.getData();
+        List<Integer> offsets_received = assimilationPDU.getMessageOffsets();
+        // one entry assumed
+        int offset = offsets_received.get(0);
+
+        byte[] data_r1 = new byte[offset];
+        for(int i = 0; i < offset; i++) {
+            data_r1[i] = data_received[i];
+        }
+
+        int remainingByteNumber = data_received.length-offset;
+        byte[] data_r2 = new byte[remainingByteNumber];
+        for(int i = 0; i < remainingByteNumber; i++) {
+            data_r2[i] = data_received[i+offset];
+        }
+
+        Assert.assertTrue(new String(data_r1).equalsIgnoreCase(testString1));
+        Assert.assertTrue(new String(data_r2).equalsIgnoreCase(testString2));
+    }
 }

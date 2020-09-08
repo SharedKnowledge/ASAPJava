@@ -2,10 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -16,6 +13,9 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     private String recipientPeer;
     public static final String OFFSET_DELIMITER = ",";
     private List<Integer> offsets = new ArrayList<>();
+
+    private byte[] data = null;
+    private boolean dataNoLongerOnStream = false;
 
     // PDU: CMD | FLAGS | PEER | RECIPIENT | FORMAT | CHANNEL | ERA | OFFSETS | LENGTH | DATA
 
@@ -34,6 +34,11 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         this.dataLength = this.readLongParameter(is);
 
         this.is = is;
+
+        if(this.signed()) {
+            // read data from stream, verification needs to reach signature
+            this.getData();
+        }
     }
 
     private void readOffsets(InputStream is) throws IOException, ASAPException {
@@ -44,28 +49,29 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         this.recipientPeer = this.readCharSequenceParameter(is);
     }
 
-    static void sendPDU(CharSequence peer, CharSequence recipientPeer, CharSequence format, CharSequence channel,
-                        int era, long length, List<Long> offsets, InputStream is, OutputStream os, boolean signed)
+    static void sendPDUWithoutCmd(CharSequence peer, CharSequence recipient, CharSequence format, CharSequence channel,
+                                  int era, long length, List<Long> offsets, InputStream is, OutputStream os,
+                                  boolean signed)
             throws IOException, ASAPException {
 
         // first: check protocol errors
         PDU_Impl.checkValidEra(era);
         PDU_Impl.checkValidFormat(format);
-//        PDU_Impl.checkValidSign(peer, signed);
         PDU_Impl.checkValidStream(os);
 
         // create parameter bytes
         int flags = 0;
         flags = PDU_Impl.setFlag(peer, flags, SENDER_BIT_POSITION);
-        flags = PDU_Impl.setFlag(recipientPeer, flags, RECIPIENT_BIT_POSITION);
+        flags = PDU_Impl.setFlag(recipient, flags, RECIPIENT_BIT_POSITION);
         flags = PDU_Impl.setFlag(channel, flags, CHANNEL_BIT_POSITION);
         flags = PDU_Impl.setFlag(era, flags, ERA_BIT_POSITION);
         flags = PDU_Impl.setFlag(offsets, flags, OFFSETS_BIT_POSITION);
+        flags = PDU_Impl.setFlag(signed, flags, SIGNED_TO_BIT_POSITION);
 
-        PDU_Impl.sendHeader(ASAP_1_0.ASSIMILATE_CMD, flags, os);
+        PDU_Impl.sendFlags(flags, os);
 
         PDU_Impl.sendCharSequenceParameter(peer, os); // opt
-        PDU_Impl.sendCharSequenceParameter(recipientPeer, os); // opt
+        PDU_Impl.sendCharSequenceParameter(recipient, os); // opt
         PDU_Impl.sendCharSequenceParameter(format, os); // mand
         PDU_Impl.sendCharSequenceParameter(channel, os); // opt
         PDU_Impl.sendNonNegativeIntegerParameter(era, os); // opt
@@ -77,8 +83,6 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         while(length-- > 0) {
             os.write(is.read());
         }
-
-        // TODO: signature
     }
 
     static String list2string(List<Long> list) {
@@ -130,20 +134,56 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
     @Override
     public byte[] getData() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        this.streamData(baos, this.dataLength);
+        if(data == null) {
+            if(this.dataNoLongerOnStream)
+                throw new IOException(this.getLogStart() + "data are already read from stream, probably with streamData");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            this.streamData(baos);
+            this.data = baos.toByteArray();
+        }
 
-        return baos.toByteArray();
+        return this.data;
     }
 
-    public InputStream getInputStream() {
+    private String getLogStart() {
+        return this.getClass().getSimpleName() + ": ";
+    }
+
+    public InputStream getInputStream() throws IOException {
+        if(this.dataNoLongerOnStream) {
+            if(this.data == null) {
+                throw new IOException(this.getLogStart()
+                        + "data are no longer in stream, probably due to a previous call of streamData or getInputStream");
+            } else {
+                return new ByteArrayInputStream(this.data);
+            }
+        }
+
+        this.dataNoLongerOnStream = true; // educated guess - they will be gone very soon.
         return this.is;
     }
 
     @Override
-    public void streamData(OutputStream os, long length) throws IOException {
-        for(int i = 0; i < length; i++) {
-            os.write(this.is.read());
+    public void streamData(OutputStream os) throws IOException {
+        InputStream useIS;
+
+        if(this.data == null) {
+            if(this.dataNoLongerOnStream) {
+                throw new IOException(this.getLogStart()
+                        + "data are already read from stream, probably previous call of streamData");
+            } else {
+                // data are still on stream
+                useIS = this.is;
+                // but not any longer
+                this.dataNoLongerOnStream = true;
+            }
+        } else {
+            // already read
+            useIS = new ByteArrayInputStream(this.data);
+        }
+
+        for (int i = 0; i < this.dataLength; i++) {
+            os.write(useIS.read());
         }
     }
 }

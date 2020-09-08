@@ -145,6 +145,25 @@ public interface ASAP_1_0 {
      *
      * @param sender sender (optional, can be null)
      * @param recipient wished recipient (optional, can be null)
+     * @param channelUri mandatory
+     * @param format mandatory
+     * @param offsets applications will probably store a number of messages in a data block. This (optional) list
+     *                of numbers represents the offset where a new app specific message begins.
+     * @param dataIS stream from which are read to be transmitted to recipient mandatory
+     * @param os stream that PDU is to be sent
+     * @param signed message is signed
+     * @param encrypted encrypt or not
+     * @throws IOException exception during writing on stream
+     * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
+     */
+    void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channelUri, int era,
+                    long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed, boolean encrypted)
+            throws IOException, ASAPException;
+
+    /**
+     *
+     * @param sender sender (optional, can be null)
+     * @param recipient wished recipient (optional, can be null)
      * @param channel mandatory
      * @param format mandatory
      * @param offsets applications will probably store a number of messages in a data block. This (optional) list
@@ -157,6 +176,25 @@ public interface ASAP_1_0 {
      */
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channel, int era,
                     List<Long> offsets, byte[] data, OutputStream os, boolean signed)
+            throws IOException, ASAPException;
+
+    /**
+     *
+     * @param sender sender (optional, can be null)
+     * @param recipient wished recipient (optional, can be null)
+     * @param channel mandatory
+     * @param format mandatory
+     * @param offsets applications will probably store a number of messages in a data block. This (optional) list
+     *                of numbers represents the offset where a new app specific message begins.
+     * @param data which are read to be transmitted to recipient mandatory
+     * @param os stream that PDU is to be sent
+     * @param signed message is signed
+     * @param encrypted encrypt or not
+     * @throws IOException exception during writing on stream
+     * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
+     */
+    void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channel, int era,
+                    List<Long> offsets, byte[] data, OutputStream os, boolean signed, boolean encrypted)
             throws IOException, ASAPException;
 
 

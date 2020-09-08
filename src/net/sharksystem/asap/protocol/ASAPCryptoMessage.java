@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
 
-class CryptoMessage {
+class ASAPCryptoMessage {
     private Signature signature;
     private CharSequence recipient;
     private ASAPBasicKeyStorage keyStorage;
@@ -24,13 +24,13 @@ class CryptoMessage {
     private byte[] encryptedSymmetricKey;
     private byte[] encryptedContent;
 
-    CryptoMessage(ASAPBasicKeyStorage keyStorage) {
+    ASAPCryptoMessage(ASAPBasicKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
     }
 
-    CryptoMessage(byte cmd, OutputStream os, boolean sign, boolean encrypted,
-                  CharSequence recipient,
-                  ASAPBasicKeyStorage keyStorage)
+    ASAPCryptoMessage(byte cmd, OutputStream os, boolean sign, boolean encrypted,
+                      CharSequence recipient,
+                      ASAPBasicKeyStorage keyStorage)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
@@ -233,7 +233,7 @@ class CryptoMessage {
         }
     }
 
-    public InputStream setupInputStreamCopier(int priorInt, InputStream is)
+    public InputStream initVerifiction(int priorInt, InputStream is)
             throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -281,7 +281,7 @@ class CryptoMessage {
      */
     public boolean initDecryption(byte cmd, InputStream is) throws IOException, ASAPException {
         // make a copy of read data
-        InputStream copyStream = this.setupInputStreamCopier(cmd, is);
+        InputStream copyStream = this.initVerifiction(cmd, is);
 
         // read recipient
         this.recipient = PDU_Impl.readCharSequenceParameter(copyStream);
@@ -291,6 +291,11 @@ class CryptoMessage {
 
         // read content
         this.encryptedContent = this.readByteArray(copyStream);
+
+        if(this.keyStorage == null) {
+            System.out.println(this.getLogStart() + "no keystore set: cannot handle encrypted messages");
+            return false;
+        }
 
         // read anything - are we recipient?
         if(this.keyStorage.isOwner(this.recipient)) {

@@ -71,11 +71,10 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
-                         boolean encrypted)
-            throws IOException, ASAPException, ASAPSecurityException {
+                         boolean encrypted) throws IOException, ASAPException {
 
         // prepare encryption and signing if required
-        CryptoMessage cryptoMessage = new CryptoMessage(ASAP_1_0.INTEREST_CMD,
+        ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.INTEREST_CMD,
                 os, signed, encrypted, recipient,
                 this.signAndEncryptionKeyStorage);
 
@@ -84,7 +83,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
                 cryptoMessage.getOutputStream(), signed);
 
-        // finish crypto session - if any
+        // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
     }
 
@@ -93,7 +92,26 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        AssimilationPDU_Impl.sendPDU(sender, recipient, format, channel, era, length, offsets, dataIS, os, signed);
+        this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os, signed, false);
+    }
+
+    @Override
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+                           OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
+
+        // prepare encryption and signing if required
+        ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.ASSIMILATE_CMD,
+                os, signed, encrypted, recipient,
+                this.signAndEncryptionKeyStorage);
+
+        cryptoMessage.sendCmd();
+
+        AssimilationPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, era,
+                length, offsets, dataIS, cryptoMessage.getOutputStream(), signed);
+
+        // finish crypto session - maybe nothing has to be done
+        cryptoMessage.finish();
     }
 
     @Override
@@ -101,11 +119,19 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            CharSequence channel, int era, List<Long> offsets, byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
+        this.assimilate(sender, recipient, format, channel, era, offsets, data, os, signed, false);
+    }
+
+    @Override
+    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+                           CharSequence channel, int era, List<Long> offsets, byte[] data,
+                           OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
+
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
         if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
 
         this.assimilate(sender, recipient, format, channel, era, data.length, offsets,
-                new ByteArrayInputStream(data), os, signed);
+                new ByteArrayInputStream(data), os, signed, encrypted);
     }
 
     @Override
@@ -116,7 +142,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
 
         if(encrypted) {
-            CryptoMessage cryptoMessage = new CryptoMessage(this.signAndEncryptionKeyStorage);
+            ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(this.signAndEncryptionKeyStorage);
             boolean ownerIsRecipient = cryptoMessage.initDecryption(cmd, is);
             if(ownerIsRecipient) {
                 // peer is recipient - decrypt and go ahead
@@ -133,10 +159,10 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         int flagsInt = PDU_Impl.readByte(is);
 
         InputStream realIS = is;
-        CryptoMessage verifyCryptoMessage = null;
+        ASAPCryptoMessage verifyCryptoMessage = null;
         if(PDU_Impl.flagSet(PDU_Impl.SIGNED_TO_BIT_POSITION, flagsInt)) {
-            verifyCryptoMessage = new CryptoMessage(this.signAndEncryptionKeyStorage);
-            is = verifyCryptoMessage.setupInputStreamCopier(flagsInt, is);
+            verifyCryptoMessage = new ASAPCryptoMessage(this.signAndEncryptionKeyStorage);
+            is = verifyCryptoMessage.initVerifiction(flagsInt, is);
         }
 
         PDU_Impl pdu = null;
