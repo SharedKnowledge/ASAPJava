@@ -1,21 +1,21 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.Utils;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.asap.protocol.PDU_Impl;
+import net.sharksystem.crypto.ASAPBasicKeyStorage;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
 
 class CryptoSession {
-    public static final int MAX_ENCRYPTION_BLOCK_SIZE = 240;
+    private static final int MAX_ENCRYPTION_BLOCK_SIZE = 128;
     private Signature signature;
     private CharSequence recipient;
-    private ASAPReadonlyKeyStorage keyStorage;
+    private ASAPBasicKeyStorage keyStorage;
     private Cipher cipher = null;
     private PublicKey publicKey;
     private byte cmd;
@@ -25,13 +25,13 @@ class CryptoSession {
     private ByteArrayOutputStream asapMessageOS;
     private InputStreamCopy verifyStream;
 
-    CryptoSession(ASAPReadonlyKeyStorage keyStorage) {
+    CryptoSession(ASAPBasicKeyStorage keyStorage) {
         this.keyStorage = keyStorage;
     }
 
     CryptoSession(byte cmd, OutputStream os, boolean sign, boolean encrypted,
                   CharSequence recipient,
-                  ASAPReadonlyKeyStorage keyStorage)
+                  ASAPBasicKeyStorage keyStorage)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
@@ -113,7 +113,7 @@ class CryptoSession {
         return this.cmd;
     }
 
-    OutputStream getOutputStream() {
+    public OutputStream getOutputStream() {
         return this.effectivOS;
     }
 
@@ -160,20 +160,35 @@ class CryptoSession {
                 // encrypted asap message
                 byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
 
-                // TODO: create AES key, encrypt with RSA, send and encrypt rest with that AES key
+                // get symmetric key
+                SecretKey encryptionKey = this.keyStorage.generateSymmetricKey();
+                byte[] encodedSymmetricKey = encryptionKey.getEncoded();
 
-                // that stuff will not work.
-                int i = 0;
-                while(i +  MAX_ENCRYPTION_BLOCK_SIZE < asapMessageAsBytes.length) {
-                    this.cipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
-                    i += MAX_ENCRYPTION_BLOCK_SIZE;
+                // encrypt key
+                byte[] encryptedSymmetricKeyBytes = this.cipher.doFinal(encodedSymmetricKey);
+
+                // send encrypted key
+                this.writeByteArray(encryptedSymmetricKeyBytes, this.realOS);
+
+                // encrypt message with symmetric key
+                try {
+                    this.cipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
+                    this.cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+
+                    // block by block
+                    int i = 0;
+                    while(i +  MAX_ENCRYPTION_BLOCK_SIZE < asapMessageAsBytes.length) {
+                        this.cipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
+                        i += MAX_ENCRYPTION_BLOCK_SIZE;
+                    }
+
+                    int lastStepLen = asapMessageAsBytes.length - i;
+                    byte[] encryptedContent = this.cipher.doFinal(asapMessageAsBytes, i, lastStepLen);
+
+                    this.writeByteArray(encryptedContent, this.realOS);
+                } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
+                    throw new ASAPSecurityException(this.getLogStart(), e);
                 }
-
-                int lastStepLen = asapMessageAsBytes.length - i;
-                byte[] encryptedBytes = this.cipher.doFinal(asapMessageAsBytes, i, lastStepLen);
-
-                this.writeByteArray(encryptedBytes, this.realOS);
-                this.realOS.write(encryptedBytes);
             } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);
             }
@@ -236,30 +251,32 @@ class CryptoSession {
 
     ////////////////////////////////// decrypt
 
-    InputStream decrypt(InputStream is) throws ASAPSecurityException {
+    public InputStream decrypt(InputStream is) throws ASAPSecurityException {
         return this.decrypt(is, this.keyStorage.getPrivateKey());
     }
 
-    // parameter private key is usually no option. There is just one - burt was good for debugging
+    // parameter private key is usually not an option. Good entry for testing / debugging, though
     private InputStream decrypt(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
         try {
+            // read encrypted symmetric key
+            byte[] encryptedSymmetricKey = this.readByteArray(is);
+
+            // decrypt encoded symmetric key
             this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
             this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] encodedSymmetricKey = this.cipher.doFinal(encryptedSymmetricKey);
 
-            // read encrypted message
-            byte[] messageBytes = this.readByteArray(is);
+            // create symmetric key object
+            SecretKey symmetricKey =
+                    new SecretKeySpec(encodedSymmetricKey, this.keyStorage.getSymmetricKeyType());
 
-            /*
-            // read len
-            int len = PDU_Impl.readIntegerParameter(is);
-            byte[] messageBytes = new byte[len];
+            // read content
+            byte[] encryptedContent = this.readByteArray(is);
 
-            // read encrypted bytes from stream
-            is.read(messageBytes);
-             */
-
-            // decrypt
-            byte[] decryptedBytes = this.cipher.doFinal(messageBytes);
+            // decrypt content
+            Cipher symmetricCipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
+            symmetricCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
+            byte[] decryptedBytes = symmetricCipher.doFinal(encryptedContent);
             return new ByteArrayInputStream(decryptedBytes);
         } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
                 NoSuchPaddingException | InvalidKeyException | IOException | ASAPException e) {

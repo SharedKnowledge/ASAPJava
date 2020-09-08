@@ -89,11 +89,11 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         PDU_Impl.sendByteParameter((byte)flags, os); // mand
     }
 
-    protected static void sendFlags(int flags, OutputStream os) throws IOException {
+    public static void sendFlags(int flags, OutputStream os) throws IOException {
         PDU_Impl.sendByteParameter((byte)flags, os); // mand
     }
 
-    protected static void sendCmd(byte cmd, OutputStream os) throws IOException {
+    public static void sendCmd(byte cmd, OutputStream os) throws IOException {
         PDU_Impl.sendByteParameter(cmd, os); // mand
     }
 
@@ -106,58 +106,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         this.eraTo = flagSet(ERA_TO_BIT_POSITION, flag);
         this.offsetsSet = flagSet(OFFSETS_BIT_POSITION, flag);
         this.signed = flagSet(SIGNED_TO_BIT_POSITION, flag);
-
-        /*
-        // sender parameter set ?
-        int testFlag = 1;
-        testFlag = testFlag << SENDER_BIT_POSITION;
-        int result = flag & testFlag;
-        senderSet = result != 0;
-
-        // recipient peer parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << RECIPIENT_BIT_POSITION;
-        result = flag & testFlag;
-        recipientSet = result != 0;
-
-
-        // channel parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << CHANNEL_BIT_POSITION;
-        result = flag & testFlag;
-        channelSet = result != 0;
-
-        // era parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << ERA_BIT_POSITION;
-        result = flag & testFlag;
-        eraSet = result != 0;
-
-        // era from parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << ERA_FROM_BIT_POSITION;
-        result = flag & testFlag;
-        eraFrom = result != 0;
-
-        // era from parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << ERA_TO_BIT_POSITION;
-        result = flag & testFlag;
-        eraTo = result != 0;
-
-        // offsets parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << OFFSETS_BIT_POSITION;
-        result = flag & testFlag;
-        offsetsSet = result != 0;
-
-        // signed parameter set ?
-        testFlag = 1;
-        testFlag = testFlag << SIGNED_TO_BIT_POSITION;
-        result = flag & testFlag;
-        this.signed = result != 0;
-         */
-
     }
 
     static boolean flagSet(int bitPosition, int flags) {

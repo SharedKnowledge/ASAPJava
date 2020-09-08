@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.crypto.TestASAPKeyStorage;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,8 +9,6 @@ import java.io.*;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
-
-import static net.sharksystem.asap.protocol.ASAP_1_0.ERA_NOT_DEFINED;
 
 public class PDUTests {
     public static final String ALICE_ID = "Alice";

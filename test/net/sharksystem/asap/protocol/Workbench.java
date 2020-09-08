@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.crypto.TestASAPKeyStorage;
 import org.junit.Assert;
 import org.junit.Test;
 

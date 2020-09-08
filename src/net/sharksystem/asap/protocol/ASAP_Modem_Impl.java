@@ -2,6 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.crypto.ASAPBasicKeyStorage;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,13 +11,13 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final ASAPReadonlyKeyStorage signAndEncryptionKeyStorage;
+    private final ASAPBasicKeyStorage signAndEncryptionKeyStorage;
 
     public ASAP_Modem_Impl() {
         this.signAndEncryptionKeyStorage = null; // no key storage
     }
 
-    public ASAP_Modem_Impl(ASAPReadonlyKeyStorage signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(ASAPBasicKeyStorage signAndEncryptionKeyStorage) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
     }
 

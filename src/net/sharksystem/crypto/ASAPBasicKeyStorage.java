@@ -1,11 +1,12 @@
-package net.sharksystem.asap.protocol;
+package net.sharksystem.crypto;
 
 import net.sharksystem.asap.ASAPSecurityException;
 
+import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public interface ASAPReadonlyKeyStorage {
+public interface ASAPBasicKeyStorage {
     /**
      *
      * @return private key of local device - for signing
@@ -33,4 +34,10 @@ public interface ASAPReadonlyKeyStorage {
     String getRSAEncryptionAlgorithm();
 
     String getRSASigningAlgorithm();
+
+    SecretKey generateSymmetricKey() throws ASAPSecurityException;
+
+    String getSymmetricEncryptionAlgorithm();
+
+    String getSymmetricKeyType();
 }
