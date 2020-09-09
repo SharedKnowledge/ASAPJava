@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.BasisCryptoParameters;
+import net.sharksystem.crypto.BasicCryptoParameters;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.utils.Serialization;
 
@@ -12,7 +12,7 @@ class ASAPCryptoMessage {
     private boolean encrypted;
     private boolean sign;
     private CharSequence recipient;
-    private BasisCryptoParameters basisCryptoParameters;
+    private BasicCryptoParameters basicCryptoParameters;
     private byte cmd;
 
     private OutputStream effectiveOS;
@@ -21,26 +21,26 @@ class ASAPCryptoMessage {
     private InputStreamCopy inputStreamCopy;
     private ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage;
 
-    ASAPCryptoMessage(BasisCryptoParameters basisCryptoParameters) {
-        this.basisCryptoParameters = basisCryptoParameters;
+    ASAPCryptoMessage(BasicCryptoParameters basicCryptoParameters) {
+        this.basicCryptoParameters = basicCryptoParameters;
     }
 
     ASAPCryptoMessage(byte cmd, OutputStream os, boolean sign, boolean encrypted,
                       CharSequence recipient,
-                      BasisCryptoParameters basisCryptoParameters)
+                      BasicCryptoParameters basicCryptoParameters)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
         this.realOS = os;
         this.effectiveOS = os; // still this one
-        this.basisCryptoParameters = basisCryptoParameters;
+        this.basicCryptoParameters = basicCryptoParameters;
         this.recipient = recipient;
         this.encrypted = encrypted;
         this.sign = sign;
 
         if(encrypted || sign) {
             // we need some basic crypto parameters
-            if(basisCryptoParameters == null) {
+            if(basicCryptoParameters == null) {
                 throw new ASAPSecurityException("cannot encrypt or sign without cryptp parameters / key store");
             }
             this.setupCopyOutputStream();
@@ -56,7 +56,7 @@ class ASAPCryptoMessage {
 
         if(sign) {
             // signing needs a private key - check of available
-            if(basisCryptoParameters.getPrivateKey() == null) {
+            if(basicCryptoParameters.getPrivateKey() == null) {
                 throw new ASAPSecurityException("asap message is to be signed but no private key - fatal, give up");
             }
         }
@@ -85,7 +85,7 @@ class ASAPCryptoMessage {
                 // get message as bytes
                 byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
                 // produce signature
-                byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.basisCryptoParameters);
+                byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.basicCryptoParameters);
 
                 if(this.encrypted) {
                     // have to store it - message and signature will be encrypted
@@ -105,7 +105,7 @@ class ASAPCryptoMessage {
             byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
 
             ASAPCryptoAlgorithms.writeEncryptedMessagePackage(
-                    asapMessageAsBytes, this.recipient, this.basisCryptoParameters, this.realOS);
+                    asapMessageAsBytes, this.recipient, this.basicCryptoParameters, this.realOS);
         }
     }
 
@@ -159,7 +159,7 @@ class ASAPCryptoMessage {
         byte[] signatureBytes = Serialization.readByteArray(is);
         // debug break
         boolean wasVerified =
-                ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.basisCryptoParameters);
+                ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.basicCryptoParameters);
 
         return wasVerified;
     }
@@ -179,30 +179,34 @@ class ASAPCryptoMessage {
      */
     public boolean initDecryption(byte cmd, InputStream is) throws IOException, ASAPException {
         // make a copy of encrypted message - it is redundant. Same data in encryptedMessagePackage
-        InputStream copyStream = this.setupCopyInputStream(cmd, is);
+        //InputStream copyStream = this.setupCopyInputStream(cmd, is);
 
         this.encryptedMessagePackage =
-                ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
+                ASAPCryptoAlgorithms.parseEncryptedMessagePackage(is);
+        //        ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
 
-        if(this.basisCryptoParameters == null) {
+        if(this.basicCryptoParameters == null) {
             System.out.println(this.getLogStart() + "no keystore set: cannot handle encrypted messages");
             return false;
         }
 
-        if(this.basisCryptoParameters.isOwner(this.encryptedMessagePackage.getRecipient())) {
+        if(this.basicCryptoParameters.isOwner(this.encryptedMessagePackage.getRecipient())) {
             return true;
         }
 
         return false;
     }
 
-    byte[] getEncryptedMessage() throws ASAPSecurityException {
+    ASAPCryptoAlgorithms.EncryptedMessagePackage getEncryptedMessage() throws ASAPSecurityException {
+        return this.encryptedMessagePackage;
+        /*
         if(this.inputStreamCopy == null) {
             throw new ASAPSecurityException(
                     this.getLogStart() + "no copy made, maybe forgot to initialize decryption?");
         }
 
         return this.inputStreamCopy.getCopy();
+         */
     }
 
     public InputStream doDecryption() throws ASAPSecurityException {
@@ -211,7 +215,7 @@ class ASAPCryptoMessage {
         }
 
         byte[] decryptedBytes =
-                ASAPCryptoAlgorithms.decryptPackage(this.encryptedMessagePackage, this.basisCryptoParameters);
+                ASAPCryptoAlgorithms.decryptPackage(this.encryptedMessagePackage, this.basicCryptoParameters);
 
         return new ByteArrayInputStream(decryptedBytes);
     }

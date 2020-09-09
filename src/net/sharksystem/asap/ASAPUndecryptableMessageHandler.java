@@ -1,6 +1,6 @@
 package net.sharksystem.asap;
 
-import java.util.BitSet;
+import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 
 public interface ASAPUndecryptableMessageHandler {
     String FORMAT_UNDECRYPTABLE_MESSAGES = "asap/undecryptable";
@@ -9,5 +9,5 @@ public interface ASAPUndecryptableMessageHandler {
      * Peer can (and should) receive encrypted messages without being receiver. A peer is not able
      * to encrypt that message but could store and forward. That is what ASAP is about.
      */
-    void handleUndecryptableMessage(byte[] encryptedMessage, CharSequence receiver);
+    void handleUndecryptableMessage(ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessage, CharSequence receiver);
 }

@@ -1,17 +1,13 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
-import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.cmdline.TCPStream;
-import net.sharksystem.crypto.TestASAPKeyStorage;
-import org.junit.Assert;
+import net.sharksystem.crypto.BasicCryptoKeyStorage;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.Iterator;
-import java.util.List;
 
 public class Workbench {
     // copy back to UsageExamples
@@ -34,15 +30,15 @@ public class Workbench {
         // Still something to do.
 
         // setup keystores
-        TestASAPKeyStorage keyStorageAlice = new TestASAPKeyStorage(ALICE_PEER_NAME);
+        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_PEER_NAME);
 
         // alice produces a key pair for alice. This would not work in real life
         KeyPair keyPairClara = keyStorageAlice.createTestPeer(CLARA_PEER_NAME);
 
         // there is a keystore but no key excepts Bobs' He cannot verify or encrypt anybody or anything
-        TestASAPKeyStorage keyStorageBob = new TestASAPKeyStorage(BOB_PEER_NAME);
+        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_PEER_NAME);
 
-        TestASAPKeyStorage keyStorageClara = new TestASAPKeyStorage(CLARA_PEER_NAME, keyPairClara);
+        BasicCryptoKeyStorage keyStorageClara = new BasicCryptoKeyStorage(CLARA_PEER_NAME, keyPairClara);
         // clara knows Alice as well
         keyStorageClara.addKeyPair(ALICE_PEER_NAME, keyStorageAlice.getKeyPair());
 

@@ -8,7 +8,7 @@ import javax.crypto.SecretKey;
 import java.security.*;
 import java.util.HashMap;
 
-public class TestASAPKeyStorage implements BasisCryptoParameters {
+public class BasicCryptoKeyStorage implements BasicCryptoParameters {
     private final KeyPair keyPair;
     private final CharSequence ownerID;
     private long timeInMillis = 0;
@@ -22,14 +22,14 @@ public class TestASAPKeyStorage implements BasisCryptoParameters {
 
     private HashMap<String, KeyPair> peerKeyPairs = new HashMap<>();
 
-    public TestASAPKeyStorage(String ownerID) throws ASAPSecurityException {
+    public BasicCryptoKeyStorage(String ownerID) throws ASAPSecurityException {
         // generate owners key pair;
         this.ownerID = ownerID;
         this.keyPair = this.generateKeyPair();
         this.timeInMillis = System.currentTimeMillis();
     }
 
-    public TestASAPKeyStorage(CharSequence ownerID, KeyPair ownerKeyPair) {
+    public BasicCryptoKeyStorage(CharSequence ownerID, KeyPair ownerKeyPair) {
         this.ownerID = ownerID;
         this.keyPair = ownerKeyPair;
     }

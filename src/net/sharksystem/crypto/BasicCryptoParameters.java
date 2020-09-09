@@ -6,7 +6,7 @@ import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public interface BasisCryptoParameters {
+public interface BasicCryptoParameters {
     /**
      *
      * @return private key of local device - for signing

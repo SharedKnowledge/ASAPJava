@@ -2,9 +2,13 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.sharknet.SharkNet;
+import net.sharksystem.asap.sharknet.SharkNetMessageListener;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
-import net.sharksystem.crypto.BasisCryptoParameters;
+import net.sharksystem.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.crypto.BasicCryptoKeyStorage;
+import net.sharksystem.crypto.BasicCryptoParameters;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
@@ -19,11 +23,16 @@ public class ASAPPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
-    private BasisCryptoParameters basisCryptoParameters;
+    private BasicCryptoParameters basicCryptoParameters;
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
+    private BasicCryptoKeyStorage basicCryptoKeyStorage;
 
     public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
         return this.defaultSecurityAdministrator;
+    }
+
+    public void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator) {
+        this.defaultSecurityAdministrator = securityAdministrator;
     }
 
     public ASAPCommunicationSetting getASAPCommunicationControl() {
@@ -288,7 +297,7 @@ public class ASAPPeerFS implements
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
-                this, this.basisCryptoParameters,
+                this, this.basicCryptoParameters,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
@@ -550,18 +559,20 @@ public class ASAPPeerFS implements
     }
 
     @Override
-    public void setASAPBasicKeyStorage(BasisCryptoParameters basisCryptoParameters) {
-        this.basisCryptoParameters = basisCryptoParameters;
+    public void setASAPBasicKeyStorage(BasicCryptoParameters basicCryptoParameters) {
+        this.basicCryptoParameters = basicCryptoParameters;
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                                Set<CharSequence> recipients, byte[] messageAsBytes) throws IOException, ASAPException {
+                                                Set<CharSequence> recipients, byte[] messageAsBytes)
+            throws IOException, ASAPException {
 
         this.sendOnlineASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, ASAP.INITIAL_ERA);
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                                Set<CharSequence> recipients, byte[] messageAsBytes, int era) throws IOException, ASAPException {
+                                                Set<CharSequence> recipients, byte[] messageAsBytes, int era)
+            throws IOException, ASAPException {
 
         // setup online message sender thread
         Log.writeLog(this, "setup online message sender object");
@@ -588,16 +599,30 @@ public class ASAPPeerFS implements
 
     //////////////////////////////// handle message this peer cannot decrypt
     @Override
-    public void handleUndecryptableMessage(byte[] encryptedMessage, CharSequence receiver) {
+    public void handleUndecryptableMessage(
+            ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage,
+            CharSequence receiver) {
+
         System.out.println(this.getLogStart() + "handle undecryptable messages from " + receiver);
 
         try {
             ASAPEngine undecryptEngine =
                     this.getASAPEngine(ASAPUndecryptableMessageHandler.FORMAT_UNDECRYPTABLE_MESSAGES);
 
-            undecryptEngine.add(URI_UNDECRYPTABLE_MESSAGES, encryptedMessage);
+            undecryptEngine.add(
+                    URI_UNDECRYPTABLE_MESSAGES,
+                    ASAPCryptoAlgorithms.getEncryptedMessagePackageAsBytes(encryptedMessagePackage));
         } catch (IOException | ASAPException e) {
             System.out.println(this.getLogStart() + "cannot handle undecrypted messages - no engine present");
         }
+    }
+
+    ///////////////////////////////// SharkNet
+    @Override
+    public BasicCryptoParameters getBasicCryptoParameters() throws ASAPSecurityException {
+        if(this.basicCryptoKeyStorage == null) {
+            this.basicCryptoKeyStorage = new BasicCryptoKeyStorage(this.getOwner().toString());
+        }
+        return this.basicCryptoKeyStorage;
     }
 }

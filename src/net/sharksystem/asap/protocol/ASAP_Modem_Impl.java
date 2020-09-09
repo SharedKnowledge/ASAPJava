@@ -3,7 +3,8 @@ package net.sharksystem.asap.protocol;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
-import net.sharksystem.crypto.BasisCryptoParameters;
+import net.sharksystem.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.crypto.BasicCryptoParameters;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 import net.sharksystem.utils.Serialization;
 
@@ -14,7 +15,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final BasisCryptoParameters signAndEncryptionKeyStorage;
+    private final BasicCryptoParameters signAndEncryptionKeyStorage;
     private final ASAPUndecryptableMessageHandler unencryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
@@ -25,11 +26,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         this(null, unencryptableMessageHandler);
     }
 
-    public ASAP_Modem_Impl(BasisCryptoParameters signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(BasicCryptoParameters signAndEncryptionKeyStorage) {
         this(signAndEncryptionKeyStorage, null);
     }
 
-    public ASAP_Modem_Impl(BasisCryptoParameters signAndEncryptionKeyStorage,
+    public ASAP_Modem_Impl(BasicCryptoParameters signAndEncryptionKeyStorage,
                            ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
         this.unencryptableMessageHandler = unencryptableMessageHandler;
@@ -184,7 +185,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 is = decryptedIS;
             } else {
                 // we cannot decrypt this message - we are not recipient - but we keep and redistribute
-                byte[] encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
+                ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
                 if(this.unencryptableMessageHandler != null) {
                     System.out.println(this.getLogStart() + "call handler to handle unencryptable message");
                     this.unencryptableMessageHandler.handleUndecryptableMessage(
