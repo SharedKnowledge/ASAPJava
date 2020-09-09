@@ -2,7 +2,9 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.BasisCryptoParameters;
+import net.sharksystem.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.utils.Serialization;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -10,91 +12,56 @@ import java.io.*;
 import java.security.*;
 
 class ASAPCryptoMessage {
+    private boolean encrypted;
+    private boolean sign;
     private Signature signature;
     private CharSequence recipient;
-    private ASAPBasicKeyStorage keyStorage;
-    private Cipher cipher = null;
-    private PublicKey publicKey;
+    private BasisCryptoParameters basisCryptoParameters;
     private byte cmd;
 
     private OutputStream effectivOS;
     private OutputStream realOS;
     private ByteArrayOutputStream asapMessageOS;
     private InputStreamCopy inputStreamCopy;
-    private byte[] encryptedSymmetricKey;
-    private byte[] encryptedContent;
+    private ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage;
 
-    ASAPCryptoMessage(ASAPBasicKeyStorage keyStorage) {
-        this.keyStorage = keyStorage;
+    ASAPCryptoMessage(BasisCryptoParameters basisCryptoParameters) {
+        this.basisCryptoParameters = basisCryptoParameters;
     }
 
     ASAPCryptoMessage(byte cmd, OutputStream os, boolean sign, boolean encrypted,
                       CharSequence recipient,
-                      ASAPBasicKeyStorage keyStorage)
+                      BasisCryptoParameters basisCryptoParameters)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
         this.realOS = os;
         this.effectivOS = os; // still this one
-        this.keyStorage = keyStorage;
+        this.basisCryptoParameters = basisCryptoParameters;
         this.recipient = recipient;
+        this.encrypted = encrypted;
+        this.sign = sign;
 
-        if(encrypted) {
-            // add to command
-            this.cmd += ASAP_1_0.ENCRYPTED_CMD;
-
-            // there must be a keyStorage
-            if(keyStorage == null) {
-                throw new ASAPSecurityException("asap message is to be encrypted if possible " +
-                        "but there is not key store at all - fatal, give up");
+        if(encrypted || sign) {
+            // we need some basic crypto parameters
+            if(basisCryptoParameters == null) {
+                throw new ASAPSecurityException("cannot encrypt or sign without cryptp parameters / key store");
             }
-
-            if(this.recipient == null) {
-                throw new ASAPSecurityException("cannot encrypt message with no specified receiver - fatal, give up");
-            }
-
-            this.publicKey = keyStorage.getPublicKey(recipient);
-            // there should be an exception - but better safe than sorry
-            if(this.publicKey == null) {
-                throw new ASAPSecurityException(
-                        "message must be encrypted but recipients' public key cannot be found");
-            }
-
-            // let's see if we can setup cipher
-            try {
-                this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
-                this.cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
-            } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
-                throw new ASAPSecurityException(this.getLogStart(), e);
-            }
-
-            // cipher is ready - we can encrypt
             this.setupTempMessageStorage();
         }
 
+        if(encrypted) {
+            // mark encryption in command - rest will be encrypted
+            this.cmd += ASAP_1_0.ENCRYPTED_CMD;
+            if(this.recipient == null) {
+                throw new ASAPSecurityException("cannot encrypt message with no specified receiver - fatal, give up");
+            }
+        }
+
         if(sign) {
-            // there must be a keyStorage
-            if(keyStorage == null) {
-                throw new ASAPSecurityException("asap message is to be signed but there is not key store - fatal, give up");
-            }
-
             // signing needs a private key - check of available
-            if(keyStorage.getPrivateKey() == null) {
-                // assume, an exception already documented lack of a private key. if not
+            if(basisCryptoParameters.getPrivateKey() == null) {
                 throw new ASAPSecurityException("asap message is to be signed but no private key - fatal, give up");
-            }
-
-            // ok, we can sign
-
-            // produce signature
-            try {
-                this.signature = Signature.getInstance(this.keyStorage.getRSASigningAlgorithm());
-
-                // we could sign
-                this.setupTempMessageStorage();
-
-            } catch (NoSuchAlgorithmException e) {
-                throw new ASAPSecurityException(e.getLocalizedMessage());
             }
         }
     }
@@ -120,90 +87,33 @@ class ASAPCryptoMessage {
         return this.effectivOS;
     }
 
-    private void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
-        PDU_Impl.sendNonNegativeIntegerParameter(bytes2Write.length, os);
-        os.write(bytes2Write);
-    }
-
-    private byte[] readByteArray(InputStream is) throws IOException, ASAPException {
-        // read len
-        int len = PDU_Impl.readIntegerParameter(is);
-        byte[] messageBytes = new byte[len];
-
-        // read encrypted bytes from stream
-        is.read(messageBytes);
-
-        return messageBytes;
-    }
-
     public void finish() throws ASAPSecurityException {
-        // signing must come first
-        if(this.signature != null) {
+        if(this.sign) {
             try {
+                // get message as bytes
                 byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
-                this.signature.initSign(this.keyStorage.getPrivateKey());
-                this.signature.update(asapMessageAsBytes);
-                byte[] signatureBytes = signature.sign();
+                // produce signature
+                byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.basisCryptoParameters);
 
-                if(this.cipher != null) {
+                if(this.encrypted) {
                     // have to store it - anything will be encrypted
-                    this.writeByteArray(signatureBytes, this.asapMessageOS);
+                    Serialization.writeByteArray(signatureBytes, this.asapMessageOS);
                 } else {
                     // can write anything now
                     this.realOS.write(asapMessageAsBytes);
-                    this.writeByteArray(signatureBytes, this.realOS);
+                    Serialization.writeByteArray(signatureBytes, this.realOS);
                 }
-            } catch (InvalidKeyException | SignatureException | IOException e) {
+            } catch (IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);
             }
         }
 
-        // must be after signing
-        if(this.cipher != null) {
-            try {
-                // send receiver - unencrypted - need this for ad-hoc routing
-                PDU_Impl.sendCharSequenceParameter(this.recipient, this.realOS);
+        if(this.encrypted) {
+            // get maybe signed asap message
+            byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
 
-                // get symmetric key
-                SecretKey encryptionKey = this.keyStorage.generateSymmetricKey();
-                byte[] encodedSymmetricKey = encryptionKey.getEncoded();
-
-                // encrypt key
-                byte[] encryptedSymmetricKeyBytes = this.cipher.doFinal(encodedSymmetricKey);
-
-                // send encrypted key
-                this.writeByteArray(encryptedSymmetricKeyBytes, this.realOS);
-
-                // get maybe signed asap message
-                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
-
-                // encrypt message with symmetric key
-                try {
-                    Cipher symmetricCipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
-                    symmetricCipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-
-                    /*
-                    // block by block
-                    int i = 0;
-                    while(i +  MAX_ENCRYPTION_BLOCK_SIZE < asapMessageAsBytes.length) {
-                        symmetricCipher.update(asapMessageAsBytes, i, MAX_ENCRYPTION_BLOCK_SIZE);
-                        i += MAX_ENCRYPTION_BLOCK_SIZE;
-                    }
-
-                    int lastStepLen = asapMessageAsBytes.length - i;
-                    symmetricCipher.update(asapMessageAsBytes, i, lastStepLen);
-                    // did not work - ignored previous updates. anyway, there is a solution, see below
-                    byte[] encryptedContent = symmetricCipher.doFinal();
-                     */
-
-                    byte[] encryptedContent = symmetricCipher.doFinal(asapMessageAsBytes);
-                    this.writeByteArray(encryptedContent, this.realOS);
-                } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
-                    throw new ASAPSecurityException(this.getLogStart(), e);
-                }
-            } catch (IllegalBlockSizeException | BadPaddingException | IOException e) {
-                throw new ASAPSecurityException(this.getLogStart(), e);
-            }
+            ASAPCryptoAlgorithms.writeEncryptedMessagePackage(
+                    asapMessageAsBytes, this.recipient, this.basisCryptoParameters, this.realOS);
         }
     }
 
@@ -237,7 +147,7 @@ class ASAPCryptoMessage {
         }
     }
 
-    public InputStream initVerifiction(int priorInt, InputStream is)
+    public InputStream setupCopyStream(int priorInt, InputStream is)
             throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -253,16 +163,16 @@ class ASAPCryptoMessage {
 
     public boolean verify(String sender, InputStream is) throws IOException, ASAPException {
         // try to get senders' public key
-        PublicKey publicKey = this.keyStorage.getPublicKey(sender);
+        PublicKey publicKey = this.basisCryptoParameters.getPublicKey(sender);
         if(publicKey == null) return false;
 
         try {
-            this.signature = Signature.getInstance(this.keyStorage.getRSASigningAlgorithm());
+            this.signature = Signature.getInstance(this.basisCryptoParameters.getRSASigningAlgorithm());
             this.signature.initVerify(publicKey);
             // get data which are to be verified
             byte[] signedData = this.inputStreamCopy.getCopy();
             this.signature.update(signedData);
-            byte[] signatureBytes = this.readByteArray(is);
+            byte[] signatureBytes = Serialization.readByteArray(is);
             boolean wasVerified = this.signature.verify(signatureBytes);
             return wasVerified;
         } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
@@ -285,24 +195,30 @@ class ASAPCryptoMessage {
      */
     public boolean initDecryption(byte cmd, InputStream is) throws IOException, ASAPException {
         // make a copy of read data
-        InputStream copyStream = this.initVerifiction(cmd, is);
+        InputStream copyStream = this.setupCopyStream(cmd, is);
 
+        /*
         // read recipient
-        this.recipient = PDU_Impl.readCharSequenceParameter(copyStream);
+        this.recipient = Serialization.readCharSequenceParameter(copyStream);
 
         // read encrypted symmetric key
-        this.encryptedSymmetricKey = this.readByteArray(copyStream);
+        this.encryptedSymmetricKey = Serialization.readByteArray(copyStream);
 
         // read content
-        this.encryptedContent = this.readByteArray(copyStream);
+        this.encryptedContent = Serialization.readByteArray(copyStream);
+         */
 
-        if(this.keyStorage == null) {
+        this.encryptedMessagePackage =
+                ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
+
+        if(this.basisCryptoParameters == null) {
             System.out.println(this.getLogStart() + "no keystore set: cannot handle encrypted messages");
             return false;
         }
 
         // read anything - are we recipient?
-        if(this.keyStorage.isOwner(this.recipient)) {
+//        if(this.basisCryptoParameters.isOwner(this.recipient)) {
+        if(this.basisCryptoParameters.isOwner(this.encryptedMessagePackage.getRecipient())) {
             return true;
         }
 
@@ -319,34 +235,39 @@ class ASAPCryptoMessage {
     }
 
     public InputStream doDecryption(InputStream is) throws ASAPSecurityException {
-        return this.doDecryption(is, this.keyStorage.getPrivateKey());
+        return this.doDecryption(is, this.basisCryptoParameters.getPrivateKey());
     }
 
     // parameter private key is usually not an option. Good entry for testing / debugging, though
     public InputStream doDecryption(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
-        try {
-            // decrypt encoded symmetric key
-            this.cipher = Cipher.getInstance(keyStorage.getRSAEncryptionAlgorithm());
-            this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
-
-            // read encryptedKey in initDecryption
-            byte[] encodedSymmetricKey = this.cipher.doFinal(this.encryptedSymmetricKey);
-
-            // create symmetric key object
-            SecretKey symmetricKey =
-                    new SecretKeySpec(encodedSymmetricKey, this.keyStorage.getSymmetricKeyType());
-
-            // decrypt content
-            Cipher symmetricCipher = Cipher.getInstance(keyStorage.getSymmetricEncryptionAlgorithm());
-            symmetricCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
-
-            // read encryptedContent in initDecryption
-            byte[] decryptedBytes = symmetricCipher.doFinal(this.encryptedContent);
-            return new ByteArrayInputStream(decryptedBytes);
-        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException |
-                NoSuchPaddingException | InvalidKeyException e) {
-            throw new ASAPSecurityException(this.getLogStart(), e);
+        if(this.encryptedMessagePackage == null) {
+            throw new ASAPSecurityException("forgot to initialize decryption? There are no data");
         }
+        /*
+        // decrypt encoded symmetric key
+        this.cipher = Cipher.getInstance(basisCryptoParameters.getRSAEncryptionAlgorithm());
+        this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        // read encryptedKey in initDecryption
+        byte[] encodedSymmetricKey = this.cipher.doFinal(this.encryptedSymmetricKey);
+         */
+
+        byte[] encodedSymmetricKey = ASAPCryptoAlgorithms.decryptAsymmetric(
+                this.encryptedMessagePackage.getEncryptedSymmetricKey(),
+                this.basisCryptoParameters);
+
+        // create symmetric key object
+        SecretKey symmetricKey =
+                ASAPCryptoAlgorithms.createSymmetricKey(encodedSymmetricKey, this.basisCryptoParameters);
+
+
+        // decrypt content
+        byte[] decryptedBytes = ASAPCryptoAlgorithms.decryptSymmetric(
+                this.encryptedMessagePackage.getEncryptedContent(),
+                symmetricKey,
+                this.basisCryptoParameters);
+
+        return new ByteArrayInputStream(decryptedBytes);
     }
 
     private String getLogStart() {

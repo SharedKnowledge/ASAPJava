@@ -4,7 +4,7 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
-import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.BasisCryptoParameters;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
@@ -19,7 +19,7 @@ public class ASAPPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
-    private ASAPBasicKeyStorage asapBasicKeyStorage;
+    private BasisCryptoParameters basisCryptoParameters;
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
 
     public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
@@ -288,7 +288,7 @@ public class ASAPPeerFS implements
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
-                this, this.asapBasicKeyStorage,
+                this, this.basisCryptoParameters,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
@@ -550,8 +550,8 @@ public class ASAPPeerFS implements
     }
 
     @Override
-    public void setASAPBasicKeyStorage(ASAPBasicKeyStorage asapBasicKeyStorage) {
-        this.asapBasicKeyStorage = asapBasicKeyStorage;
+    public void setASAPBasicKeyStorage(BasisCryptoParameters basisCryptoParameters) {
+        this.basisCryptoParameters = basisCryptoParameters;
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,

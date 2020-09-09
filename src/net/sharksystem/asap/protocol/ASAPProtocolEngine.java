@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
-import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.BasisCryptoParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,16 +15,16 @@ public abstract class ASAPProtocolEngine {
     protected final InputStream is;
     protected final OutputStream os;
     protected final ASAPUndecryptableMessageHandler undecryptableMessageHandler;
-    protected final ASAPBasicKeyStorage asapBasicKeyStorage;
+    protected final BasisCryptoParameters basisCryptoParameters;
 
     public ASAPProtocolEngine(InputStream is, OutputStream os, ASAP_1_0 protocol,
                               ASAPUndecryptableMessageHandler undecryptableMessageHandler,
-                              ASAPBasicKeyStorage asapBasicKeyStorage) {
+                              BasisCryptoParameters basisCryptoParameters) {
         this.is = is;
         this.os = os;
         this.protocol = protocol;
         this.undecryptableMessageHandler = undecryptableMessageHandler;
-        this.asapBasicKeyStorage = asapBasicKeyStorage;
+        this.basisCryptoParameters = basisCryptoParameters;
     }
 
     /**

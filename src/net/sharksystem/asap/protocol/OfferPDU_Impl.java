@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.utils.Serialization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,11 +37,9 @@ class OfferPDU_Impl extends PDU_Impl implements ASAP_OfferPDU_1_0 {
         // PDU: CMD | FLAGS | PEER | FORMAT | CHANNEL | ERA
         PDU_Impl.sendHeader(ASAP_1_0.OFFER_CMD, flags, os);
 
-        PDU_Impl.sendCharSequenceParameter(peer, os); // opt
-        PDU_Impl.sendCharSequenceParameter(format, os); // mand
-        PDU_Impl.sendCharSequenceParameter(channel, os); // opt
-        PDU_Impl.sendNonNegativeIntegerParameter(era, os); // opt
-
-        // TODO: signature
+        Serialization.writeCharSequenceParameter(peer, os); // opt
+        Serialization.writeCharSequenceParameter(format, os); // mand
+        Serialization.writeCharSequenceParameter(channel, os); // opt
+        Serialization.writeNonNegativeIntegerParameter(era, os); // opt
     }
 }

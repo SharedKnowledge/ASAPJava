@@ -1,7 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.BasisCryptoParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,7 +112,7 @@ public interface ASAPPeer {
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
-    void setASAPBasicKeyStorage(ASAPBasicKeyStorage asapBasicKeyStorage);
+    void setASAPBasicKeyStorage(BasisCryptoParameters basisCryptoParameters);
 
     ASAPCommunicationSetting getASAPCommunicationControl();
 }

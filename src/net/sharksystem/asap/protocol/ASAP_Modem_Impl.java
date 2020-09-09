@@ -3,8 +3,9 @@ package net.sharksystem.asap.protocol;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
-import net.sharksystem.crypto.ASAPBasicKeyStorage;
+import net.sharksystem.crypto.BasisCryptoParameters;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.utils.Serialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final ASAPBasicKeyStorage signAndEncryptionKeyStorage;
+    private final BasisCryptoParameters signAndEncryptionKeyStorage;
     private final ASAPUndecryptableMessageHandler unencryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
@@ -24,11 +25,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         this(null, unencryptableMessageHandler);
     }
 
-    public ASAP_Modem_Impl(ASAPBasicKeyStorage signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(BasisCryptoParameters signAndEncryptionKeyStorage) {
         this(signAndEncryptionKeyStorage, null);
     }
 
-    public ASAP_Modem_Impl(ASAPBasicKeyStorage signAndEncryptionKeyStorage,
+    public ASAP_Modem_Impl(BasisCryptoParameters signAndEncryptionKeyStorage,
                            ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
         this.unencryptableMessageHandler = unencryptableMessageHandler;
@@ -169,7 +170,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
-        byte cmd = PDU_Impl.readByte(is);
+        byte cmd = Serialization.readByte(is);
 
         // encrypted?
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
@@ -196,13 +197,13 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             }
         }
 
-        int flagsInt = PDU_Impl.readByte(is);
+        int flagsInt = Serialization.readByte(is);
 
         InputStream realIS = is;
         ASAPCryptoMessage verifyCryptoMessage = null;
         if(PDU_Impl.flagSet(PDU_Impl.SIGNED_TO_BIT_POSITION, flagsInt)) {
             verifyCryptoMessage = new ASAPCryptoMessage(this.signAndEncryptionKeyStorage);
-            is = verifyCryptoMessage.initVerifiction(flagsInt, is);
+            is = verifyCryptoMessage.setupCopyStream(flagsInt, is);
         }
 
         PDU_Impl pdu = null;

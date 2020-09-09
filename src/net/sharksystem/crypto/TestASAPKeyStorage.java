@@ -8,7 +8,7 @@ import javax.crypto.SecretKey;
 import java.security.*;
 import java.util.HashMap;
 
-public class TestASAPKeyStorage implements ASAPBasicKeyStorage {
+public class TestASAPKeyStorage implements BasisCryptoParameters {
     private final KeyPair keyPair;
     private final CharSequence ownerID;
     private long timeInMillis = 0;
