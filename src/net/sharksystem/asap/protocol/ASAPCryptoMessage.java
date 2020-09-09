@@ -6,22 +6,18 @@ import net.sharksystem.crypto.BasisCryptoParameters;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.utils.Serialization;
 
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.security.*;
 
 class ASAPCryptoMessage {
     private boolean encrypted;
     private boolean sign;
-    private Signature signature;
     private CharSequence recipient;
     private BasisCryptoParameters basisCryptoParameters;
     private byte cmd;
 
-    private OutputStream effectivOS;
+    private OutputStream effectiveOS;
     private OutputStream realOS;
-    private ByteArrayOutputStream asapMessageOS;
+    private ByteArrayOutputStream outputStreamCopy;
     private InputStreamCopy inputStreamCopy;
     private ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage;
 
@@ -36,7 +32,7 @@ class ASAPCryptoMessage {
 
         this.cmd = cmd;
         this.realOS = os;
-        this.effectivOS = os; // still this one
+        this.effectiveOS = os; // still this one
         this.basisCryptoParameters = basisCryptoParameters;
         this.recipient = recipient;
         this.encrypted = encrypted;
@@ -47,7 +43,7 @@ class ASAPCryptoMessage {
             if(basisCryptoParameters == null) {
                 throw new ASAPSecurityException("cannot encrypt or sign without cryptp parameters / key store");
             }
-            this.setupTempMessageStorage();
+            this.setupCopyOutputStream();
         }
 
         if(encrypted) {
@@ -66,11 +62,11 @@ class ASAPCryptoMessage {
         }
     }
 
-    private void setupTempMessageStorage() {
-        if(this.asapMessageOS == null) {
-            this.asapMessageOS = new ByteArrayOutputStream();
+    private void setupCopyOutputStream() {
+        if(this.outputStreamCopy == null) {
+            this.outputStreamCopy = new ByteArrayOutputStream();
             // pud will make a detour
-            this.effectivOS = this.asapMessageOS;
+            this.effectiveOS = this.outputStreamCopy;
         }
     }
 
@@ -79,27 +75,23 @@ class ASAPCryptoMessage {
         PDU_Impl.sendCmd(this.cmd, this.realOS);
     }
 
-    byte getCMD() {
-        return this.cmd;
-    }
-
     public OutputStream getOutputStream() {
-        return this.effectivOS;
+        return this.effectiveOS;
     }
 
     public void finish() throws ASAPSecurityException {
         if(this.sign) {
             try {
                 // get message as bytes
-                byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
+                byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
                 // produce signature
                 byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.basisCryptoParameters);
 
                 if(this.encrypted) {
-                    // have to store it - anything will be encrypted
-                    Serialization.writeByteArray(signatureBytes, this.asapMessageOS);
+                    // have to store it - message and signature will be encrypted
+                    Serialization.writeByteArray(signatureBytes, this.outputStreamCopy);
                 } else {
-                    // can write anything now
+                    // no encryption planned - write clear to stream
                     this.realOS.write(asapMessageAsBytes);
                     Serialization.writeByteArray(signatureBytes, this.realOS);
                 }
@@ -110,7 +102,7 @@ class ASAPCryptoMessage {
 
         if(this.encrypted) {
             // get maybe signed asap message
-            byte[] asapMessageAsBytes = this.asapMessageOS.toByteArray();
+            byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
 
             ASAPCryptoAlgorithms.writeEncryptedMessagePackage(
                     asapMessageAsBytes, this.recipient, this.basisCryptoParameters, this.realOS);
@@ -147,7 +139,7 @@ class ASAPCryptoMessage {
         }
     }
 
-    public InputStream setupCopyStream(int priorInt, InputStream is)
+    public InputStream setupCopyInputStream(int priorInt, InputStream is)
             throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -163,21 +155,13 @@ class ASAPCryptoMessage {
 
     public boolean verify(String sender, InputStream is) throws IOException, ASAPException {
         // try to get senders' public key
-        PublicKey publicKey = this.basisCryptoParameters.getPublicKey(sender);
-        if(publicKey == null) return false;
+        byte[] signedData = this.inputStreamCopy.getCopy();
+        byte[] signatureBytes = Serialization.readByteArray(is);
+        // debug break
+        boolean wasVerified =
+                ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.basisCryptoParameters);
 
-        try {
-            this.signature = Signature.getInstance(this.basisCryptoParameters.getRSASigningAlgorithm());
-            this.signature.initVerify(publicKey);
-            // get data which are to be verified
-            byte[] signedData = this.inputStreamCopy.getCopy();
-            this.signature.update(signedData);
-            byte[] signatureBytes = Serialization.readByteArray(is);
-            boolean wasVerified = this.signature.verify(signatureBytes);
-            return wasVerified;
-        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
-            throw new ASAPSecurityException(this.getLogStart(), e);
-        }
+        return wasVerified;
     }
 
     ////////////////////////////////// decrypt
@@ -194,19 +178,8 @@ class ASAPCryptoMessage {
      * @throws ASAPException
      */
     public boolean initDecryption(byte cmd, InputStream is) throws IOException, ASAPException {
-        // make a copy of read data
-        InputStream copyStream = this.setupCopyStream(cmd, is);
-
-        /*
-        // read recipient
-        this.recipient = Serialization.readCharSequenceParameter(copyStream);
-
-        // read encrypted symmetric key
-        this.encryptedSymmetricKey = Serialization.readByteArray(copyStream);
-
-        // read content
-        this.encryptedContent = Serialization.readByteArray(copyStream);
-         */
+        // make a copy of encrypted message - it is redundant. Same data in encryptedMessagePackage
+        InputStream copyStream = this.setupCopyInputStream(cmd, is);
 
         this.encryptedMessagePackage =
                 ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
@@ -216,8 +189,6 @@ class ASAPCryptoMessage {
             return false;
         }
 
-        // read anything - are we recipient?
-//        if(this.basisCryptoParameters.isOwner(this.recipient)) {
         if(this.basisCryptoParameters.isOwner(this.encryptedMessagePackage.getRecipient())) {
             return true;
         }
@@ -234,38 +205,13 @@ class ASAPCryptoMessage {
         return this.inputStreamCopy.getCopy();
     }
 
-    public InputStream doDecryption(InputStream is) throws ASAPSecurityException {
-        return this.doDecryption(is, this.basisCryptoParameters.getPrivateKey());
-    }
-
-    // parameter private key is usually not an option. Good entry for testing / debugging, though
-    public InputStream doDecryption(InputStream is, PrivateKey privateKey) throws ASAPSecurityException {
+    public InputStream doDecryption() throws ASAPSecurityException {
         if(this.encryptedMessagePackage == null) {
             throw new ASAPSecurityException("forgot to initialize decryption? There are no data");
         }
-        /*
-        // decrypt encoded symmetric key
-        this.cipher = Cipher.getInstance(basisCryptoParameters.getRSAEncryptionAlgorithm());
-        this.cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        // read encryptedKey in initDecryption
-        byte[] encodedSymmetricKey = this.cipher.doFinal(this.encryptedSymmetricKey);
-         */
-
-        byte[] encodedSymmetricKey = ASAPCryptoAlgorithms.decryptAsymmetric(
-                this.encryptedMessagePackage.getEncryptedSymmetricKey(),
-                this.basisCryptoParameters);
-
-        // create symmetric key object
-        SecretKey symmetricKey =
-                ASAPCryptoAlgorithms.createSymmetricKey(encodedSymmetricKey, this.basisCryptoParameters);
-
-
-        // decrypt content
-        byte[] decryptedBytes = ASAPCryptoAlgorithms.decryptSymmetric(
-                this.encryptedMessagePackage.getEncryptedContent(),
-                symmetricKey,
-                this.basisCryptoParameters);
+        byte[] decryptedBytes =
+                ASAPCryptoAlgorithms.decryptPackage(this.encryptedMessagePackage, this.basisCryptoParameters);
 
         return new ByteArrayInputStream(decryptedBytes);
     }

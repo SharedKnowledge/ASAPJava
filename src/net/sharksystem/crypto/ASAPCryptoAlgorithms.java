@@ -72,6 +72,21 @@ public class ASAPCryptoAlgorithms {
         return new SecretKeySpec(encodedSymmetricKey, basisCryptoParameters.getSymmetricKeyType());
     }
 
+    public static byte[] decryptPackage(EncryptedMessagePackage encryptedMessagePackage,
+                            BasisCryptoParameters basisCryptoParameters) throws ASAPSecurityException {
+
+        byte[] encodedSymmetricKey = decryptAsymmetric(
+                encryptedMessagePackage.getEncryptedSymmetricKey(),
+                basisCryptoParameters);
+
+        // create symmetric key object
+        SecretKey symmetricKey = createSymmetricKey(encodedSymmetricKey, basisCryptoParameters);
+
+
+        // decrypt content
+        return decryptSymmetric(encryptedMessagePackage.getEncryptedContent(), symmetricKey, basisCryptoParameters);
+    }
+
     public interface EncryptedMessagePackage {
         CharSequence getRecipient();
         byte[] getEncryptedSymmetricKey();
@@ -142,7 +157,8 @@ public class ASAPCryptoAlgorithms {
         }
     }
 
-    public static byte[] decryptAsymmetric(byte[] encryptedBytes, BasisCryptoParameters basisCryptoParameters) throws ASAPSecurityException {
+    public static byte[] decryptAsymmetric(byte[] encryptedBytes, BasisCryptoParameters basisCryptoParameters)
+            throws ASAPSecurityException {
         try {
             Cipher cipher = Cipher.getInstance(basisCryptoParameters.getRSAEncryptionAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, basisCryptoParameters.getPrivateKey());
@@ -166,5 +182,19 @@ public class ASAPCryptoAlgorithms {
         }
     }
 
-    public static byte[] verify() {return null;}
+    public static boolean verify(byte[] signedData, byte[] signatureBytes, String sender,
+                        BasisCryptoParameters basisCryptoParameters) throws ASAPSecurityException {
+
+        PublicKey publicKey = basisCryptoParameters.getPublicKey(sender);
+        if(publicKey == null) return false;
+
+        try {
+            Signature signature = Signature.getInstance(basisCryptoParameters.getRSASigningAlgorithm());
+            signature.initVerify(publicKey); // init with private key
+            signature.update(signedData); // feed with signed data
+            return signature.verify(signatureBytes); // check against signature
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new ASAPSecurityException("problems when verifying", e);
+        }
+    }
 }

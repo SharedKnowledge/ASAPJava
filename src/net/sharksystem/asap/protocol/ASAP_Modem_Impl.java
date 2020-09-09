@@ -180,7 +180,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             boolean ownerIsRecipient = cryptoMessage.initDecryption(cmd, is);
             if(ownerIsRecipient) {
                 // peer is recipient - decrypt and go ahead
-                InputStream decryptedIS = cryptoMessage.doDecryption(is);
+                InputStream decryptedIS = cryptoMessage.doDecryption();
                 is = decryptedIS;
             } else {
                 // we cannot decrypt this message - we are not recipient - but we keep and redistribute
@@ -203,7 +203,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         ASAPCryptoMessage verifyCryptoMessage = null;
         if(PDU_Impl.flagSet(PDU_Impl.SIGNED_TO_BIT_POSITION, flagsInt)) {
             verifyCryptoMessage = new ASAPCryptoMessage(this.signAndEncryptionKeyStorage);
-            is = verifyCryptoMessage.setupCopyStream(flagsInt, is);
+            is = verifyCryptoMessage.setupCopyInputStream(flagsInt, is);
         }
 
         PDU_Impl pdu = null;
