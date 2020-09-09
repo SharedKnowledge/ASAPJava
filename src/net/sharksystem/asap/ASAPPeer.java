@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * That interface hides those different engines.
  */
-public interface ASAPPeer {
+public interface ASAPPeer extends ASAPConnectionHandler {
     long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
     /**
@@ -51,16 +51,7 @@ public interface ASAPPeer {
      */
     ASAPEngine getASAPEngine(CharSequence format) throws IOException, ASAPException;
 
-    /**
-     * handle that newly established connection to another ASAP peer
-     * @param is
-     * @param os
-     * @throws IOException
-     * @throws ASAPException
-     */
-    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
-
-    public void pushInterests(OutputStream os) throws IOException, ASAPException;
+    void pushInterests(OutputStream os) throws IOException, ASAPException;
 
     Set<CharSequence> getOnlinePeers();
 

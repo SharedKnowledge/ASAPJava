@@ -168,7 +168,7 @@ public class ASAPCryptoAlgorithms {
             return symmetricCipher.doFinal(encryptedContent);
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
                 | IllegalBlockSizeException | BadPaddingException e) {
-            throw new ASAPSecurityException("problems when encrypting with symmetric key", e);
+            throw new ASAPSecurityException("problems when decrypting with symmetric key", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.Utils;
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.sharknet.SharkNet;
@@ -249,7 +250,7 @@ public class ASAPPeerFS implements
     }
 
     private String getEngineFolderByAppName(CharSequence appName) {
-        return this.rootFolderName.toString() + "/" + appName;
+        return this.rootFolderName.toString() + "/" + Utils.url2FileName(appName.toString());
     }
 
     @Override

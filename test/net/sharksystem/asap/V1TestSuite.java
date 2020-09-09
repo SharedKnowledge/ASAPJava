@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.PDUTests;
+import net.sharksystem.asap.sharknet.SharkNetMessageSerializationTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -13,7 +14,8 @@ import org.junit.runners.Suite;
         UsageExamples.class,
         CreateNewChannelFromOutsideTest.class,
         PDUTests.class,
-        CryptoTests.class
+        CryptoTests.class,
+        SharkNetMessageSerializationTests.class
 })
 public class V1TestSuite {
 

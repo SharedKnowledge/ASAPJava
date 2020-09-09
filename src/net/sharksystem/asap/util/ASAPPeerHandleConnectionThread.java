@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
 
@@ -12,11 +13,11 @@ import net.sharksystem.asap.ASAPPeer;
  * @author thsc
  */
 public class ASAPPeerHandleConnectionThread extends Thread {
-    private final ASAPPeer engine;
+    private final ASAPConnectionHandler engine;
     private final InputStream is;
     private final OutputStream os;
 
-    public ASAPPeerHandleConnectionThread(ASAPPeer engine, InputStream is, OutputStream os) {
+    public ASAPPeerHandleConnectionThread(ASAPConnectionHandler engine, InputStream is, OutputStream os) {
         this.engine = engine;
         this.is = is;
         this.os = os;

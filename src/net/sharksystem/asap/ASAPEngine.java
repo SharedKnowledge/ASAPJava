@@ -521,7 +521,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());
-                b.append("listener is null - no callback");
+                b.append("no chunk received listener found");
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
             }
