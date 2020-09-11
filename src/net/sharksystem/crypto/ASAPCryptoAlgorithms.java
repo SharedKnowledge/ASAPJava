@@ -2,7 +2,7 @@ package net.sharksystem.crypto;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -33,7 +33,7 @@ public class ASAPCryptoAlgorithms {
 
         try {
             // send receiver - unencrypted - need this for ad-hoc routing
-            Serialization.writeCharSequenceParameter(recipient, os);
+            ASAPSerialization.writeCharSequenceParameter(recipient, os);
 
             // get symmetric key
             SecretKey encryptionKey = basicCryptoParameters.generateSymmetricKey();
@@ -45,12 +45,12 @@ public class ASAPCryptoAlgorithms {
             byte[] encryptedSymmetricKeyBytes = cipher.doFinal(encodedSymmetricKey);
 
             // send encrypted key
-            Serialization.writeByteArray(encryptedSymmetricKeyBytes, os);
+            ASAPSerialization.writeByteArray(encryptedSymmetricKeyBytes, os);
 
             byte[] encryptedText = encryptSymmetric(unencryptedBytes, encryptionKey, basicCryptoParameters);
 
             // send encrypted bytes
-            Serialization.writeByteArray(encryptedText, os);
+            ASAPSerialization.writeByteArray(encryptedText, os);
 
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
                 | IllegalBlockSizeException | BadPaddingException | IOException e) {
@@ -94,9 +94,9 @@ public class ASAPCryptoAlgorithms {
     }
 
     public static EncryptedMessagePackage parseEncryptedMessagePackage(InputStream is) throws IOException, ASAPException {
-        String recipient = Serialization.readCharSequenceParameter(is);
-        byte[] encryptedSymmetricKey = Serialization.readByteArray(is);
-        byte[] encryptedContent = Serialization.readByteArray(is);
+        String recipient = ASAPSerialization.readCharSequenceParameter(is);
+        byte[] encryptedSymmetricKey = ASAPSerialization.readByteArray(is);
+        byte[] encryptedContent = ASAPSerialization.readByteArray(is);
 
         return new EncryptedMessagePackage() {
             @Override
@@ -110,9 +110,9 @@ public class ASAPCryptoAlgorithms {
 
     public static void writeEncryptedMessagePackage(EncryptedMessagePackage encryptedPackage, OutputStream os)
             throws IOException, ASAPException {
-        Serialization.writeCharSequenceParameter(encryptedPackage.getRecipient(), os);
-        Serialization.writeByteArray(encryptedPackage.getEncryptedSymmetricKey(), os);
-        Serialization.writeByteArray(encryptedPackage.getEncryptedContent(), os);
+        ASAPSerialization.writeCharSequenceParameter(encryptedPackage.getRecipient(), os);
+        ASAPSerialization.writeByteArray(encryptedPackage.getEncryptedSymmetricKey(), os);
+        ASAPSerialization.writeByteArray(encryptedPackage.getEncryptedContent(), os);
     }
 
     public static byte[] getEncryptedMessagePackageAsBytes(EncryptedMessagePackage encryptedPackage)

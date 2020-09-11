@@ -1,7 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         if(this.eraSet()) { this.readEra(is); }
         if(this.offsetsSet()) { this.readOffsets(is); }
 
-        this.dataLength = Serialization.readLongParameter(is);
+        this.dataLength = ASAPSerialization.readLongParameter(is);
 
         this.is = is;
 
@@ -43,11 +43,11 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     private void readOffsets(InputStream is) throws IOException, ASAPException {
-        this.offsets = string2list(Serialization.readCharSequenceParameter(is));
+        this.offsets = string2list(ASAPSerialization.readCharSequenceParameter(is));
     }
 
     private void readRecipientPeer(InputStream is) throws IOException, ASAPException {
-        this.recipientPeer = Serialization.readCharSequenceParameter(is);
+        this.recipientPeer = ASAPSerialization.readCharSequenceParameter(is);
     }
 
     static void sendPDUWithoutCmd(CharSequence peer, CharSequence recipient, CharSequence format, CharSequence channel,
@@ -71,14 +71,14 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
         PDU_Impl.sendFlags(flags, os);
 
-        Serialization.writeCharSequenceParameter(peer, os); // opt
-        Serialization.writeCharSequenceParameter(recipient, os); // opt
-        Serialization.writeCharSequenceParameter(format, os); // mand
-        Serialization.writeCharSequenceParameter(channel, os); // opt
-        Serialization.writeNonNegativeIntegerParameter(era, os); // opt
-        Serialization.writeCharSequenceParameter(list2string(offsets), os); // opt
+        ASAPSerialization.writeCharSequenceParameter(peer, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(recipient, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(format, os); // mand
+        ASAPSerialization.writeCharSequenceParameter(channel, os); // opt
+        ASAPSerialization.writeNonNegativeIntegerParameter(era, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(list2string(offsets), os); // opt
 
-        Serialization.writeNonNegativeLongParameter(length, os); // mand
+        ASAPSerialization.writeNonNegativeLongParameter(length, os); // mand
 
         // stream data
         while(length-- > 0) {

@@ -1,7 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,16 +86,16 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
      * @deprecated
      */
     protected static void sendHeader(byte cmd, int flags, OutputStream os) throws IOException {
-        Serialization.writeByteParameter(cmd, os); // mand
-        Serialization.writeByteParameter((byte)flags, os); // mand
+        ASAPSerialization.writeByteParameter(cmd, os); // mand
+        ASAPSerialization.writeByteParameter((byte)flags, os); // mand
     }
 
     public static void sendFlags(int flags, OutputStream os) throws IOException {
-        Serialization.writeByteParameter((byte)flags, os); // mand
+        ASAPSerialization.writeByteParameter((byte)flags, os); // mand
     }
 
     public static void sendCmd(byte cmd, OutputStream os) throws IOException {
-        Serialization.writeByteParameter(cmd, os); // mand
+        ASAPSerialization.writeByteParameter(cmd, os); // mand
     }
 
     protected void evaluateFlags(int flag) {
@@ -152,24 +152,24 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     public byte getCommand() { return this.cmd; }
 
     protected void readSender(InputStream is) throws IOException, ASAPException {
-        this.sender = Serialization.readCharSequenceParameter(is);
+        this.sender = ASAPSerialization.readCharSequenceParameter(is);
     }
 
     protected void readRecipient(InputStream is) throws IOException, ASAPException {
-        this.recipient = Serialization.readCharSequenceParameter(is);
+        this.recipient = ASAPSerialization.readCharSequenceParameter(is);
     }
 
     protected void readFormat(InputStream is) throws IOException, ASAPException {
-        this.format = Serialization.readCharSequenceParameter(is);
+        this.format = ASAPSerialization.readCharSequenceParameter(is);
     }
 
 
     protected void readChannel(InputStream is) throws IOException, ASAPException {
-        this.channel = Serialization.readCharSequenceParameter(is);
+        this.channel = ASAPSerialization.readCharSequenceParameter(is);
     }
 
     protected void readEra(InputStream is) throws IOException, ASAPException {
-        this.era = Serialization.readIntegerParameter(is);
+        this.era = ASAPSerialization.readIntegerParameter(is);
     }
 
     static void sendCommand(byte cmd, OutputStream os) throws IOException {

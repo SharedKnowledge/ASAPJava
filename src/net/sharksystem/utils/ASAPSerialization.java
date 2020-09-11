@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class Serialization {
+public class ASAPSerialization {
     public static void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
         writeNonNegativeIntegerParameter(bytes2Write.length, os);
         os.write(bytes2Write);

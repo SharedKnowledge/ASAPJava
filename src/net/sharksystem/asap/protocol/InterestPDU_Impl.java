@@ -1,7 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,11 +25,11 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
     }
 
     private void readToEra(InputStream is) throws IOException, ASAPException {
-        this.eraTo = Serialization.readIntegerParameter(is);
+        this.eraTo = ASAPSerialization.readIntegerParameter(is);
     }
 
     private void readFromEra(InputStream is) throws IOException, ASAPException {
-        this.eraFrom = Serialization.readIntegerParameter(is);
+        this.eraFrom = ASAPSerialization.readIntegerParameter(is);
     }
 
     static void sendPDUWithoutCmd(CharSequence sender, CharSequence recipient, CharSequence format,
@@ -56,12 +56,12 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
 
         PDU_Impl.sendFlags(flags, os);
 
-        Serialization.writeCharSequenceParameter(sender, os); // opt
-        Serialization.writeCharSequenceParameter(recipient, os); // opt
-        Serialization.writeCharSequenceParameter(format, os); // mand
-        Serialization.writeCharSequenceParameter(channel, os); // opt
-        Serialization.writeNonNegativeIntegerParameter(eraFrom, os); // opt
-        Serialization.writeNonNegativeIntegerParameter(eraTo, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(sender, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(recipient, os); // opt
+        ASAPSerialization.writeCharSequenceParameter(format, os); // mand
+        ASAPSerialization.writeCharSequenceParameter(channel, os); // opt
+        ASAPSerialization.writeNonNegativeIntegerParameter(eraFrom, os); // opt
+        ASAPSerialization.writeNonNegativeIntegerParameter(eraTo, os); // opt
     }
 
     @Override

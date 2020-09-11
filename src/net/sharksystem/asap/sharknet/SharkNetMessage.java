@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.crypto.BasicCryptoParameters;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,18 +37,18 @@ class SharkNetMessage {
 
         // merge content, sender and recipient
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Serialization.writeByteArray(message, baos);
-        Serialization.writeCharSequenceParameter(ownerID, baos);
-        Serialization.writeCharSequenceParameter(recipient, baos);
+        ASAPSerialization.writeByteArray(message, baos);
+        ASAPSerialization.writeCharSequenceParameter(ownerID, baos);
+        ASAPSerialization.writeCharSequenceParameter(recipient, baos);
         message = baos.toByteArray();
 
         byte flags = 0;
         if(sign) {
             byte[] signature = ASAPCryptoAlgorithms.sign(message, basicCryptoParameters);
             baos = new ByteArrayOutputStream();
-            Serialization.writeByteArray(message, baos); // message has three parts: content, sender, receiver
+            ASAPSerialization.writeByteArray(message, baos); // message has three parts: content, sender, receiver
             // append signature
-            Serialization.writeByteArray(signature, baos);
+            ASAPSerialization.writeByteArray(signature, baos);
             // attach signature to message
             message = baos.toByteArray();
             flags += SIGNED_MASK;
@@ -62,8 +62,8 @@ class SharkNetMessage {
 
         // serialize SN message
         baos = new ByteArrayOutputStream();
-        Serialization.writeByteParameter(flags, baos);
-        Serialization.writeByteArray(message, baos);
+        ASAPSerialization.writeByteParameter(flags, baos);
+        ASAPSerialization.writeByteArray(message, baos);
 
         return baos.toByteArray();
     }
@@ -72,8 +72,8 @@ class SharkNetMessage {
                 CharSequence ownerID, BasicCryptoParameters basicCryptoParameters) throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
-        byte flags = Serialization.readByte(bais);
-        byte[] tmpMessage = Serialization.readByteArray(bais);
+        byte flags = ASAPSerialization.readByte(bais);
+        byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
 
         boolean signed = (flags & SIGNED_MASK) != 0;
         boolean encrypted = (flags & ENCRYPTED_MASK) != 0;
@@ -99,14 +99,14 @@ class SharkNetMessage {
         if(signed) {
             // split message from signature
             bais = new ByteArrayInputStream(tmpMessage);
-            tmpMessage = Serialization.readByteArray(bais);
+            tmpMessage = ASAPSerialization.readByteArray(bais);
             signedMessage = tmpMessage;
-            signature = Serialization.readByteArray(bais);
+            signature = ASAPSerialization.readByteArray(bais);
         }
         bais = new ByteArrayInputStream(tmpMessage);
-        byte[] snMessage = Serialization.readByteArray(bais);
-        String snSender = Serialization.readCharSequenceParameter(bais);
-        String snReceiver = Serialization.readCharSequenceParameter(bais);
+        byte[] snMessage = ASAPSerialization.readByteArray(bais);
+        String snSender = ASAPSerialization.readCharSequenceParameter(bais);
+        String snReceiver = ASAPSerialization.readCharSequenceParameter(bais);
 
         boolean verified = false; // initialize
         if(signature != null) {

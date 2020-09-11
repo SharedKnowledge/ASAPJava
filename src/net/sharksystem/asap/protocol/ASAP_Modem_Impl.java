@@ -6,7 +6,7 @@ import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.crypto.BasicCryptoParameters;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -171,7 +171,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
-        byte cmd = Serialization.readByte(is);
+        byte cmd = ASAPSerialization.readByte(is);
 
         // encrypted?
         boolean encrypted = (cmd & ENCRYPTED_MASK) != 0;
@@ -198,7 +198,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             }
         }
 
-        int flagsInt = Serialization.readByte(is);
+        int flagsInt = ASAPSerialization.readByte(is);
 
         InputStream realIS = is;
         ASAPCryptoMessage verifyCryptoMessage = null;

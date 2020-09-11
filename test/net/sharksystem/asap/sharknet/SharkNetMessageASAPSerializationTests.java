@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.security.KeyPair;
 
-public class SharkNetMessageSerializationTests {
+public class SharkNetMessageASAPSerializationTests {
     public static final String WORKING_SUB_DIRECTORY = "sharkNetTests/";
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";

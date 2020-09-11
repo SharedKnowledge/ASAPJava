@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.crypto.BasicCryptoParameters;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.utils.Serialization;
+import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.*;
 
@@ -89,11 +89,11 @@ class ASAPCryptoMessage {
 
                 if(this.encrypted) {
                     // have to store it - message and signature will be encrypted
-                    Serialization.writeByteArray(signatureBytes, this.outputStreamCopy);
+                    ASAPSerialization.writeByteArray(signatureBytes, this.outputStreamCopy);
                 } else {
                     // no encryption planned - write clear to stream
                     this.realOS.write(asapMessageAsBytes);
-                    Serialization.writeByteArray(signatureBytes, this.realOS);
+                    ASAPSerialization.writeByteArray(signatureBytes, this.realOS);
                 }
             } catch (IOException e) {
                 throw new ASAPSecurityException(this.getLogStart(), e);
@@ -156,7 +156,7 @@ class ASAPCryptoMessage {
     public boolean verify(String sender, InputStream is) throws IOException, ASAPException {
         // try to get senders' public key
         byte[] signedData = this.inputStreamCopy.getCopy();
-        byte[] signatureBytes = Serialization.readByteArray(is);
+        byte[] signatureBytes = ASAPSerialization.readByteArray(is);
         // debug break
         boolean wasVerified =
                 ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.basicCryptoParameters);
