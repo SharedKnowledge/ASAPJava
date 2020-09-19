@@ -8,6 +8,6 @@ public class SharkNetMessageReceivedListener implements SharkNetMessageListener 
 
     @Override
     public void messageReceived(byte[] message, CharSequence topic, CharSequence senderID, boolean verified, boolean encrypted) {
-        this.receivedMessages.add(new SharkNetMessage(message, topic, senderID, verified, encrypted));
+        this.receivedMessages.add(new SharkNetMessage(message, topic, senderID, null, verified, encrypted));
     }
 }

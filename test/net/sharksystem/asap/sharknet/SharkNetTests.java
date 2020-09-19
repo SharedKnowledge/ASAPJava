@@ -12,11 +12,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SharkNetTests {
     public static final String WORKING_SUB_DIRECTORY = "sharkNetTests/";
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";
+    public static final String CLARA_ID = "Clara";
     public static final String ALICE_FOLDER = WORKING_SUB_DIRECTORY + "/" + ALICE_ID;
     public static final String BOB_FOLDER = WORKING_SUB_DIRECTORY + "/" + BOB_ID;
     public static final String MESSAGE = "Hi";
@@ -80,7 +83,7 @@ public class SharkNetTests {
     }
 
     @Test
-    public void snTestEncryptedSignedForVariants() throws ASAPException, IOException, InterruptedException {
+    public void snTestEncryptedSignedFourVariants() throws ASAPException, IOException, InterruptedException {
         ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         // Alice
@@ -152,5 +155,10 @@ public class SharkNetTests {
         snMessage = snListenerBob.receivedMessages.get(3);
         Assert.assertTrue(snMessage.verified());
         Assert.assertTrue(snMessage.encrypted());
+    }
+
+
+    public void constructSendReceive() {
+//        SharkNetMessage snMessage = new SharkNetMessage()
     }
 }

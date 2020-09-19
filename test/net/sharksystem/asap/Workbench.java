@@ -6,7 +6,7 @@ import net.sharksystem.cmdline.TCPStream;
 import net.sharksystem.crypto.BasicCryptoKeyStorage;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyPair;
 
 public class Workbench {
@@ -19,6 +19,69 @@ public class Workbench {
     public static final String CHAT_TOPIC = "topicA";
     public static final int EXAMPLE_PORT = 7070;
     public static final String EXAMPLE_MESSAGE_STRING = "Hi";
+
+    @Test
+    public void scratch() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        // sender. Ich sende long long, int long und teile das vorher mit
+        long[] lValues = new long[3];
+        int iValue = -1;
+        lValues[0] = 1;
+        lValues[1] = 2;
+        lValues[2] = 3;
+
+        int types = 0;
+
+        // long comes first
+        types += 0x01;
+        types = types << 8;
+
+        // another long
+        types += 0x01;
+        types = types << 8;
+
+        // an int
+        types += 0x00;
+        types = types << 8;
+
+        // another long
+        types += 0x01;
+
+        // sage was passiert
+        dos.writeLong(types);
+
+        dos.writeLong(lValues[0]);
+        dos.writeLong(lValues[1]);
+        dos.writeInt(iValue);
+        dos.writeLong(lValues[2]);
+        System.out.println("l1 == " + lValues[0] + " | l2 == " + lValues[1] + " | i1 == " + iValue + " | l3 == " + lValues[2]);
+
+        // read
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStream dis = new DataInputStream(bais);
+
+        // init l index
+        int lIndex = 0;
+
+        // read Reihenfolge
+        types = dis.readInt();
+        int mask = 0xFF;
+        mask = mask << 24;
+
+        while (mask > 0) {
+            if ((types & mask) != 0) {
+                // long value
+                lValues[lIndex++] = dis.readLong();
+            } else {
+                // int
+                iValue = dis.readInt();
+            }
+            mask = mask >> 8;
+        }
+        System.out.println("l1 == " + lValues[0] + " | l2 == " + lValues[1] + " | i1 == " + iValue + " | l3 == " + lValues[2]);
+    }
 
     @Test
     public void routeEncryptedMessage() throws IOException, ASAPException, InterruptedException {

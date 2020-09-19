@@ -5,6 +5,8 @@ import net.sharksystem.asap.ASAPException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ASAPSerialization {
     public static void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
@@ -103,5 +105,33 @@ public class ASAPSerialization {
         is.read(parameterBytes);
 
         return new String(parameterBytes);
+    }
+
+    public static void writeCharSequenceSetParameter(Set<CharSequence> charSet, OutputStream os) throws IOException {
+        if(charSet == null || charSet.size() == 0) {
+            ASAPSerialization.writeNonNegativeIntegerParameter(0, os);
+            return;
+        }
+
+        // more recipients
+
+        // write len
+        ASAPSerialization.writeNonNegativeIntegerParameter(charSet.size(), os);
+
+        // write entries
+        for(CharSequence entry : charSet) {
+            ASAPSerialization.writeCharSequenceParameter(entry, os);
+        }
+    }
+
+    public static Set<CharSequence> readCharSequenceSetParameter(InputStream is) throws IOException, ASAPException {
+        Set<CharSequence> charSet = new HashSet<>();
+        int len = ASAPSerialization.readIntegerParameter(is);
+
+        while(len-- > 0) {
+            charSet.add(ASAPSerialization.readCharSequenceParameter(is));
+        }
+
+        return charSet;
     }
 }
