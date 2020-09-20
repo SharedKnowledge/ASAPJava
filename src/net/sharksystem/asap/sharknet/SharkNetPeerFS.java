@@ -72,7 +72,7 @@ public class SharkNetPeerFS implements SharkNetPeer, ASAPChunkReceivedListener {
                 // deserialize SNMessage
                 try {
                     SharkNetMessage snMessage =
-                        SharkNetMessage.parseMessage(message, sender, uri, this.getOwnerID(), this.basicKeyStore);
+                        SharkNetMessage.parseMessage(message, uri, this.getOwnerID(), this.basicKeyStore);
 
                     // we have anything - tell listeners
                     for(SharkNetMessageListener l : this.snListenerSet) {

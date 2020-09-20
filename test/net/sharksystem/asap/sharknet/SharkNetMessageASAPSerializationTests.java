@@ -25,7 +25,7 @@ public class SharkNetMessageASAPSerializationTests {
                 MESSAGE.getBytes(), URI, BOB_ID, false, false, ALICE_ID, null);
 
         SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, ALICE_ID, URI, BOB_ID, null);
+                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, null);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -45,7 +45,7 @@ public class SharkNetMessageASAPSerializationTests {
                 MESSAGE.getBytes(), URI, BOB_ID, true, false, ALICE_ID, keyStorageAlice);
 
         SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, ALICE_ID, URI, BOB_ID, keyStorageBob);
+                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -64,7 +64,7 @@ public class SharkNetMessageASAPSerializationTests {
                 MESSAGE.getBytes(), URI, BOB_ID, true, false, ALICE_ID, keyStorageAlice);
 
         SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, ALICE_ID, URI, BOB_ID, keyStorageBob);
+                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -84,7 +84,7 @@ public class SharkNetMessageASAPSerializationTests {
                 MESSAGE.getBytes(), URI, BOB_ID, false, true, ALICE_ID, keyStorageAlice);
 
         SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, ALICE_ID, URI, BOB_ID, keyStorageBob);
+                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -104,7 +104,7 @@ public class SharkNetMessageASAPSerializationTests {
                 MESSAGE.getBytes(), URI, BOB_ID, true, true, ALICE_ID, keyStorageAlice);
 
         SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, ALICE_ID, URI, BOB_ID, keyStorageBob);
+                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -135,7 +135,7 @@ public class SharkNetMessageASAPSerializationTests {
 
         // parse
         SharkNetMessage receivedMessage =
-                SharkNetMessage.parseMessage(asapMessage, ALICE_ID, URI, ALICE_ID, keyStorageBob);
+                SharkNetMessage.parseMessage(asapMessage, URI, ALICE_ID, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(receivedMessage.getContent()));
         Assert.assertEquals(2, receivedMessage.getRecipients().size());

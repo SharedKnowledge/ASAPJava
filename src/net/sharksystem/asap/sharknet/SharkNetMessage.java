@@ -165,7 +165,7 @@ public class SharkNetMessage {
         return baos.toByteArray();
     }
 
-    static SharkNetMessage parseMessage(byte[] message, String sender, String uri,
+    public static SharkNetMessage parseMessage(byte[] message, String uri,
                 CharSequence ownerID, BasicKeyStore basicKeyStore) throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
