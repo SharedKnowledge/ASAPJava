@@ -37,6 +37,10 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
                 DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_AES_KEY_SIZE);
     }
 
+    public int getSymmetricKeyLen() {
+        return BasicKeyStore.DEFAULT_AES_KEY_SIZE;
+    }
+
     private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }

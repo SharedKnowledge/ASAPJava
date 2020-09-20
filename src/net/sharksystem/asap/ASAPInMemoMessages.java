@@ -20,7 +20,7 @@ class ASAPInMemoMessages implements ASAPMessages {
     private List<ASAPChunk> chunkList;
 
     /** the internal message Cache */
-    private List<CharSequence> messageCache;
+    private List<byte[]> messageCache;
     private int firstIndexMessageCache = -1;
     private int lastIndexMessageCache = -1;
     private int maxCacheLen;
@@ -142,7 +142,12 @@ class ASAPInMemoMessages implements ASAPMessages {
     }
 
     @Override
-    public CharSequence getMessage(int position, boolean chronologically) 
+    public CharSequence getMessageAsCharSequence(int position, boolean chronologically) throws ASAPException, IOException {
+        return new String(this.getMessage(position, chronologically));
+    }
+
+    @Override
+    public byte[] getMessage(int position, boolean chronologically)
             throws ASAPException, IOException {
 
         this.initialize();
@@ -193,7 +198,8 @@ class ASAPInMemoMessages implements ASAPMessages {
         // simple approach in that first implementation ... we keep fitting chunk in memory
         /////////////////////////////////////////////////////////////////
 
-        Iterator<CharSequence> messages = fittingChunk.getMessagesAsCharSequence();
+//        Iterator<CharSequence> messages = fittingChunk.getMessagesAsCharSequence();
+        Iterator<byte[]> messages = fittingChunk.getMessages();
 
         // chunk bigger than max cache size?
         int chunkSize = fittingChunk.getNumberMessage();

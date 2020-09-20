@@ -63,8 +63,9 @@ public interface ASAPMessages {
      * not exist
      * @throws IOException couldn't read from storage
      */
-    CharSequence getMessage(int position, boolean chronologically)
+    CharSequence getMessageAsCharSequence(int position, boolean chronologically)
             throws ASAPException, IOException;
 
-
+    byte[] getMessage(int position, boolean chronologically)
+            throws ASAPException, IOException;
 }

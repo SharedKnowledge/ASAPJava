@@ -48,6 +48,8 @@ public interface BasicKeyStore {
 
     String getSymmetricKeyType();
 
+    int getSymmetricKeyLen();
+
     /**
      *
      * @param peerID

@@ -52,14 +52,14 @@ public class ChunkCacheTests {
         // now get message chain
         ASAPMessages chunkChain = aliceStorage.getChunkChain(TEST_URI);
         for(int i = 0; i < 0x10; i++) {
-            Assert.assertTrue(chunkChain.getMessage(i, true).toString()
+            Assert.assertTrue(chunkChain.getMessageAsCharSequence(i, true).toString()
                     .equalsIgnoreCase(message[i]));
         }
 
         // now get message chain - reverse order
         chunkChain = aliceStorage.getChunkChain(TEST_URI);
         for(int i = 0; i < 0x10; i++) {
-            Assert.assertTrue(chunkChain.getMessage(i, false).toString()
+            Assert.assertTrue(chunkChain.getMessageAsCharSequence(i, false).toString()
                     .equalsIgnoreCase(message[0xF - i]));
         }
     }
