@@ -6,7 +6,14 @@ import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public interface BasicCryptoParameters {
+public interface BasicKeyStore {
+    String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    String DEFAULT_SYMMETRIC_KEY_TYPE = "AES";
+    String DEFAULT_SYMMETRIC_ENCRYPTION_ALGORITHM = "AES/ECB/PKCS5Padding";
+    //    public static int DEFAULT_AES_KEY_SIZE = 256;
+    int DEFAULT_AES_KEY_SIZE = 128; // TODO we can do better
+    String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
+
     /**
      *
      * @return private key of local device - for signing
@@ -15,7 +22,7 @@ public interface BasicCryptoParameters {
     PrivateKey getPrivateKey() throws ASAPSecurityException;
 
     // debugging
-    PrivateKey getPrivateKey(CharSequence subjectID) throws ASAPSecurityException;
+//    PrivateKey getPrivateKey(CharSequence subjectID) throws ASAPSecurityException;
 
     /**
      *
@@ -47,4 +54,6 @@ public interface BasicCryptoParameters {
      * @return true if peerID is owners' id.
      */
     boolean isOwner(CharSequence peerID);
+
+    CharSequence getOwner();
 }

@@ -3,13 +3,11 @@ package net.sharksystem.asap;
 import net.sharksystem.Utils;
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.asap.sharknet.SharkNet;
-import net.sharksystem.asap.sharknet.SharkNetMessageListener;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.crypto.BasicCryptoKeyStorage;
-import net.sharksystem.crypto.BasicCryptoParameters;
+import net.sharksystem.crypto.BasicKeyStore;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
@@ -24,7 +22,7 @@ public class ASAPPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
-    private BasicCryptoParameters basicCryptoParameters;
+    private BasicKeyStore basicKeyStore;
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
     private BasicCryptoKeyStorage basicCryptoKeyStorage;
 
@@ -298,7 +296,7 @@ public class ASAPPeerFS implements
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
-                this, this.basicCryptoParameters,
+                this, this.basicKeyStore,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
@@ -560,8 +558,8 @@ public class ASAPPeerFS implements
     }
 
     @Override
-    public void setASAPBasicKeyStorage(BasicCryptoParameters basicCryptoParameters) {
-        this.basicCryptoParameters = basicCryptoParameters;
+    public void setASAPBasicKeyStorage(BasicKeyStore basicKeyStore) {
+        this.basicKeyStore = basicKeyStore;
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
@@ -620,7 +618,7 @@ public class ASAPPeerFS implements
 
     ///////////////////////////////// SharkNet
     @Override
-    public BasicCryptoParameters getBasicCryptoParameters() throws ASAPSecurityException {
+    public BasicKeyStore getBasicCryptoParameters() throws ASAPSecurityException {
         if(this.basicCryptoKeyStorage == null) {
             this.basicCryptoKeyStorage = new BasicCryptoKeyStorage(this.getOwner().toString());
         }

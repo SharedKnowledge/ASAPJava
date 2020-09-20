@@ -1,11 +1,9 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.asap.sharknet.SharkNetMessageListener;
-import net.sharksystem.crypto.BasicCryptoParameters;
+import net.sharksystem.crypto.BasicKeyStore;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
@@ -104,11 +102,11 @@ public interface ASAPPeer extends ASAPConnectionHandler {
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
-    void setASAPBasicKeyStorage(BasicCryptoParameters basicCryptoParameters);
+    void setASAPBasicKeyStorage(BasicKeyStore basicKeyStore);
 
     ASAPCommunicationSetting getASAPCommunicationControl();
 
-    BasicCryptoParameters getBasicCryptoParameters() throws ASAPSecurityException;
+    BasicKeyStore getBasicCryptoParameters() throws ASAPSecurityException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
 }

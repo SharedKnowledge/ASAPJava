@@ -11,17 +11,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
-public class BasicCryptoKeyStorage implements BasicCryptoParameters {
+public class BasicCryptoKeyStorage implements BasicKeyStore {
     private final KeyPair keyPair;
     private final CharSequence ownerID;
     private long timeInMillis = 0;
-
-    public static final String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
-    public static final String DEFAULT_SYMMETRIC_KEY_TYPE = "AES";
-    public static final String DEFAULT_SYMMETRIC_ENCRYPTION_ALGORITHM = "AES/ECB/PKCS5Padding";
-//    public static int DEFAULT_AES_KEY_SIZE = 256;
-    public static int DEFAULT_AES_KEY_SIZE = 128; // TODO we can do better
-    public static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     // for debugging only - we don't have private key in real apps
     private HashMap<String, KeyPair> peerKeyPairs = new HashMap<>();
@@ -41,13 +34,18 @@ public class BasicCryptoKeyStorage implements BasicCryptoParameters {
     }
 
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
+        return BasicCryptoKeyStorage.generateSymmetricKey(
+                DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_AES_KEY_SIZE);
+    }
+
+    public static SecretKey generateSymmetricKey(String keyType, int size) throws ASAPSecurityException {
         try {
-            KeyGenerator gen = KeyGenerator.getInstance(DEFAULT_SYMMETRIC_KEY_TYPE);
-            gen.init(DEFAULT_AES_KEY_SIZE);
+            KeyGenerator gen = KeyGenerator.getInstance(keyType);
+            gen.init(size);
             SecretKey secretKey = gen.generateKey();
             return secretKey;
         } catch (NoSuchAlgorithmException e) {
-            throw new ASAPSecurityException(this.getLogStart(), e);
+            throw new ASAPSecurityException("BasicCryptoKeyStorage", e);
         }
     }
 
@@ -149,7 +147,15 @@ public class BasicCryptoKeyStorage implements BasicCryptoParameters {
 
     @Override
     public boolean isOwner(CharSequence peerID) {
-        return peerID.equals(this.ownerID);
+        String ownerString = this.getOwner().toString();
+        String peerIDString = peerID.toString();
+
+        return ownerString.equalsIgnoreCase(peerIDString);
+    }
+
+    @Override
+    public CharSequence getOwner() {
+        return this.ownerID;
     }
 
     @Override

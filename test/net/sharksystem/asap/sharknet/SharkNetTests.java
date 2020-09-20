@@ -2,18 +2,14 @@ package net.sharksystem.asap.sharknet;
 
 import net.sharksystem.asap.ASAPEngineFS;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.TCPStream;
 import net.sharksystem.crypto.BasicCryptoKeyStorage;
-import net.sharksystem.crypto.BasicCryptoParameters;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SharkNetTests {
     public static final String WORKING_SUB_DIRECTORY = "sharkNetTests/";

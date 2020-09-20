@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicCryptoParameters;
+import net.sharksystem.crypto.BasicKeyStore;
 import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
 import net.sharksystem.utils.ASAPSerialization;
 
@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final BasicCryptoParameters signAndEncryptionKeyStorage;
+    private final BasicKeyStore signAndEncryptionKeyStorage;
     private final ASAPUndecryptableMessageHandler unencryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
@@ -26,11 +26,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         this(null, unencryptableMessageHandler);
     }
 
-    public ASAP_Modem_Impl(BasicCryptoParameters signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage) {
         this(signAndEncryptionKeyStorage, null);
     }
 
-    public ASAP_Modem_Impl(BasicCryptoParameters signAndEncryptionKeyStorage,
+    public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage,
                            ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
         this.unencryptableMessageHandler = unencryptableMessageHandler;
@@ -194,7 +194,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                     System.out.println(this.getLogStart() + "no handler for unencryptable messages found");
                 }
                 // throw exception anyway - could not create PDU
-                throw new ASAPSecurityException("encryptable message received");
+                throw new ASAPSecurityException("unencryptable message received");
             }
         }
 

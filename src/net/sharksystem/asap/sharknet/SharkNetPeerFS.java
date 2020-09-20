@@ -3,7 +3,7 @@ package net.sharksystem.asap.sharknet;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.util.Helper;
-import net.sharksystem.crypto.BasicCryptoParameters;
+import net.sharksystem.crypto.BasicKeyStore;
 
 import java.io.*;
 import java.util.HashSet;
@@ -13,23 +13,23 @@ import java.util.Set;
 public class SharkNetPeerFS implements SharkNetPeer, ASAPChunkReceivedListener {
     private final ASAPPeer asapPeer;
     private final ASAPEngine sharkNetEngine;
-    private final BasicCryptoParameters basicCryptoParameters;
+    private final BasicKeyStore basicKeyStore;
     private final DefaultSecurityAdministrator securityAdministrator;
     private final String rootFolder;
     private final Set<SharkNetMessageListener> snListenerSet = new HashSet<>();
 
-    public SharkNetPeerFS(String ownerID, String rootFolder, BasicCryptoParameters basicCryptoParameters)
+    public SharkNetPeerFS(String ownerID, String rootFolder, BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
         this.rootFolder = rootFolder;
         this.asapPeer = ASAPPeerFS.createASAPPeer(ownerID, rootFolder, this);
 
-        this.asapPeer.setASAPBasicKeyStorage(basicCryptoParameters);
+        this.asapPeer.setASAPBasicKeyStorage(basicKeyStore);
         this.securityAdministrator = new DefaultSecurityAdministrator();
         this.asapPeer.setSecurityAdministrator(this.securityAdministrator);
 
         this.sharkNetEngine = this.asapPeer.createEngineByFormat(SharkNet.SHARKNET_FORMAT);
-        this.basicCryptoParameters = basicCryptoParameters;
+        this.basicKeyStore = basicKeyStore;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SharkNetPeerFS implements SharkNetPeer, ASAPChunkReceivedListener {
         // serialize sn message
         this.sharkNetEngine.add(topic,
                 SharkNetMessage.serializeMessage(message, topic, recipient, sign, encrypt,
-                        this.getOwnerID(), this.basicCryptoParameters));
+                        this.getOwnerID(), this.basicKeyStore));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class SharkNetPeerFS implements SharkNetPeer, ASAPChunkReceivedListener {
                 // deserialize SNMessage
                 try {
                     SharkNetMessage snMessage =
-                        SharkNetMessage.parseMessage(message, sender, uri, this.getOwnerID(), this.basicCryptoParameters);
+                        SharkNetMessage.parseMessage(message, sender, uri, this.getOwnerID(), this.basicKeyStore);
 
                     // we have anything - tell listeners
                     for(SharkNetMessageListener l : this.snListenerSet) {

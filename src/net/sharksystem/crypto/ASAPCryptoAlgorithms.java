@@ -18,14 +18,14 @@ public class ASAPCryptoAlgorithms {
      * RecipientID | asymmetrically encrypted symmetric key | symmetrically encrypted text
      * @param unencryptedBytes text to be encrypted
      * @param recipient
-     * @param basicCryptoParameters
+     * @param basicKeyStore
      * @return
      * @throws ASAPSecurityException
      */
     public static void writeEncryptedMessagePackage(byte[] unencryptedBytes, CharSequence recipient,
-                                                    BasicCryptoParameters basicCryptoParameters, OutputStream os) throws ASAPSecurityException {
+                                                    BasicKeyStore basicKeyStore, OutputStream os) throws ASAPSecurityException {
 
-        PublicKey publicKey = basicCryptoParameters.getPublicKey(recipient);
+        PublicKey publicKey = basicKeyStore.getPublicKey(recipient);
         // there should be an exception - but better safe than sorry
         if(publicKey == null) {
             throw new ASAPSecurityException("recipients' public key cannot be found");
@@ -36,18 +36,18 @@ public class ASAPCryptoAlgorithms {
             ASAPSerialization.writeCharSequenceParameter(recipient, os);
 
             // get symmetric key
-            SecretKey encryptionKey = basicCryptoParameters.generateSymmetricKey();
+            SecretKey encryptionKey = basicKeyStore.generateSymmetricKey();
             byte[] encodedSymmetricKey = encryptionKey.getEncoded();
 
             // encrypt symmetric key
-            Cipher cipher = Cipher.getInstance(basicCryptoParameters.getRSAEncryptionAlgorithm());
+            Cipher cipher = Cipher.getInstance(basicKeyStore.getRSAEncryptionAlgorithm());
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] encryptedSymmetricKeyBytes = cipher.doFinal(encodedSymmetricKey);
 
             // send encrypted key
             ASAPSerialization.writeByteArray(encryptedSymmetricKeyBytes, os);
 
-            byte[] encryptedText = encryptSymmetric(unencryptedBytes, encryptionKey, basicCryptoParameters);
+            byte[] encryptedText = encryptSymmetric(unencryptedBytes, encryptionKey, basicKeyStore);
 
             // send encrypted bytes
             ASAPSerialization.writeByteArray(encryptedText, os);
@@ -59,32 +59,32 @@ public class ASAPCryptoAlgorithms {
     }
 
     public static byte[] produceEncryptedMessagePackage(byte[] unencryptedBytes, CharSequence recipient,
-                    BasicCryptoParameters basicCryptoParameters) throws ASAPSecurityException {
+                    BasicKeyStore basicKeyStore) throws ASAPSecurityException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        writeEncryptedMessagePackage(unencryptedBytes, recipient, basicCryptoParameters, baos);
+        writeEncryptedMessagePackage(unencryptedBytes, recipient, basicKeyStore, baos);
         // return whole block of bytes
         return baos.toByteArray();
     }
 
     public static SecretKey createSymmetricKey(byte[] encodedSymmetricKey,
-                        BasicCryptoParameters basicCryptoParameters) {
-        return new SecretKeySpec(encodedSymmetricKey, basicCryptoParameters.getSymmetricKeyType());
+                        BasicKeyStore basicKeyStore) {
+        return new SecretKeySpec(encodedSymmetricKey, basicKeyStore.getSymmetricKeyType());
     }
 
     public static byte[] decryptPackage(EncryptedMessagePackage encryptedMessagePackage,
-                            BasicCryptoParameters basicCryptoParameters) throws ASAPSecurityException {
+                            BasicKeyStore basicKeyStore) throws ASAPSecurityException {
 
         byte[] encodedSymmetricKey = decryptAsymmetric(
                 encryptedMessagePackage.getEncryptedSymmetricKey(),
-                basicCryptoParameters);
+                basicKeyStore);
 
         // create symmetric key object
-        SecretKey symmetricKey = createSymmetricKey(encodedSymmetricKey, basicCryptoParameters);
+        SecretKey symmetricKey = createSymmetricKey(encodedSymmetricKey, basicKeyStore);
 
 
         // decrypt content
-        return decryptSymmetric(encryptedMessagePackage.getEncryptedContent(), symmetricKey, basicCryptoParameters);
+        return decryptSymmetric(encryptedMessagePackage.getEncryptedContent(), symmetricKey, basicKeyStore);
     }
 
     public interface EncryptedMessagePackage {
@@ -130,11 +130,11 @@ public class ASAPCryptoAlgorithms {
      * @return
      */
     public static byte[] encryptSymmetric(byte[] unencryptedBytes, SecretKey encryptionKey,
-                          BasicCryptoParameters basicCryptoParameters) throws ASAPSecurityException {
+                          BasicKeyStore basicKeyStore) throws ASAPSecurityException {
 
         try {
             // encrypt message with symmetric key
-            Cipher symmetricCipher = Cipher.getInstance(basicCryptoParameters.getSymmetricEncryptionAlgorithm());
+            Cipher symmetricCipher = Cipher.getInstance(basicKeyStore.getSymmetricEncryptionAlgorithm());
             symmetricCipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
 
             /*
@@ -160,10 +160,10 @@ public class ASAPCryptoAlgorithms {
     }
 
     public static byte[] decryptSymmetric(byte[] encryptedContent, SecretKey symmetricKey,
-                          BasicCryptoParameters basicCryptoParameters) throws ASAPSecurityException {
+                          BasicKeyStore basicKeyStore) throws ASAPSecurityException {
 
         try {
-            Cipher symmetricCipher = Cipher.getInstance(basicCryptoParameters.getSymmetricEncryptionAlgorithm());
+            Cipher symmetricCipher = Cipher.getInstance(basicKeyStore.getSymmetricEncryptionAlgorithm());
             symmetricCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
             return symmetricCipher.doFinal(encryptedContent);
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
@@ -172,11 +172,11 @@ public class ASAPCryptoAlgorithms {
         }
     }
 
-    public static byte[] decryptAsymmetric(byte[] encryptedBytes, BasicCryptoParameters basicCryptoParameters)
+    public static byte[] decryptAsymmetric(byte[] encryptedBytes, BasicKeyStore basicKeyStore)
             throws ASAPSecurityException {
         try {
-            Cipher cipher = Cipher.getInstance(basicCryptoParameters.getRSAEncryptionAlgorithm());
-            cipher.init(Cipher.DECRYPT_MODE, basicCryptoParameters.getPrivateKey());
+            Cipher cipher = Cipher.getInstance(basicKeyStore.getRSAEncryptionAlgorithm());
+            cipher.init(Cipher.DECRYPT_MODE, basicKeyStore.getPrivateKey());
             return cipher.doFinal(encryptedBytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
                 | IllegalBlockSizeException | BadPaddingException e) {
@@ -184,12 +184,12 @@ public class ASAPCryptoAlgorithms {
         }
     }
 
-    public static byte[] sign(byte[] bytes2Sign, BasicCryptoParameters basicCryptoParameters)
+    public static byte[] sign(byte[] bytes2Sign, BasicKeyStore basicKeyStore)
             throws ASAPSecurityException {
 
         try {
-            Signature signature = Signature.getInstance(basicCryptoParameters.getRSASigningAlgorithm());
-            signature.initSign(basicCryptoParameters.getPrivateKey());
+            Signature signature = Signature.getInstance(basicKeyStore.getRSASigningAlgorithm());
+            signature.initSign(basicKeyStore.getPrivateKey());
             signature.update(bytes2Sign);
             return signature.sign();
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
@@ -198,13 +198,13 @@ public class ASAPCryptoAlgorithms {
     }
 
     public static boolean verify(byte[] signedData, byte[] signatureBytes, String sender,
-                        BasicCryptoParameters basicCryptoParameters) throws ASAPSecurityException {
+                        BasicKeyStore basicKeyStore) throws ASAPSecurityException {
 
-        PublicKey publicKey = basicCryptoParameters.getPublicKey(sender);
+        PublicKey publicKey = basicKeyStore.getPublicKey(sender);
         if(publicKey == null) return false;
 
         try {
-            Signature signature = Signature.getInstance(basicCryptoParameters.getRSASigningAlgorithm());
+            Signature signature = Signature.getInstance(basicKeyStore.getRSASigningAlgorithm());
             signature.initVerify(publicKey); // init with private key
             signature.update(signedData); // feed with signed data
             return signature.verify(signatureBytes); // check against signature

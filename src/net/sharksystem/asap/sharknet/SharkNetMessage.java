@@ -3,7 +3,7 @@ package net.sharksystem.asap.sharknet;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicCryptoParameters;
+import net.sharksystem.crypto.BasicKeyStore;
 import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
@@ -17,7 +17,7 @@ import java.util.Set;
  * null (to anybody), one or more recipients. A message can be signed. A message that is for a single recipient
  * can be encrypted.
  */
-class SharkNetMessage {
+public class SharkNetMessage {
     private static final int SIGNED_MASK = 0x1;
     private static final int ENCRYPTED_MASK = 0x2;
     public static final CharSequence ANY_RECIPIENT = "SN_ANY";
@@ -63,7 +63,7 @@ class SharkNetMessage {
      * @param encrypt encrypt message
      */
     public SharkNetMessage(byte[] content, CharSequence topic, CharSequence sender, CharSequence recipient,
-                           boolean sign, boolean encrypt, BasicCryptoParameters basicCryptoParameters)
+                           boolean sign, boolean encrypt, BasicKeyStore basicKeyStore)
                 throws IOException, ASAPException {
 
         this.snContent = content;
@@ -72,7 +72,7 @@ class SharkNetMessage {
 
         this.serializedMessage =
                 SharkNetMessage.serializeMessage(content, topic, recipient,
-                        sign, encrypt, sender, basicCryptoParameters);
+                        sign, encrypt, sender, basicKeyStore);
     }
 
     /**
@@ -85,20 +85,20 @@ class SharkNetMessage {
      */
     public SharkNetMessage(byte[] content, CharSequence topic, CharSequence sender,
                            Set<CharSequence> recipients, boolean sign,
-                           BasicCryptoParameters basicCryptoParameters) throws IOException, ASAPException {
+                           BasicKeyStore basicKeyStore) throws IOException, ASAPException {
 
         this.snSender = sender;
         this.topic = topic;
 
         this.serializedMessage =
                 SharkNetMessage.serializeMessage(content, topic, recipients,
-                        sign, false, sender, basicCryptoParameters);
+                        sign, false, sender, basicKeyStore);
 
     }
 
     static byte[] serializeMessage(byte[] message, CharSequence topic, CharSequence recipient,
                                    boolean sign, boolean encrypt, CharSequence ownerID,
-                                   BasicCryptoParameters basicCryptoParameters)
+                                   BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
         Set<CharSequence> recipients = null;
@@ -108,12 +108,12 @@ class SharkNetMessage {
         }
 
         return SharkNetMessage.serializeMessage(message, topic, recipients,
-                sign, encrypt, ownerID, basicCryptoParameters);
+                sign, encrypt, ownerID, basicKeyStore);
 
     }
 
     static byte[] serializeMessage(byte[] content, CharSequence topic, Set<CharSequence> recipients,
-        boolean sign, boolean encrypt, CharSequence sender, BasicCryptoParameters basicCryptoParameters)
+        boolean sign, boolean encrypt, CharSequence sender, BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
         if( (recipients != null && recipients.size() > 1) && encrypt) {
@@ -139,7 +139,7 @@ class SharkNetMessage {
 
         byte flags = 0;
         if(sign) {
-            byte[] signature = ASAPCryptoAlgorithms.sign(content, basicCryptoParameters);
+            byte[] signature = ASAPCryptoAlgorithms.sign(content, basicKeyStore);
             baos = new ByteArrayOutputStream();
             ASAPSerialization.writeByteArray(content, baos); // message has three parts: content, sender, receiver
             // append signature
@@ -153,7 +153,7 @@ class SharkNetMessage {
             content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
                     content,
                     recipients.iterator().next(), // already checked if one and only one is recipient
-                    basicCryptoParameters);
+                    basicKeyStore);
             flags += ENCRYPTED_MASK;
         }
 
@@ -166,7 +166,7 @@ class SharkNetMessage {
     }
 
     static SharkNetMessage parseMessage(byte[] message, String sender, String uri,
-                CharSequence ownerID, BasicCryptoParameters basicCryptoParameters) throws IOException, ASAPException {
+                CharSequence ownerID, BasicKeyStore basicKeyStore) throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
         byte flags = ASAPSerialization.readByte(bais);
@@ -188,7 +188,7 @@ class SharkNetMessage {
 
             // replace message with decrypted message
             tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
-                    encryptedMessagePackage, basicCryptoParameters);
+                    encryptedMessagePackage, basicKeyStore);
         }
 
         byte[] signature = null;
@@ -210,7 +210,7 @@ class SharkNetMessage {
         if(signature != null) {
             try {
                 verified = ASAPCryptoAlgorithms.verify(
-                        signedMessage, signature, snSender, basicCryptoParameters);
+                        signedMessage, signature, snSender, basicKeyStore);
             }
             catch(ASAPSecurityException e) {
                 // verified definitely false
