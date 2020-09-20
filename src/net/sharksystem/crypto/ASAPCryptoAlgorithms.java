@@ -87,6 +87,24 @@ public class ASAPCryptoAlgorithms {
         return decryptSymmetric(encryptedMessagePackage.getEncryptedContent(), symmetricKey, basicKeyStore);
     }
 
+    public static SecretKey generateSymmetricKey(String keyType, int size) throws ASAPSecurityException {
+        try {
+            KeyGenerator gen = KeyGenerator.getInstance(keyType);
+            gen.init(size);
+            SecretKey secretKey = gen.generateKey();
+            return secretKey;
+        } catch (NoSuchAlgorithmException e) {
+            throw new ASAPSecurityException(ASAPCryptoAlgorithms.class.getSimpleName(), e);
+        }
+    }
+
+    public static boolean sameID(CharSequence peerA, CharSequence peerB) {
+        String peerAString = peerA.toString();
+        String peerBString = peerB.toString();
+
+        return peerAString.equalsIgnoreCase(peerBString);
+    }
+
     public interface EncryptedMessagePackage {
         CharSequence getRecipient();
         byte[] getEncryptedSymmetricKey();

@@ -3,7 +3,6 @@ package net.sharksystem.crypto;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.util.Log;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
 import java.security.*;
@@ -34,19 +33,8 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
     }
 
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
-        return BasicCryptoKeyStorage.generateSymmetricKey(
+        return ASAPCryptoAlgorithms.generateSymmetricKey(
                 DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_AES_KEY_SIZE);
-    }
-
-    public static SecretKey generateSymmetricKey(String keyType, int size) throws ASAPSecurityException {
-        try {
-            KeyGenerator gen = KeyGenerator.getInstance(keyType);
-            gen.init(size);
-            SecretKey secretKey = gen.generateKey();
-            return secretKey;
-        } catch (NoSuchAlgorithmException e) {
-            throw new ASAPSecurityException("BasicCryptoKeyStorage", e);
-        }
     }
 
     private String getLogStart() {
@@ -147,10 +135,7 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
 
     @Override
     public boolean isOwner(CharSequence peerID) {
-        String ownerString = this.getOwner().toString();
-        String peerIDString = peerID.toString();
-
-        return ownerString.equalsIgnoreCase(peerIDString);
+        return ASAPCryptoAlgorithms.sameID(this.getOwner(), peerID);
     }
 
     @Override
