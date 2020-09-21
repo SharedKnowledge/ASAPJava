@@ -45,7 +45,7 @@ public class InMemoSNMessage implements SNMessage {
         this.creationTime = creationTime;
     }
 
-    static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient)
+    public static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient)
             throws IOException, ASAPException {
 
         Set<CharSequence> recipients = null;
@@ -58,14 +58,14 @@ public class InMemoSNMessage implements SNMessage {
                 false, false, null);
     }
 
-    static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients)
+    public static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients)
             throws IOException, ASAPException {
 
         return InMemoSNMessage.serializeMessage(content, sender, recipients,
                 false, false, null);
     }
 
-    static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient,
+    public static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient,
                                    boolean sign, boolean encrypt,
                                    BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
@@ -81,7 +81,7 @@ public class InMemoSNMessage implements SNMessage {
 
     }
 
-    static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients,
+    public static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients,
         boolean sign, boolean encrypt, BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
@@ -161,23 +161,22 @@ public class InMemoSNMessage implements SNMessage {
 
     @Override
     public boolean isLaterThan(SNMessage message) throws ASAPException, IOException {
-        Date sentDateMessage = message.getCreationTime();
-        Date sentDateMe = this.getCreationTime();
-
-        return sentDateMe.after(sentDateMessage);
+        Timestamp messageCreationTime = message.getCreationTime();
+        return messageCreationTime.after(this.getCreationTime());
     }
+
     //////////////////////////////////////////////////////////////////////////////////////////
     //                                    factory methods                                   //
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    static InMemoSNMessage parseMessage(byte[] message)
+    public static InMemoSNMessage parseMessage(byte[] message)
             throws IOException, ASAPException {
 
         return InMemoSNMessage.parseMessage(message, null);
 
     }
 
-    static InMemoSNMessage parseMessage(byte[] message, BasicKeyStore basicKeyStore)
+    public static InMemoSNMessage parseMessage(byte[] message, BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
