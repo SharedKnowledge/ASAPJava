@@ -1,6 +1,7 @@
 package net.sharksystem.asap.sharknet;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -15,14 +16,16 @@ public interface SNMessage {
     /**
      * Content - can be encrypted and signed
      * @return
+     * @throws ASAPSecurityException if message could not be encrypted
      */
-    byte[] getContent();
+    byte[] getContent() throws ASAPSecurityException;
 
     /**
      * Sender - can be encrypted and signed
      * @return
+     * @throws ASAPSecurityException if message could not be encrypted
      */
-    CharSequence getSender();
+    CharSequence getSender() throws ASAPSecurityException;
 
     /**
      * Recipients are always visible - the only recipient is in the unencrypted head if message
@@ -37,8 +40,9 @@ public interface SNMessage {
      * right certificate arrives. A verifiable message can become non-verifiable due to loss of certificates
      * validity. In short: Result can change state of your local PKI
      * @return
+     * @throws ASAPSecurityException if message could not be encrypted
      */
-    boolean verified();
+    boolean verified() throws ASAPSecurityException;
 
     /**
      * Not part of the transferred message - just a flag that indicates if this message can be encrypted.
@@ -49,12 +53,20 @@ public interface SNMessage {
     boolean encrypted();
 
     /**
+     *
+     * @return true if this message was not encrypted in the first place or could be encrypted.
+     * false. We have an encrypted message and cannot read it. We know its receiver, though.
+     */
+    boolean couldBeDecrypted();
+
+    /**
      * Creation date is produced when an object is serialized. It becomes part of the message.
      * @return
      * @throws ASAPException
      * @throws IOException
+     * @throws ASAPSecurityException if message could not be encrypted
      */
-    Timestamp getCreationTime() throws ASAPException, IOException;
+    Timestamp getCreationTime() throws ASAPException, ASAPSecurityException, IOException;
 
     /**
      * Compare two message what creation date is earlier. It depends on local clocks. It is a hint not more.
@@ -64,6 +76,7 @@ public interface SNMessage {
      * @return
      * @throws ASAPException
      * @throws IOException
+     * @throws ASAPSecurityException if message could not be encrypted
      */
-    boolean isLaterThan(SNMessage message) throws ASAPException, IOException;
+    boolean isLaterThan(SNMessage message) throws ASAPException, ASAPSecurityException, IOException;
 }

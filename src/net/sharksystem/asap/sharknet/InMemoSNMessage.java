@@ -20,8 +20,9 @@ import java.util.Set;
  * can be encrypted.
  */
 public class InMemoSNMessage implements SNMessage {
+    private ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage;
     private byte[] snContent;
-    private final CharSequence snSender;
+    private CharSequence snSender;
     private boolean verified;
     private boolean encrypted;
     private Set<CharSequence> snRecipients;
@@ -43,6 +44,12 @@ public class InMemoSNMessage implements SNMessage {
         this.encrypted = encrypted;
         this.snRecipients = snRecipients;
         this.creationTime = creationTime;
+    }
+
+    private InMemoSNMessage(ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage) {
+        this.encryptedMessagePackage = encryptedMessagePackage;
+        this.snRecipients = new HashSet<>();
+        this.snRecipients.add(encryptedMessagePackage.getRecipient());
     }
 
     public static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient)
@@ -144,23 +151,60 @@ public class InMemoSNMessage implements SNMessage {
     }
 
     @Override
-    public byte[] getContent() { return this.snContent;}
-    @Override
-    public CharSequence getSender() { return this.snSender; }
-    @Override
-    public Set<CharSequence> getRecipients() { return this.snRecipients; }
-    @Override
-    public boolean verified() { return this.verified; }
-    @Override
-    public boolean encrypted() { return this.encrypted; }
+    public byte[] getContent() throws ASAPSecurityException {
+        if(this.encryptedMessagePackage != null) {
+            throw new ASAPSecurityException("content could not be encrypted");
+        }
+        return this.snContent;
+    }
 
     @Override
-    public Timestamp getCreationTime() {
+    public CharSequence getSender() throws ASAPSecurityException {
+        if(this.encryptedMessagePackage != null) {
+            throw new ASAPSecurityException("content could not be encrypted");
+        }
+
+        return this.snSender;
+    }
+
+    @Override
+    public Set<CharSequence> getRecipients() {
+        return this.snRecipients;
+    }
+
+    @Override
+    public boolean verified() throws ASAPSecurityException {
+        if(this.encryptedMessagePackage != null) {
+            throw new ASAPSecurityException("content could not be encrypted");
+        }
+
+        return this.verified;
+    }
+
+    @Override
+    public boolean encrypted() {
+        return this.encrypted;
+    }
+
+    public boolean couldBeDecrypted() {
+        return this.encryptedMessagePackage != null;
+    }
+
+    @Override
+    public Timestamp getCreationTime() throws ASAPSecurityException {
+        if(this.encryptedMessagePackage != null) {
+            throw new ASAPSecurityException("content could not be encrypted");
+        }
+
         return this.creationTime;
     }
 
     @Override
     public boolean isLaterThan(SNMessage message) throws ASAPException, IOException {
+        if(this.encryptedMessagePackage != null) {
+            throw new ASAPSecurityException("content could not be encrypted");
+        }
+
         Timestamp messageCreationTime = message.getCreationTime();
         return messageCreationTime.after(this.getCreationTime());
     }
@@ -194,7 +238,8 @@ public class InMemoSNMessage implements SNMessage {
 
             // for me?
             if (!basicKeyStore.isOwner(encryptedMessagePackage.getRecipient())) {
-                throw new ASAPException("SharkNetMessage: message not for me");
+                return new InMemoSNMessage(encryptedMessagePackage);
+                //throw new ASAPException("SharkNetMessage: message not for me");
             }
 
             // replace message with decrypted message
