@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -134,4 +135,9 @@ public class ASAPSerialization {
 
         return charSet;
     }
+
+    public static void writeDate(Date date, OutputStream os) throws IOException {
+
+    }
+
 }

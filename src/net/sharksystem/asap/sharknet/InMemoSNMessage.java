@@ -9,6 +9,8 @@ import net.sharksystem.utils.ASAPSerialization;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,87 +19,54 @@ import java.util.Set;
  * null (to anybody), one or more recipients. A message can be signed. A message that is for a single recipient
  * can be encrypted.
  */
-public class SharkNetMessage {
-    private static final int SIGNED_MASK = 0x1;
-    private static final int ENCRYPTED_MASK = 0x2;
-    public static final CharSequence ANY_RECIPIENT = "SN_ANY";
-    public static final CharSequence ANONYMOUS = "SN_ANON";
+public class InMemoSNMessage implements SNMessage {
     private byte[] snContent;
     private final CharSequence snSender;
-    private byte[] serializedMessage;
     private boolean verified;
     private boolean encrypted;
-    private final CharSequence topic;
     private Set<CharSequence> snRecipients;
-
-    SharkNetMessage(byte[] snContent, String snSender, boolean verified, boolean encrypted) {
-        this(snContent, null, snSender, new HashSet<>(), verified, encrypted);
-    }
+    private Timestamp creationTime;
 
     /**
      * Received
      * @param message
-     * @param topic
      * @param sender
      * @param verified
      * @param encrypted
      */
-    SharkNetMessage(byte[] message, CharSequence topic, CharSequence sender,
-                    Set<CharSequence> snRecipients,
-                    boolean verified, boolean encrypted) {
+    private InMemoSNMessage(byte[] message, CharSequence sender,
+                            Set<CharSequence> snRecipients, Timestamp creationTime,
+                            boolean verified, boolean encrypted) {
         this.snContent = message;
         this.snSender = sender;
         this.verified = verified;
         this.encrypted = encrypted;
-        this.topic = topic;
         this.snRecipients = snRecipients;
+        this.creationTime = creationTime;
     }
 
-    /**
-     * Use this constructor to set a message that is to be sent
-     * @param content content
-     * @param topic uri
-     * @param sender sender - me - or a synonym
-     * @param recipient message recipient
-     * @param sign sing message
-     * @param encrypt encrypt message
-     */
-    public SharkNetMessage(byte[] content, CharSequence topic, CharSequence sender, CharSequence recipient,
-                           boolean sign, boolean encrypt, BasicKeyStore basicKeyStore)
-                throws IOException, ASAPException {
+    static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient)
+            throws IOException, ASAPException {
 
-        this.snContent = content;
-        this.snSender = sender;
-        this.topic = topic;
+        Set<CharSequence> recipients = null;
+        if(recipient != null) {
+            recipients = new HashSet<>();
+            recipients.add(recipient);
+        }
 
-        this.serializedMessage =
-                SharkNetMessage.serializeMessage(content, topic, recipient,
-                        sign, encrypt, sender, basicKeyStore);
+        return InMemoSNMessage.serializeMessage(content, sender, recipients,
+                false, false, null);
     }
 
-    /**
-     * Use this constructor to set a message that is to be sent
-     * @param content
-     * @param topic
-     * @param sender
-     * @param recipients more than one recipient - such a message cannot (yet) be signed. See group key project.
-     * @param sign
-     */
-    public SharkNetMessage(byte[] content, CharSequence topic, CharSequence sender,
-                           Set<CharSequence> recipients, boolean sign,
-                           BasicKeyStore basicKeyStore) throws IOException, ASAPException {
+    static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients)
+            throws IOException, ASAPException {
 
-        this.snSender = sender;
-        this.topic = topic;
-
-        this.serializedMessage =
-                SharkNetMessage.serializeMessage(content, topic, recipients,
-                        sign, false, sender, basicKeyStore);
-
+        return InMemoSNMessage.serializeMessage(content, sender, recipients,
+                false, false, null);
     }
 
-    static byte[] serializeMessage(byte[] message, CharSequence topic, CharSequence recipient,
-                                   boolean sign, boolean encrypt, CharSequence ownerID,
+    static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient,
+                                   boolean sign, boolean encrypt,
                                    BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
@@ -107,13 +76,13 @@ public class SharkNetMessage {
             recipients.add(recipient);
         }
 
-        return SharkNetMessage.serializeMessage(message, topic, recipients,
-                sign, encrypt, ownerID, basicKeyStore);
+        return InMemoSNMessage.serializeMessage(content, sender, recipients,
+                sign, encrypt, basicKeyStore);
 
     }
 
-    static byte[] serializeMessage(byte[] content, CharSequence topic, Set<CharSequence> recipients,
-        boolean sign, boolean encrypt, CharSequence sender, BasicKeyStore basicKeyStore)
+    static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients,
+        boolean sign, boolean encrypt, BasicKeyStore basicKeyStore)
             throws IOException, ASAPException {
 
         if( (recipients != null && recipients.size() > 1) && encrypt) {
@@ -122,19 +91,28 @@ public class SharkNetMessage {
 
         if(recipients == null) {
             recipients = new HashSet<>();
-            recipients.add(SharkNetMessage.ANY_RECIPIENT);
+            recipients.add(SNMessage.ANY_RECIPIENT);
         }
 
         if(sender == null) {
-            sender = SharkNetMessage.ANONYMOUS;
+            sender = SNMessage.ANONYMOUS;
         }
+
+        /////////// produce serialized structure
 
         // merge content, sender and recipient
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ///// content
         ASAPSerialization.writeByteArray(content, baos);
+        ///// sender
         ASAPSerialization.writeCharSequenceParameter(sender, baos);
-//        ASAPSerialization.writeCharSequenceParameter(recipient, baos);
+        ///// recipients
         ASAPSerialization.writeCharSequenceSetParameter(recipients, baos);
+        ///// timestamp
+        Timestamp creationTime = new Timestamp(System.currentTimeMillis());
+        String timestampString = creationTime.toString();
+        ASAPSerialization.writeCharSequenceParameter(timestampString, baos);
+
         content = baos.toByteArray();
 
         byte flags = 0;
@@ -165,24 +143,58 @@ public class SharkNetMessage {
         return baos.toByteArray();
     }
 
-    public static SharkNetMessage parseMessage(byte[] message, String uri,
-                CharSequence ownerID, BasicKeyStore basicKeyStore) throws IOException, ASAPException {
+    @Override
+    public byte[] getContent() { return this.snContent;}
+    @Override
+    public CharSequence getSender() { return this.snSender; }
+    @Override
+    public Set<CharSequence> getRecipients() { return this.snRecipients; }
+    @Override
+    public boolean verified() { return this.verified; }
+    @Override
+    public boolean encrypted() { return this.encrypted; }
+
+    @Override
+    public Timestamp getCreationTime() {
+        return this.creationTime;
+    }
+
+    @Override
+    public boolean isLaterThan(SNMessage message) throws ASAPException, IOException {
+        Date sentDateMessage = message.getCreationTime();
+        Date sentDateMe = this.getCreationTime();
+
+        return sentDateMe.after(sentDateMessage);
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                                    factory methods                                   //
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    static InMemoSNMessage parseMessage(byte[] message)
+            throws IOException, ASAPException {
+
+        return InMemoSNMessage.parseMessage(message, null);
+
+    }
+
+    static InMemoSNMessage parseMessage(byte[] message, BasicKeyStore basicKeyStore)
+            throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
         byte flags = ASAPSerialization.readByte(bais);
         byte[] tmpMessage = ASAPSerialization.readByteArray(bais);
 
-        boolean signed = (flags & SIGNED_MASK) != 0;
-        boolean encrypted = (flags & ENCRYPTED_MASK) != 0;
+        boolean signed = (flags & SNMessage.SIGNED_MASK) != 0;
+        boolean encrypted = (flags & SNMessage.ENCRYPTED_MASK) != 0;
 
-        if(encrypted) {
+        if (encrypted) {
             // decrypt
             bais = new ByteArrayInputStream(tmpMessage);
             ASAPCryptoAlgorithms.EncryptedMessagePackage
                     encryptedMessagePackage = ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
 
             // for me?
-            if(!encryptedMessagePackage.getRecipient().equals(ownerID)) {
+            if (!basicKeyStore.isOwner(encryptedMessagePackage.getRecipient())) {
                 throw new ASAPException("SharkNetMessage: message not for me");
             }
 
@@ -193,41 +205,38 @@ public class SharkNetMessage {
 
         byte[] signature = null;
         byte[] signedMessage = null;
-        if(signed) {
+        if (signed) {
             // split message from signature
             bais = new ByteArrayInputStream(tmpMessage);
             tmpMessage = ASAPSerialization.readByteArray(bais);
             signedMessage = tmpMessage;
             signature = ASAPSerialization.readByteArray(bais);
         }
+
+        ///////////////// produce object form serialized bytes
         bais = new ByteArrayInputStream(tmpMessage);
+
+        ////// content
         byte[] snMessage = ASAPSerialization.readByteArray(bais);
+        ////// sender
         String snSender = ASAPSerialization.readCharSequenceParameter(bais);
+        ////// recipients
         Set<CharSequence> snReceivers = ASAPSerialization.readCharSequenceSetParameter(bais);
-        //String snReceiver = ASAPSerialization.readCharSequenceParameter(bais);
+        ///// timestamp
+        String timestampString = ASAPSerialization.readCharSequenceParameter(bais);
+        Timestamp creationTime = Timestamp.valueOf(timestampString);
 
         boolean verified = false; // initialize
-        if(signature != null) {
+        if (signature != null) {
             try {
                 verified = ASAPCryptoAlgorithms.verify(
                         signedMessage, signature, snSender, basicKeyStore);
-            }
-            catch(ASAPSecurityException e) {
+            } catch (ASAPSecurityException e) {
                 // verified definitely false
                 verified = false;
             }
         }
 
-        return new SharkNetMessage(snMessage, uri, snSender, snReceivers, verified, encrypted);
-    }
-
-    public byte[] getContent() { return this.snContent;}
-    public CharSequence getSender() { return this.snSender; }
-    public Set<CharSequence> getRecipients() { return this.snRecipients; }
-    public boolean verified() { return this.verified; }
-    public boolean encrypted() { return this.encrypted; }
-
-    public byte[] getSerializedMessage() {
-        return this.serializedMessage;
+        return new InMemoSNMessage(snMessage, snSender, snReceivers, creationTime, verified, encrypted);
     }
 }

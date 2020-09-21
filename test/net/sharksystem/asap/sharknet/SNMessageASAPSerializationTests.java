@@ -7,10 +7,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SharkNetMessageASAPSerializationTests {
+public class SNMessageASAPSerializationTests {
     public static final String WORKING_SUB_DIRECTORY = "sharkNetTests/";
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";
@@ -21,11 +22,11 @@ public class SharkNetMessageASAPSerializationTests {
 
     @Test
     public void serializationTestPlain() throws ASAPException, IOException {
-        byte[] serializedSNMessage = SharkNetMessage.serializeMessage(
-                MESSAGE.getBytes(), URI, BOB_ID, false, false, ALICE_ID, null);
+        byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, BOB_ID);
 
-        SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, null);
+        InMemoSNMessage sharkNetMessage =
+                InMemoSNMessage.parseMessage(serializedSNMessage);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -41,11 +42,11 @@ public class SharkNetMessageASAPSerializationTests {
         BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
-        byte[] serializedSNMessage = SharkNetMessage.serializeMessage(
-                MESSAGE.getBytes(), URI, BOB_ID, true, false, ALICE_ID, keyStorageAlice);
+        byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, BOB_ID, true, false, keyStorageAlice);
 
-        SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
+        InMemoSNMessage sharkNetMessage =
+                InMemoSNMessage.parseMessage(serializedSNMessage, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -60,11 +61,11 @@ public class SharkNetMessageASAPSerializationTests {
         BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
         // Bob does not know Alice
 
-        byte[] serializedSNMessage = SharkNetMessage.serializeMessage(
-                MESSAGE.getBytes(), URI, BOB_ID, true, false, ALICE_ID, keyStorageAlice);
+        byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, BOB_ID, true, false, keyStorageAlice);
 
-        SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
+        InMemoSNMessage sharkNetMessage =
+                InMemoSNMessage.parseMessage(serializedSNMessage, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -80,11 +81,11 @@ public class SharkNetMessageASAPSerializationTests {
         BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
-        byte[] serializedSNMessage = SharkNetMessage.serializeMessage(
-                MESSAGE.getBytes(), URI, BOB_ID, false, true, ALICE_ID, keyStorageAlice);
+        byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, BOB_ID, false, true,keyStorageAlice);
 
-        SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
+        InMemoSNMessage sharkNetMessage =
+                InMemoSNMessage.parseMessage(serializedSNMessage, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -100,11 +101,11 @@ public class SharkNetMessageASAPSerializationTests {
         BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
-        byte[] serializedSNMessage = SharkNetMessage.serializeMessage(
-                MESSAGE.getBytes(), URI, BOB_ID, true, true, ALICE_ID, keyStorageAlice);
+        byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, BOB_ID, true, true, keyStorageAlice);
 
-        SharkNetMessage sharkNetMessage =
-                SharkNetMessage.parseMessage(serializedSNMessage, URI, BOB_ID, keyStorageBob);
+        InMemoSNMessage sharkNetMessage =
+                InMemoSNMessage.parseMessage(serializedSNMessage, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(sharkNetMessage.getContent()));
         Assert.assertEquals(ALICE_ID, sharkNetMessage.getSender());
@@ -120,27 +121,29 @@ public class SharkNetMessageASAPSerializationTests {
         BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID);
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
-        SharkNetPeer snPeerAlice = new SharkNetPeerFS(ALICE_ID, ALICE_FOLDER, keyStorageAlice);
-        SharkNetMessageReceivedListener snListenerAlice = new SharkNetMessageReceivedListener();
-        snPeerAlice.addSharkNetMessageListener(snListenerAlice);
-
         Set<CharSequence> recipients = new HashSet<>();
         recipients.add(BOB_ID);
         recipients.add(CLARA_ID);
         // create Message
-        SharkNetMessage alice2bobAndClara = new SharkNetMessage(
-                MESSAGE.getBytes(), URI, ALICE_ID, recipients, true, keyStorageAlice);
+        byte[] asapMessage = InMemoSNMessage.serializeMessage(
+                MESSAGE.getBytes(), ALICE_ID, recipients, true, false, keyStorageAlice);
 
-        byte[] asapMessage = alice2bobAndClara.getSerializedMessage();
+        long now = System.currentTimeMillis();
 
         // parse
-        SharkNetMessage receivedMessage =
-                SharkNetMessage.parseMessage(asapMessage, URI, ALICE_ID, keyStorageBob);
+        InMemoSNMessage receivedMessage =
+                InMemoSNMessage.parseMessage(asapMessage, keyStorageBob);
 
         Assert.assertEquals(MESSAGE, new String(receivedMessage.getContent()));
         Assert.assertEquals(2, receivedMessage.getRecipients().size());
         Assert.assertEquals(ALICE_ID, receivedMessage.getSender());
         Assert.assertTrue(receivedMessage.verified());
         Assert.assertFalse(receivedMessage.encrypted());
+
+        // check timestamp
+        Timestamp creationTime = receivedMessage.getCreationTime();
+        long diff = now - creationTime.getTime();
+        // should not be that long
+        Assert.assertTrue(diff < 10);
     }
 }
