@@ -13,4 +13,13 @@ public interface BasicKeyStore extends BasicCryptoSettings {
      * @throws ASAPSecurityException if key cannot be found
      */
     PublicKey getPublicKey(CharSequence subjectID) throws ASAPSecurityException;
+
+    /**
+     *
+     * @param peerID
+     * @return true if peerID is owners' id.
+     */
+    boolean isOwner(CharSequence peerID);
+
+    CharSequence getOwner();
 }

@@ -41,13 +41,4 @@ public interface BasicCryptoSettings {
     String getSymmetricKeyType();
 
     int getSymmetricKeyLen();
-
-    /**
-     *
-     * @param peerID
-     * @return true if peerID is owners' id.
-     */
-    boolean isOwner(CharSequence peerID);
-
-    CharSequence getOwner();
 }
