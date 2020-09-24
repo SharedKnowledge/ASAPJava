@@ -135,9 +135,4 @@ public class ASAPSerialization {
 
         return charSet;
     }
-
-    public static void writeDate(Date date, OutputStream os) throws IOException {
-
-    }
-
 }

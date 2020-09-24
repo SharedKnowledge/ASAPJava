@@ -187,7 +187,8 @@ public class InMemoSNMessage implements SNMessage {
     }
 
     public boolean couldBeDecrypted() {
-        return this.encryptedMessagePackage != null;
+        // we have decrypted this message if there is no(!) encrypted package left
+        return this.encryptedMessagePackage == null;
     }
 
     @Override
@@ -281,6 +282,15 @@ public class InMemoSNMessage implements SNMessage {
             }
         }
 
+        // replace special sn symbols
         return new InMemoSNMessage(snMessage, snSender, snReceivers, creationTime, verified, encrypted);
+    }
+
+    public boolean isAnonymousSender(CharSequence peerID) {
+        return peerID.toString().equalsIgnoreCase(SNMessage.ANONYMOUS);
+    }
+
+    public boolean isAnyRecipient(CharSequence peerID) {
+        return peerID.toString().equalsIgnoreCase(SNMessage.ANY_RECIPIENT);
     }
 }

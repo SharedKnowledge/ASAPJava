@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 public interface SNMessage {
-    CharSequence ANY_RECIPIENT = "SN_ANY";
-    CharSequence ANONYMOUS = "SN_ANON";
+    String ANY_RECIPIENT = "SN_ANY";
+    String ANONYMOUS = "SN_ANON";
     int SIGNED_MASK = 0x1;
     int ENCRYPTED_MASK = 0x2;
 
