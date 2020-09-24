@@ -7,12 +7,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public interface BasicCryptoSettings {
-    String DEFAULT_RSA_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    String DEFAULT_ASYMMETRIC_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
     String DEFAULT_SYMMETRIC_KEY_TYPE = "AES";
     String DEFAULT_SYMMETRIC_ENCRYPTION_ALGORITHM = "AES/ECB/PKCS5Padding";
     //    public static int DEFAULT_AES_KEY_SIZE = 256;
-    int DEFAULT_AES_KEY_SIZE = 128; // TODO we can do better
-    String DEFAULT_SIGNATURE_ALGORITHM = "SHA256withRSA";
+    int DEFAULT_SYMMETRIC_KEY_SIZE = 128; // TODO we can do better
+    String DEFAULT_ASYMMETRIC_SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     /**
      *
@@ -30,9 +30,9 @@ public interface BasicCryptoSettings {
      */
     PublicKey getPublicKey() throws ASAPSecurityException;
 
-    String getRSAEncryptionAlgorithm();
+    String getAsymmetricEncryptionAlgorithm();
 
-    String getRSASigningAlgorithm();
+    String getAsymmetricSigningAlgorithm();
 
     SecretKey generateSymmetricKey() throws ASAPSecurityException;
 

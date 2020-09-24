@@ -34,11 +34,11 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
 
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
         return ASAPCryptoAlgorithms.generateSymmetricKey(
-                DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_AES_KEY_SIZE);
+                DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_SYMMETRIC_KEY_SIZE);
     }
 
     public int getSymmetricKeyLen() {
-        return BasicKeyStore.DEFAULT_AES_KEY_SIZE;
+        return BasicKeyStore.DEFAULT_SYMMETRIC_KEY_SIZE;
     }
 
     private String getLogStart() {
@@ -123,8 +123,8 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
     }
 
     @Override
-    public String getRSAEncryptionAlgorithm() {
-        return DEFAULT_RSA_ENCRYPTION_ALGORITHM;
+    public String getAsymmetricEncryptionAlgorithm() {
+        return DEFAULT_ASYMMETRIC_ENCRYPTION_ALGORITHM;
     }
 
     @Override
@@ -148,8 +148,8 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
     }
 
     @Override
-    public String getRSASigningAlgorithm() {
-        return DEFAULT_SIGNATURE_ALGORITHM;
+    public String getAsymmetricSigningAlgorithm() {
+        return DEFAULT_ASYMMETRIC_SIGNATURE_ALGORITHM;
     }
 
     public void addKeyPair(String peerID, KeyPair keyPair) {
