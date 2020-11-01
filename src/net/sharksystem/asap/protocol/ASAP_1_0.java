@@ -13,13 +13,14 @@ import java.util.List;
  * Descriptions of ASAP protocol data units and some constants
  */
 public interface ASAP_1_0 {
-    int CMD_MASK = 0x7; // 0111
+    int ENCRYPTED_MASK = 0x1; // 0001
+    byte ENCRYPTED_CMD = 1;
+
+    int CMD_MASK = 0x6; // 0110 - first bit tells if encrypted or not
     byte OFFER_CMD = 0;
     byte INTEREST_CMD = 2;
     byte ASSIMILATE_CMD = 4;
 
-    int ENCRYPTED_MASK = 0x1; // 0001
-    byte ENCRYPTED_CMD = 1;
     String ANY_FORMAT = "ASAP_ANY_FORMAT";
     String ASAP_MANAGEMENT_FORMAT = "asap/control";
     int ERA_NOT_DEFINED = -1;

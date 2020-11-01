@@ -16,14 +16,14 @@ import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
     private final BasicKeyStore signAndEncryptionKeyStorage;
-    private final ASAPUndecryptableMessageHandler unencryptableMessageHandler;
+    private final ASAPUndecryptableMessageHandler undecryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
         this(null, null);
     }
 
-    public ASAP_Modem_Impl(ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
-        this(null, unencryptableMessageHandler);
+    public ASAP_Modem_Impl(ASAPUndecryptableMessageHandler undecryptableMessageHandler) {
+        this(null, undecryptableMessageHandler);
     }
 
     public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage) {
@@ -31,9 +31,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     }
 
     public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage,
-                           ASAPUndecryptableMessageHandler unencryptableMessageHandler) {
+                           ASAPUndecryptableMessageHandler undecryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
-        this.unencryptableMessageHandler = unencryptableMessageHandler;
+        this.undecryptableMessageHandler = undecryptableMessageHandler;
     }
 
     // Character are transmitted as bytes: number of bytes (first byte), content following, 0 mean no content
@@ -184,17 +184,17 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 InputStream decryptedIS = cryptoMessage.doDecryption();
                 is = decryptedIS;
             } else {
-                // we cannot decrypt this message - we are not recipient - but we keep and redistribute
+                // we cannot decrypt this message - we are not recipient - but we can keep and redistribute it
                 ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
-                if(this.unencryptableMessageHandler != null) {
-                    System.out.println(this.getLogStart() + "call handler to handle unencryptable message");
-                    this.unencryptableMessageHandler.handleUndecryptableMessage(
+                if(this.undecryptableMessageHandler != null) {
+                    System.out.println(this.getLogStart() + "call handler to handle undecryptable message");
+                    this.undecryptableMessageHandler.handleUndecryptableMessage(
                             encryptedASAPMessage, cryptoMessage.getReceiver());
                 } else {
-                    System.out.println(this.getLogStart() + "no handler for unencryptable messages found");
+                    System.out.println(this.getLogStart() + "no handler for undecryptable messages found");
                 }
                 // throw exception anyway - could not create PDU
-                throw new ASAPSecurityException("unencryptable message received");
+                throw new ASAPSecurityException("undecryptable message received");
             }
         }
 
