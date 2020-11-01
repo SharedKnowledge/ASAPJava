@@ -13,7 +13,7 @@ import java.util.List;
  * Descriptions of ASAP protocol data units and some constants
  */
 public interface ASAP_1_0 {
-    int CMD_MASK = 0x6; // 0110
+    int CMD_MASK = 0x7; // 0111
     byte OFFER_CMD = 0;
     byte INTEREST_CMD = 2;
     byte ASSIMILATE_CMD = 4;
