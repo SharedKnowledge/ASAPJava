@@ -1,7 +1,6 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.util.Helper;
-import net.sharksystem.asap.util.Log;
 
 import java.io.*;
 import java.util.*;
@@ -421,29 +420,4 @@ class ASAPChunkFS implements ASAPChunk {
         return this.era;
     }
 
-    private class MessageIter implements Iterator {
-        private final List<byte[]> byteMessages;
-        private int nextIndex;
-        private String nextString;
-        
-        
-        MessageIter(List<byte[]> byteMessages) throws FileNotFoundException {
-            this.byteMessages = byteMessages;
-            this.nextIndex = 0;
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return this.byteMessages.size() > nextIndex;
-        }
-
-        @Override
-        public String next() {
-            if(!this.hasNext()) {
-                throw new NoSuchElementException("no more messages");
-            }
-
-            return new String(this.byteMessages.get(nextIndex++));
-        }
-    }
 }
