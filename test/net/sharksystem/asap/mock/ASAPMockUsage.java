@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.apps.ASAPMessageSender;
 import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
-import net.sharksystem.asap.apps.mock.ASAPSessionMock;
+import net.sharksystem.asap.apps.mock.ASAPPeerMock;
 import org.junit.Test;
 
 import java.io.*;
@@ -14,7 +14,8 @@ import java.util.Iterator;
  * How to mock ASAP communication
  */
 public class ASAPMockUsage {
-
+    private static final CharSequence ALICE = "Alice";
+    private static final CharSequence BOB = "Bob";
     private static final CharSequence YOUR_APP_NAME = "yourAppName";
     private static final CharSequence YOUR_URI = "yourSchema://example";
 
@@ -55,19 +56,17 @@ public class ASAPMockUsage {
         System.out.println("received: " + exampleLong + " | " + exampleString + " | " + exampleBoolean);
     }
 
+    /* I'm sorry. I changed mock implementation - it closer to the real implementation now, see usageTest2
     @Test
     public void usageTest1() throws IOException, ASAPException, InterruptedException {
-        /* Imagine we are here inside your application code. Data are to be transmitted. You implemented
-        a methode that serializes your data (PDU) into an array of bytes
-         */
 
         // example - this should be produced by your application
         byte[] serializedData = ASAPMockUsage.serializeExample(42, "don't panic", true);
 
         // now: ASAP is used to deliver those data - we mock it
-        ASAPSessionMock asapSessionMock = new ASAPSessionMock();
+        ASAPPeerMock asapPeerMock = new ASAPPeerMock();
 
-        ASAPMessageSender asapMessageSender = asapSessionMock;
+        ASAPMessageSender asapMessageSender = asapPeerMock;
 
         asapMessageSender.sendASAPMessage(YOUR_APP_NAME, YOUR_URI, serializedData);
 
@@ -78,10 +77,10 @@ public class ASAPMockUsage {
                 new ASAPMessageReceivedListenerExample();
 
         // register your listener (or that mock) with asap connection mock
-        asapSessionMock.addASAPMessageReceivedListener(YOUR_APP_NAME, asapMessageReceivedListenerExample);
+        asapPeerMock.addASAPMessageReceivedListener(YOUR_APP_NAME, asapMessageReceivedListenerExample);
 
         // simulate ASAP encounter
-        asapSessionMock.connect();
+        asapPeerMock.connect();
 
         // give your app a moment to process
         Thread.sleep(1000);
@@ -90,7 +89,7 @@ public class ASAPMockUsage {
         asapMessageSender.sendASAPMessage(YOUR_APP_NAME, YOUR_URI,
                 ASAPMockUsage.serializeExample(43, "second message", false));
 
-        asapSessionMock.disconnect();
+        asapPeerMock.disconnect();
         System.out.println("send message without connection");
         asapMessageSender.sendASAPMessage(YOUR_APP_NAME, YOUR_URI,
                 ASAPMockUsage.serializeExample(44, "third message", false));
@@ -99,15 +98,89 @@ public class ASAPMockUsage {
         Thread.sleep(1000);
 
         System.out.println("re-connect");
-        asapSessionMock.connect();
+        asapPeerMock.connect();
+        Thread.sleep(1000);
+    }
+     */
+
+    @Test
+    public void usageTest2() throws IOException, ASAPException, InterruptedException {
+        ///////////////// ALICE //////////////////////////////////////////////////////////////
+        // setup mocked peer / asap application and activity in android
+        ASAPPeerMock alicePeerMock = new ASAPPeerMock(ALICE);
+        ASAPMessageSender aliceMessageSender = alicePeerMock;
+
+        // setup message received listener - this should be replaced with your code - you implement a listener.
+        ASAPMessageReceivedListenerExample aliceMessageReceivedListenerExample =
+                new ASAPMessageReceivedListenerExample();
+
+        alicePeerMock.addASAPMessageReceivedListener(YOUR_APP_NAME, aliceMessageReceivedListenerExample);
+
+        // example - this should be produced by your application
+        byte[] serializedData = ASAPMockUsage.serializeExample(42, "from alice", true);
+
+        aliceMessageSender.sendASAPMessage(YOUR_APP_NAME, YOUR_URI, serializedData);
+
+        ///////////////// BOB //////////////////////////////////////////////////////////////
+        // listens
+        ASAPPeerMock bobPeerMock = new ASAPPeerMock(BOB);
+
+        // this should be replaced with your code - you must implement a listener.
+        ASAPMessageReceivedListenerExample asapMessageReceivedListenerExample =
+                new ASAPMessageReceivedListenerExample();
+
+        // register your listener (or that mock) with asap connection mock
+        bobPeerMock.addASAPMessageReceivedListener(YOUR_APP_NAME, asapMessageReceivedListenerExample);
+
+        // bob writes something
+        bobPeerMock.sendASAPMessage(YOUR_APP_NAME, YOUR_URI,
+                ASAPMockUsage.serializeExample(43, "from bob", false));
+        bobPeerMock.sendASAPMessage(YOUR_APP_NAME, YOUR_URI,
+                ASAPMockUsage.serializeExample(44, "from bob again", false));
+
+        // simulate ASAP first encounter
+        System.out.println("+++++++++++++++++++ 1st encounter starts soon ++++++++++++++++++++");
+        Thread.sleep(50);
+        alicePeerMock.startEncounter(bobPeerMock);
+
+        // give your app a moment to process
+        Thread.sleep(1000);
+
+        // stop encounter
+        bobPeerMock.stopEncounter(alicePeerMock);
+
+        // bob writes something
+        bobPeerMock.sendASAPMessage(YOUR_APP_NAME, YOUR_URI,
+                ASAPMockUsage.serializeExample(43, "third message from bob", false));
+
+        // simulate second encounter
+        System.out.println("+++++++++++++++++++ 2nd encounter starts soon ++++++++++++++++++++");
+        Thread.sleep(50);
+        alicePeerMock.startEncounter(bobPeerMock);
+
+        // give your app a moment to process
         Thread.sleep(1000);
     }
 
     private class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener {
+        private final String peerName;
+
+        ASAPMessageReceivedListenerExample(String peerName) {
+            this.peerName = peerName;
+        }
+
+        ASAPMessageReceivedListenerExample() {
+            this(null);
+        }
+
         @Override
         public void asapMessagesReceived(ASAPMessages messages) throws IOException {
             CharSequence format = messages.getFormat();
             CharSequence uri = messages.getURI();
+            if(peerName != null) {
+                System.out.print(peerName);
+            }
+
             System.out.println("asap message received (" + format + " | " + uri + "). size == " + messages.size());
             Iterator<byte[]> yourPDUIter = messages.getMessages();
             while (yourPDUIter.hasNext()) {

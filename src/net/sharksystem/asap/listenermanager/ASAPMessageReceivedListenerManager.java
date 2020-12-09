@@ -16,6 +16,7 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
         GenericListenerImplementation<ASAPMessageReceivedListener> listenerList = this.listenerMap.get(format);
         if(listenerList == null) {
             listenerList = new GenericListenerImplementation<ASAPMessageReceivedListener>();
+            this.listenerMap.put(format, listenerList);
         }
 
         listenerList.addListener(listener);
