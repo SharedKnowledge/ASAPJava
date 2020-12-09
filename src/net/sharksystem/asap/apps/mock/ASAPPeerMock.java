@@ -14,12 +14,9 @@ import java.util.*;
  * test your applications logic without any fear of ASAP bugs.
  *
  */
-public class ASAPPeerMock implements ASAPPeerServices {
-    private final CharSequence peerName;
-    private boolean connected = false;
-
+public class ASAPPeerMock extends ASAPBasicAbstractPeer implements ASAPPeerServices {
     public ASAPPeerMock(CharSequence peerName) {
-        this.peerName = peerName;
+        super(peerName);
     }
 
     public ASAPPeerMock() {
@@ -86,6 +83,37 @@ public class ASAPPeerMock implements ASAPPeerServices {
         }
     }
 
+    private void notifyMessagesReceived(Map<CharSequence, Map<CharSequence, List<byte[]>>> appUriMessages) {
+        // notify about new messages == simulate sending
+        for(CharSequence appName : appUriMessages.keySet()) {
+            Map<CharSequence, List<byte[]>> appMap = appUriMessages.get(appName);
+            if(appMap != null) {
+                Set<CharSequence> uris = appMap.keySet();
+                for(CharSequence uri : uris) {
+                    List<byte[]> serializedAppPDUs = appMap.get(uri);
+                    ASAPMessages messagesMock = new ASAPMessagesMock(appName, uri, serializedAppPDUs);
+                    this.asapMessageReceivedListenerManager.notifyReceived(appName, messagesMock, true);
+                }
+            }
+        }
+    }
+
+    private void notifyMessageReceived() {
+        Map<CharSequence, Map<CharSequence, List<byte[]>>> appUriMessages = null;
+        synchronized(this.appMsgStorage) {
+            if(this.appMsgStorage.isEmpty()) return; // nothing to do
+            // else copy
+            appUriMessages = this.appMsgStorage;
+            // create empty
+            this.appMsgStorage = new HashMap<>();
+
+            // now: new message can be written and do not disturb notification process
+        }
+
+        // notify about new messages == simulate sending
+        this.notifyMessagesReceived(appUriMessages);
+    }
+
     private CharSequence getPeerName() {
         return this.peerName;
     }
@@ -134,78 +162,6 @@ public class ASAPPeerMock implements ASAPPeerServices {
             List<byte[]> storage = this.getStorage(appName, uri);
             storage.add(message);
         }
-
-        if(this.connected) this.notifyMessageReceived();
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                      ASAPMessageReceivedListener                                   //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    private ASAPMessageReceivedListenerManager asapMessageReceivedListenerManager =
-            new ASAPMessageReceivedListenerManager();
-
-    public void addASAPMessageReceivedListener(CharSequence format, ASAPMessageReceivedListener listener) {
-        this.asapMessageReceivedListenerManager.addASAPMessageReceivedListener(format, listener);
-    }
-
-    private void notifyMessagesReceived(Map<CharSequence, Map<CharSequence, List<byte[]>>> appUriMessages) {
-        // notify about new messages == simulate sending
-        for(CharSequence appName : appUriMessages.keySet()) {
-            Map<CharSequence, List<byte[]>> appMap = appUriMessages.get(appName);
-            if(appMap != null) {
-                Set<CharSequence> uris = appMap.keySet();
-                for(CharSequence uri : uris) {
-                    List<byte[]> serializedAppPDUs = appMap.get(uri);
-                    ASAPMessages messagesMock = new ASAPMessagesMock(appName, uri, serializedAppPDUs);
-                    this.asapMessageReceivedListenerManager.notifyReceived(appName, messagesMock, true);
-                }
-            }
-        }
-    }
-
-    private void notifyMessageReceived() {
-        Map<CharSequence, Map<CharSequence, List<byte[]>>> appUriMessages = null;
-        synchronized(this.appMsgStorage) {
-            if(this.appMsgStorage.isEmpty()) return; // nothing to do
-            // else copy
-            appUriMessages = this.appMsgStorage;
-            // create empty
-            this.appMsgStorage = new HashMap<>();
-
-            // now: new message can be written and do not disturb notification process
-        }
-
-        // notify about new messages == simulate sending
-        this.notifyMessagesReceived(appUriMessages);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                      ASAPEnvironmentChangesListener                                //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private ASAPEnvironmentChangesListenerManager environmentChangesListenerManager =
-            new ASAPEnvironmentChangesListenerManager();
-
-    @Override
-    public void addASAPEnvironmentChangesListener(ASAPEnvironmentChangesListener changesListener) {
-        this.environmentChangesListenerManager.addASAPEnvironmentChangesListener(changesListener);
-    }
-
-    @Override
-    public void removeASAPEnvironmentChangesListener(ASAPEnvironmentChangesListener changesListener) {
-        this.environmentChangesListenerManager.removeASAPEnvironmentChangesListener(changesListener);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                             util                                                   //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void log(String msg) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.peerName);
-        sb.append(": ");
-        sb.append(msg);
-
-        System.out.println(sb.toString());
-    }
 }
