@@ -2,11 +2,11 @@ package net.sharksystem.asap.apps.mock;
 
 import net.sharksystem.asap.apps.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
-import net.sharksystem.asap.apps.ASAPPeerServices;
+import net.sharksystem.asap.apps.ASAPSimplePeer;
 import net.sharksystem.asap.listenermanager.ASAPEnvironmentChangesListenerManager;
 import net.sharksystem.asap.listenermanager.ASAPMessageReceivedListenerManager;
 
-public abstract class ASAPBasicAbstractPeer implements ASAPPeerServices {
+public abstract class ASAPBasicAbstractPeer implements ASAPSimplePeer {
     protected final CharSequence peerName;
 
     protected ASAPBasicAbstractPeer(CharSequence peerName) {

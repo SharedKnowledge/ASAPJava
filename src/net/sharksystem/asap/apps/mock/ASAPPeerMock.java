@@ -4,8 +4,6 @@ import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.apps.*;
-import net.sharksystem.asap.listenermanager.ASAPEnvironmentChangesListenerManager;
-import net.sharksystem.asap.listenermanager.ASAPMessageReceivedListenerManager;
 
 import java.util.*;
 
@@ -14,7 +12,7 @@ import java.util.*;
  * test your applications logic without any fear of ASAP bugs.
  *
  */
-public class ASAPPeerMock extends ASAPBasicAbstractPeer implements ASAPPeerServices {
+public class ASAPPeerMock extends ASAPBasicAbstractPeer implements ASAPSimplePeer {
     public ASAPPeerMock(CharSequence peerName) {
         super(peerName);
     }
@@ -65,6 +63,7 @@ public class ASAPPeerMock extends ASAPBasicAbstractPeer implements ASAPPeerServi
 
         // remember this encounter
         this.encounterEra.put(otherPeer.getPeerName(), this.currentEra);
+        this.environmentChangesListenerManager.notifyListeners(this.encounterEra.keySet());
 
         // simulate message sending
         for(int tmpEra = lastMetEra; tmpEra < this.currentEra; tmpEra++) {
@@ -114,7 +113,7 @@ public class ASAPPeerMock extends ASAPBasicAbstractPeer implements ASAPPeerServi
         this.notifyMessagesReceived(appUriMessages);
     }
 
-    private CharSequence getPeerName() {
+    public CharSequence getPeerName() {
         return this.peerName;
     }
 

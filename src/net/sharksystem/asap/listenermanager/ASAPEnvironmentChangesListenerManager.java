@@ -4,6 +4,7 @@ import net.sharksystem.asap.apps.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.apps.ASAPEnvironmentChangesListenerManagement;
 
 import java.util.List;
+import java.util.Set;
 
 public class ASAPEnvironmentChangesListenerManager
         extends GenericListenerImplementation<ASAPEnvironmentChangesListener>
@@ -19,9 +20,11 @@ public class ASAPEnvironmentChangesListenerManager
         this.removeListener(changesListener);
     }
 
-    public void notifyListeners(List<CharSequence> peerList) {
+    public void notifyListeners(Set<CharSequence> peerList) {
+        if(peerList == null || peerList.isEmpty()) return;
+        if(this.listenerList == null || this.listenerList.isEmpty()) return;
         for(ASAPEnvironmentChangesListener listener : this.listenerList) {
-            listener.onlinePeersChanged(peerList);
+            if(listener != null) listener.onlinePeersChanged(peerList);
         }
     }
 }

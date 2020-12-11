@@ -1,4 +1,4 @@
-package net.sharksystem.asap.mock;
+package net.sharksystem.asap.mockAndTemplates;
 
 import java.io.*;
 

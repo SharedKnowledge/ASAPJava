@@ -1,7 +1,7 @@
-package net.sharksystem.asap.mock;
+package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.apps.ASAPPeerServices;
+import net.sharksystem.asap.apps.ASAPSimplePeer;
 import net.sharksystem.asap.apps.mock.ASAPPeerMock;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class ASAPMockUsage {
         ASAPPeerMock alicePeerMock = new ASAPPeerMock(TestUtils.ALICE);
 
         // use this interface - it's important - same interface can be used for real app in java and android
-        ASAPPeerServices alicePeer = alicePeerMock;
+        ASAPSimplePeer alicePeer = alicePeerMock;
 
         // setup message received listener - this should be replaced with your code - you implement a listener.
         ASAPMessageReceivedListenerExample aliceMessageReceivedListenerExample =
@@ -83,7 +83,7 @@ public class ASAPMockUsage {
         ASAPPeerMock bobPeerMock = new ASAPPeerMock(TestUtils.BOB);
 
         // use this interface - it's important - same interface can be used for real app in java and android
-        ASAPPeerServices bobPeer = bobPeerMock;
+        ASAPSimplePeer bobPeer = bobPeerMock;
 
         // this should be replaced with your code - you must implement a listener.
         ASAPMessageReceivedListenerExample asapMessageReceivedListenerExample =

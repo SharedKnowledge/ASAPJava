@@ -1,28 +1,29 @@
 package net.sharksystem.asap.apps.mock;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.apps.ASAPPeerServices;
+import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
+import net.sharksystem.asap.apps.ASAPSimplePeer;
+import net.sharksystem.asap.listenermanager.ASAPMessageReceivedListenerManager;
 import net.sharksystem.asap.util.Helper;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Set;
 
-public class ASAPSimplePeer extends ASAPBasicAbstractPeer implements ASAPPeerServices, ASAPChunkReceivedListener {
+public class ASAPSimplePeerFS extends ASAPBasicAbstractPeer implements ASAPSimplePeer,
+        ASAPChunkReceivedListener, ASAPOnlinePeersChangedListener {
     private final ASAPPeer peer;
     private final String folderName;
     private ServerSocket serverSocket = null;
     private Socket socket = null;
 
-    public ASAPSimplePeer(CharSequence peerName) throws IOException, ASAPException {
+    public ASAPSimplePeerFS(CharSequence peerName) throws IOException, ASAPException {
         super(peerName);
         this.folderName = "./peers/" + peerName;
-        File asapFolder = new File(folderName);
-        if(!asapFolder.exists()) {
-            asapFolder.mkdirs();
-        }
         this.peer = ASAPPeerFS.createASAPPeer(peerName, folderName, this);
+        this.peer.addOnlinePeersChangedListener(this);
     }
 
     @Override
@@ -37,21 +38,20 @@ public class ASAPSimplePeer extends ASAPBasicAbstractPeer implements ASAPPeerSer
         }
     }
 
-
-    public void startEncounter(int port, ASAPSimplePeer otherPeer) throws IOException {
+    public void startEncounter(int port, ASAPSimplePeerFS otherPeer) throws IOException {
         this.serverSocket = new ServerSocket(port);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ASAPSimplePeer.this.socket = ASAPSimplePeer.this.serverSocket.accept();
+                    ASAPSimplePeerFS.this.socket = ASAPSimplePeerFS.this.serverSocket.accept();
                 } catch (IOException e) {
-                    ASAPSimplePeer.this.log("fatal while waiting for client to connect: "
+                    ASAPSimplePeerFS.this.log("fatal while waiting for client to connect: "
                             + e.getLocalizedMessage());
                 }
 
-                ASAPSimplePeer.this.startSession();
+                ASAPSimplePeerFS.this.startSession();
             }
         }).start();
 
@@ -69,7 +69,7 @@ public class ASAPSimplePeer extends ASAPBasicAbstractPeer implements ASAPPeerSer
         this.startSession();
     }
 
-    public void stopEncounter(ASAPSimplePeer otherPeer) throws IOException {
+    public void stopEncounter(ASAPSimplePeerFS otherPeer) throws IOException {
         this.socket.close();
     }
 
@@ -78,14 +78,19 @@ public class ASAPSimplePeer extends ASAPBasicAbstractPeer implements ASAPPeerSer
             @Override
             public void run() {
                 try {
-                    ASAPSimplePeer.this.peer.handleConnection(
-                            ASAPSimplePeer.this.socket.getInputStream(),
-                            ASAPSimplePeer.this.socket.getOutputStream());
+                    ASAPSimplePeerFS.this.peer.handleConnection(
+                            ASAPSimplePeerFS.this.socket.getInputStream(),
+                            ASAPSimplePeerFS.this.socket.getOutputStream());
                 } catch (IOException | ASAPException e) {
-                    ASAPSimplePeer.this.log("fatal while connecting: " + e.getLocalizedMessage());
+                    ASAPSimplePeerFS.this.log("fatal while connecting: " + e.getLocalizedMessage());
                 }
             }
         }).start();
+    }
+
+    @Override
+    public CharSequence getPeerName() {
+        return this.peer.getOwner();
     }
 
     @Override
@@ -100,5 +105,10 @@ public class ASAPSimplePeer extends ASAPBasicAbstractPeer implements ASAPPeerSer
                 Helper.getMessagesByChunkReceivedInfos(format, sender, uri, folderName, era);
 
         this.asapMessageReceivedListenerManager.notifyReceived(format, receivedMessages, true);
+    }
+
+    @Override
+    public void onlinePeersChanged(ASAPPeer engine) {
+        this.environmentChangesListenerManager.notifyListeners(engine.getOnlinePeers());
     }
 }

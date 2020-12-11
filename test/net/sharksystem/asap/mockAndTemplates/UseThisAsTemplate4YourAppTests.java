@@ -1,14 +1,14 @@
-package net.sharksystem.asap.mock;
+package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.apps.ASAPPeerServices;
+import net.sharksystem.asap.apps.ASAPSimplePeer;
 import net.sharksystem.asap.apps.mock.ASAPPeerMock;
-import net.sharksystem.asap.apps.mock.ASAPSimplePeer;
+import net.sharksystem.asap.apps.mock.ASAPSimplePeerFS;
 import org.junit.Test;
 
 import java.io.*;
 
-import static net.sharksystem.asap.mock.TestUtils.*;
+import static net.sharksystem.asap.mockAndTemplates.TestUtils.*;
 
 /**
  * An ASAP app communicates by sending messages. First, you must ensure stability in your application.
@@ -68,8 +68,8 @@ public class UseThisAsTemplate4YourAppTests {
     public void asapTestExample() throws IOException, ASAPException, InterruptedException {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
-        ASAPSimplePeer aliceSimplePeer = new ASAPSimplePeer(ALICE);
-        ASAPSimplePeer bobSimplePeer = new ASAPSimplePeer(BOB);
+        ASAPSimplePeerFS aliceSimplePeer = new ASAPSimplePeerFS(ALICE);
+        ASAPSimplePeerFS bobSimplePeer = new ASAPSimplePeerFS(BOB);
 
         // 1st encounter
         this.scenarioPart1(aliceSimplePeer, bobSimplePeer);
@@ -88,7 +88,7 @@ public class UseThisAsTemplate4YourAppTests {
         aliceSimplePeer.startEncounter(getPortNumber(), bobSimplePeer);
     }
 
-    public void scenarioPart1(ASAPPeerServices alicePeer, ASAPPeerServices bobPeer)
+    public void scenarioPart1(ASAPSimplePeer alicePeer, ASAPSimplePeer bobPeer)
             throws IOException, ASAPException, InterruptedException {
         // simulate ASAP first encounter with full ASAP protocol stack and engines
         System.out.println("+++++++++++++++++++ 1st encounter starts soon ++++++++++++++++++++");
@@ -125,7 +125,7 @@ public class UseThisAsTemplate4YourAppTests {
         Thread.sleep(500);
     }
 
-    public void scenarioPart2(ASAPPeerServices alicePeer, ASAPPeerServices bobPeer)
+    public void scenarioPart2(ASAPSimplePeer alicePeer, ASAPSimplePeer bobPeer)
             throws IOException, ASAPException, InterruptedException {
 
         // bob writes something
