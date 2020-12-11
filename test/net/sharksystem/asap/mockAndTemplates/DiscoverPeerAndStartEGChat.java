@@ -25,7 +25,7 @@ import static net.sharksystem.asap.mockAndTemplates.TestUtils.BOB;
  * New connection(s) could have been established or connection(s)) are dropped.
  *
  * For what could such an information be good for?
- * * We could initiate a game, a chat, ask to come in a get a special discount for our brand new coffee brand
+ * We could initiate a game, a chat, ask to come in a get a special discount for our brand new coffee brand
  * (location based / point of sales advertisement) etc. pp.
  *
  * Interesting question: Should we send a message only to this peer with ASAP?
@@ -216,13 +216,13 @@ public class DiscoverPeerAndStartEGChat {
 
     @Test
     public void realASAPVariant() throws IOException, ASAPException, InterruptedException {
-        // create two peer - here as peer mock.
+        // create two peer - here with real ASAP.
         ASAPSimplePeerFS alicePeer = new ASAPSimplePeerFS(ALICE);
         ASAPSimplePeerFS bobPeer = new ASAPSimplePeerFS(BOB);
 
         this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
 
-        // simulate an encounter
+        // trigger a real asap encounter - that's no mock, it's the real asap engine / protocol stack using TCP/IP.
         alicePeer.startEncounter(7777, bobPeer);
 
         Thread.sleep(1000);
