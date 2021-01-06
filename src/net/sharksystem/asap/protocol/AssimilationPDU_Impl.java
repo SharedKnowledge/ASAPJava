@@ -77,8 +77,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         ASAPSerialization.writeCharSequenceParameter(channel, os); // opt
         ASAPSerialization.writeNonNegativeIntegerParameter(era, os); // opt
         ASAPSerialization.writeCharSequenceParameter(list2string(offsets), os); // opt
-
-        ASAPSerialization.writeNonNegativeLongParameter(length, os); // mand
+        ASAPSerialization.writeLongParameter(length, os); // mand
 
         // stream data
         while(length-- > 0) {
@@ -135,7 +134,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
     @Override
     public byte[] getData() throws IOException {
-        if(data == null) {
+        if(this.data == null) {
             if(this.dataNoLongerOnStream)
                 throw new IOException(this.getLogStart() + "data are already read from stream, probably with streamData");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

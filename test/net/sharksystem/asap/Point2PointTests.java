@@ -26,7 +26,9 @@ public class Point2PointTests {
     public static final String ALICE = "Alice";
     public static final String BOB = "Bob";
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
-    public static final String ALICE2BOB_MESSAGE2 = "Hi Bob again";
+    // 400 characters
+    //public static final String ALICE2BOB_MESSAGE2 = "HiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgainHiYouAgain";
+    public static final String ALICE2BOB_MESSAGE2 = "Hi You Again";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
     public static final String BOB2ALICE_MESSAGE2 = "Hi Alice again";
 
