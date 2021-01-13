@@ -1,6 +1,6 @@
 package net.sharksystem;
 
-import net.sharksystem.asap.ASAP;
+import net.sharksystem.asap.internals.ASAP;
 
 import java.io.File;
 import java.util.ArrayList;

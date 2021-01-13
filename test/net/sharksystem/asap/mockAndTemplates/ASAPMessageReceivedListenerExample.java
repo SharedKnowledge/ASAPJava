@@ -1,7 +1,7 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
+import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessageReceivedListener;
 
 import java.io.IOException;
 import java.util.Iterator;

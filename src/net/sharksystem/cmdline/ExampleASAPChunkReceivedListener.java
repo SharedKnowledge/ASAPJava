@@ -1,12 +1,8 @@
 package net.sharksystem.cmdline;
 
-import net.sharksystem.asap.ASAPChunkReceivedListener;
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.util.Helper;
+import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

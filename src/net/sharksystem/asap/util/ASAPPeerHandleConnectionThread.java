@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import net.sharksystem.asap.ASAPConnectionHandler;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.internals.ASAPConnectionHandler;
+import net.sharksystem.asap.internals.ASAPException;
 
 /**
  *

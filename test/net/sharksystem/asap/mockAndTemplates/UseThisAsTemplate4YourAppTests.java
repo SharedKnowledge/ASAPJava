@@ -1,12 +1,14 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.apps.ASAPSimplePeer;
-import net.sharksystem.asap.apps.mock.ASAPPeerMock;
-import net.sharksystem.asap.apps.mock.ASAPSimplePeerFS;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;
 import org.junit.Test;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static net.sharksystem.asap.mockAndTemplates.TestUtils.*;
 
@@ -44,8 +46,8 @@ public class UseThisAsTemplate4YourAppTests {
     public void mockTestExample() throws IOException, ASAPException, InterruptedException {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
-        ASAPPeerMock aliceMockPeer = new ASAPPeerMock(ALICE);
-        ASAPPeerMock bobMockPeer = new ASAPPeerMock(BOB);
+        ASAPPeerWrapperMock aliceMockPeer = new ASAPPeerWrapperMock(ALICE);
+        ASAPPeerWrapperMock bobMockPeer = new ASAPPeerWrapperMock(BOB);
 
         // 1st encounter
         this.scenarioPart1(aliceMockPeer, bobMockPeer);
@@ -68,8 +70,11 @@ public class UseThisAsTemplate4YourAppTests {
     public void asapTestExample() throws IOException, ASAPException, InterruptedException {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
-        ASAPSimplePeerFS aliceSimplePeer = new ASAPSimplePeerFS(ALICE);
-        ASAPSimplePeerFS bobSimplePeer = new ASAPSimplePeerFS(BOB);
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(YOUR_APP_NAME);
+
+        ASAPTestPeerWrapperFS aliceSimplePeer = new ASAPTestPeerWrapperFS(ALICE, formats);
+        ASAPTestPeerWrapperFS bobSimplePeer = new ASAPTestPeerWrapperFS(BOB, formats);
 
         // 1st encounter
         this.scenarioPart1(aliceSimplePeer, bobSimplePeer);
@@ -88,7 +93,7 @@ public class UseThisAsTemplate4YourAppTests {
         aliceSimplePeer.startEncounter(getPortNumber(), bobSimplePeer);
     }
 
-    public void scenarioPart1(ASAPSimplePeer alicePeer, ASAPSimplePeer bobPeer)
+    public void scenarioPart1(ASAPPeer alicePeer, ASAPPeer bobPeer)
             throws IOException, ASAPException, InterruptedException {
         // simulate ASAP first encounter with full ASAP protocol stack and engines
         System.out.println("+++++++++++++++++++ 1st encounter starts soon ++++++++++++++++++++");
@@ -125,7 +130,7 @@ public class UseThisAsTemplate4YourAppTests {
         Thread.sleep(500);
     }
 
-    public void scenarioPart2(ASAPSimplePeer alicePeer, ASAPSimplePeer bobPeer)
+    public void scenarioPart2(ASAPPeer alicePeer, ASAPPeer bobPeer)
             throws IOException, ASAPException, InterruptedException {
 
         // bob writes something

@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.internals.*;
 import net.sharksystem.asap.protocol.PDUTests;
 import net.sharksystem.asap.sharknet.SNMessageASAPSerializationTests;
 import org.junit.runner.RunWith;

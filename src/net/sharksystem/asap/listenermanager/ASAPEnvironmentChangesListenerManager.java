@@ -1,9 +1,8 @@
 package net.sharksystem.asap.listenermanager;
 
-import net.sharksystem.asap.apps.ASAPEnvironmentChangesListener;
-import net.sharksystem.asap.apps.ASAPEnvironmentChangesListenerManagement;
+import net.sharksystem.asap.ASAPEnvironmentChangesListener;
+import net.sharksystem.asap.ASAPEnvironmentChangesListenerManagement;
 
-import java.util.List;
 import java.util.Set;
 
 public class ASAPEnvironmentChangesListenerManager

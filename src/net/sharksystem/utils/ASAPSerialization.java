@@ -1,11 +1,10 @@
 package net.sharksystem.utils;
 
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.internals.ASAPException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 

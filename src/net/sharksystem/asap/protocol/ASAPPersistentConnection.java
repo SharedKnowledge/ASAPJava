@@ -1,6 +1,9 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.*;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.internals.ASAPInternalPeer;
+import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
+import net.sharksystem.asap.internals.EngineSetting;
 import net.sharksystem.asap.util.Log;
 import net.sharksystem.crypto.BasicKeyStore;
 
@@ -14,7 +17,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         implements ASAPConnection, Runnable, ThreadFinishedListener {
 
     private final ASAPConnectionListener asapConnectionListener;
-    private final ASAPPeer asapPeer;
+    private final ASAPInternalPeer asapInternalPeer;
     private final ThreadFinishedListener threadFinishedListener;
     private Thread managementThread = null;
     private final long maxExecutionTime;
@@ -24,7 +27,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private Thread threadWaiting4StreamsLock;
     private boolean terminated = false;
 
-    public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPPeer asapPeer,
+    public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPInternalPeer asapInternalPeer,
                 ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
                 BasicKeyStore basicKeyStore,
                 long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
@@ -32,7 +35,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
         super(is, os, protocol, unencryptableMessageHandler, basicKeyStore);
 
-        this.asapPeer = asapPeer;
+        this.asapInternalPeer = asapInternalPeer;
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
@@ -181,7 +184,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         try {
             // let engine write their interest - at least management interest is sent which als introduces
             // this peer to the other one
-            this.asapPeer.pushInterests(this.os);
+            this.asapInternalPeer.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
             return;
@@ -224,7 +227,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 try {
                     this.executor = new ASAPPDUExecutor(asappdu,
                                         this.is, this.os,
-                                        this.asapPeer.getEngineSettings(asappdu.getFormat()),
+                                        this.asapInternalPeer.getEngineSettings(asappdu.getFormat()),
                                         protocol,this);
 
                     // get exclusive access to streams

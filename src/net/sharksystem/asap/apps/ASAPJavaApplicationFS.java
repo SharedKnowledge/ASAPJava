@@ -1,6 +1,7 @@
 package net.sharksystem.asap.apps;
 
-import net.sharksystem.asap.*;
+import net.sharksystem.asap.ASAPMessageReceivedListener;
+import net.sharksystem.asap.internals.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +9,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 public class ASAPJavaApplicationFS implements ASAPJavaApplication {
-    private ASAPPeer multiEngine;
+    private ASAPInternalPeer multiEngine;
     private final CharSequence owner;
     private final CharSequence rootFolder;
 
@@ -39,10 +40,10 @@ public class ASAPJavaApplicationFS implements ASAPJavaApplication {
         }
     }
 
-    private ASAPPeer getMulitEngine() throws IOException, ASAPException {
+    private ASAPInternalPeer getMulitEngine() throws IOException, ASAPException {
         // TODO: re-create any time - keep track of potential changes in external storage (file system)?
-        ASAPPeer multiEngine = ASAPPeerFS.createASAPPeer(owner, rootFolder,
-                ASAPPeer.DEFAULT_MAX_PROCESSING_TIME, null);
+        ASAPInternalPeer multiEngine = ASAPInternalPeerFS.createASAPPeer(owner, rootFolder,
+                ASAPInternalPeer.DEFAULT_MAX_PROCESSING_TIME, null);
 
         for(CharSequence format : this.messageReceivedListener.keySet()) {
             ASAPMessageReceivedListener listener = this.messageReceivedListener.get(format);

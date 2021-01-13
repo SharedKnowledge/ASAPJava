@@ -1,6 +1,7 @@
 package net.sharksystem.asap.apps;
 
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessageReceivedListener;
+import net.sharksystem.asap.internals.ASAPException;
 
 import java.io.IOException;
 import java.io.InputStream;

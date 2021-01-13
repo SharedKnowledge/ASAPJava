@@ -1,6 +1,6 @@
 package net.sharksystem.asap.apps.gossip;
 
-import net.sharksystem.asap.*;
+import net.sharksystem.asap.internals.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.TCPStream;
 import net.sharksystem.cmdline.TCPStreamCreatedListener;
@@ -17,7 +17,7 @@ public class GossipUI implements ASAPChunkReceivedListener {
     private List<Integer> remotePortNumber;
     private String peerName;
     private int portnumber;
-    private ASAPPeer asapPeer;
+    private ASAPInternalPeer asapInternalPeer;
     private String rootFolderName;
 
     public GossipUI(String peerName, int portnumber, List<Integer> portnumberlist) {
@@ -62,11 +62,11 @@ public class GossipUI implements ASAPChunkReceivedListener {
         try {
             this.println("set up system");
             this.rootFolderName = this.peerName;
-            this.asapPeer = ASAPPeerFS.createASAPPeer(this.peerName,
-                    this.rootFolderName, ASAPPeer.DEFAULT_MAX_PROCESSING_TIME, this);
+            this.asapInternalPeer = ASAPInternalPeerFS.createASAPPeer(this.peerName,
+                    this.rootFolderName, ASAPInternalPeer.DEFAULT_MAX_PROCESSING_TIME, this);
 
             this.println("create engine");
-            ASAPEngine exampleApp = asapPeer.createEngineByFormat("exampleApp");
+            ASAPEngine exampleApp = asapInternalPeer.createEngineByFormat("exampleApp");
 
             DateFormat df = DateFormat.getInstance();
             String myMessage = "message from " + this.peerName + " at " + df.format(new Date());
@@ -133,7 +133,7 @@ public class GossipUI implements ASAPChunkReceivedListener {
         @Override
         public void streamCreated(TCPStream channel) {
             try {
-                GossipUI.this.asapPeer.handleConnection(channel.getInputStream(), channel.getOutputStream());
+                GossipUI.this.asapInternalPeer.handleConnection(channel.getInputStream(), channel.getOutputStream());
             } catch (Exception e) {
                 GossipUI.this.println("exception caught: " + e.getLocalizedMessage());
             }

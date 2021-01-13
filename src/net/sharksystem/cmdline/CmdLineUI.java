@@ -1,6 +1,6 @@
 package net.sharksystem.cmdline;
 
-import net.sharksystem.asap.*;
+import net.sharksystem.asap.internals.*;
 
 import java.io.*;
 import java.util.*;
@@ -34,7 +34,7 @@ public class CmdLineUI {
     private BufferedReader userInput;
 
     public static final String PEERS_ROOT_FOLDER = "asapPeers";
-    private Map<String, ASAPPeer> peers = new HashMap();
+    private Map<String, ASAPInternalPeer> peers = new HashMap();
 
     public static void main(String[] args) throws IOException, ASAPException {
         PrintStream os = System.out;
@@ -341,29 +341,29 @@ public class CmdLineUI {
         ExampleASAPChunkReceivedListener asapChunkReceivedListener =
                 new ExampleASAPChunkReceivedListener(PEERS_ROOT_FOLDER + "/" + name);
 
-        ASAPPeer asapPeer = ASAPPeerFS.createASAPPeer(name, // peer name
+        ASAPInternalPeer asapInternalPeer = ASAPInternalPeerFS.createASAPPeer(name, // peer name
                 PEERS_ROOT_FOLDER + "/" + name, // peer folder
                 asapChunkReceivedListener);
 
-        this.peers.put(name, asapPeer);
+        this.peers.put(name, asapInternalPeer);
     }
 
     private ASAPEngine getEngine(String peername, String appName) throws ASAPException, IOException {
-        ASAPPeer asapPeer = this.peers.get(peername);
-        if(asapPeer == null) {
+        ASAPInternalPeer asapInternalPeer = this.peers.get(peername);
+        if(asapInternalPeer == null) {
             throw new ASAPException("peer does not exist: " + peername);
         }
 
-        return asapPeer.getEngineByFormat(appName);
+        return asapInternalPeer.getEngineByFormat(appName);
     }
 
-    public ASAPPeer getASAPPeer(String peerName) throws ASAPException {
-        ASAPPeer asapPeer = this.peers.get(peerName);
-        if(asapPeer == null) {
+    public ASAPInternalPeer getASAPPeer(String peerName) throws ASAPException {
+        ASAPInternalPeer asapInternalPeer = this.peers.get(peerName);
+        if(asapInternalPeer == null) {
             throw new ASAPException("engine does not exist: " + peerName);
         }
 
-        return asapPeer;
+        return asapInternalPeer;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,18 +372,18 @@ public class CmdLineUI {
 
     private void startTCPStream(String name, TCPStream stream, String peerName) throws ASAPException {
         stream.setWaitPeriod(this.waitPeriod);
-        ASAPPeer asapPeer = this.getASAPPeer(peerName);
+        ASAPInternalPeer asapInternalPeer = this.getASAPPeer(peerName);
 
-        stream.setListener(new TCPStreamCreatedHandler(asapPeer));
+        stream.setListener(new TCPStreamCreatedHandler(asapInternalPeer));
         stream.start();
         this.streams.put(name, stream);
     }
 
     private class TCPStreamCreatedHandler implements TCPStreamCreatedListener {
-        private final ASAPPeer asapPeer;
+        private final ASAPInternalPeer asapInternalPeer;
 
-        public TCPStreamCreatedHandler(ASAPPeer asapPeer) {
-            this.asapPeer = asapPeer;
+        public TCPStreamCreatedHandler(ASAPInternalPeer asapInternalPeer) {
+            this.asapInternalPeer = asapInternalPeer;
         }
 
         @Override
@@ -391,7 +391,7 @@ public class CmdLineUI {
             CmdLineUI.this.standardOut.println("Channel created");
 
             try {
-                this.asapPeer.handleConnection(
+                this.asapInternalPeer.handleConnection(
                         channel.getInputStream(),
                         channel.getOutputStream());
             } catch (IOException | ASAPException e) {
@@ -525,9 +525,9 @@ public class CmdLineUI {
             String peer = st.nextToken();
             String appName = st.nextToken();
 
-            ASAPPeer asapPeer = this.peers.get(peer);
-            if(asapPeer != null) {
-                ASAPStorage storage = asapPeer.createEngineByFormat(appName);
+            ASAPInternalPeer asapInternalPeer = this.peers.get(peer);
+            if(asapInternalPeer != null) {
+                ASAPStorage storage = asapInternalPeer.createEngineByFormat(appName);
                 /*
                 if(!storage.isASAPManagementStorageSet()) {
                     storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(peer,
@@ -629,10 +629,10 @@ public class CmdLineUI {
             for(String peername : this.peers.keySet()) {
                 this.standardOut.println("+++++++++++++++++++");
                 this.standardOut.println("Peer: " + peername);
-                ASAPPeer asapPeer = this.peers.get(peername);
+                ASAPInternalPeer asapInternalPeer = this.peers.get(peername);
 
-                for (CharSequence format : asapPeer.getFormats()) {
-                    ASAPEngine asapStorage = asapPeer.getEngineByFormat(format);
+                for (CharSequence format : asapInternalPeer.getFormats()) {
+                    ASAPEngine asapStorage = asapInternalPeer.getEngineByFormat(format);
                     System.out.println("storage: " + format);
                     for (CharSequence uri : asapStorage.getChannelURIs()) {
                         this.printChannelInfo(asapStorage, uri, format);

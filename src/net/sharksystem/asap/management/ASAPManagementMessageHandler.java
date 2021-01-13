@@ -1,15 +1,15 @@
 package net.sharksystem.asap.management;
 
-import net.sharksystem.asap.*;
+import net.sharksystem.asap.internals.*;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
-    private final ASAPPeer multiASAPEngine;
+    private final ASAPInternalPeer multiASAPEngine;
 
-    public ASAPManagementMessageHandler(ASAPPeer multiASAPEngine) throws IOException, ASAPException {
+    public ASAPManagementMessageHandler(ASAPInternalPeer multiASAPEngine) throws IOException, ASAPException {
         this.multiASAPEngine = multiASAPEngine;
     }
 

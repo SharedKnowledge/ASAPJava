@@ -1,8 +1,8 @@
 package net.sharksystem.asap.listenermanager;
 
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
-import net.sharksystem.asap.apps.ASAPMessageReceivedListenerManagement;
+import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessageReceivedListener;
+import net.sharksystem.asap.ASAPMessageReceivedListenerManagement;
 
 import java.io.IOException;
 import java.util.HashMap;

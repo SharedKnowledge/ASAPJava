@@ -1,6 +1,6 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.internals.ASAPException;
 
 public class ASAPExecTimeExceededException extends ASAPException {
     public ASAPExecTimeExceededException() {

@@ -1,7 +1,7 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPUndecryptableMessageHandler;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
 import net.sharksystem.crypto.BasicKeyStore;
 
 import java.io.IOException;

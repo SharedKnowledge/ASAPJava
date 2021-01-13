@@ -1,12 +1,11 @@
 package net.sharksystem.asap.util;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.internals.ASAPInternalPeer;
 import net.sharksystem.cmdline.CmdLineUI;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +89,7 @@ public class Batchprocessor implements Runnable {
         this.doExecution();
     }
 
-    public ASAPPeer getASAPPeer(String peerName) throws ASAPException {
+    public ASAPInternalPeer getASAPPeer(String peerName) throws ASAPException {
         return this.cmdLineUI.getASAPPeer(peerName);
     }
 }

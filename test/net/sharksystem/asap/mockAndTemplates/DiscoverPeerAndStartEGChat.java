@@ -1,12 +1,12 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.apps.ASAPEnvironmentChangesListener;
-import net.sharksystem.asap.apps.ASAPMessageReceivedListener;
-import net.sharksystem.asap.apps.ASAPSimplePeer;
-import net.sharksystem.asap.apps.mock.ASAPPeerMock;
-import net.sharksystem.asap.apps.mock.ASAPSimplePeerFS;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPEnvironmentChangesListener;
+import net.sharksystem.asap.ASAPMessageReceivedListener;
+import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;
 import org.junit.Test;
 
 import java.io.*;
@@ -66,13 +66,13 @@ import static net.sharksystem.asap.mockAndTemplates.TestUtils.BOB;
  */
 
 public class DiscoverPeerAndStartEGChat {
-    private class YourApplication implements ASAPEnvironmentChangesListener, ASAPMessageReceivedListener {
+    public static final CharSequence YOUR_APP_NAME = "yourAppName";
 
-        public CharSequence YOUR_APP_NAME = "yourAppName";
-        private final ASAPSimplePeer simplePeer;
+    private class YourApplication implements ASAPEnvironmentChangesListener, ASAPMessageReceivedListener {
+        private final ASAPPeer simplePeer;
         private Set<CharSequence> knowPeers = new HashSet<>();
 
-        public YourApplication(ASAPSimplePeer simplePeer) {
+        public YourApplication(ASAPPeer simplePeer) {
             // your application uses asap.
             this.simplePeer = simplePeer;
 
@@ -193,7 +193,7 @@ public class DiscoverPeerAndStartEGChat {
      * This test illustrates how a peer discovery can be used to initiate e.g. a chat a game, a POS business proposition
      * or whatever comes to your mind.
      */
-    public void recognizePeerInNeighbourhood(ASAPSimplePeer alicePeer, ASAPSimplePeer bobPeer) {
+    public void recognizePeerInNeighbourhood(ASAPPeer alicePeer, ASAPPeer bobPeer) {
         // have a look in the constructor or YourApplication
         YourApplication aliceInstanceOfYourApplication = new YourApplication(alicePeer);
         YourApplication bobInstanceOfYourApplication = new YourApplication(bobPeer);
@@ -202,8 +202,8 @@ public class DiscoverPeerAndStartEGChat {
     @Test
     public void mockVariant() {
         // create two peer - here as peer mock.
-        ASAPPeerMock alicePeer = new ASAPPeerMock(ALICE);
-        ASAPPeerMock bobPeer = new ASAPPeerMock(BOB);
+        ASAPPeerWrapperMock alicePeer = new ASAPPeerWrapperMock(ALICE);
+        ASAPPeerWrapperMock bobPeer = new ASAPPeerWrapperMock(BOB);
 
         this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
 
@@ -217,8 +217,10 @@ public class DiscoverPeerAndStartEGChat {
     @Test
     public void realASAPVariant() throws IOException, ASAPException, InterruptedException {
         // create two peer - here with real ASAP.
-        ASAPSimplePeerFS alicePeer = new ASAPSimplePeerFS(ALICE);
-        ASAPSimplePeerFS bobPeer = new ASAPSimplePeerFS(BOB);
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(YOUR_APP_NAME);
+        ASAPTestPeerWrapperFS alicePeer = new ASAPTestPeerWrapperFS(ALICE, formats);
+        ASAPTestPeerWrapperFS bobPeer = new ASAPTestPeerWrapperFS(BOB, formats);
 
         this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
 

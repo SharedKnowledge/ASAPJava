@@ -1,5 +1,7 @@
 package net.sharksystem.asap.listenermanager;
 
+import net.sharksystem.asap.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,4 +34,14 @@ public class GenericListenerImplementation<L> {
             }
         }
     }
+
+    protected void log(String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Log.startLog(this));
+        sb.append(": ");
+        sb.append(msg);
+
+        System.out.println(sb.toString());
+    }
+
 }

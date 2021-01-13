@@ -1,7 +1,7 @@
 package net.sharksystem.asap.sharknet;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.internals.ASAPSecurityException;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.crypto.BasicKeyStore;
 import net.sharksystem.utils.ASAPSerialization;
@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
