@@ -5,5 +5,8 @@ public interface ASAPPeer extends
         ASAPEnvironmentChangesListenerManagement,
         ASAPMessageReceivedListenerManagement
 {
+    CharSequence UNKNOWN_USER = "anon";
+    boolean ONLINE_EXCHANGE_DEFAULT = true;
+
     CharSequence getPeerName();
 }

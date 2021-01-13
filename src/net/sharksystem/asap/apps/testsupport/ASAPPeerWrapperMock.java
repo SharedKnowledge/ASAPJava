@@ -3,8 +3,10 @@ package net.sharksystem.asap.apps.testsupport;
 import net.sharksystem.asap.ASAPListenerManagingPeer;
 import net.sharksystem.asap.ASAPPeerService;
 import net.sharksystem.asap.internals.ASAP;
+import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
 import net.sharksystem.asap.internals.ASAPException;
 import net.sharksystem.asap.internals.ASAPMessages;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,6 +128,11 @@ public class ASAPPeerWrapperMock extends ASAPListenerManagingPeer implements ASA
     @Override
     public void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
         throw new ASAPException("that's a mock, no real peer");
+    }
+
+    @Override
+    public void overwriteChuckReceivedListener(ASAPChunkReceivedListener listener) {
+        throw new RuntimeException("that's a mock, no real peer");
     }
 
     public void stopEncounter(ASAPPeerWrapperMock otherPeer) {

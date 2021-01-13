@@ -16,6 +16,9 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
     protected void setInternalPeer(ASAPInternalPeer peer) {
         this.peer = peer;
         this.peer.addOnlinePeersChangedListener(this);
+
+        this.log("activate online messages on that peer");
+        this.peer.activateOnlineMessages();
     }
 
     protected ASAPInternalPeer getInternalPeer() {
