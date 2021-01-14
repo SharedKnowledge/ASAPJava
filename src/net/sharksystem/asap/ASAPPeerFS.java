@@ -52,6 +52,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             engine.add(uri, message);
             // send online
             try {
+                this.log("try sending message over existing connections");
                 this.getInternalPeer().sendOnlineASAPAssimilateMessage(appName, uri, message);
             }
             catch(ASAPException e) {
