@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;

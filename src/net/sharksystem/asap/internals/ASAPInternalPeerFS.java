@@ -1,6 +1,9 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.Utils;
+import net.sharksystem.asap.ASAP;
+import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
@@ -389,7 +392,7 @@ public class ASAPInternalPeerFS implements
 
         if(this.onlinePeersChangedListeners != null) {
             for(ASAPInternalOnlinePeersChangedListener listener: this.onlinePeersChangedListeners) {
-                listener.onlinePeersChanged(this);
+                listener.notifyOnlinePeersChanged(this);
             }
         }
     }
@@ -554,7 +557,7 @@ public class ASAPInternalPeerFS implements
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
                                         byte[] messageAsBytes) throws IOException, ASAPException {
 
-        this.sendOnlineASAPAssimilateMessage(format, urlTarget, null, messageAsBytes, ASAP.INITIAL_ERA);
+        this.sendOnlineASAPAssimilateMessage(format, urlTarget, null, messageAsBytes);
     }
 
     @Override
@@ -566,12 +569,14 @@ public class ASAPInternalPeerFS implements
                                                 Set<CharSequence> recipients, byte[] messageAsBytes)
             throws IOException, ASAPException {
 
-        this.sendOnlineASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, ASAP.INITIAL_ERA);
-    }
+        int era = ASAP.INITIAL_ERA; // init
 
-    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                                Set<CharSequence> recipients, byte[] messageAsBytes, int era)
-            throws IOException, ASAPException {
+        try {
+            era = this.getASAPEngine(format).getEra();
+        } catch (ASAPException e) {
+            // no engine.. ok
+            System.out.println(this.getLogStart() + "send message with format but no engine exists (yet): " + format);
+        }
 
         // setup online message sender thread
         Log.writeLog(this, "setup online message sender object");

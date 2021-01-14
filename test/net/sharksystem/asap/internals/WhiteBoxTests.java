@@ -3,6 +3,7 @@ package net.sharksystem.asap.internals;
 import java.io.IOException;
 import java.util.Iterator;
 
+import net.sharksystem.asap.ASAPException;
 import org.junit.Assert;
 import org.junit.Test;
 

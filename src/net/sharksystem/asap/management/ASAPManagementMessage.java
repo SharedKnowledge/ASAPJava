@@ -1,6 +1,6 @@
 package net.sharksystem.asap.management;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 

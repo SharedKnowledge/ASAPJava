@@ -1,6 +1,6 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.IOException;

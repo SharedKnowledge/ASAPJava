@@ -1,4 +1,4 @@
-package net.sharksystem.asap.internals;
+package net.sharksystem.asap;
 
 public class ASAPSecurityException extends ASAPException {
     public ASAPSecurityException() {

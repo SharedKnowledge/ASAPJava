@@ -2,11 +2,10 @@ package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPListenerManagingPeer;
 import net.sharksystem.asap.ASAPPeerService;
-import net.sharksystem.asap.internals.ASAP;
+import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.ASAPMessages;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;

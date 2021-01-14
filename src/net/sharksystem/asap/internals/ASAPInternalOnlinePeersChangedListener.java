@@ -1,5 +1,5 @@
 package net.sharksystem.asap.internals;
 
 public interface ASAPInternalOnlinePeersChangedListener {
-    void onlinePeersChanged(ASAPInternalPeer engine);
+    void notifyOnlinePeersChanged(ASAPInternalPeer engine);
 }

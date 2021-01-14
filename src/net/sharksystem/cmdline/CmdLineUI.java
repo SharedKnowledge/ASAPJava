@@ -1,5 +1,6 @@
 package net.sharksystem.cmdline;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.*;
 
 import java.io.*;

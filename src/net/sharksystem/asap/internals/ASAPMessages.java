@@ -1,5 +1,7 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPException;
+
 import java.io.IOException;
 import java.util.Iterator;
 

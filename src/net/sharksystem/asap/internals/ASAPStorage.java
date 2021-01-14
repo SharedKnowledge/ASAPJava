@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 
 import java.io.IOException;

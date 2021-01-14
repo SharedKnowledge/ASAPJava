@@ -1,6 +1,6 @@
 package net.sharksystem.utils;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
 import java.io.InputStream;

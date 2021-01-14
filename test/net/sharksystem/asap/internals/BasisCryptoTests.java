@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.crypto.BasicCryptoKeyStorage;
 import org.junit.Assert;

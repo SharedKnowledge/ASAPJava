@@ -1,7 +1,7 @@
 package net.sharksystem.asap.management;
 
 import net.sharksystem.asap.internals.ASAPEngine;
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 
 import java.io.IOException;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package net.sharksystem.asap.internals;
+package net.sharksystem.asap;
 
 import java.util.Random;
 
@@ -32,7 +32,7 @@ public class ASAP {
         Moreover, we are already in the 21. century - could reduce bit even more. We ignore that obvious fact
         at first.
 
-        Calcuations: 2^64 = 1,8.. * 10^19; we take a..z and A..Z and 0..9 -> 62 digits
+        Calculations: 2^64 = 1,8.. * 10^19; we take a..z and A..Z and 0..9 -> 62 digits
         62^11 = 5,2.. * 10^19 we need 11 digits
          */
 

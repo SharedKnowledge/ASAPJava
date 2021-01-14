@@ -1,7 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.internals.ASAPException;
-
 public interface ASAPMessageSender {
     /**
      * Send a message

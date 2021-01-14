@@ -1,6 +1,7 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.Utils;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;

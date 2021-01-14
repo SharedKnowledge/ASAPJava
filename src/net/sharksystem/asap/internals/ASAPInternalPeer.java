@@ -1,5 +1,7 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.crypto.BasicKeyStore;
 
@@ -89,13 +91,9 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler {
      * @param urlTarget
      * @param recipients
      * @param messageAsBytes
-     * @param era
      * @throws IOException
      * @throws ASAPException
      */
-    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
-                                         byte[] messageAsBytes, int era) throws IOException, ASAPException;
-
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
                                          byte[] messageAsBytes) throws IOException, ASAPException;
 

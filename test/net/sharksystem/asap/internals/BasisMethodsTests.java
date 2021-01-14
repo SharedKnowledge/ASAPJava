@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAP;
 import org.junit.Test;
 
 public class BasisMethodsTests {

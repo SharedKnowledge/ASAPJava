@@ -1,6 +1,6 @@
 package net.sharksystem.asap.util;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.ASAPInternalPeer;
 import net.sharksystem.cmdline.CmdLineUI;
 

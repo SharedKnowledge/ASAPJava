@@ -1,6 +1,6 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.ASAPInternalPeer;
 import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.internals.EngineSetting;

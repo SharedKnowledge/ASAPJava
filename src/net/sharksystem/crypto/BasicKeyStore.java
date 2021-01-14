@@ -1,6 +1,6 @@
 package net.sharksystem.crypto;
 
-import net.sharksystem.asap.internals.ASAPSecurityException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.security.PublicKey;
 

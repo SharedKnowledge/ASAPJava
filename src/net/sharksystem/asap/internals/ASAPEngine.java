@@ -1,5 +1,7 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAP;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;

@@ -1,6 +1,6 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.asap.internals.ASAPException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
 import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;

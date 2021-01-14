@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sharksystem.asap.ASAPException;
 import org.junit.Test;
 
 /**

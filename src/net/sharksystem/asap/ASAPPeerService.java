@@ -1,7 +1,6 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
-import net.sharksystem.asap.internals.ASAPException;
 import net.sharksystem.asap.internals.ASAPInternalPeer;
 
 import java.io.IOException;

@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;

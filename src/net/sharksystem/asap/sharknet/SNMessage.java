@@ -1,7 +1,7 @@
 package net.sharksystem.asap.sharknet;
 
-import net.sharksystem.asap.internals.ASAPException;
-import net.sharksystem.asap.internals.ASAPSecurityException;
+import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPSecurityException;
 
 import java.io.IOException;
 import java.sql.Timestamp;
