@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.internals.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.internals.ASAPInternalPeer;
+import net.sharksystem.asap.protocol.ASAPConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,8 +30,8 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         return this.peer.getOwner();
     }
 
-    public void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
-        this.peer.handleConnection(is, os);
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+        return this.peer.handleConnection(is, os);
     }
 
     @Override

@@ -7,10 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface ASAPPeerService extends ASAPPeer {
-    long DEFAULT_MAX_PROCESSING_TIME = ASAPInternalPeer.DEFAULT_MAX_PROCESSING_TIME;
-
-    void handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
+public interface ASAPPeerService extends ASAPPeer, ASAPConnectionHandler {
+    //    long DEFAULT_MAX_PROCESSING_TIME = 30000; // 30 seconds
+    long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE; // eternity - debugging setting
 
     /**
      * Overwrite internal listener. This method is used e.g. in Androiud on service side. The asap peer is informed

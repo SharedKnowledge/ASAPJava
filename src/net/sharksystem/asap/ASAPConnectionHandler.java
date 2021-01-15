@@ -1,4 +1,4 @@
-package net.sharksystem.asap.internals;
+package net.sharksystem.asap;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAPConnection;

@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
