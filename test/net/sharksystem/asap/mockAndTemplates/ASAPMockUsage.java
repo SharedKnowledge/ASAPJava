@@ -2,7 +2,7 @@ package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
+import net.sharksystem.asap.apps.testsupport.ASAPPeerMock;
 import org.junit.Test;
 
 import java.io.*;
@@ -63,7 +63,7 @@ public class ASAPMockUsage {
     public void mockUsageExample2() throws IOException, ASAPException, InterruptedException {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer
-        ASAPPeerWrapperMock alicePeerMock = new ASAPPeerWrapperMock(TestUtils.ALICE);
+        ASAPPeerMock alicePeerMock = new ASAPPeerMock(TestUtils.ALICE);
 
         // use this interface - it's important - same interface can be used for real app in java and android
         ASAPPeer alicePeer = alicePeerMock;
@@ -80,7 +80,7 @@ public class ASAPMockUsage {
         alicePeer.sendASAPMessage(TestUtils.YOUR_APP_NAME, TestUtils.YOUR_URI, serializedData);
 
         ///////////////// BOB //////////////////////////////////////////////////////////////
-        ASAPPeerWrapperMock bobPeerMock = new ASAPPeerWrapperMock(TestUtils.BOB);
+        ASAPPeerMock bobPeerMock = new ASAPPeerMock(TestUtils.BOB);
 
         // use this interface - it's important - same interface can be used for real app in java and android
         ASAPPeer bobPeer = bobPeerMock;

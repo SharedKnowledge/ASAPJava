@@ -18,14 +18,14 @@ import java.util.*;
  * test your applications logic without any fear of ASAP bugs.
  *
  */
-public class ASAPPeerWrapperMock extends ASAPListenerManagingPeer implements ASAPPeerService {
+public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerService {
     private final CharSequence peerName;
 
-    public ASAPPeerWrapperMock(CharSequence peerName) {
+    public ASAPPeerMock(CharSequence peerName) {
         this.peerName = peerName;
     }
 
-    public ASAPPeerWrapperMock() {
+    public ASAPPeerMock() {
         this(ASAP.createUniqueID());
     }
 
@@ -51,11 +51,11 @@ public class ASAPPeerWrapperMock extends ASAPListenerManagingPeer implements ASA
         }
     }
 
-    public void startEncounter(ASAPPeerWrapperMock otherPeer) {
+    public void startEncounter(ASAPPeerMock otherPeer) {
         this.startEncounter(otherPeer, true);
     }
 
-    private void startEncounter(ASAPPeerWrapperMock otherPeer, boolean callOtherSide) {
+    private void startEncounter(ASAPPeerMock otherPeer, boolean callOtherSide) {
         this.log("start simulation of encounter with: " + otherPeer.getPeerName());
 
         this.newEra();
@@ -83,7 +83,7 @@ public class ASAPPeerWrapperMock extends ASAPListenerManagingPeer implements ASA
         }
     }
 
-    private void takeMessages(ASAPPeerWrapperMock asapPeerMock, int tmpEra, Map<CharSequence, Map<CharSequence, List<byte[]>>> appMessages) {
+    private void takeMessages(ASAPPeerMock asapPeerMock, int tmpEra, Map<CharSequence, Map<CharSequence, List<byte[]>>> appMessages) {
         if(appMessages != null && !appMessages.isEmpty()) {
             this.log("handle received messages (sender | era): " + asapPeerMock.getPeerName() + " | " + tmpEra);
             this.notifyMessagesReceived(appMessages);
@@ -135,11 +135,11 @@ public class ASAPPeerWrapperMock extends ASAPListenerManagingPeer implements ASA
         throw new RuntimeException("that's a mock, no real peer");
     }
 
-    public void stopEncounter(ASAPPeerWrapperMock otherPeer) {
+    public void stopEncounter(ASAPPeerMock otherPeer) {
         this.stopEncounter(otherPeer, true);
     }
 
-    public void stopEncounter(ASAPPeerWrapperMock otherPeer, boolean callOtherSide) {
+    public void stopEncounter(ASAPPeerMock otherPeer, boolean callOtherSide) {
         this.log("stop encounter with " + otherPeer.getPeerName());
         this.newEra();
         if(callOtherSide) {

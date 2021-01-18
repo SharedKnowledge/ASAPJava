@@ -8,6 +8,6 @@ public interface ASAPConnection {
 
     boolean isSigned();
 
-    // terminate that connection - don't do anything with underlying protocol (streams)
+    // terminate that connection - does not effect the underlying connections established e.g. with Bluetooth
     void kill();
 }

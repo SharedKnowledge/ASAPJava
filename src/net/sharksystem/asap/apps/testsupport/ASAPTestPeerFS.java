@@ -8,28 +8,28 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collection;
 
-public class ASAPTestPeerWrapperFS extends ASAPPeerFS {
+public class ASAPTestPeerFS extends ASAPPeerFS {
     private ServerSocket serverSocket = null;
     private Socket socket = null;
 
-    public ASAPTestPeerWrapperFS(CharSequence peerName, Collection<CharSequence> supportedFormats) throws IOException, ASAPException {
+    public ASAPTestPeerFS(CharSequence peerName, Collection<CharSequence> supportedFormats) throws IOException, ASAPException {
         super(peerName, "./testPeerFS/" + peerName, supportedFormats);
     }
 
-    public void startEncounter(int port, ASAPTestPeerWrapperFS otherPeer) throws IOException {
+    public void startEncounter(int port, ASAPTestPeerFS otherPeer) throws IOException {
         this.serverSocket = new ServerSocket(port);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    ASAPTestPeerWrapperFS.this.socket = ASAPTestPeerWrapperFS.this.serverSocket.accept();
+                    ASAPTestPeerFS.this.socket = ASAPTestPeerFS.this.serverSocket.accept();
                 } catch (IOException e) {
-                    ASAPTestPeerWrapperFS.this.log("fatal while waiting for client to connect: "
+                    ASAPTestPeerFS.this.log("fatal while waiting for client to connect: "
                             + e.getLocalizedMessage());
                 }
 
-                ASAPTestPeerWrapperFS.this.startSession();
+                ASAPTestPeerFS.this.startSession();
             }
         }).start();
 
@@ -47,7 +47,7 @@ public class ASAPTestPeerWrapperFS extends ASAPPeerFS {
         this.startSession();
     }
 
-    public void stopEncounter(ASAPTestPeerWrapperFS otherPeer) throws IOException {
+    public void stopEncounter(ASAPTestPeerFS otherPeer) throws IOException {
         this.socket.close();
     }
 
@@ -56,11 +56,11 @@ public class ASAPTestPeerWrapperFS extends ASAPPeerFS {
             @Override
             public void run() {
                 try {
-                    ASAPTestPeerWrapperFS.this.handleConnection(
-                            ASAPTestPeerWrapperFS.this.socket.getInputStream(),
-                            ASAPTestPeerWrapperFS.this.socket.getOutputStream());
+                    ASAPTestPeerFS.this.handleConnection(
+                            ASAPTestPeerFS.this.socket.getInputStream(),
+                            ASAPTestPeerFS.this.socket.getOutputStream());
                 } catch (IOException | ASAPException e) {
-                    ASAPTestPeerWrapperFS.this.log("fatal while connecting: " + e.getLocalizedMessage());
+                    ASAPTestPeerFS.this.log("fatal while connecting: " + e.getLocalizedMessage());
                 }
             }
         }).start();

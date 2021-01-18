@@ -1,6 +1,6 @@
 package net.sharksystem.asap.appTests;
 
-import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.asap.ASAPException;
 import org.junit.Test;
 
@@ -30,8 +30,8 @@ public class Reenactment {
 
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
-        ASAPTestPeerWrapperFS aliceSimplePeer = new ASAPTestPeerWrapperFS(ALICE, formats);
-        ASAPTestPeerWrapperFS bobSimplePeer = new ASAPTestPeerWrapperFS(BOB, formats);
+        ASAPTestPeerFS aliceSimplePeer = new ASAPTestPeerFS(ALICE, formats);
+        ASAPTestPeerFS bobSimplePeer = new ASAPTestPeerFS(BOB, formats);
 
         aliceSimplePeer.sendASAPMessage(format, uri1, oneSign.getBytes());
 

@@ -5,8 +5,8 @@ import net.sharksystem.asap.internals.ASAPMessages;
 import net.sharksystem.asap.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
-import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;
+import net.sharksystem.asap.apps.testsupport.ASAPPeerMock;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
 import java.io.*;
@@ -202,8 +202,8 @@ public class DiscoverPeerAndStartEGChat {
     @Test
     public void mockVariant() {
         // create two peer - here as peer mock.
-        ASAPPeerWrapperMock alicePeer = new ASAPPeerWrapperMock(ALICE);
-        ASAPPeerWrapperMock bobPeer = new ASAPPeerWrapperMock(BOB);
+        ASAPPeerMock alicePeer = new ASAPPeerMock(ALICE);
+        ASAPPeerMock bobPeer = new ASAPPeerMock(BOB);
 
         this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
 
@@ -219,8 +219,8 @@ public class DiscoverPeerAndStartEGChat {
         // create two peer - here with real ASAP.
         Collection<CharSequence> formats = new ArrayList<>();
         formats.add(YOUR_APP_NAME);
-        ASAPTestPeerWrapperFS alicePeer = new ASAPTestPeerWrapperFS(ALICE, formats);
-        ASAPTestPeerWrapperFS bobPeer = new ASAPTestPeerWrapperFS(BOB, formats);
+        ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(ALICE, formats);
+        ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(BOB, formats);
 
         this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
 

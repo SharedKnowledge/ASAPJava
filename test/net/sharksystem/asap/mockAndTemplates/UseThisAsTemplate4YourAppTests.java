@@ -2,8 +2,8 @@ package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.apps.testsupport.ASAPPeerWrapperMock;
-import net.sharksystem.asap.apps.testsupport.ASAPTestPeerWrapperFS;
+import net.sharksystem.asap.apps.testsupport.ASAPPeerMock;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
 import java.io.*;
@@ -46,8 +46,8 @@ public class UseThisAsTemplate4YourAppTests {
     public void mockTestExample() throws IOException, ASAPException, InterruptedException {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
-        ASAPPeerWrapperMock aliceMockPeer = new ASAPPeerWrapperMock(ALICE);
-        ASAPPeerWrapperMock bobMockPeer = new ASAPPeerWrapperMock(BOB);
+        ASAPPeerMock aliceMockPeer = new ASAPPeerMock(ALICE);
+        ASAPPeerMock bobMockPeer = new ASAPPeerMock(BOB);
 
         // 1st encounter
         this.scenarioPart1(aliceMockPeer, bobMockPeer);
@@ -73,8 +73,8 @@ public class UseThisAsTemplate4YourAppTests {
         Collection<CharSequence> formats = new ArrayList<>();
         formats.add(YOUR_APP_NAME);
 
-        ASAPTestPeerWrapperFS aliceSimplePeer = new ASAPTestPeerWrapperFS(ALICE, formats);
-        ASAPTestPeerWrapperFS bobSimplePeer = new ASAPTestPeerWrapperFS(BOB, formats);
+        ASAPTestPeerFS aliceSimplePeer = new ASAPTestPeerFS(ALICE, formats);
+        ASAPTestPeerFS bobSimplePeer = new ASAPTestPeerFS(BOB, formats);
 
         // 1st encounter
         this.scenarioPart1(aliceSimplePeer, bobSimplePeer);
