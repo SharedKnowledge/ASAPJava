@@ -39,7 +39,7 @@ public class CreateNewChannelFromOutsideTest {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage =
+        ASAPInternalStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
@@ -47,7 +47,7 @@ public class CreateNewChannelFromOutsideTest {
         //aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
 
         // bob does the same
-        ASAPStorage bobStorage =
+        ASAPInternalStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         // there is only Bobs storage - nothing else. That's important.

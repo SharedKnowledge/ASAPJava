@@ -1,7 +1,8 @@
 package net.sharksystem.asap.internals;
 
-import net.sharksystem.asap.ASAP;
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.*;
+import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
@@ -17,10 +18,10 @@ import java.util.*;
  * That ASAPEngine manages exchange of stored messages with peers.
  * See ASPChunkStorage for details.
  * 
- * @see ASAPStorage
+ * @see ASAPInternalStorage
  * @author thsc
  */
-public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage, ASAPProtocolEngine, ASAPManagementStorage {
+public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternalStorage, ASAPProtocolEngine, ASAPManagementStorage {
     private DefaultSecurityAdministrator securityAdministrator;
 
     public void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator) {
@@ -102,7 +103,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
      * @param chunk
      * @return
      */
-    private boolean isPublic(ASAPChunk chunk) {
+    private boolean isPublic(ASAPInternalChunk chunk) {
         return chunk.getRecipients().isEmpty();
     }
 
@@ -136,8 +137,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                 this.chunkStorage.dropChunks(nextEra);
 
                 // setup new era - copy all chunks
-                for(ASAPChunk chunk : this.chunkStorage.getChunks(oldEra)) {
-                    ASAPChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
+                for(ASAPInternalChunk chunk : this.chunkStorage.getChunks(oldEra)) {
+                    ASAPInternalChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
                     copyChunk.clone(chunk);
                 }
 
@@ -252,7 +253,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
     @Override
     public void add(CharSequence uri, byte[] messageAsBytes) throws IOException {
 //        Log.writeLog(this, "reached add(uri, byte[] message");
-        ASAPChunk chunk = this.chunkStorage.getChunk(uri, this.era);
+        ASAPInternalChunk chunk = this.chunkStorage.getChunk(uri, this.era);
 
 //        Log.writeLog(this, "call chunk.addMessage()");
         chunk.addMessage(messageAsBytes);
@@ -287,8 +288,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
     public List<CharSequence> getChannelURIs() throws IOException {
         List<CharSequence> uriList = new ArrayList<>();
 
-        List<ASAPChunk> chunks = this.chunkStorage.getChunks(this.era);
-        for(ASAPChunk chunk : chunks) {
+        List<ASAPInternalChunk> chunks = this.chunkStorage.getChunks(this.era);
+        for(ASAPInternalChunk chunk : chunks) {
             uriList.add(chunk.getUri());
         }
 
@@ -318,7 +319,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
         int nextEra = this.getOldestEra();
         do {
             currentEra = nextEra;
-            ASAPChunk chunk = this.chunkStorage.getChunk(uri, currentEra);
+            ASAPInternalChunk chunk = this.chunkStorage.getChunk(uri, currentEra);
             chunk.drop();
             nextEra = ASAP.nextEra(currentEra);
         } while(currentEra != this.getEra());
@@ -437,7 +438,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             String uri = asapAssimilationPDU.getChannelUri();
 
             // get local target for data to come
-            ASAPChunk localChunk = null;
+            ASAPInternalChunk localChunk = null;
 
             if(!incomingSenderStorage.existsChunk(uri, eraSender)) {
                 // is there a local chunk - to clone recipients from?
@@ -460,7 +461,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
                 }
             }
 
-            ASAPChunk incomingChunk = incomingSenderStorage.getChunk(uri, eraSender);
+            ASAPInternalChunk incomingChunk = incomingSenderStorage.getChunk(uri, eraSender);
             if(localChunk != null) {
                 System.out.println(this.getLogStart() + "copy local meta data into newly created incoming chunk");
                 incomingChunk.copyMetaData(this.getChannel(uri));
@@ -658,7 +659,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             boolean goAhead = true; // to avoid deep if-if-if-if structures
             lastRound = workingEra == lastEra;
 
-            List<ASAPChunk> chunks = chunkStorage.getChunks(workingEra);
+            List<ASAPInternalChunk> chunks = chunkStorage.getChunks(workingEra);
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
             b.append(this.getLogStart());
@@ -667,7 +668,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPStorage,
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
-            for(ASAPChunk chunk : chunks) {
+            for(ASAPInternalChunk chunk : chunks) {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
                 b.append(this.getLogStart());

@@ -1,6 +1,7 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 
 import java.io.File;
@@ -87,7 +88,7 @@ public class ASAPEngineFS extends ASAPEngine {
         return ASAPEngineFS.getASAPEngineFS(owner, rootDirectory, format);
     }
 
-    public ASAPStorage refresh() throws IOException, ASAPException {
+    public ASAPInternalStorage refresh() throws IOException, ASAPException {
         this.memento.save(this);
         return ASAPEngineFS.getExistingASAPEngineFS(this.rootDirectory);
     }
@@ -200,7 +201,7 @@ public class ASAPEngineFS extends ASAPEngine {
         return new ASAPChunkStorageFS(dir, this.format, this.era);
     }
 
-    public ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+    public ASAPInternalStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
         String dir = this.rootDirectory + "/" + sender;
         return ASAPEngineFS.getExistingASAPEngineFS(dir);
     }

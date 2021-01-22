@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class ASAPAbstractOnlineMessageSender implements ASAPOnlineMessageSender {
-    private ASAPStorage source = null;
+    private ASAPInternalStorage source = null;
 
-    public void attachToSource(ASAPStorage source) {
+    public void attachToSource(ASAPInternalStorage source) {
         source.attachASAPMessageAddListener(this);
     }
 

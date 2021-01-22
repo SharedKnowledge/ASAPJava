@@ -1,7 +1,7 @@
 package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 import net.sharksystem.asap.ASAPPeer;

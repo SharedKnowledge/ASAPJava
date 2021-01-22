@@ -1,28 +1,27 @@
-package net.sharksystem.asap.internals;
+package net.sharksystem.asap;
 
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.internals.ASAPInternalChunk;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
- * A storage is a logical unit containing chunks. It offers methods
- * to get (and create) and remove (drop) chunks. There is at least
- * one storage containing message produced by a local app. 
- * 
- * There can be other storages containg messages which arrived from a
- * peer during sychronization.
- * 
+ * There is a chunk storage for each format. It offers methods
+ * to get (and create) and remove (drop) chunks.
+ *
+ * Be careful. In most cases, there will be an ASAP protocol engine that writes data
+ * in chunks and reads and transmits messages to encountered peers.
+ *
  * @author thsc
  */
 public interface ASAPChunkStorage {
     String getFormat();
 
-    ASAPChunk getChunk(CharSequence uri, int era) throws IOException;
+    ASAPInternalChunk getChunk(CharSequence uri, int era) throws IOException;
 
     boolean existsChunk(CharSequence uri, int era) throws IOException;
 
-    List<ASAPChunk> getChunks(int era) throws IOException;
+    List<ASAPInternalChunk> getChunks(int era) throws IOException;
 
     void dropChunks(int era) throws IOException;
     

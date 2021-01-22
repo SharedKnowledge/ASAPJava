@@ -327,7 +327,7 @@ public class ASAPInternalPeerFS implements
     public void announceNewEra() throws IOException, ASAPException {
         System.out.println(this.getLogStart() + "announce new era");
         for(CharSequence format : this.folderMap.keySet()) {
-            ASAPStorage asapStorage = this.getEngineByFormat(format);
+            ASAPInternalStorage asapStorage = this.getEngineByFormat(format);
             asapStorage.newEra();
         }
     }

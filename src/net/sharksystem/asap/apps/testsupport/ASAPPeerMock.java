@@ -1,11 +1,7 @@
 package net.sharksystem.asap.apps.testsupport;
 
-import net.sharksystem.asap.ASAPListenerManagingPeer;
-import net.sharksystem.asap.ASAPPeerService;
-import net.sharksystem.asap.ASAP;
+import net.sharksystem.asap.*;
 import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPMessages;
 import net.sharksystem.asap.protocol.ASAPConnection;
 
 import java.io.IOException;
@@ -123,6 +119,11 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
 
     public CharSequence getPeerName() {
         return this.peerName;
+    }
+
+    @Override
+    public ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException {
+        throw new ASAPException("Do you need this in a mock? Can't you take ASAPTestPeerFS? If not: Let me know. I can provide this method. It is not a big thing. Thx thsc42");
     }
 
     @Override

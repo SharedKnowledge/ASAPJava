@@ -1,6 +1,6 @@
 package net.sharksystem.asap.internals;
 
-import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.*;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 
 import java.io.IOException;
@@ -50,19 +50,7 @@ import java.util.Set;
  *
  * @author thsc
  */
-public interface ASAPStorage {
-    /**
-     * Get owner name (better an id) of this storage
-     * @return owner name (or id)
-     */
-    CharSequence getOwner();
-
-    /**
-     *
-     * @return storage format / app
-     */
-    CharSequence getFormat();
-
+public interface ASAPInternalStorage extends ASAPStorage {
     /**
      * Creates a channel with named recipients - we call it a closed channel in opposite
      * to an open channel.
@@ -86,22 +74,6 @@ public interface ASAPStorage {
     void createChannel(CharSequence owner, CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException;
 
     /**
-     *
-     * @return list of channel uris present in this storage
-     * @throws IOException
-     */
-    List<CharSequence> getChannelURIs() throws IOException;
-
-    /**
-     *
-     * @param uri
-     * @return channel containing all message issued by owner of this storage. Received messages are <b>not</b> part
-     * of this channel. (See makan implementation)
-     * @throws ASAPException if no channel with that uri exists in this storage
-     */
-    ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException;
-
-    /**
      * Create a channel with only two members - creator and recipient
      * @param urlTarget
      * @param recipient
@@ -116,8 +88,6 @@ public interface ASAPStorage {
      * @throws ASAPException
      */
     void createChannel(CharSequence urlTarget) throws IOException, ASAPException;
-
-    void removeChannel(CharSequence uri) throws IOException;
 
     /**
      * Chunks are delivered when seeing other peers. This flag allows to decide whether delivered chunks
@@ -177,21 +147,12 @@ public interface ASAPStorage {
     CharSequence getExtra(CharSequence uri, String key) throws IOException;
 
     /**
-     *
-     * @param uri channel uri
-     * @return if channel exists - in other words: at least one message was added with this channel uri
-     */
-    boolean channelExists(CharSequence uri) throws IOException;
-    
-    /**
      * Add a message to that chunk.
      * @param uri message topic
      * @param message Message to be kept for later transmission
      * @throws IOException 
      */
     void add(CharSequence uri, CharSequence message) throws IOException;
-
-    void add(CharSequence uri, byte[] messageAsBytes) throws IOException;
 
     void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender);
 
@@ -207,39 +168,6 @@ public interface ASAPStorage {
     public void newEra();
     
     /**
-     * Get oldest era available on that peer.
-     * @return 
-     */
-    public int getOldestEra();
-    
-    /**
-     * Get current era.
-     * @return 
-     */
-    public int getEra();
-    
-    /**
-     * Get next era number. Era numbers are organized in a circle. Number 0
-     * follows Integer.MAXVALUE. That method takes care of that fact.
-     * No change is made on current era.
-     * 
-     * @param era
-     * @return 
-     */
-    public int getNextEra(int era);
-    
-    /**
-     * Get previous era number. Era numbers are organized in a circle. Er 
-     * number 0 is proceeded by era number Integer.MAXVALUE. 
-     * That method takes care of that fact.
-     * No change is made on current era.
-     * 
-     * @param era
-     * @return 
-     */
-    int getPreviousEra(int era);
-    
-    /**
      * Default behaviour of ASAPEngine: Each peer / communication partner
      * gets its own chunk storage. That storage is filled during asap
      * synchronization. That storage can be retrieved with this command.
@@ -248,21 +176,6 @@ public interface ASAPStorage {
      * @return 
      */
     ASAPChunkStorage getReceivedChunksStorage(CharSequence sender);
-
-    ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException;
-
-    /**
-     *
-     * @return list of peers with an incoming chunk storage
-     */
-    List<CharSequence> getSender();
-
-    /**
-     * 
-     * @return The local chunk storage that is meant to be used by the local
-     * app. Note: That storage is changed during an ASAP session.
-     */
-    ASAPChunkStorage getChunkStorage();
 
     ASAPMessages getChunkChain(int uriPosition) throws IOException, ASAPException;
 
@@ -276,5 +189,5 @@ public interface ASAPStorage {
      * Refresh with external system - re-read files, or whatever.
      * @return refreshed object
      */
-    ASAPStorage refresh() throws IOException, ASAPException;
+    ASAPInternalStorage refresh() throws IOException, ASAPException;
 }

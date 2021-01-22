@@ -3,6 +3,8 @@ package net.sharksystem.asap.internals;
 import net.sharksystem.Utils;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.util.Log;
 
 import java.io.File;
@@ -11,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.sharksystem.asap.internals.ASAPChunkFS.META_DATA_EXTENSION;
+import static net.sharksystem.asap.internals.ASAPInternalChunkFS.META_DATA_EXTENSION;
 
 /**
  *
@@ -42,8 +44,8 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public ASAPChunk getChunk(CharSequence uriTarget, int era) throws IOException {
-        return new ASAPChunkFS(this, uriTarget.toString(), era);
+    public ASAPInternalChunk getChunk(CharSequence uriTarget, int era) throws IOException {
+        return new ASAPInternalChunkFS(this, uriTarget.toString(), era);
     }
 
     @Override
@@ -95,8 +97,8 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     }
 
     @Override
-    public List<ASAPChunk> getChunks(int era) throws IOException {
-        List<ASAPChunk> chunkList = new ArrayList<>();
+    public List<ASAPInternalChunk> getChunks(int era) throws IOException {
+        List<ASAPInternalChunk> chunkList = new ArrayList<>();
         
         File dir = new File(this.getPath(era));
         
@@ -117,7 +119,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
                 if(index != -1) {
                     String chunkName = name.substring(0, index);
                     String fName = this.getFileNameByUri(era, chunkName);
-                    chunkList.add(new ASAPChunkFS(this, fName));
+                    chunkList.add(new ASAPInternalChunkFS(this, fName));
                 }
             }
         }

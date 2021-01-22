@@ -17,5 +17,8 @@ public class ASAPException extends Exception {
     public ASAPException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
+    public ASAPException(Throwable cause) {
+        super(cause);
+    }
 }

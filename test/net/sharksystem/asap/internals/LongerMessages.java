@@ -1,6 +1,7 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.TCPStream;
@@ -59,7 +60,7 @@ public class LongerMessages {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
+        ASAPInternalStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         int aliceInitialEra = aliceStorage.getEra();
 
@@ -69,7 +70,7 @@ public class LongerMessages {
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
 
         // bob does the same
-        ASAPStorage bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+        ASAPInternalStorage bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         int bobInitialEra = bobStorage.getEra();
 
@@ -156,7 +157,7 @@ public class LongerMessages {
 
         // get message bob received
         ASAPChunkStorage bobIncomingAliceStorage = bobStorage.getReceivedChunksStorage(ALICE);
-        ASAPChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
+        ASAPInternalChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
 
         // #1
         Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();

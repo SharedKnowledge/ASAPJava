@@ -1,6 +1,7 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessages;
 import org.junit.Assert;
 import org.junit.Test;
 

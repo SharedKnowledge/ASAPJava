@@ -30,6 +30,11 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         return this.peer.getOwner();
     }
 
+    @Override
+    public ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException {
+        return this.getInternalPeer().getASAPEngine(format);
+    }
+
     public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
         return this.peer.handleConnection(is, os);
     }

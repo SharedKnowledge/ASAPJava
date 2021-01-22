@@ -1,5 +1,6 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.util.Helper;
 
 import java.io.*;
@@ -9,7 +10,7 @@ import java.util.*;
  *
  * @author thsc
  */
-public class ASAPChunkFS implements ASAPChunk {
+public class ASAPInternalChunkFS implements ASAPInternalChunk {
     public static final String META_DATA_EXTENSION = "meta";
     public static final String DATA_EXTENSION = "content";
     public static final String DEFAULT_URL = "content://sharksystem.net/noContext";
@@ -28,7 +29,7 @@ public class ASAPChunkFS implements ASAPChunk {
 
 
     @Override
-    public void clone(ASAPChunk chunkSource) throws IOException {
+    public void clone(ASAPInternalChunk chunkSource) throws IOException {
         this.uri = chunkSource.getUri();
         this.recipients = chunkSource.getRecipients();
         this.extraData = chunkSource.getExtraData();
@@ -60,11 +61,11 @@ public class ASAPChunkFS implements ASAPChunk {
         return this.deliveredTo;
     }
 
-    ASAPChunkFS(ASAPChunkStorageFS storage, String uri, int era) throws IOException {
+    ASAPInternalChunkFS(ASAPChunkStorageFS storage, String uri, int era) throws IOException {
         this(storage, uri, era, null);
     }
 
-    ASAPChunkFS(ASAPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
+    ASAPInternalChunkFS(ASAPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
         this.storage = storage;
         if(targetUri != null) {
             this.uri = targetUri;
@@ -78,9 +79,9 @@ public class ASAPChunkFS implements ASAPChunk {
         this.initFiles(trunkName);
     }
 
-    public ASAPChunkFS(ASAPChunkStorageFS storage, String trunkName) throws IOException {
+    public ASAPInternalChunkFS(ASAPChunkStorageFS storage, String trunkName) throws IOException {
         this.storage = storage;
-        this.uri = ASAPChunkFS.DEFAULT_URL;
+        this.uri = ASAPInternalChunkFS.DEFAULT_URL;
         
         this.initFiles(trunkName);
     }

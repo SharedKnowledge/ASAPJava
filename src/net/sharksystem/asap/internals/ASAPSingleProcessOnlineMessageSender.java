@@ -13,7 +13,7 @@ public class ASAPSingleProcessOnlineMessageSender
 
     private final ASAPOnlineMessageSenderEngineSide asapOnlineMessageSenderEngineSide;
 
-    public ASAPSingleProcessOnlineMessageSender(ASAPInternalPeer multiEngine, ASAPStorage source) {
+    public ASAPSingleProcessOnlineMessageSender(ASAPInternalPeer multiEngine, ASAPInternalStorage source) {
         this.attachToSource(source);
         this.asapOnlineMessageSenderEngineSide = new ASAPOnlineMessageSenderEngineSide(multiEngine);
     }

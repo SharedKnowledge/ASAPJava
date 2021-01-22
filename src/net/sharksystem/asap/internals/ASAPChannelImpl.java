@@ -1,5 +1,8 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPChannel;
+import net.sharksystem.asap.ASAPMessages;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -32,6 +35,16 @@ public class ASAPChannelImpl implements ASAPChannel {
     @Override
     public HashMap<String, String> getExtraData() throws IOException {
         return this.asapEngine.getStorage().getChunk(uri, this.asapEngine.getEra()).getExtraData();
+    }
+
+    @Override
+    public void putExtraData(String key, String value) throws IOException {
+        this.asapEngine.getStorage().getChunk(uri, this.asapEngine.getEra()).putExtra(key, value);
+    }
+
+    @Override
+    public void removeExtraData(String key) throws IOException {
+        this.asapEngine.getStorage().getChunk(uri, this.asapEngine.getEra()).removeExtra(key);
     }
 
     @Override

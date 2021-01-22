@@ -1,6 +1,8 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.util.Batchprocessor;
 import org.junit.Assert;
 import org.junit.Test;

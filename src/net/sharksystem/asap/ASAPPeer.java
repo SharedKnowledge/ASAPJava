@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import java.io.IOException;
+
 public interface ASAPPeer extends
         ASAPMessageSender,
         ASAPEnvironmentChangesListenerManagement,
@@ -9,4 +11,6 @@ public interface ASAPPeer extends
     boolean ONLINE_EXCHANGE_DEFAULT = true;
 
     CharSequence getPeerName();
+
+    ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException;
 }

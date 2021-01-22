@@ -1,6 +1,8 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.cmdline.CmdLineUI;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +42,7 @@ public class MultihopTests {
         ui.doCreateASAPMessage(parameters);
 
         // remember Alice' era
-        ASAPStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:twoHops");
+        ASAPInternalStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:twoHops");
         int aliceEraWhenIssuedMessage = aliceStorage.getEra();
 
         System.out.println("**************************************************************************");
@@ -84,7 +86,7 @@ public class MultihopTests {
         Thread.sleep(1000);
 
         // get Clara storage
-        ASAPStorage clara = this.getFreshStorageByName(ui, "Clara:twoHops");
+        ASAPInternalStorage clara = this.getFreshStorageByName(ui, "Clara:twoHops");
 
         /* message was actually from Bob but originated from Alice. It is put
         into a incoming folder as it would have been directly received from Alice.
@@ -94,7 +96,7 @@ public class MultihopTests {
 
         // clara era was increased after connection terminated - message from bob is in era before current one
 //        int eraToLook = ASAPEngine.previousEra(clara.getEra());
-        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://abc", aliceEraWhenIssuedMessage);
+        ASAPInternalChunk claraABCChat = claraAlice.getChunk("sn2://abc", aliceEraWhenIssuedMessage);
         CharSequence message = claraABCChat.getMessagesAsCharSequence().next();
         boolean same = messageAlice2Clara.equalsIgnoreCase(message.toString());
         Assert.assertTrue(same);
@@ -164,7 +166,7 @@ public class MultihopTests {
         ui.doCreateASAPMessage(parameters);
 
         // remember Alice' era
-        ASAPStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:chat");
+        ASAPInternalStorage aliceStorage = this.getFreshStorageByName(ui, "Alice:chat");
         int aliceEraWhenIssuedMessage = aliceStorage.getEra();
 
         System.out.println("**************************************************************************");
@@ -185,7 +187,7 @@ public class MultihopTests {
         // wait a moment
         Thread.sleep(1000);
         // Bob should now have created an closed asap storage with three recipients
-        ASAPStorage bobStorage = this.getFreshStorageByName(ui, "Bob:chat");
+        ASAPInternalStorage bobStorage = this.getFreshStorageByName(ui, "Bob:chat");
 
         ui.doPrintChannelInformation("Bob chat sn2://closedChannel");
 
@@ -211,7 +213,7 @@ public class MultihopTests {
         // message received?
         ASAPChunkStorage bobAlice = bobStorage.getReceivedChunksStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
-        ASAPChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
+        ASAPInternalChunk bobABCChat = bobAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
         CharSequence message = bobABCChat.getMessagesAsCharSequence().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
 
@@ -233,7 +235,7 @@ public class MultihopTests {
         // wait a moment
         Thread.sleep(1000);
         // Bob should now have created an closed asap storage with three recipients
-        ASAPStorage claraStorage = this.getFreshStorageByName(ui, "Clara:chat");
+        ASAPInternalStorage claraStorage = this.getFreshStorageByName(ui, "Clara:chat");
 
         ui.doPrintChannelInformation("Clara chat sn2://closedChannel");
 
@@ -259,7 +261,7 @@ public class MultihopTests {
         // message received?
         ASAPChunkStorage claraAlice = claraStorage.getReceivedChunksStorage("Alice");
         // clara era was increased after connection terminated - message from bob is in era before current one
-        ASAPChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
+        ASAPInternalChunk claraABCChat = claraAlice.getChunk("sn2://closedChannel", aliceEraWhenIssuedMessage);
         message = claraABCChat.getMessagesAsCharSequence().next();
         Assert.assertTrue(messageAlice2Clara.equalsIgnoreCase(message.toString()));
 
@@ -279,12 +281,12 @@ public class MultihopTests {
         // wait a moment
         Thread.sleep(1000);
         // Bob should now have created an closed asap storage with three recipients
-        ASAPStorage davidStorage = this.getFreshStorageByName(ui, "David:chat");
+        ASAPInternalStorage davidStorage = this.getFreshStorageByName(ui, "David:chat");
 
         Assert.assertFalse(davidStorage.channelExists("sn2://closedChannel"));
     }
 
-    private ASAPStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {
+    private ASAPInternalStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {
         String rootFolder = ui.getEngineRootFolderByStorageName(storageName);
         return ASAPEngineFS.getExistingASAPEngineFS(rootFolder);
     }

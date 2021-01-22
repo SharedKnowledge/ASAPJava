@@ -1,6 +1,9 @@
 package net.sharksystem.asap.management;
 
+import net.sharksystem.asap.internals.ASAPInternalChunk;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.internals.ASAPInternalStorage;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.internals.*;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 
@@ -44,7 +47,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
             ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getReceivedChunksStorage(sender);
-            ASAPChunk chunk = incomingChunkStorage.getChunk(uri, era);
+            ASAPInternalChunk chunk = incomingChunkStorage.getChunk(uri, era);
             Iterator<byte[]> messageIter = chunk.getMessages();
             System.out.println(this.getLogStart() + "iterate management messages");
             while(messageIter.hasNext()) {
@@ -112,7 +115,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         b.append(recipients.size());
 
         // find storage / app - can throw an exception - that's ok
-        ASAPStorage asapStorage = this.multiASAPEngine.getEngineByFormat(format);
+        ASAPInternalStorage asapStorage = this.multiASAPEngine.getEngineByFormat(format);
 
         if(asapStorage.channelExists(channelUri)) {
             Set<CharSequence> existingChannelRecipientsList = asapStorage.getRecipients(channelUri);

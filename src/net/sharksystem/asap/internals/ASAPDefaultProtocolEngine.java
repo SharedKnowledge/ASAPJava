@@ -14,9 +14,9 @@ import java.io.OutputStream;
  * TODO: extract protocol engine algorithms here..
  */
 public class ASAPDefaultProtocolEngine implements ASAPProtocolEngine {
-    private final ASAPStorage asapStorage;
+    private final ASAPInternalStorage asapStorage;
 
-    ASAPDefaultProtocolEngine(ASAPStorage asapStorage) {
+    ASAPDefaultProtocolEngine(ASAPInternalStorage asapStorage) {
         this.asapStorage = asapStorage;
     }
 

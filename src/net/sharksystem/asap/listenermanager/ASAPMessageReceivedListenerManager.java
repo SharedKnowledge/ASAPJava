@@ -1,6 +1,6 @@
 package net.sharksystem.asap.listenermanager;
 
-import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 import net.sharksystem.asap.ASAPMessageReceivedListenerManagement;
 

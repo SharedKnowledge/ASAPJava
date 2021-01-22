@@ -2,6 +2,7 @@ package net.sharksystem.asap.internals;
 
 import net.sharksystem.Utils;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.util.Log;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ class ASAPInMemoMessages implements ASAPMessages {
     private final int toEra;
     private final String format;
 
-    private List<ASAPChunk> chunkList;
+    private List<ASAPInternalChunk> chunkList;
 
     /** the internal message Cache */
     private List<byte[]> messageCache;
@@ -94,7 +95,7 @@ class ASAPInMemoMessages implements ASAPMessages {
             if (erasInFolder.contains(thisEra) && this.chunkStorage.existsChunk(this.uri, thisEra)) {
                 // is there - get it
                 Log.writeLog(this, "getChunk with era: " + thisEra);
-                ASAPChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
+                ASAPInternalChunk chunk = this.chunkStorage.getChunk(this.uri, thisEra);
                 this.chunkList.add(chunk);
                 this.numberOfMessages += chunk.getNumberMessage();
             }
@@ -170,10 +171,10 @@ class ASAPInMemoMessages implements ASAPMessages {
         int lastIndex = 0; // absolut index of last message in current chunk
 
         boolean found = false;
-        ASAPChunk fittingChunk = null;
+        ASAPInternalChunk fittingChunk = null;
         int fittingChunkIndex = 0;
 
-        for(ASAPChunk chunk : this.chunkList) {
+        for(ASAPInternalChunk chunk : this.chunkList) {
             lastIndex = firstIndex + chunk.getNumberMessage() - 1;
 
             if(position >= firstIndex && position <= lastIndex) {
@@ -263,13 +264,13 @@ class ASAPInMemoMessages implements ASAPMessages {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     private abstract class ChunkListIterator<T> {
-        private final List<ASAPChunk> chunkList;
-        private ASAPChunk currentChunk;
+        private final List<ASAPInternalChunk> chunkList;
+        private ASAPInternalChunk currentChunk;
         private int nextIndex;
         private Iterator<T> currentIterator;
         private T messageAhead;
 
-        public ChunkListIterator(List<ASAPChunk> chunkList) throws IOException {
+        public ChunkListIterator(List<ASAPInternalChunk> chunkList) throws IOException {
             this.chunkList = chunkList;
             this.currentChunk = null;
             this.nextIndex = 0;
@@ -324,19 +325,19 @@ class ASAPInMemoMessages implements ASAPMessages {
             return retMessage;
         }
 
-        abstract Iterator<T> getMessageIterator(ASAPChunk chunk) throws IOException;
+        abstract Iterator<T> getMessageIterator(ASAPInternalChunk chunk) throws IOException;
     }
 
     private class ChunkListMessageIterator extends ChunkListIterator<CharSequence> implements Iterator<CharSequence> {
         private Iterator<CharSequence> currentIterator;
         private CharSequence messageAhead;
 
-        public ChunkListMessageIterator(List<ASAPChunk> chunkList) throws IOException {
+        public ChunkListMessageIterator(List<ASAPInternalChunk> chunkList) throws IOException {
             super(chunkList);
         }
 
         @Override
-        Iterator<CharSequence> getMessageIterator(ASAPChunk chunk) throws IOException {
+        Iterator<CharSequence> getMessageIterator(ASAPInternalChunk chunk) throws IOException {
             return chunk.getMessagesAsCharSequence();
         }
     }
@@ -345,12 +346,12 @@ class ASAPInMemoMessages implements ASAPMessages {
         private Iterator<CharSequence> currentIterator;
         private CharSequence messageAhead;
 
-        public ChunkListByteMessageIterator(List<ASAPChunk> chunkList) throws IOException {
+        public ChunkListByteMessageIterator(List<ASAPInternalChunk> chunkList) throws IOException {
             super(chunkList);
         }
 
         @Override
-        Iterator<byte[]> getMessageIterator(ASAPChunk chunk) throws IOException {
+        Iterator<byte[]> getMessageIterator(ASAPInternalChunk chunk) throws IOException {
             return chunk.getMessages();
         }
     }

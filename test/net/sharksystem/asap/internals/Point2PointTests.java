@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.util.ASAPChunkReceivedTester;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.TCPStream;
@@ -51,7 +52,7 @@ public class Point2PointTests {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage =
+        ASAPInternalStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         aliceStorage.createChannel(ALICE_BOB_CHAT_URL, BOB); // Add recipient: make it a non-open channel
@@ -59,7 +60,7 @@ public class Point2PointTests {
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
 
         // bob does the same
-        ASAPStorage bobStorage =
+        ASAPInternalStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         int bobInitialEra = bobStorage.getEra();
@@ -140,7 +141,7 @@ public class Point2PointTests {
         ASAPChunkStorage aliceSenderStored =
                 aliceStorage.getReceivedChunksStorage(aliceListener.getSender());
 
-        ASAPChunk aliceReceivedChunk =
+        ASAPInternalChunk aliceReceivedChunk =
                 aliceSenderStored.getChunk(aliceListener.getUri(),
                         aliceListener.getEra());
 
@@ -156,7 +157,7 @@ public class Point2PointTests {
         ASAPChunkStorage bobSenderStored =
                 bobStorage.getReceivedChunksStorage(bobListener.getSender());
 
-        ASAPChunk bobReceivedChunk =
+        ASAPInternalChunk bobReceivedChunk =
                 bobSenderStored.getChunk(bobListener.getUri(),
                         bobListener.getEra());
 
@@ -190,7 +191,7 @@ public class Point2PointTests {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
+        ASAPInternalStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         int aliceInitialEra = aliceStorage.getEra();
 
@@ -200,7 +201,7 @@ public class Point2PointTests {
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
 
         // bob does the same
-        ASAPStorage bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+        ASAPInternalStorage bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         int bobInitialEra = bobStorage.getEra();
 
@@ -292,7 +293,7 @@ public class Point2PointTests {
 
         // get messages alice received
         ASAPChunkStorage aliceIncomingBobStorage = aliceStorage.getReceivedChunksStorage(BOB);
-        ASAPChunk aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, bobInitialEra);
+        ASAPInternalChunk aliceReceivedChunk = aliceIncomingBobStorage.getChunk(ALICE_BOB_CHAT_URL, bobInitialEra);
 
         // must be one message
         Iterator<CharSequence> aliceReceivedMessages = aliceReceivedChunk.getMessagesAsCharSequence();
@@ -307,7 +308,7 @@ public class Point2PointTests {
 
         // get message bob received
         ASAPChunkStorage bobIncomingAliceStorage = bobStorage.getReceivedChunksStorage(ALICE);
-        ASAPChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
+        ASAPInternalChunk bobReceivedChunk = bobIncomingAliceStorage.getChunk(ALICE_BOB_CHAT_URL, aliceInitialEra);
 
         // #1
         Iterator<CharSequence> bobReceivedMessages = bobReceivedChunk.getMessagesAsCharSequence();
@@ -333,7 +334,7 @@ public class Point2PointTests {
         ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
-        ASAPStorage aliceStorage =
+        ASAPInternalStorage aliceStorage =
                 ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
@@ -341,7 +342,7 @@ public class Point2PointTests {
         //aliceStorage.addRecipient(ALICE_BOB_CHAT_URL, BOB);
 
         // bob does the same
-        ASAPStorage bobStorage =
+        ASAPInternalStorage bobStorage =
                 ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
 
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);

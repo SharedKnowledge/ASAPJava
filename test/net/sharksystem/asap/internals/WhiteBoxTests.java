@@ -34,7 +34,7 @@ public class WhiteBoxTests {
         String secondMessage = "second message";
 
         ASAPEngineFS.removeFolder(folder);
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         // convert message into bytes
         byte[] messageBytes = firstMessage.getBytes();
@@ -63,7 +63,7 @@ public class WhiteBoxTests {
         String firstMessage = "first message";
         String secondMessage = "second message";
 
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         storage.add(uri, firstMessage);
         storage.add(uri, secondMessage);
@@ -84,7 +84,7 @@ public class WhiteBoxTests {
         String uri = "test://anURI";
         String firstMessage = "first message";
 
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
         storage.add(uri, firstMessage);
 
         // re-create storage
@@ -105,7 +105,7 @@ public class WhiteBoxTests {
         String uri = "test://anURI";
 
         ASAPEngineFS.removeFolder(folder);
-        ASAPStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
+        ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         String key1 = "key1";
         String value1 = "value1";

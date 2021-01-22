@@ -1,7 +1,7 @@
 package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.internals.MessageIter;
 
 import java.io.IOException;

@@ -1,6 +1,8 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
@@ -102,7 +104,7 @@ public class UsageExamples {
         ASAPChunkStorage receivedChunkStorage = bobChatEngine.getReceivedChunksStorage(parameters.getSender());
 
         // get chunk
-        ASAPChunk chunk = receivedChunkStorage.getChunk(parameters.getUri(), parameters.getEra());
+        ASAPInternalChunk chunk = receivedChunkStorage.getChunk(parameters.getUri(), parameters.getEra());
 
         Iterator<byte[]> messages = chunk.getMessages();
 

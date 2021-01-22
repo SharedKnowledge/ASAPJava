@@ -1,11 +1,11 @@
 package net.sharksystem.asap.util;
 
 import net.sharksystem.Utils;
-import net.sharksystem.asap.internals.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.internals.ASAPEngine;
 import net.sharksystem.asap.internals.ASAPEngineFS;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPMessages;
+import net.sharksystem.asap.ASAPMessages;
 
 import java.io.*;
 import java.util.*;

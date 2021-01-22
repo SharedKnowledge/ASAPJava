@@ -1,64 +1,34 @@
 package net.sharksystem.asap.internals;
 
+import net.sharksystem.asap.ASAPChannel;
+import net.sharksystem.asap.ASAPChunk;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
 /**
- * An AASP chunk contains messages regarding a topic described by an
- * uri. Messages are completly opaque to AASP, they are the payload
- * of that protocol. Of course, that protocol was created with ASIP in mind.
- * 
- * Most developers will not work directly with that interface. If so: Take care!
- * 
- * Each chunk has an era. The era number space is a circle with 
- * a definition of proceeding and suceeding era, @see ASAPEngine for details.
- * 
- * Each chunk can have a number of recipients. Note: That list can be 
- * changed by an application as long as that chunk is filled. The ASAPEngine
- * changes that list when meeting other peers. Actually, it removes any peer
- * with whom it got synchronized.
- * 
- * 
+ * An ASAP chunk is a set of message with the same format, same uri and same era.
+ *
+ * Reading from a chunk can be done anytime.
+ *
+ * Use change methods only if you really know what you do. Most likely, there will be
+ * a running ASAP protocol in the background that writes data into chunks, namely chunks
+ * of current era. The protocol engine reads also from older era to transmit messages to
+ * encountered peers. There will be a documentation that explains strategies when to do what.
+ *
+ * Rule of thumb: Read is ok. Better do not change anything with this interface.
+ *
  * @author thsc
  */
-public interface ASAPChunk {
+public interface ASAPInternalChunk extends ASAPChunk {
     /**
-     * 
-     * @return number of message in that chunk
-     */
-    int getNumberMessage();
-    
-    /**
-     * URI which represents topic of messages in that chunk
-     * @return
-     * @throws IOException 
-     */
-    String getUri() throws IOException;
-
-    /**
-     *
+     * Convenient methode: It calls getMessages and transforms each message into a string
      * @return iterator of all messages in the chunk
      * @throws IOException
      */
     Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
 
-    /**
-     *
-     * @return iterator of all messages in the chunk
-     * @throws IOException
-     */
-    Iterator<byte[]> getMessages() throws IOException;
-
-    /**
-     * remove that chunk.. drop all object references after
-     * calling this methods. Further calls on this object
-     * have an undefined behaviour.
-     */
-    public void drop();
-    
-    public int getEra() throws IOException;
-    
     /**
      * 
      * @return recipients of that chunk 
@@ -86,8 +56,6 @@ public interface ASAPChunk {
      */
     void removeRecipient(CharSequence recipients) throws IOException;
 
-    void addMessage(byte[] messageAsBytes) throws IOException;
-
     void addMessage(InputStream messageByteIS, long length) throws IOException;
 
     public long getLength();
@@ -106,7 +74,7 @@ public interface ASAPChunk {
      * set up this chunk by a source
      * @param chunkSource
      */
-    void clone(ASAPChunk chunkSource) throws IOException;
+    void clone(ASAPInternalChunk chunkSource) throws IOException;
 
     HashMap<String, String> getExtraData();
 

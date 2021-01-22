@@ -26,7 +26,7 @@ public class ChunkPrinter {
         System.out.println("going to print content of chunk " + chunkTrunkName);
         
         try {
-        ASAPChunkFS chunk = new ASAPChunkFS(null, chunkTrunkName);
+        ASAPInternalChunkFS chunk = new ASAPInternalChunkFS(null, chunkTrunkName);
         
             System.out.println("url: " + chunk.getUri());
             

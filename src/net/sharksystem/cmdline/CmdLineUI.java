@@ -1,6 +1,8 @@
 package net.sharksystem.cmdline;
 
+import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.internals.ASAPInternalStorage;
 import net.sharksystem.asap.internals.*;
 
 import java.io.*;
@@ -528,7 +530,7 @@ public class CmdLineUI {
 
             ASAPInternalPeer asapInternalPeer = this.peers.get(peer);
             if(asapInternalPeer != null) {
-                ASAPStorage storage = asapInternalPeer.createEngineByFormat(appName);
+                ASAPInternalStorage storage = asapInternalPeer.createEngineByFormat(appName);
                 /*
                 if(!storage.isASAPManagementStorageSet()) {
                     storage.setASAPManagementStorage(ASAPEngineFS.getASAPStorage(peer,
@@ -552,7 +554,7 @@ public class CmdLineUI {
             String appName = st.nextToken();
             String uri = st.nextToken();
 
-            ASAPStorage storage = this.getEngine(peername, appName);
+            ASAPInternalStorage storage = this.getEngine(peername, appName);
 
             Set<CharSequence> recipients = new HashSet<>();
 
@@ -586,7 +588,7 @@ public class CmdLineUI {
             String message = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getEngine(peername, appName);
+            ASAPInternalStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -655,7 +657,7 @@ public class CmdLineUI {
             String appName = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getEngine(peername, appName);
+            ASAPInternalStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 System.err.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -714,7 +716,7 @@ public class CmdLineUI {
             String uri = st.nextToken();
 
             // first - get storage
-            ASAPStorage asapStorage = this.getEngine(peername, appName);
+            ASAPInternalStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
                 this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
@@ -728,7 +730,7 @@ public class CmdLineUI {
         }
     }
 
-    private void printChannelInfo(ASAPStorage asapStorage, CharSequence uri, CharSequence appName)
+    private void printChannelInfo(ASAPInternalStorage asapStorage, CharSequence uri, CharSequence appName)
             throws IOException, ASAPException {
 
         ASAPChannel channel = asapStorage.getChannel(uri);
