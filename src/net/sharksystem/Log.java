@@ -1,4 +1,4 @@
-package net.sharksystem.asap.util;
+package net.sharksystem;
 
 public class Log {
     public static StringBuilder startLog(Object o) {

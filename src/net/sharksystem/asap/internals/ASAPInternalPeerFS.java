@@ -1,13 +1,13 @@
 package net.sharksystem.asap.internals;
 
-import net.sharksystem.Utils;
+import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
-import net.sharksystem.asap.util.Log;
+import net.sharksystem.Log;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
 import net.sharksystem.asap.crypto.ASAPKeyStore;

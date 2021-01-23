@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.ASAPInternalPeer;
 import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.internals.EngineSetting;
-import net.sharksystem.asap.util.Log;
+import net.sharksystem.Log;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 
 import java.io.IOException;

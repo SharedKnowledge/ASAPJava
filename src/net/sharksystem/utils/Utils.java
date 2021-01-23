@@ -1,4 +1,4 @@
-package net.sharksystem;
+package net.sharksystem.utils;
 
 import net.sharksystem.asap.ASAP;
 

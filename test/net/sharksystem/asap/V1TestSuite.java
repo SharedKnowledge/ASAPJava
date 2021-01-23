@@ -16,7 +16,7 @@ import org.junit.runners.Suite;
         CreateNewChannelFromOutsideTest.class,
         PDUTests.class,
         CryptoTests.class,
-        SNMessageASAPSerializationTests.class,
+        //SNMessageASAPSerializationTests.class,
         LongerMessages.class
 })
 public class V1TestSuite {

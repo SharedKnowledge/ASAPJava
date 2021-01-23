@@ -1,7 +1,7 @@
 package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.asap.util.Log;
+import net.sharksystem.Log;
 
 import javax.crypto.SecretKey;
 import java.io.*;
