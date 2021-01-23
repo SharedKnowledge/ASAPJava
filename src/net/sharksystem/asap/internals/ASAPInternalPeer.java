@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.crypto.BasicKeyStore;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -101,11 +101,11 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler {
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
-    void setASAPBasicKeyStorage(BasicKeyStore basicKeyStore);
+    void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore);
 
     ASAPCommunicationSetting getASAPCommunicationControl();
 
-    BasicKeyStore getBasicCryptoParameters() throws ASAPSecurityException;
+    ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
 }

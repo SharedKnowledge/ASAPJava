@@ -3,9 +3,9 @@ package net.sharksystem.asap.protocol;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicKeyStore;
-import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
-    private final BasicKeyStore signAndEncryptionKeyStorage;
+    private final ASAPKeyStore signAndEncryptionKeyStorage;
     private final ASAPUndecryptableMessageHandler undecryptableMessageHandler;
 
     public ASAP_Modem_Impl() {
@@ -26,11 +26,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         this(null, undecryptableMessageHandler);
     }
 
-    public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage) {
+    public ASAP_Modem_Impl(ASAPKeyStore signAndEncryptionKeyStorage) {
         this(signAndEncryptionKeyStorage, null);
     }
 
-    public ASAP_Modem_Impl(BasicKeyStore signAndEncryptionKeyStorage,
+    public ASAP_Modem_Impl(ASAPKeyStore signAndEncryptionKeyStorage,
                            ASAPUndecryptableMessageHandler undecryptableMessageHandler) {
         this.signAndEncryptionKeyStorage = signAndEncryptionKeyStorage;
         this.undecryptableMessageHandler = undecryptableMessageHandler;

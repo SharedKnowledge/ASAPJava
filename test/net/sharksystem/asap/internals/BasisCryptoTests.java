@@ -1,8 +1,8 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicCryptoKeyStorage;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class BasisCryptoTests {
 
     @Test
     public void publicKeyExportImport() throws ASAPSecurityException, IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-        BasicCryptoKeyStorage aliceStorage = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore aliceStorage = new InMemoASAPKeyStore(ALICE_ID);
         // a message
         String msg = "Hi Bob";
 
@@ -34,7 +34,7 @@ public class BasisCryptoTests {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         aliceStorage.writePublicKey(baos);
 
-        BasicCryptoKeyStorage bobStorage = new BasicCryptoKeyStorage(BOB_ID);
+        InMemoASAPKeyStore bobStorage = new InMemoASAPKeyStore(BOB_ID);
         // store Alice' public key with Bob
         bobStorage.readPublicKey(ALICE_ID, new ByteArrayInputStream(baos.toByteArray()));
 

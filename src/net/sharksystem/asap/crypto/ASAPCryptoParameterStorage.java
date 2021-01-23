@@ -1,4 +1,4 @@
-package net.sharksystem.crypto;
+package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPSecurityException;
 
@@ -6,7 +6,10 @@ import javax.crypto.SecretKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public interface BasicCryptoSettings {
+/**
+ * Defines basic methods we need to implement signing and verification and to get information how to encrypt
+ */
+public interface ASAPCryptoParameterStorage {
     String DEFAULT_ASYMMETRIC_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
     String DEFAULT_SYMMETRIC_KEY_TYPE = "AES";
     String DEFAULT_SYMMETRIC_ENCRYPTION_ALGORITHM = "AES/ECB/PKCS5Padding";
@@ -29,6 +32,8 @@ public interface BasicCryptoSettings {
      * @throws ASAPSecurityException
      */
     PublicKey getPublicKey() throws ASAPSecurityException;
+
+    long getKeysCreationTime() throws ASAPSecurityException;
 
     String getAsymmetricEncryptionAlgorithm();
 

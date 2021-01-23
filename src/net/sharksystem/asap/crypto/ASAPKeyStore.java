@@ -1,10 +1,13 @@
-package net.sharksystem.crypto;
+package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPSecurityException;
 
 import java.security.PublicKey;
 
-public interface BasicKeyStore extends BasicCryptoSettings {
+/**
+ * Basic requirement to encrypt / decrypt and sign/verify messages.
+ */
+public interface ASAPKeyStore extends ASAPCryptoParameterStorage {
     /**
      * @param subjectID
      * @return public key of recipient - to encrypt
@@ -20,4 +23,9 @@ public interface BasicKeyStore extends BasicCryptoSettings {
     boolean isOwner(CharSequence peerID);
 
     CharSequence getOwner();
+
+    /**
+     * A new key pair is created
+     */
+    void generateKeyPair() throws ASAPSecurityException;
 }

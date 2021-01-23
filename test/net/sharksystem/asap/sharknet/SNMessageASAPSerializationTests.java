@@ -1,7 +1,7 @@
 package net.sharksystem.asap.sharknet;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.crypto.BasicCryptoKeyStorage;
+import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,10 +36,10 @@ public class SNMessageASAPSerializationTests {
 
     @Test
     public void serializationTestSigned() throws ASAPException, IOException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID); // Alice knows Bob
 
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
         byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
@@ -56,9 +56,9 @@ public class SNMessageASAPSerializationTests {
 
     @Test
     public void serializationTestSignedNotVerified() throws ASAPException, IOException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,System.currentTimeMillis());
         // Bob does not know Alice
 
         byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
@@ -75,10 +75,10 @@ public class SNMessageASAPSerializationTests {
 
     @Test
     public void serializationTestEncrypted() throws ASAPException, IOException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID); // Alice knows Bob
 
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
         byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
@@ -95,10 +95,10 @@ public class SNMessageASAPSerializationTests {
 
     @Test
     public void serializationTestEncryptedAndSigned() throws ASAPException, IOException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID); // Alice knows Bob
 
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
         byte[] serializedSNMessage = InMemoSNMessage.serializeMessage(
@@ -116,9 +116,9 @@ public class SNMessageASAPSerializationTests {
     @Test
     public void snTestSignedMultipleRecipients() throws ASAPException, IOException, InterruptedException {
         // Alice
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID);
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair()); // Bob knows Alice
 
         Set<CharSequence> recipients = new HashSet<>();

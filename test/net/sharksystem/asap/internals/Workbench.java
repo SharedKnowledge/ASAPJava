@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.cmdline.TCPStream;
-import net.sharksystem.crypto.BasicCryptoKeyStorage;
+import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
 import org.junit.Test;
 
 import java.io.*;
@@ -94,15 +94,16 @@ public class Workbench {
         // Still something to do.
 
         // setup keystores
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_PEER_NAME);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_PEER_NAME);
 
         // alice produces a key pair for alice. This would not work in real life
         KeyPair keyPairClara = keyStorageAlice.createTestPeer(CLARA_PEER_NAME);
 
         // there is a keystore but no key excepts Bobs' He cannot verify or encrypt anybody or anything
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_PEER_NAME);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_PEER_NAME);
 
-        BasicCryptoKeyStorage keyStorageClara = new BasicCryptoKeyStorage(CLARA_PEER_NAME, keyPairClara);
+        InMemoASAPKeyStore keyStorageClara = new InMemoASAPKeyStore(CLARA_PEER_NAME, keyPairClara,
+                System.currentTimeMillis());
         // clara knows Alice as well
         keyStorageClara.addKeyPair(ALICE_PEER_NAME, keyStorageAlice.getKeyPair());
 

@@ -1,4 +1,4 @@
-package net.sharksystem.crypto;
+package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.util.Log;
@@ -10,26 +10,36 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
-public class BasicCryptoKeyStorage implements BasicKeyStore {
-    private final KeyPair keyPair;
+public class InMemoASAPKeyStore implements ASAPKeyStore {
+    private KeyPair keyPair;
     private final CharSequence ownerID;
-    private long timeInMillis = 0;
+    private long keyPairCreationTime = 0;
 
     // for debugging only - we don't have private key in real apps
     private HashMap<String, KeyPair> peerKeyPairs = new HashMap<>();
 
     private HashMap<CharSequence, PublicKey> peerPublicKeys = new HashMap<CharSequence, PublicKey>();
 
-    public BasicCryptoKeyStorage(String ownerID) throws ASAPSecurityException {
+    /**
+     * Setup key store, A key pair will be generated
+     * @param ownerID
+     * @throws ASAPSecurityException
+     */
+    public InMemoASAPKeyStore(CharSequence ownerID) throws ASAPSecurityException {
         // generate owners key pair;
         this.ownerID = ownerID;
-        this.keyPair = this.generateKeyPair();
-        this.timeInMillis = System.currentTimeMillis();
+        this.generateKeyPair();
     }
 
-    public BasicCryptoKeyStorage(CharSequence ownerID, KeyPair ownerKeyPair) {
+    /**
+     * Setup key store with a key pair
+     * @param ownerID
+     * @param ownerKeyPair
+     */
+    public InMemoASAPKeyStore(CharSequence ownerID, KeyPair ownerKeyPair, long keyPairCreationTime) {
         this.ownerID = ownerID;
         this.keyPair = ownerKeyPair;
+        this.keyPairCreationTime = keyPairCreationTime;
     }
 
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
@@ -37,15 +47,24 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
                 DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_SYMMETRIC_KEY_SIZE);
     }
 
+    public long getKeysCreationTime() throws ASAPSecurityException {
+        return this.keyPairCreationTime;
+    }
+
     public int getSymmetricKeyLen() {
-        return BasicKeyStore.DEFAULT_SYMMETRIC_KEY_SIZE;
+        return ASAPKeyStore.DEFAULT_SYMMETRIC_KEY_SIZE;
     }
 
     private String getLogStart() {
         return this.getClass().getSimpleName() + ": ";
     }
 
-    private KeyPair generateKeyPair() throws ASAPSecurityException {
+    public void generateKeyPair() throws ASAPSecurityException {
+        this.keyPair = this.generateNewKeyPair();
+        this.keyPairCreationTime = System.currentTimeMillis();
+    }
+
+    private KeyPair generateNewKeyPair() throws ASAPSecurityException {
         Log.writeLog(this, "create key pair");
         KeyPairGenerator keyGen = null;
         try {
@@ -65,7 +84,7 @@ public class BasicCryptoKeyStorage implements BasicKeyStore {
     }
 
     public KeyPair createTestPeer(String id) throws ASAPSecurityException {
-        KeyPair keyPair = this.generateKeyPair();
+        KeyPair keyPair = this.generateNewKeyPair();
         this.peerKeyPairs.put(id, keyPair);
         return keyPair;
     }

@@ -2,7 +2,7 @@ package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
-import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.IOException;
 

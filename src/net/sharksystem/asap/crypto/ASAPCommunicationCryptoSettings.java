@@ -1,4 +1,4 @@
-package net.sharksystem.crypto;
+package net.sharksystem.asap.crypto;
 
 public interface ASAPCommunicationCryptoSettings {
     boolean mustEncrypt();

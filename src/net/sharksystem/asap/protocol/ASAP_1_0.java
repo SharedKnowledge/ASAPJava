@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,8 +2,8 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.BasicKeyStore;
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.*;
@@ -12,7 +12,7 @@ class ASAPCryptoMessage {
     private boolean encrypted;
     private boolean sign;
     private CharSequence recipient;
-    private BasicKeyStore basicKeyStore;
+    private ASAPKeyStore ASAPKeyStore;
     private byte cmd;
 
     private OutputStream effectiveOS;
@@ -21,26 +21,26 @@ class ASAPCryptoMessage {
     private InputStreamCopy inputStreamCopy;
     private ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage;
 
-    ASAPCryptoMessage(BasicKeyStore basicKeyStore) {
-        this.basicKeyStore = basicKeyStore;
+    ASAPCryptoMessage(ASAPKeyStore ASAPKeyStore) {
+        this.ASAPKeyStore = ASAPKeyStore;
     }
 
     ASAPCryptoMessage(byte cmd, OutputStream os, boolean sign, boolean encrypted,
                       CharSequence recipient,
-                      BasicKeyStore basicKeyStore)
+                      ASAPKeyStore ASAPKeyStore)
             throws ASAPSecurityException {
 
         this.cmd = cmd;
         this.realOS = os;
         this.effectiveOS = os; // still this one
-        this.basicKeyStore = basicKeyStore;
+        this.ASAPKeyStore = ASAPKeyStore;
         this.recipient = recipient;
         this.encrypted = encrypted;
         this.sign = sign;
 
         if(encrypted || sign) {
             // we need some basic crypto parameters
-            if(basicKeyStore == null) {
+            if(ASAPKeyStore == null) {
                 throw new ASAPSecurityException("cannot encrypt or sign without cryptp parameters / key store");
             }
             this.setupCopyOutputStream();
@@ -56,7 +56,7 @@ class ASAPCryptoMessage {
 
         if(sign) {
             // signing needs a private key - check of available
-            if(basicKeyStore.getPrivateKey() == null) {
+            if(ASAPKeyStore.getPrivateKey() == null) {
                 throw new ASAPSecurityException("asap message is to be signed but no private key - fatal, give up");
             }
         }
@@ -85,7 +85,7 @@ class ASAPCryptoMessage {
                 // get message as bytes
                 byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
                 // produce signature
-                byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.basicKeyStore);
+                byte[] signatureBytes = ASAPCryptoAlgorithms.sign(asapMessageAsBytes, this.ASAPKeyStore);
 
                 if(this.encrypted) {
                     // have to store it - message and signature will be encrypted
@@ -105,7 +105,7 @@ class ASAPCryptoMessage {
             byte[] asapMessageAsBytes = this.outputStreamCopy.toByteArray();
 
             ASAPCryptoAlgorithms.writeEncryptedMessagePackage(
-                    asapMessageAsBytes, this.recipient, this.basicKeyStore, this.realOS);
+                    asapMessageAsBytes, this.recipient, this.ASAPKeyStore, this.realOS);
         }
     }
 
@@ -159,7 +159,7 @@ class ASAPCryptoMessage {
         byte[] signatureBytes = ASAPSerialization.readByteArray(is);
         // debug break
         boolean wasVerified =
-                ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.basicKeyStore);
+                ASAPCryptoAlgorithms.verify(signedData, signatureBytes, sender, this.ASAPKeyStore);
 
         return wasVerified;
     }
@@ -185,12 +185,12 @@ class ASAPCryptoMessage {
                 ASAPCryptoAlgorithms.parseEncryptedMessagePackage(is);
         //        ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
 
-        if(this.basicKeyStore == null) {
+        if(this.ASAPKeyStore == null) {
             System.out.println(this.getLogStart() + "no keystore set: cannot handle encrypted messages");
             return false;
         }
 
-        if(this.basicKeyStore.isOwner(this.encryptedMessagePackage.getRecipient())) {
+        if(this.ASAPKeyStore.isOwner(this.encryptedMessagePackage.getRecipient())) {
             return true;
         }
 
@@ -215,7 +215,7 @@ class ASAPCryptoMessage {
         }
 
         byte[] decryptedBytes =
-                ASAPCryptoAlgorithms.decryptPackage(this.encryptedMessagePackage, this.basicKeyStore);
+                ASAPCryptoAlgorithms.decryptPackage(this.encryptedMessagePackage, this.ASAPKeyStore);
 
         return new ByteArrayInputStream(decryptedBytes);
     }

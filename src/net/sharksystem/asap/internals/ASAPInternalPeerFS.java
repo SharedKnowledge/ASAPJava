@@ -8,10 +8,10 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.util.Helper;
 import net.sharksystem.asap.util.Log;
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicCryptoKeyStorage;
-import net.sharksystem.crypto.BasicKeyStore;
-import net.sharksystem.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
 import java.util.*;
@@ -25,9 +25,9 @@ public class ASAPInternalPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
-    private BasicKeyStore basicKeyStore;
+    private ASAPKeyStore ASAPKeyStore;
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
-    private BasicCryptoKeyStorage basicCryptoKeyStorage;
+    private InMemoASAPKeyStore inMemoASAPKeyStore;
 
     public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
         return this.defaultSecurityAdministrator;
@@ -299,7 +299,7 @@ public class ASAPInternalPeerFS implements
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
-                this, this.basicKeyStore,
+                this, this.ASAPKeyStore,
                 maxExecutionTime, this, this);
 
         StringBuilder sb = new StringBuilder();
@@ -561,8 +561,8 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public void setASAPBasicKeyStorage(BasicKeyStore basicKeyStore) {
-        this.basicKeyStore = basicKeyStore;
+    public void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore) {
+        this.ASAPKeyStore = ASAPKeyStore;
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
@@ -623,10 +623,10 @@ public class ASAPInternalPeerFS implements
 
     ///////////////////////////////// SharkNet
     @Override
-    public BasicKeyStore getBasicCryptoParameters() throws ASAPSecurityException {
-        if(this.basicCryptoKeyStorage == null) {
-            this.basicCryptoKeyStorage = new BasicCryptoKeyStorage(this.getOwner().toString());
+    public ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException {
+        if(this.inMemoASAPKeyStore == null) {
+            this.inMemoASAPKeyStore = new InMemoASAPKeyStore(this.getOwner().toString());
         }
-        return this.basicCryptoKeyStorage;
+        return this.inMemoASAPKeyStore;
     }
 }

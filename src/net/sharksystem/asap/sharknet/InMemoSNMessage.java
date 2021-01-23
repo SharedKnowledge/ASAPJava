@@ -2,8 +2,8 @@ package net.sharksystem.asap.sharknet;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.crypto.BasicKeyStore;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
@@ -73,7 +73,7 @@ public class InMemoSNMessage implements SNMessage {
 
     public static byte[] serializeMessage(byte[] content, CharSequence sender, CharSequence recipient,
                                    boolean sign, boolean encrypt,
-                                   BasicKeyStore basicKeyStore)
+                                   ASAPKeyStore ASAPKeyStore)
             throws IOException, ASAPException {
 
         Set<CharSequence> recipients = null;
@@ -83,12 +83,12 @@ public class InMemoSNMessage implements SNMessage {
         }
 
         return InMemoSNMessage.serializeMessage(content, sender, recipients,
-                sign, encrypt, basicKeyStore);
+                sign, encrypt, ASAPKeyStore);
 
     }
 
     public static byte[] serializeMessage(byte[] content, CharSequence sender, Set<CharSequence> recipients,
-        boolean sign, boolean encrypt, BasicKeyStore basicKeyStore)
+        boolean sign, boolean encrypt, ASAPKeyStore ASAPKeyStore)
             throws IOException, ASAPException {
 
         if( (recipients != null && recipients.size() > 1) && encrypt) {
@@ -123,7 +123,7 @@ public class InMemoSNMessage implements SNMessage {
 
         byte flags = 0;
         if(sign) {
-            byte[] signature = ASAPCryptoAlgorithms.sign(content, basicKeyStore);
+            byte[] signature = ASAPCryptoAlgorithms.sign(content, ASAPKeyStore);
             baos = new ByteArrayOutputStream();
             ASAPSerialization.writeByteArray(content, baos); // message has three parts: content, sender, receiver
             // append signature
@@ -137,7 +137,7 @@ public class InMemoSNMessage implements SNMessage {
             content = ASAPCryptoAlgorithms.produceEncryptedMessagePackage(
                     content,
                     recipients.iterator().next(), // already checked if one and only one is recipient
-                    basicKeyStore);
+                    ASAPKeyStore);
             flags += ENCRYPTED_MASK;
         }
 
@@ -220,7 +220,7 @@ public class InMemoSNMessage implements SNMessage {
 
     }
 
-    public static InMemoSNMessage parseMessage(byte[] message, BasicKeyStore basicKeyStore)
+    public static InMemoSNMessage parseMessage(byte[] message, ASAPKeyStore ASAPKeyStore)
             throws IOException, ASAPException {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(message);
@@ -237,14 +237,14 @@ public class InMemoSNMessage implements SNMessage {
                     encryptedMessagePackage = ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
 
             // for me?
-            if (!basicKeyStore.isOwner(encryptedMessagePackage.getRecipient())) {
+            if (!ASAPKeyStore.isOwner(encryptedMessagePackage.getRecipient())) {
                 return new InMemoSNMessage(encryptedMessagePackage);
                 //throw new ASAPException("SharkNetMessage: message not for me");
             }
 
             // replace message with decrypted message
             tmpMessage = ASAPCryptoAlgorithms.decryptPackage(
-                    encryptedMessagePackage, basicKeyStore);
+                    encryptedMessagePackage, ASAPKeyStore);
         }
 
         byte[] signature = null;
@@ -274,7 +274,7 @@ public class InMemoSNMessage implements SNMessage {
         if (signature != null) {
             try {
                 verified = ASAPCryptoAlgorithms.verify(
-                        signedMessage, signature, snSender, basicKeyStore);
+                        signedMessage, signature, snSender, ASAPKeyStore);
             } catch (ASAPSecurityException e) {
                 // verified definitely false
                 verified = false;

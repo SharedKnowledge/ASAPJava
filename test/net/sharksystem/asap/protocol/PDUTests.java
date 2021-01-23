@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.crypto.BasicCryptoKeyStorage;
+import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -115,11 +115,12 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveInterestEncrypted() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,
+                System.currentTimeMillis());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
         ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
@@ -149,11 +150,12 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveInterestSigned() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,
+                System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
@@ -185,11 +187,11 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveInterestSignedAndEncrypted() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID,bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID,bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
@@ -222,14 +224,14 @@ public class PDUTests {
 
     @Test(expected = ASAPSecurityException.class)
     public void sendEncryptedMessageNotToRecipient() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID, bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID, bobKeyPair,System.currentTimeMillis());
 
         // add Clara
-        BasicCryptoKeyStorage keyStorageClara = new BasicCryptoKeyStorage(CLARA_ID);
+        InMemoASAPKeyStore keyStorageClara = new InMemoASAPKeyStore(CLARA_ID);
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
         //ASAP_1_0 asapModemBob = new ASAP_Modem_Impl(keyStorageBob);
@@ -320,11 +322,11 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveAssimilateSignedAndEncrypted() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID,bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID,bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
@@ -393,11 +395,11 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveAssimilateSigned() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID,bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID,bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);
@@ -496,11 +498,11 @@ public class PDUTests {
 
     @Test
     public void sendAndReceiveAssimilateEncrypted() throws IOException, ASAPException {
-        BasicCryptoKeyStorage keyStorageAlice = new BasicCryptoKeyStorage(ALICE_ID);
+        InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob
         KeyPair bobKeyPair = keyStorageAlice.createTestPeer(BOB_ID);
-        BasicCryptoKeyStorage keyStorageBob = new BasicCryptoKeyStorage(BOB_ID,bobKeyPair);
+        InMemoASAPKeyStore keyStorageBob = new InMemoASAPKeyStore(BOB_ID,bobKeyPair,System.currentTimeMillis());
         keyStorageBob.addKeyPair(ALICE_ID, keyStorageAlice.getKeyPair());
 
         ASAP_1_0 asapModemAlice = new ASAP_Modem_Impl(keyStorageAlice);

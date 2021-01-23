@@ -1,6 +1,6 @@
 package net.sharksystem.asap.internals;
 
-import net.sharksystem.crypto.ASAPCryptoAlgorithms;
+import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 
 public interface ASAPUndecryptableMessageHandler {
     String FORMAT_UNDECRYPTABLE_MESSAGES = "asap/undecryptable";
