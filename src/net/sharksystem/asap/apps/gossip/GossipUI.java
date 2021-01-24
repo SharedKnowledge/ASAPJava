@@ -3,7 +3,7 @@ package net.sharksystem.asap.apps.gossip;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.internals.*;
-import net.sharksystem.asap.util.Helper;
+import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.cmdline.TCPStream;
 import net.sharksystem.cmdline.TCPStreamCreatedListener;
 

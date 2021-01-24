@@ -1,6 +1,6 @@
 package net.sharksystem.asap.listenermanager;
 
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 
 import java.util.ArrayList;
 import java.util.List;

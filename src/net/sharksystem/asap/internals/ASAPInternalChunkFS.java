@@ -1,7 +1,7 @@
 package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPChannel;
-import net.sharksystem.asap.util.Helper;
+import net.sharksystem.asap.utils.Helper;
 
 import java.io.*;
 import java.util.*;

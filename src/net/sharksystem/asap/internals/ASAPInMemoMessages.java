@@ -3,7 +3,7 @@ package net.sharksystem.asap.internals;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.*;

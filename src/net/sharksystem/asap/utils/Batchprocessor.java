@@ -1,4 +1,4 @@
-package net.sharksystem.asap.util;
+package net.sharksystem.asap.utils;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.internals.ASAPInternalPeer;

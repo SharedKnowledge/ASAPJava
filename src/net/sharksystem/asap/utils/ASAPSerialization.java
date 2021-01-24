@@ -1,4 +1,4 @@
-package net.sharksystem.utils;
+package net.sharksystem.asap.utils;
 
 import net.sharksystem.asap.ASAPException;
 

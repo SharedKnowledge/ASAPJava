@@ -5,7 +5,7 @@ import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

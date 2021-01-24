@@ -6,7 +6,7 @@ import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.IOException;

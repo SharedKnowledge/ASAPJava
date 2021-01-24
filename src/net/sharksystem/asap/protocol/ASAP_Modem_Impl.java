@@ -6,7 +6,7 @@ import net.sharksystem.asap.internals.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
-import net.sharksystem.utils.ASAPSerialization;
+import net.sharksystem.asap.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

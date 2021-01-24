@@ -1,6 +1,6 @@
-package net.sharksystem.asap.util;
+package net.sharksystem.asap.utils;
 
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.internals.ASAPEngine;

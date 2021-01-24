@@ -1,4 +1,4 @@
-package net.sharksystem;
+package net.sharksystem.utils;
 
 public class Log {
     public static StringBuilder startLog(Object o) {

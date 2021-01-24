@@ -1,30 +1,38 @@
 package net.sharksystem;
 
-import net.sharksystem.asap.ASAPEnvironmentChangesListenerManagement;
-import net.sharksystem.asap.ASAPMessageReceivedListenerManagement;
 import net.sharksystem.asap.ASAPPeer;
 
 /**
- * A Shark (Shared Knowledge) Peer is considered to be a collection of ASAP apps.
- * The interfaces and some little classes are meant to be a template how to put different
- * ASAP apps together into a single application - a Shark (Shared Knowledge) application.
+ * A Shark (Shared Knowledge) Peer is considered to be host of a collection of decentralized
+ * applications based on ASAP. Each Shark peer will host just a single ASAPPeer
+ * but usually more than one ASAP application.
+ * <br/><br/>
+ * Your application can become part of a larger system. Provide a facade of your application
+ * that implements SharkComponent. Provide a factory that can setup your application. That's all.
+ *
+ * @see SharkComponent
+ * @see SharkComponentFactory
+ * @see ASAPPeer
  */
 public interface SharkPeer {
     /**
      * Add a component to the Shark app
      * @param componentFactory
+     * @param facade interface
      * @throws SharkException a) wrong status. Peer is already running. b) there is already a
      * component supporting same format.
      */
-    void addComponent(SharkComponentFactory componentFactory) throws SharkException;
+    void addComponent(SharkComponentFactory componentFactory, Class<? extends SharkComponent> facade)
+            throws SharkException;
 
     /**
      * Remove a component from your Shark application
-     * @param component
+     * @param facade
      * @throws SharkException a) wrong status. Peer is already running. b) there is no component
      * for this format
      */
-    void removeComponent(SharkComponent component) throws SharkException;
+    void removeComponent(Class<? extends SharkComponent> facade)
+            throws SharkException;
 
     /**
      *

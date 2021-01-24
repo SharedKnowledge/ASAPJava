@@ -1,4 +1,4 @@
-package net.sharksystem.asap.util;
+package net.sharksystem.asap.utils;
 
 import java.text.DateFormat;
 import java.util.Date;

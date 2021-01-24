@@ -1,4 +1,4 @@
-package net.sharksystem.asap.util;
+package net.sharksystem.asap.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

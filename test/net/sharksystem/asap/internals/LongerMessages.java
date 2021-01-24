@@ -2,10 +2,10 @@ package net.sharksystem.asap.internals;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
-import net.sharksystem.asap.util.ASAPChunkReceivedTester;
-import net.sharksystem.asap.util.ASAPPeerHandleConnectionThread;
+import net.sharksystem.asap.utils.ASAPChunkReceivedTester;
+import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.cmdline.TCPStream;
-import net.sharksystem.utils.ASAPSerialization;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import org.junit.Assert;
 import org.junit.Test;
 

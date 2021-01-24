@@ -5,7 +5,7 @@ import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.Log;
+import net.sharksystem.utils.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;

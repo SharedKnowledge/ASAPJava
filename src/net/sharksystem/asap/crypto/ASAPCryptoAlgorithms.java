@@ -2,7 +2,7 @@ package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.utils.ASAPSerialization;
+import net.sharksystem.asap.utils.ASAPSerialization;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
