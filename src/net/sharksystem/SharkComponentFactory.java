@@ -7,5 +7,5 @@ public interface SharkComponentFactory {
     /**
      * @return Instance of your application. It is up to you if your factory produces a singleton or not.
      */
-    SharkComponent getComponentFacade();
+    SharkComponent getComponent();
 }

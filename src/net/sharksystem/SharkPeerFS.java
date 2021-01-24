@@ -74,7 +74,7 @@ public class SharkPeerFS implements SharkPeer {
         }
 
         Log.writeLog(this, "create component");
-        SharkComponent component = componentFactory.getComponentFacade();
+        SharkComponent component = componentFactory.getComponent();
 
         for(CharSequence format : componentFormats) {
             Log.writeLog(this, "added component that supports format " + format);
@@ -120,14 +120,26 @@ public class SharkPeerFS implements SharkPeer {
         try {
             this.asapPeer = new ASAPPeerFS(this.owner, this.rootFolder, this.components.keySet());
             // inform all peers
-            for(SharkComponent component : this.components.values()) {
-                component.onStart(this.asapPeer);
-            }
-
-            this.status = SharkPeerStatus.RUNNING;
-            Log.writeLog(this, "Shark system started");
         } catch (IOException | ASAPException e) {
-            e.printStackTrace();
+            Log.writeLogErr(this, "could start ASAP peer - fatal, give up");
+            throw new SharkException(e);
+        }
+
+        boolean fullSuccess = true; // optimistic
+        for(SharkComponent component : this.components.values()) {
+            try {
+                component.onStart(this.asapPeer);
+            } catch (SharkException e) {
+                fullSuccess = false;
+                Log.writeLogErr(this, "could not start component: " + e.getLocalizedMessage());
+            }
+        }
+
+        this.status = SharkPeerStatus.RUNNING;
+        if(fullSuccess) {
+            Log.writeLog(this, "Shark system started");
+        } else {
+            Log.writeLog(this, "Shark system started with errors.");
         }
     }
 
