@@ -1,7 +1,7 @@
 package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
+import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 import net.sharksystem.asap.protocol.ASAPConnection;
 
 import java.io.IOException;

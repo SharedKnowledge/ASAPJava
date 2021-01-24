@@ -1,6 +1,6 @@
 package net.sharksystem.cmdline;
 
-import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
+import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 
 import java.util.ArrayList;
 import java.util.List;

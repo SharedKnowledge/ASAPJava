@@ -1,6 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.internals.ASAPInternalChunk;
+import net.sharksystem.asap.engine.ASAPInternalChunk;
 
 import java.io.IOException;
 import java.util.List;

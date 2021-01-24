@@ -1,11 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
-import net.sharksystem.asap.internals.ASAPInternalPeer;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 
 public interface ASAPPeerService extends ASAPPeer, ASAPConnectionHandler {
     //    long DEFAULT_MAX_PROCESSING_TIME = 30000; // 30 seconds

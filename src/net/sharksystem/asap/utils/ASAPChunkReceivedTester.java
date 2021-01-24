@@ -1,6 +1,6 @@
 package net.sharksystem.asap.utils;
 
-import net.sharksystem.asap.internals.ASAPChunkReceivedListener;
+import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 
 /**
  *

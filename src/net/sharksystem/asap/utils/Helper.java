@@ -3,8 +3,8 @@ package net.sharksystem.asap.utils;
 import net.sharksystem.utils.Log;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAPChunkStorage;
-import net.sharksystem.asap.internals.ASAPEngine;
-import net.sharksystem.asap.internals.ASAPEngineFS;
+import net.sharksystem.asap.engine.ASAPEngine;
+import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 

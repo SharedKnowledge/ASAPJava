@@ -1,7 +1,7 @@
 package net.sharksystem.asap.utils;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPInternalPeer;
+import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.cmdline.CmdLineUI;
 
 import java.io.ByteArrayInputStream;

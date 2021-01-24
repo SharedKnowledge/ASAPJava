@@ -2,8 +2,8 @@ package net.sharksystem.cmdline;
 
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.internals.ASAPInternalStorage;
-import net.sharksystem.asap.internals.*;
+import net.sharksystem.asap.engine.ASAPInternalStorage;
+import net.sharksystem.asap.engine.*;
 
 import java.io.*;
 import java.util.*;

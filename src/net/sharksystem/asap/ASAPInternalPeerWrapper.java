@@ -1,7 +1,7 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.internals.ASAPInternalOnlinePeersChangedListener;
-import net.sharksystem.asap.internals.ASAPInternalPeer;
+import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
+import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
 
 import java.io.IOException;
