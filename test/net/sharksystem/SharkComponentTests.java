@@ -13,9 +13,12 @@ public class SharkComponentTests {
     @Test
     public void usage1() throws SharkException {
         SharkPeerFS sPeer = new SharkPeerFS(ALICE, ALICE_ROOTFOLDER);
-        ExampleComponentFactory factory = new ExampleComponentFactory();
-        Class facadeClass = ExampleComponent.class;
+        YourComponentFactory factory = new YourComponentFactory();
+        Class facadeClass = YourComponent.class;
         sPeer.addComponent(factory, facadeClass);
+
+        sPeer.getComponent(YourComponent.class);
+        sPeer.start();
     }
 
 }

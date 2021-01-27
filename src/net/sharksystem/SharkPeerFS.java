@@ -11,10 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SharkPeerFS implements SharkPeer {
-    private final CharSequence owner;
-    private final CharSequence rootFolder;
+    protected final CharSequence owner;
+    protected final CharSequence rootFolder;
     private HashMap<CharSequence, SharkComponentFactory> factories = new HashMap<>();
-    private HashMap<CharSequence, SharkComponent> components = new HashMap<>();
+    protected HashMap<CharSequence, SharkComponent> components = new HashMap<>();
     private SharkPeerStatus status = SharkPeerStatus.NOT_INITIALIZED;
     private ASAPPeerFS asapPeer;
 
@@ -99,16 +99,21 @@ public class SharkPeerFS implements SharkPeer {
     }
 
     @Override
-    public SharkComponent getComponent(CharSequence format) throws SharkException {
-        if(format == null) {
-            throw new SharkException("format must not be null");
+    public SharkComponent getComponent(Class<? extends SharkComponent> facade) throws SharkException {
+        Set<String> formats = this.getFormats(facade);
+        StringBuilder sb = new StringBuilder();
+        for(CharSequence format: formats) {
+            SharkComponent component = this.components.get(format);
+            if(component != null) return component;
+            sb.append(format);
+            sb.append(" | ");
         }
 
-        SharkComponent sharkComponent = this.components.get(format);
-        if(sharkComponent == null)
-            throw new SharkException("no component found with format " + format);
+        throw new SharkException("no component found with format(s) " + sb.toString());
+    }
 
-        return sharkComponent;
+    protected ASAPPeerFS createASAPPeer() throws IOException, ASAPException {
+        return new ASAPPeerFS(this.owner, this.rootFolder, this.components.keySet());
     }
 
     @Override
@@ -118,10 +123,9 @@ public class SharkPeerFS implements SharkPeer {
         }
 
         try {
-            this.asapPeer = new ASAPPeerFS(this.owner, this.rootFolder, this.components.keySet());
-            // inform all peers
+            this.asapPeer = this.createASAPPeer();
         } catch (IOException | ASAPException e) {
-            Log.writeLogErr(this, "could start ASAP peer - fatal, give up");
+            Log.writeLogErr(this, "could not start ASAP peer - fatal, give up");
             throw new SharkException(e);
         }
 

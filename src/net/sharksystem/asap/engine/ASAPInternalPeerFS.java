@@ -394,6 +394,8 @@ public class ASAPInternalPeerFS implements
             for(ASAPInternalOnlinePeersChangedListener listener: this.onlinePeersChangedListeners) {
                 listener.notifyOnlinePeersChanged(this);
             }
+        } else {
+            Log.writeLog(this, "online peer changed but no listener");
         }
     }
 

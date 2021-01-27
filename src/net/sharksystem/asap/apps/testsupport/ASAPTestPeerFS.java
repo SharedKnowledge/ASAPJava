@@ -13,7 +13,12 @@ public class ASAPTestPeerFS extends ASAPPeerFS {
     private Socket socket = null;
 
     public ASAPTestPeerFS(CharSequence peerName, Collection<CharSequence> supportedFormats) throws IOException, ASAPException {
-        super(peerName, "./testPeerFS/" + peerName, supportedFormats);
+        this(peerName, "./testPeerFS/" + peerName, supportedFormats);
+    }
+
+    public ASAPTestPeerFS(CharSequence peerName, CharSequence rootFolder, Collection<CharSequence> supportedFormats)
+            throws IOException, ASAPException {
+        super(peerName, rootFolder, supportedFormats);
     }
 
     public void startEncounter(int port, ASAPTestPeerFS otherPeer) throws IOException {

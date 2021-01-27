@@ -29,4 +29,21 @@ public interface SharkComponent {
      * @throws SharkException
      */
     void onStart(ASAPPeer peer) throws SharkException;
+
+    /**
+     * Peer exchange data during an encounter. Components can show a specific behaviour. They could
+     * send a special greeting message whenever a unknown peer shows up. Such a behaviour can easily
+     * be implemented with a component. It is just a send message call on the ASAPPeer.
+     * <br/>
+     * We strongly suggest to implement such methods instead of asking component users to do so. We also strongly
+     * suggest to give component users means to define an appropriate for their specific applications.
+     * <br/>
+     * That is what that method is for. Define a set of constants in your component interface. Write
+     * a good documentation. Now, users can switch on or off a well-defined and -documented behaviour on your component.
+     *
+     * @param behaviourName
+     * @param on
+     * @see ASAPPeer#sendASAPMessage(CharSequence, CharSequence, byte[])
+     */
+    void setBehaviour(String behaviourName, boolean on) throws SharkUnknownBehaviourException;
 }

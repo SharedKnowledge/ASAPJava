@@ -3,6 +3,7 @@ package net.sharksystem.asap;
 import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,15 +46,6 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
     }
 
     public void notifyOnlinePeersChanged(Set<CharSequence> peerList) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("#online peers: ");
-        sb.append(peerList.size());
-        for(CharSequence peerName : peerList) {
-            sb.append(" | ");
-            sb.append(peerName);
-        }
-
-        this.log(sb.toString());
         this.environmentChangesListenerManager.notifyListeners(peerList);
     }
 }

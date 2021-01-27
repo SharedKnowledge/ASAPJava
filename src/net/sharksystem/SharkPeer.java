@@ -36,11 +36,11 @@ public interface SharkPeer {
 
     /**
      *
-     * @param format
+     * @param facade
      * @return component supporting this format.
      * @throws SharkException No component supports this format
      */
-    SharkComponent getComponent(CharSequence format) throws SharkException;
+    SharkComponent getComponent(Class<? extends SharkComponent> facade) throws SharkException;
 
     /**
      * Start the Shark peer. An ASAP peer will be launched with listening to all format from all

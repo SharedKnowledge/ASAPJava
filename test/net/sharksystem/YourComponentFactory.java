@@ -1,6 +1,6 @@
 package net.sharksystem;
 
-public class ExampleComponentFactory implements SharkComponentFactory {
+public class YourComponentFactory implements SharkComponentFactory {
     @Override
     public SharkComponent getComponent() {
         return null;
