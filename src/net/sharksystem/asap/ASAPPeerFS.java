@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -52,12 +53,14 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             engine.add(uri, message);
             // send online
             try {
-                this.log("try sending message over existing connections");
+                Log.writeLog(this, "(" + this.getInternalPeer().getOwner()
+                        + "try sending message over existing connections ");
                 this.getInternalPeer().sendOnlineASAPAssimilateMessage(appName, uri, message);
             }
             catch(ASAPException e) {
                 // no online peers - that's ok
-                this.log("could not send message online - that's ok.");
+                Log.writeLog(this, "(" + this.getInternalPeer().getOwner()
+                        + "could not send message online - that's ok.");
             }
         } catch (IOException e) {
             this.log(e.getLocalizedMessage());

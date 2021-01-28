@@ -264,7 +264,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 //        Log.writeLog(this, "online?");
         if(this.asapOnlineMessageSender != null) {
             try {
-                Log.writeLog(this, "send online message...");
+                this.writeLog("send online message...");
                 this.asapOnlineMessageSender.sendASAPAssimilateMessage(
                         this.format, uri, chunk.getRecipients(),
                         messageAsBytes, this.era);
@@ -274,11 +274,16 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 sb.append(e.getLocalizedMessage());
                 System.err.println(sb.toString());
             }
-            Log.writeLog(this, "... done sending online message");
+            this.writeLog("... done sending online message");
         } else {
-            Log.writeLog(this, "online sending no active");
+            this.writeLog("online sending not active");
         }
     }
+
+    private void writeLog(String message) {
+        Log.writeLog(this, this.owner + "|" + this.format, message);
+    }
+
 
     private void contentChanged() throws IOException {
         this.contentChanged = true;
@@ -810,10 +815,10 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     public void activateOnlineMessages(ASAPInternalPeer multiEngine) {
         if(this.asapOnlineMessageSender == null) {
-            Log.writeLog(this, "created new online message sender");
+            Log.writeLog(this, "(" + this.format + ") created new online message sender");
             this.attachASAPMessageAddListener(new ASAPOnlineMessageSenderEngineSide(multiEngine));
         } else {
-            Log.writeLog(this, "online message sender was already active");
+            Log.writeLog(this, "(" + this.format + ") online message sender already running");
         }
     }
 
