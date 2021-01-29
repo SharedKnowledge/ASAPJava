@@ -1,6 +1,14 @@
 package net.sharksystem;
 
+import net.sharksystem.asap.*;
+import net.sharksystem.asap.utils.DateTimeHelper;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 public class SharkComponentTests {
     static final CharSequence ALICE = "Alice";
@@ -11,7 +19,7 @@ public class SharkComponentTests {
     static final CharSequence YOUR_URI = "yourSchema://example";
 
     @Test
-    public void usage1() throws SharkException {
+    public void usage1() throws SharkException, IOException, ASAPException {
         SharkPeerFS sPeer = new SharkPeerFS(ALICE, ALICE_ROOTFOLDER);
         YourComponentFactory factory = new YourComponentFactory();
         Class facadeClass = YourComponent.class;
@@ -19,6 +27,13 @@ public class SharkComponentTests {
 
         sPeer.getComponent(YourComponent.class);
         sPeer.start();
+    }
+
+    @Test
+    public void scratch() {
+        System.out.println(DateTimeHelper.long2DateString(System.currentTimeMillis()));
+        System.out.println(DateTimeHelper.long2ExactTimeString(System.currentTimeMillis()));
+        System.out.println(DateFormat.getInstance().format(new Date(System.currentTimeMillis())));
     }
 
 }
