@@ -271,7 +271,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             return;
         }
 
-        // there is another stream - wait until it dies
+        // there is another thread - wait until it dies
         do {
             System.out.println(this.getLogStart() + "enter waiting loop for exclusive stream access");
             // wait

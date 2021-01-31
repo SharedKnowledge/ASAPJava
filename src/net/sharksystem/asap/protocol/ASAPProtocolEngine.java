@@ -3,6 +3,7 @@ package net.sharksystem.asap.protocol;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,9 @@ public abstract class ASAPProtocolEngine {
         this.protocol = protocol;
         this.undecryptableMessageHandler = undecryptableMessageHandler;
         this.ASAPKeyStore = ASAPKeyStore;
+
+        Log.writeLog(this, "constructor", "is: "
+                + is.getClass().getSimpleName() + " | os: " + os.getClass().getSimpleName());
     }
 
     /**
