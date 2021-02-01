@@ -136,6 +136,11 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
         throw new RuntimeException("that's a mock, no real peer");
     }
 
+    @Override
+    public void sendOnlineASAPMessage(CharSequence appName, CharSequence uri, byte[] message) throws ASAPException, IOException {
+        throw new RuntimeException("that's a mock, no real peer");
+    }
+
     public void stopEncounter(ASAPPeerMock otherPeer) {
         this.stopEncounter(otherPeer, true);
     }
@@ -181,5 +186,4 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
             storage.add(message);
         }
     }
-
 }

@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import java.io.IOException;
+
 public interface ASAPMessageSender {
     /**
      * Send a message
@@ -10,4 +12,7 @@ public interface ASAPMessageSender {
      */
     void sendASAPMessage(CharSequence appName, CharSequence uri,
                          byte[] message) throws ASAPException;
+
+    void sendOnlineASAPMessage(CharSequence appName, CharSequence uri, byte[] message)
+            throws ASAPException, IOException;
 }
