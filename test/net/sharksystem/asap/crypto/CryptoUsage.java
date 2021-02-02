@@ -68,7 +68,7 @@ public class CryptoUsage {
 
         // decrypt message
         byte[] receivedMessageBytes =
-                ASAPCryptoAlgorithms.decryptContentFromEncryptedMessagePackage(receivedEncryptedPackage, bobKeyStorage);
+                ASAPCryptoAlgorithms.decryptPackage(receivedEncryptedPackage, bobKeyStorage);
 
         // must be the same
         Assert.assertArrayEquals(messageBytes, receivedMessageBytes);

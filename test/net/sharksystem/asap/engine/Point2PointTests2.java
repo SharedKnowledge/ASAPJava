@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.utils.ASAPChunkReceivedTester;
@@ -12,21 +13,24 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import static net.sharksystem.TestConstants.*;
+
 public class Point2PointTests2 {
+    private static final String TEST_CLASS_ROOT_FOLDER = TestConstants.ROOT_DIRECTORY + Point2PointTests2.class.getSimpleName() + "/";
+    public static final String ALICE_ROOT_FOLDER = TEST_CLASS_ROOT_FOLDER + ALICE_NAME;
+    public static final String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
+    public static final String BOB_ROOT_FOLDER = TEST_CLASS_ROOT_FOLDER + BOB_NAME;
+    public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
+
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
-    public static final String ALICE_ROOT_FOLDER = "tests/Alice";
-    public static final String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
-    public static final String BOB_ROOT_FOLDER = "tests/Bob";
-    public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
-    public static final String ALICE = "Alice";
-    public static final String BOB = "Bob";
+
     public static final String ALICE2BOB_MESSAGE = "Hi Bob";
     public static final String ALICE2BOB_MESSAGE2 = "Hi Bob again";
     public static final String BOB2ALICE_MESSAGE = "Hi Alice";
     public static final String BOB2ALICE_MESSAGE2 = "Hi Alice again";
 
-    private static int portnumber = 7777;
+    private static int portnumber = 7778;
 
     private int getPortNumber() {
         portnumber++;
@@ -43,7 +47,7 @@ public class Point2PointTests2 {
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage =
-                ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);
+                ASAPEngineFS.getASAPStorage(ALICE_NAME, ALICE_APP_FOLDER, CHAT_FORMAT);
 
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE);
         aliceStorage.add(ALICE_BOB_CHAT_URL, ALICE2BOB_MESSAGE2);
@@ -51,7 +55,7 @@ public class Point2PointTests2 {
 
         // bob does the same
         ASAPInternalStorage bobStorage =
-                ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+                ASAPEngineFS.getASAPStorage(BOB_NAME, BOB_APP_FOLDER, CHAT_FORMAT);
 
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE);
         bobStorage.add(ALICE_BOB_CHAT_URL, BOB2ALICE_MESSAGE2);
@@ -158,10 +162,10 @@ public class Point2PointTests2 {
         List<CharSequence> senderList = aliceStorage.getSender();
         // expect bob
         Assert.assertEquals(1, senderList.size());
-        Assert.assertTrue(BOB.equalsIgnoreCase(senderList.get(0).toString()));
+        Assert.assertTrue(BOB_NAME.equalsIgnoreCase(senderList.get(0).toString()));
 
         // simulate a sync
-        bobStorage = ASAPEngineFS.getASAPStorage(BOB, BOB_APP_FOLDER, CHAT_FORMAT);
+        bobStorage = ASAPEngineFS.getASAPStorage(BOB_NAME, BOB_APP_FOLDER, CHAT_FORMAT);
         Assert.assertEquals(2, bobStorage.getEra());
 
         Assert.assertEquals(1, bobStorage.getChannelURIs().size());

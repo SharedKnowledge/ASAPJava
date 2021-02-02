@@ -116,7 +116,8 @@ public class ASAPEngineFS extends ASAPEngine {
                 owner,
                 rootDirectory, 
                 new ASAPChunkStorageFS(rootDirectory, formatString),
-                ASAP_1_0.ANY_FORMAT // set to default - real value is restored by memento anyway
+//                ASAP_1_0.ANY_FORMAT // set to default - real value is restored by memento anyway
+                formatString
         );
 
         
@@ -138,7 +139,8 @@ public class ASAPEngineFS extends ASAPEngine {
             }
         }
 
-        // reset owner?
+        // reset owner? why not.
+        /*
         if(owner != null && engine.owner != null
                 && !engine.owner.equalsIgnoreCase(ANONYMOUS_OWNER)
                 && !engine.owner.equalsIgnoreCase(DEFAULT_OWNER)
@@ -146,9 +148,10 @@ public class ASAPEngineFS extends ASAPEngine {
                 && !owner.equalsIgnoreCase(DEFAULT_OWNER)
                 && !owner.equalsIgnoreCase(engine.owner)) {
             
-                    throw new ASAPException("cannot overwrite folder of a "
-                        + "non-anonymous but different owner: " + engine.owner);
-        } 
+                    throw new ASAPException("cannot overwrite folder of a non-anonymous but different owner: "
+                            + engine.owner);
+        }
+         */
         
         // replacing owner could be done
         if(owner != null
@@ -202,8 +205,10 @@ public class ASAPEngineFS extends ASAPEngine {
     }
 
     public ASAPInternalStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
-        String dir = this.rootDirectory + "/" + sender;
-        return ASAPEngineFS.getExistingASAPEngineFS(dir);
+        return ASAPEngineFS.getASAPEngineFS(
+                sender.toString(), // becomes owner
+                this.rootDirectory + "/" + sender, // folder
+                this.getFormat()); // format taken from superior storage
     }
 
     @Override
