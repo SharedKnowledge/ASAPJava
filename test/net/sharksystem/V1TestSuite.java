@@ -1,5 +1,6 @@
 package net.sharksystem;
 
+import net.sharksystem.asap.crypto.CryptoUsage;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.protocol.PDUTests;
 import org.junit.runner.RunWith;
@@ -16,7 +17,8 @@ import org.junit.runners.Suite;
         PDUTests.class,
         CryptoTests.class,
         //SNMessageASAPSerializationTests.class,
-        LongerMessages.class
+        LongerMessages.class,
+        CryptoUsage.class
 })
 public class V1TestSuite {
 

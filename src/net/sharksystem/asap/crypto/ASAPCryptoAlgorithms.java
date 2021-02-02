@@ -6,10 +6,7 @@ import net.sharksystem.asap.utils.ASAPSerialization;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.*;
 
 public class ASAPCryptoAlgorithms {
@@ -112,6 +109,13 @@ public class ASAPCryptoAlgorithms {
         byte[] getEncryptedContent();
     }
 
+    public static EncryptedMessagePackage parseEncryptedMessagePackage(byte[] encryptedPackage)
+            throws IOException, ASAPException {
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(encryptedPackage);
+        return ASAPCryptoAlgorithms.parseEncryptedMessagePackage(bais);
+    }
+
     public static EncryptedMessagePackage parseEncryptedMessagePackage(InputStream is) throws IOException, ASAPException {
         String recipient = ASAPSerialization.readCharSequenceParameter(is);
         byte[] encryptedSymmetricKey = ASAPSerialization.readByteArray(is);
@@ -125,6 +129,31 @@ public class ASAPCryptoAlgorithms {
             @Override
             public byte[] getEncryptedContent() { return encryptedContent; }
         };
+    }
+
+    /**
+     * Ecnrypt content from an encrypted message package
+     * @param encryptedMessagePackage package (most likely received from another peer)
+     * @param asapKeyStore peers' key store
+     * @return decrypted message
+     * @throws ASAPSecurityException cannot decrypt - most likely: this peer is not receiver.
+     */
+    public static byte[] decryptContentFromEncryptedMessagePackage(
+            EncryptedMessagePackage encryptedMessagePackage,
+            ASAPKeyStore asapKeyStore) throws ASAPSecurityException {
+
+        // get symmetric key
+        byte[] encryptedSymmetricKey = encryptedMessagePackage.getEncryptedSymmetricKey();
+
+        // decrypt serialized symmetric key bytes
+        byte[] symmetricKeyBytes = ASAPCryptoAlgorithms.decryptAsymmetric(encryptedSymmetricKey, asapKeyStore);
+
+        // produce symmetric key
+        SecretKey symmetricKey = ASAPCryptoAlgorithms.createSymmetricKey(symmetricKeyBytes, asapKeyStore);
+
+        // decrypt message
+        return ASAPCryptoAlgorithms.decryptSymmetric(
+                encryptedMessagePackage.getEncryptedContent(), symmetricKey, asapKeyStore);
     }
 
     public static void writeEncryptedMessagePackage(EncryptedMessagePackage encryptedPackage, OutputStream os)
