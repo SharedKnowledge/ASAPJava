@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-class ASAPMessagesMock implements ASAPMessages {
+public class ASAPMessagesMock implements ASAPMessages {
     private final CharSequence appName;
     private final CharSequence uri;
     private final List<byte[]> serializedAppPDUs;
 
-    ASAPMessagesMock(CharSequence appName, CharSequence uri, List<byte[]> serializedAppPDUs) {
+    public ASAPMessagesMock(CharSequence appName, CharSequence uri, List<byte[]> serializedAppPDUs) {
         this.appName = appName;
         this.uri = uri;
         this.serializedAppPDUs = serializedAppPDUs;
