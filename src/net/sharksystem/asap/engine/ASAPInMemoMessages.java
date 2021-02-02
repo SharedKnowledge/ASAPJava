@@ -129,7 +129,6 @@ class ASAPInMemoMessages implements ASAPMessages {
         return this.format;
     }
 
-    @Override
     public Iterator<CharSequence> getMessagesAsCharSequence() throws IOException {
         this.initialize();
 

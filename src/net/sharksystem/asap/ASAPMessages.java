@@ -43,7 +43,7 @@ public interface ASAPMessages {
      * @return iterator of all messages in that chunk cache
      * @throws IOException
      */
-    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
+//    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
 
     /**
      *

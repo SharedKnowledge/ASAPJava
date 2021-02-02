@@ -13,7 +13,7 @@ public class ASAPMessagesMock implements ASAPMessages {
     private final CharSequence uri;
     private final List<byte[]> serializedAppPDUs;
 
-    public ASAPMessagesMock(CharSequence appName, CharSequence uri, List<byte[]> serializedAppPDUs) {
+    ASAPMessagesMock(CharSequence appName, CharSequence uri, List<byte[]> serializedAppPDUs) {
         this.appName = appName;
         this.uri = uri;
         this.serializedAppPDUs = serializedAppPDUs;
@@ -34,10 +34,12 @@ public class ASAPMessagesMock implements ASAPMessages {
         return this.appName;
     }
 
+    /*
     @Override
     public Iterator<CharSequence> getMessagesAsCharSequence() throws IOException {
         return new MessageIter(this.serializedAppPDUs);
     }
+     */
 
     @Override
     public Iterator<byte[]> getMessages() throws IOException {
