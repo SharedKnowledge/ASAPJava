@@ -42,8 +42,9 @@ public interface ASAPMessages {
      * first, false: newest message comes first
      * @return iterator of all messages in that chunk cache
      * @throws IOException
+     * @deprecated this lib works supports byte[] - apps deal with (de)serialization.
      */
-//    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
+    Iterator<CharSequence> getMessagesAsCharSequence() throws IOException;
 
     /**
      *

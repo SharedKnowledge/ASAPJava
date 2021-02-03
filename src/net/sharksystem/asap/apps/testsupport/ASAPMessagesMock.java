@@ -34,12 +34,15 @@ public class ASAPMessagesMock implements ASAPMessages {
         return this.appName;
     }
 
-    /*
+    /**
+     * @return
+     * @throws IOException
+     * @deprecated
+     */
     @Override
     public Iterator<CharSequence> getMessagesAsCharSequence() throws IOException {
         return new MessageIter(this.serializedAppPDUs);
     }
-     */
 
     @Override
     public Iterator<byte[]> getMessages() throws IOException {
