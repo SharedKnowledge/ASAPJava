@@ -10,7 +10,7 @@ public interface ASAPPeer extends
     CharSequence UNKNOWN_USER = "anon";
     boolean ONLINE_EXCHANGE_DEFAULT = true;
 
-    CharSequence getPeerName();
+    CharSequence getPeerID();
 
     ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException;
 }

@@ -107,7 +107,7 @@ public class DiscoverPeerAndStartEGChat {
         }
         private void doSomethingWith(CharSequence newPeerName) {
             // create a uri
-            CharSequence uri = "yourApp://" + newPeerName + "_AND_" + this.simplePeer.getPeerName() + "_haveAChat";
+            CharSequence uri = "yourApp://" + newPeerName + "_AND_" + this.simplePeer.getPeerID() + "_haveAChat";
 
             try {
                 // create a PDU of your applications - example
@@ -147,7 +147,7 @@ public class DiscoverPeerAndStartEGChat {
             // write time
             daos.writeLong(System.currentTimeMillis());
             // write local name
-            daos.writeUTF(this.simplePeer.getPeerName().toString());
+            daos.writeUTF(this.simplePeer.getPeerID().toString());
             // write recipient name
             daos.writeUTF(newPeerName.toString());
             daos.writeUTF("Hi there.");

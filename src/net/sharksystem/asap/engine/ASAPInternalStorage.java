@@ -119,33 +119,6 @@ public interface ASAPInternalStorage extends ASAPStorage {
     void removeRecipient(CharSequence urlTarget, CharSequence recipient) throws IOException;
 
     /**
-     * Put some extra information on that channel
-     * @param uri describing the channel
-     * @param key
-     * @param value
-     * @throws IOException
-     */
-    void putExtra(CharSequence uri, String key, String value) throws IOException;
-
-    /**
-     * Remove a string from extra information set
-     * @param uri
-     * @param key
-     * @return
-     * @throws IOException
-     */
-    CharSequence removeExtra(CharSequence uri, String key) throws IOException;
-
-    /**
-     * Get a string from extra information set without removing
-     * @param uri
-     * @param key
-     * @return
-     * @throws IOException
-     */
-    CharSequence getExtra(CharSequence uri, String key) throws IOException;
-
-    /**
      * Add a message to that chunk.
      * @param uri message topic
      * @param message Message to be kept for later transmission

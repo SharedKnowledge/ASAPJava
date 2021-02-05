@@ -52,21 +52,21 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
     }
 
     private void startEncounter(ASAPPeerMock otherPeer, boolean callOtherSide) {
-        this.log("start simulation of encounter with: " + otherPeer.getPeerName());
+        this.log("start simulation of encounter with: " + otherPeer.getPeerID());
 
         this.newEra();
 
         // already met this peer?
-        Integer lastMetEra = this.encounterEra.get(otherPeer.getPeerName());
+        Integer lastMetEra = this.encounterEra.get(otherPeer.getPeerID());
         if(lastMetEra == null) { // never met
-            this.log("never met before: " + otherPeer.getPeerName());
+            this.log("never met before: " + otherPeer.getPeerID());
             lastMetEra = ASAP.INITIAL_ERA;
         } else {
-            this.log("last encounter: " + otherPeer.getPeerName() + " | " + lastMetEra);
+            this.log("last encounter: " + otherPeer.getPeerID() + " | " + lastMetEra);
         }
 
         // remember this encounter
-        this.encounterEra.put(otherPeer.getPeerName(), this.currentEra);
+        this.encounterEra.put(otherPeer.getPeerID(), this.currentEra);
         this.environmentChangesListenerManager.notifyListeners(this.encounterEra.keySet());
 
         // simulate message sending
@@ -81,7 +81,7 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
 
     private void takeMessages(ASAPPeerMock asapPeerMock, int tmpEra, Map<CharSequence, Map<CharSequence, List<byte[]>>> appMessages) {
         if(appMessages != null && !appMessages.isEmpty()) {
-            this.log("handle received messages (sender | era): " + asapPeerMock.getPeerName() + " | " + tmpEra);
+            this.log("handle received messages (sender | era): " + asapPeerMock.getPeerID() + " | " + tmpEra);
             this.notifyMessagesReceived(appMessages);
         }
     }
@@ -117,7 +117,7 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
         this.notifyMessagesReceived(appUriMessages);
     }
 
-    public CharSequence getPeerName() {
+    public CharSequence getPeerID() {
         return this.peerName;
     }
 
@@ -146,7 +146,7 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
     }
 
     public void stopEncounter(ASAPPeerMock otherPeer, boolean callOtherSide) {
-        this.log("stop encounter with " + otherPeer.getPeerName());
+        this.log("stop encounter with " + otherPeer.getPeerID());
         this.newEra();
         if(callOtherSide) {
             otherPeer.stopEncounter(this, false);

@@ -27,7 +27,7 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         return this.peer;
     }
 
-    public CharSequence getPeerName() {
+    public CharSequence getPeerID() {
         return this.peer.getOwner();
     }
 

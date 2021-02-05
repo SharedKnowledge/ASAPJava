@@ -42,7 +42,7 @@ public abstract class ASAPListenerManagingPeer implements ASAPPeer {
 
     protected void log(String msg) {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getPeerName());
+        sb.append(this.getPeerID());
         sb.append(": ");
         sb.append(msg);
 
