@@ -42,6 +42,14 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         this.keyPairCreationTime = keyPairCreationTime;
     }
 
+    protected void setKeyPair(KeyPair keyPair) {
+        this.keyPair = keyPair;
+    }
+
+    public KeyPair getKeyPair() {
+        return this.keyPair;
+    }
+
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
         return ASAPCryptoAlgorithms.generateSymmetricKey(
                 DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_SYMMETRIC_KEY_SIZE);
@@ -60,7 +68,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     }
 
     public void generateKeyPair() throws ASAPSecurityException {
-        this.keyPair = this.generateNewKeyPair();
+        this.setKeyPair(this.generateNewKeyPair());
         this.keyPairCreationTime = System.currentTimeMillis();
     }
 
@@ -89,22 +97,16 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return keyPair;
     }
 
-    public KeyPair getKeyPair() {
-        return this.keyPair;
-    }
-
     @Override
     public PrivateKey getPrivateKey() throws ASAPSecurityException {
-        PrivateKey aPrivate = this.keyPair.getPrivate();
-        if(aPrivate == null) throw new ASAPSecurityException("private key does not exist");
-        return aPrivate;
+        if(this.keyPair == null) throw new ASAPSecurityException("private key does not exist");
+        return this.keyPair.getPrivate();
     }
 
     @Override
     public PublicKey getPublicKey() throws ASAPSecurityException {
-        PublicKey aPublic = this.keyPair.getPublic();
-        if(aPublic == null) throw new ASAPSecurityException("public key does not exist");
-        return aPublic;
+        if(this.keyPair == null) throw new ASAPSecurityException("private key does not exist");
+        return this.keyPair.getPublic();
     }
 
     @Override

@@ -18,7 +18,8 @@ import org.junit.runners.Suite;
         CryptoTests.class,
         //SNMessageASAPSerializationTests.class,
         LongerMessages.class,
-        CryptoUsage.class
+        CryptoUsage.class,
+        SharkComponentTests.class
 })
 public class V1TestSuite {
 
