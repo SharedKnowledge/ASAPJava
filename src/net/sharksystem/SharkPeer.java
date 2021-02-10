@@ -2,6 +2,8 @@ package net.sharksystem;
 
 import net.sharksystem.asap.ASAPPeer;
 
+import java.util.Set;
+
 /**
  * A Shark (Shared Knowledge) Peer is considered to be host of a collection of decentralized
  * applications based on ASAP. Each Shark peer will host just a single ASAPPeer
@@ -50,6 +52,14 @@ public interface SharkPeer {
     void start() throws SharkException;
 
     /**
+     * Start the Shark peer. An ASAP peer will be launched with listening to all format from all
+     * components. Components can neither be added nor withdrawn after launch.
+     * @param asapPeer use this asap peer instead some default
+     * @throws SharkException Exception can only be caused by ASAP peer launch
+     */
+    void start(ASAPPeer asapPeer) throws SharkException;
+
+    /**
      * Stop that peer. ASAP peer will be stopped.
      * @throws SharkException
      */
@@ -67,4 +77,10 @@ public interface SharkPeer {
      * @throws SharkException e.g. from status - Shark Peer not yet started
      */
     ASAPPeer getASAPPeer() throws SharkException;
+
+    /**
+     *
+     * @return set of all formats supported by all added components
+     */
+    Set<CharSequence> getFormats();
 }

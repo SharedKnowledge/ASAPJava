@@ -1,6 +1,9 @@
 package net.sharksystem;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
+
+import java.io.IOException;
 
 /**
  * It is nothing but a tag. Let your interface extends this to make clear what is is:
@@ -45,5 +48,5 @@ public interface SharkComponent {
      * @param on
      * @see ASAPPeer#sendASAPMessage(CharSequence, CharSequence, byte[])
      */
-    void setBehaviour(String behaviourName, boolean on) throws SharkUnknownBehaviourException;
+    void setBehaviour(String behaviourName, boolean on) throws SharkUnknownBehaviourException, ASAPException, IOException;
 }

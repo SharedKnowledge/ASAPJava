@@ -3,6 +3,7 @@ package net.sharksystem;
 import net.sharksystem.asap.crypto.CryptoUsage;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.protocol.PDUTests;
+import net.sharksystem.asap.storage.StorageTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -16,7 +17,7 @@ import org.junit.runners.Suite;
         CreateNewChannelFromOutsideTest.class,
         PDUTests.class,
         CryptoTests.class,
-        //SNMessageASAPSerializationTests.class,
+        StorageTests.class,
         LongerMessages.class,
         CryptoUsage.class,
         SharkComponentTests.class

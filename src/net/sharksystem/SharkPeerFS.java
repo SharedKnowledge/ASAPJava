@@ -16,7 +16,7 @@ public class SharkPeerFS implements SharkPeer {
     private HashMap<CharSequence, SharkComponentFactory> factories = new HashMap<>();
     protected HashMap<CharSequence, SharkComponent> components = new HashMap<>();
     private SharkPeerStatus status = SharkPeerStatus.NOT_INITIALIZED;
-    private ASAPPeerFS asapPeer;
+    private ASAPPeer asapPeer;
 
     public SharkPeerFS(CharSequence owner, CharSequence rootFolder) {
         this.owner = owner;
@@ -123,19 +123,23 @@ public class SharkPeerFS implements SharkPeer {
         }
 
         try {
-            this.asapPeer = this.createASAPPeer();
+            this.start(this.createASAPPeer());
         } catch (IOException | ASAPException e) {
             Log.writeLogErr(this, "could not start ASAP peer - fatal, give up");
             throw new SharkException(e);
         }
+    }
 
+    @Override
+    public void start(ASAPPeer asapPeer) throws SharkException {
+        this.asapPeer = asapPeer;
         boolean fullSuccess = true; // optimistic
         for(SharkComponent component : this.components.values()) {
             try {
                 component.onStart(this.asapPeer);
             } catch (SharkException e) {
-                fullSuccess = false;
                 Log.writeLogErr(this, "could not start component: " + e.getLocalizedMessage());
+                throw e;
             }
         }
 
@@ -171,5 +175,10 @@ public class SharkPeerFS implements SharkPeer {
         }
 
         return this.asapPeer;
+    }
+
+    @Override
+    public Set<CharSequence> getFormats() {
+        return this.components.keySet();
     }
 }

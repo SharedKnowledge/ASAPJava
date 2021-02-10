@@ -28,7 +28,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     public InMemoASAPKeyStore(CharSequence ownerID) throws ASAPSecurityException {
         // generate owners key pair;
         this.ownerID = ownerID;
-        this.generateKeyPair();
+        //this.generateKeyPair();
     }
 
     /**
@@ -47,6 +47,16 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     }
 
     public KeyPair getKeyPair() {
+        if(this.keyPair == null) {
+            Log.writeLog(this, "key pair not yet generated - do it now");
+            try {
+                this.generateKeyPair();
+            } catch (ASAPSecurityException e) {
+                Log.writeLogErr(this, "cannot generate key pair - fatal");
+                e.printStackTrace();
+                return null;
+            }
+        }
         return this.keyPair;
     }
 
