@@ -3,12 +3,14 @@ package net.sharksystem;
 import net.sharksystem.asap.crypto.CryptoUsage;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.protocol.PDUTests;
+import net.sharksystem.asap.serialization.SerializationTests;
 import net.sharksystem.asap.storage.StorageTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        SerializationTests.class,
         BatchprocessorTest.class,
         BasisMethodsTests.class,
         Point2PointTests.class,
