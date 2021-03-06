@@ -1,6 +1,6 @@
 package net.sharksystem.asap.crypto;
 
-public interface ASAPCommunicationCryptoSettings {
+public interface ASAPPoint2PointCryptoSettings {
     boolean mustEncrypt();
     boolean mustSign();
 }

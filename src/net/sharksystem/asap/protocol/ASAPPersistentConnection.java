@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.engine.EngineSetting;
@@ -19,6 +20,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private final ASAPConnectionListener asapConnectionListener;
     private final ASAPInternalPeer asapInternalPeer;
     private final ThreadFinishedListener threadFinishedListener;
+    private final ASAPPoint2PointCryptoSettings pt2ptcryptoSettings;
     private Thread managementThread = null;
     private final long maxExecutionTime;
     private String remotePeer;
@@ -31,7 +33,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
                 ASAPKeyStore ASAPKeyStore,
                 long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
-                ThreadFinishedListener threadFinishedListener) {
+                ThreadFinishedListener threadFinishedListener,
+                ASAPPoint2PointCryptoSettings pt2ptCryptoSettings) {
 
         super(is, os, protocol, unencryptableMessageHandler, ASAPKeyStore);
 
@@ -39,6 +42,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
+        this.pt2ptcryptoSettings = pt2ptCryptoSettings;
     }
 
     private String getLogStart() {

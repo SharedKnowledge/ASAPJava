@@ -2,12 +2,12 @@ package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
-import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 
 import java.io.IOException;
 
 public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
-        ASAPEnginePermissionSettings, CryptoControl, ASAPCommunicationCryptoSettings {
+        ASAPEnginePermissionSettings, CryptoControl, ASAPPoint2PointCryptoSettings {
 
     private boolean receivedMessageMustBeEncrypted = false;
     private boolean receivedMessagesMustBeSigned = false;

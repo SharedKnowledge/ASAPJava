@@ -5,7 +5,7 @@ import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
-import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.utils.ASAPSerialization;
 
 import java.io.ByteArrayInputStream;
@@ -86,7 +86,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                          CharSequence channel, int eraFrom, int eraTo, OutputStream os,
-                         ASAPCommunicationCryptoSettings cryptoSettings)
+                         ASAPPoint2PointCryptoSettings cryptoSettings)
             throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
@@ -124,7 +124,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
-                           OutputStream os, ASAPCommunicationCryptoSettings secureSetting) throws IOException, ASAPException {
+                           OutputStream os, ASAPPoint2PointCryptoSettings secureSetting) throws IOException, ASAPException {
 
         this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os,
                 secureSetting.mustSign(), secureSetting.mustEncrypt());
@@ -194,7 +194,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                     System.out.println(this.getLogStart() + "no handler for undecryptable messages found");
                 }
                 // throw exception anyway - could not create PDU
-                throw new ASAPSecurityException("undecryptable message received");
+                throw new ASAPSecurityException("unable to decrypt message - most probably not receiver");
             }
         }
 

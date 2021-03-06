@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.asap.crypto.*;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
@@ -8,10 +9,6 @@ import net.sharksystem.asap.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;
-import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
-import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
-import net.sharksystem.asap.crypto.ASAPKeyStore;
-import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
 
 import java.io.*;
 import java.util.*;
@@ -29,7 +26,7 @@ public class ASAPInternalPeerFS implements
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
     private InMemoASAPKeyStore inMemoASAPKeyStore;
 
-    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
+    public ASAPPoint2PointCryptoSettings getASAPCommunicationCryptoSettings() {
         return this.defaultSecurityAdministrator;
     }
 
@@ -297,10 +294,16 @@ public class ASAPInternalPeerFS implements
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) {
+            return this.handleConnection(is, os, new ASAPPoint2PointCryptoSettingsImpl(false, false));
+    }
+
+    public ASAPConnection handleConnection(InputStream is, OutputStream os,
+                ASAPPoint2PointCryptoSettings pt2ptCryptoSettings) {
+
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
                 this, this.ASAPKeyStore,
-                maxExecutionTime, this, this);
+                maxExecutionTime, this, this, pt2ptCryptoSettings);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());

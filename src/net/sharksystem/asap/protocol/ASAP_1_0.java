@@ -2,7 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +78,7 @@ public interface ASAP_1_0 {
 
     void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
-                  OutputStream os, ASAPCommunicationCryptoSettings cryptoSettings) throws IOException, ASAPException;
+                  OutputStream os, ASAPPoint2PointCryptoSettings cryptoSettings) throws IOException, ASAPException;
 
     /**
      * @param sender identifies sender - can be null
@@ -149,7 +149,7 @@ public interface ASAP_1_0 {
 
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
-                           OutputStream os, ASAPCommunicationCryptoSettings secureSetting) throws IOException, ASAPException;
+                           OutputStream os, ASAPPoint2PointCryptoSettings secureSetting) throws IOException, ASAPException;
 
     /**
      *

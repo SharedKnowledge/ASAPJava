@@ -7,7 +7,7 @@ import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.utils.Log;
-import net.sharksystem.asap.crypto.ASAPCommunicationCryptoSettings;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +76,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         return this.securityAdministrator;
     }
 
-    public ASAPCommunicationCryptoSettings getASAPCommunicationCryptoSettings() {
+    public ASAPPoint2PointCryptoSettings getASAPCommunicationCryptoSettings() {
         return this.securityAdministrator;
     }
 
