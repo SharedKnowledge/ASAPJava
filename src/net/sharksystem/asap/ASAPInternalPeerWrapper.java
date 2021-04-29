@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
@@ -38,6 +39,14 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
         return this.peer.handleConnection(is, os);
+    }
+
+    public ASAPConnection handleConnection(
+            InputStream is, OutputStream os,
+            boolean encrypt, boolean sign,
+            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
+    ) throws IOException, ASAPException {
+        return this.peer.handleConnection(is, os, encrypt, sign, appsWhiteList, appsBlackList);
     }
 
     @Override

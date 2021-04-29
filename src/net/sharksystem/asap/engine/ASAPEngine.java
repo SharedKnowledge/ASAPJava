@@ -561,7 +561,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException {
 
-        // before we start - lets crypto
+        // before we start - lets crypto: TODO can be removed - do it on communication not engine level
         if(!hasSufficientCrypto(asapInterest)) return;
 
         // get remote peer

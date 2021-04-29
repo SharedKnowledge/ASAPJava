@@ -20,7 +20,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private final ASAPConnectionListener asapConnectionListener;
     private final ASAPInternalPeer asapInternalPeer;
     private final ThreadFinishedListener threadFinishedListener;
-    private final ASAPPoint2PointCryptoSettings pt2ptcryptoSettings;
+    private final boolean encrypt;
+    private final boolean sign;
     private Thread managementThread = null;
     private final long maxExecutionTime;
     private String remotePeer;
@@ -34,7 +35,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 ASAPKeyStore ASAPKeyStore,
                 long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                 ThreadFinishedListener threadFinishedListener,
-                ASAPPoint2PointCryptoSettings pt2ptCryptoSettings) {
+                boolean encrypt, boolean sign) {
 
         super(is, os, protocol, unencryptableMessageHandler, ASAPKeyStore);
 
@@ -42,7 +43,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         this.maxExecutionTime = maxExecutionTime;
         this.asapConnectionListener = asapConnectionListener;
         this.threadFinishedListener = threadFinishedListener;
-        this.pt2ptcryptoSettings = pt2ptCryptoSettings;
+        this.encrypt = encrypt;
+        this.sign = sign;
     }
 
     private String getLogStart() {
@@ -374,6 +376,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
             try {
                 switch (asapPDU.getCommand()) {
+                    // TODO add encrypt / sign as parameter..
                     case ASAP_1_0.INTEREST_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPInterest");
                         engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
@@ -443,7 +446,13 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
         public void run() {
             try {
-                this.asapPDU = protocol.readPDU(is);
+                //boolean dropped = false;
+                //do {
+                    //if(dropped) Log.writeLog(this, "dropped pdu: no sufficient encryption");
+                    this.asapPDU = protocol.readPDU(is);
+                    //dropped = true;
+                //} // refuse lesser security settings and read next pdu
+                //while((encrypt && !this.asapPDU.encrypted()) || (sign && !this.asapPDU.verified()));
             } catch (IOException e) {
                 this.ioException = e;
                 Log.writeLog(this, ASAPPersistentConnection.this.getLogStart()

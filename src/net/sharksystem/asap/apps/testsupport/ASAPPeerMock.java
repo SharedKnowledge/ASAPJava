@@ -1,6 +1,7 @@
 package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 import net.sharksystem.asap.protocol.ASAPConnection;
 
@@ -124,6 +125,13 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
     @Override
     public ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException {
         throw new ASAPException("Do you need this in a mock? Can't you take ASAPTestPeerFS? If not: Let me know. I can provide this method. It is not a big thing. Thx thsc42");
+    }
+
+    @Override
+    public ASAPConnection handleConnection(InputStream is, OutputStream os,
+               boolean encrypt, boolean sign,
+               Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
+        throw new ASAPException("not implemented - should it?");
     }
 
     @Override

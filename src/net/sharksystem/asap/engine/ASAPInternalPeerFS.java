@@ -293,17 +293,26 @@ public class ASAPInternalPeerFS implements
     //                                          connection management                                         //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public ASAPConnection handleConnection(InputStream is, OutputStream os) {
-            return this.handleConnection(is, os, new ASAPPoint2PointCryptoSettingsImpl(false, false));
+    public ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException {
+            return this.handleConnection(is, os, false, false);
     }
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os,
-                ASAPPoint2PointCryptoSettings pt2ptCryptoSettings) {
+                                           boolean encrypt, boolean sign) throws IOException, ASAPException {
 
+        return this.handleConnection(is, os,false, false,null, null);
+    }
+
+    public ASAPConnection handleConnection(
+            InputStream is, OutputStream os, boolean encrypt, boolean sign,
+            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
+        ) throws IOException, ASAPException {
+
+        // TODO add white / black list.
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
                 this, this.ASAPKeyStore,
-                maxExecutionTime, this, this, pt2ptCryptoSettings);
+                maxExecutionTime, this, this, encrypt, sign);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());

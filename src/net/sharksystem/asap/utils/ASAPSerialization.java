@@ -73,6 +73,7 @@ public class ASAPSerialization {
 
     public static void writeNonNegativeLongParameter(long longValue, OutputStream os) throws IOException {
         if(longValue > -1) writeLongParameter(longValue, os);
+        else throw new IOException("negative value");
     }
 
     public static void writeLongParameter(long longValue, OutputStream os) throws IOException {
