@@ -34,6 +34,28 @@ public class Helper {
         return sb.toString();
     }
 
+    public static byte[] long2byteArray(long value) {
+        int numberBytes = Long.SIZE / 8; // A byte has 8 bits :) Fascinating, Captain.
+        byte[] result = new byte[numberBytes];
+
+        for(int index = numberBytes-1; index >= 0; index--) {
+            long mask = 0xFF;
+            // shift mask
+            mask = mask << index;
+
+            // mask all but indexed byte
+            long resultLong = value & mask;
+
+            // shift result to first byte
+            resultLong = resultLong >> index;
+
+            // take first byte only
+            result[index] = (byte)resultLong;
+        }
+
+        return result;
+    }
+
     public static byte[] characterSequence2bytes(CharSequence cs) {
         // TODO - that's ok?
         return cs.toString().getBytes();
