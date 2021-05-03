@@ -101,6 +101,12 @@ public class ASAPSerialization {
         System.out.print(" ");
     }
 
+    public static void printByteArray(byte[] byteArray) {
+        for(int index = byteArray.length - 1; index >= 0; index--) {
+            printByte(byteArray[index]);
+        }
+    }
+
     public static void printByte(short s) { printBits(s, 8); }
     public static void printBits(short s) { printBits(s, 16); }
     public static void printBits(int i) { printBits(i, 32); }
