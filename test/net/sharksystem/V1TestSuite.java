@@ -6,6 +6,7 @@ import net.sharksystem.asap.helper.HelperTester;
 import net.sharksystem.asap.protocol.PDUTests;
 import net.sharksystem.asap.serialization.SerializationTests;
 import net.sharksystem.asap.storage.StorageTests;
+import net.sharksystem.components.SharkComponentTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -23,8 +24,8 @@ import org.junit.runners.Suite;
         StorageTests.class,
         LongerMessages.class,
         CryptoUsage.class,
-        HelperTester.class
-        //SharkComponentTests.class
+        HelperTester.class,
+        SharkComponentTests.class
 })
 public class V1TestSuite {
 
