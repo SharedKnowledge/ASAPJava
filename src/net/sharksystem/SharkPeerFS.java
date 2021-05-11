@@ -125,6 +125,7 @@ public class SharkPeerFS implements SharkPeer {
         try {
             this.start(this.createASAPPeer());
         } catch (IOException | ASAPException e) {
+            e.printStackTrace();
             Log.writeLogErr(this, "could not start ASAP peer - fatal, give up");
             throw new SharkException(e);
         }

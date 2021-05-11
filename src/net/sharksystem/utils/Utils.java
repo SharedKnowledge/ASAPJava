@@ -106,4 +106,19 @@ public class Utils {
         return true;
     }
 
+    public static String byteArray2String(byte[] b) {
+        if(b == null) return "null";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("len == ");
+        sb.append(b.length);
+        sb.append("; content == (");
+        for(int i = 0; i < b.length; i++) {
+            if(i != 0) sb.append(", ");
+            sb.append(b);
+        }
+        sb.append(")");
+
+        return sb.toString();
+    }
 }

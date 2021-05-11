@@ -137,12 +137,12 @@ public class ASAPInternalPeerFS implements
                     this.getEngineByFormat(appFormat);
                 } catch (ASAPException e) {
                     // set it up
-                    this.setupEngine(appFormat, appFormat);
+                    this.setupEngine(Utils.url2FileName(appFormat.toString()), appFormat);
                 }
             }
         }
 
-        System.out.println(this.getLogStart() + "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
+//        System.out.println(this.getLogStart() + "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
     }
 
     private void setupEngine(CharSequence folderName, CharSequence formatName) throws IOException, ASAPException {

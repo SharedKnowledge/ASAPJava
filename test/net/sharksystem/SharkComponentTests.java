@@ -1,6 +1,7 @@
 package net.sharksystem;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.asap.utils.DateTimeHelper;
 import org.junit.Test;
 
@@ -20,6 +21,8 @@ public class SharkComponentTests {
 
     @Test
     public void usage1() throws SharkException, IOException, ASAPException {
+        ASAPEngineFS.removeFolder(ALICE_ROOTFOLDER.toString()); // clean previous version before
+
         SharkPeerFS sPeer = new SharkPeerFS(ALICE, ALICE_ROOTFOLDER);
         YourComponentFactory factory = new YourComponentFactory();
         Class facadeClass = YourComponent.class;
