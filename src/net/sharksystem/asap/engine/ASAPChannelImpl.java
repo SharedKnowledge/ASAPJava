@@ -1,9 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.SharkNotSupportedException;
-import net.sharksystem.asap.ASAPChannel;
-import net.sharksystem.asap.ASAPMessageCompare;
-import net.sharksystem.asap.ASAPMessages;
+import net.sharksystem.asap.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,8 +55,34 @@ public class ASAPChannelImpl implements ASAPChannel {
     }
 
     @Override
-    public ASAPMessages getMessages(ASAPMessageCompare compare) throws IOException {
-        throw new SharkNotSupportedException("not yet implemented");
+    public ASAPMessages getMessages(boolean peerOnly) throws IOException, ASAPException {
+        return this.getMessages(null);
+    }
+
+    @Override
+    public ASAPMessages getMessages(ASAPMessageCompare compare) throws IOException, ASAPException {
+        List<ASAPMessages> messagesSource = new ArrayList<>();
+
+        // add message from local peer first
+        messagesSource.add(this.getMessages());
+
+        // other sender?
+        List<CharSequence> sender = this.asapEngine.getSender();
+        for(CharSequence senderID : sender) {
+            try {
+                ASAPStorage existingIncomingStorage = this.asapEngine.getExistingIncomingStorage(senderID);
+                int currentEra = existingIncomingStorage.getEra();
+                // want all messages
+                int beforeCurrentEra = ASAP.previousEra(currentEra);
+                // currentEra -> direct predecessor
+                messagesSource.add(existingIncomingStorage.getChunkStorage().getASAPMessages(
+                        this.getUri(), currentEra, beforeCurrentEra));
+            } catch (ASAPException e) {
+                // no such storage - ok ignore and go ahead
+            }
+        }
+
+        return new ASAPMessagesMerger(messagesSource, compare);
     }
 
     @Override
