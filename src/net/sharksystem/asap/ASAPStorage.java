@@ -49,28 +49,6 @@ public interface ASAPStorage {
     ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException;
 
     /**
-     * Create a channel that includes all messages with a defined uri. It can contain <i>only</i> message from
-     * this local peer <i>or</i> all messages including received messages from any other peer
-     * @param uri
-     * @param peerOnly
-     * @return channel containing all message issued by owner of this storage. Received messages are <b>not</b> part
-     * of this channel. (See makan implementation)
-     * @throws ASAPException if no channel with that uri exists in this storage
-     */
-    ASAPChannel getChannel(CharSequence uri, boolean peerOnly) throws ASAPException, IOException;
-
-    /**
-     * Create a channel that includes all message with this uri from owner and all including sender in sender list.
-     *
-     * @param uri
-     * @param senderList
-     * @return channel containing all message issued by owner of this storage. Received messages are <b>not</b> part
-     * of this channel. (See makan implementation)
-     * @throws ASAPException if no channel with that uri exists in this storage
-     */
-    ASAPChannel getChannel(CharSequence uri, List<CharSequence> senderList) throws ASAPException, IOException;
-
-    /**
      *
      * @param uri channel uri
      * @return if channel exists - in other words: at least one message was added with this channel uri
@@ -125,7 +103,6 @@ public interface ASAPStorage {
      * @param uri
      * @param messageAsBytes
      * @throws IOException
-     * @deprecated
      * @see ASAPChannel#addMessage(byte[])
      */
     void add(CharSequence uri, byte[] messageAsBytes) throws IOException;

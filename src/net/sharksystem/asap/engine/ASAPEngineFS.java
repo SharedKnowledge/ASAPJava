@@ -212,6 +212,26 @@ public class ASAPEngineFS extends ASAPEngine {
                 this.getFormat()); // format taken from superior storage
     }
 
+    /**
+     * Backdoor - for tests only - create an incoming storage
+     * @param sender
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
+    public ASAPInternalStorage getIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+        String folderName = this.rootDirectory + "/" + sender;
+        File folder = new File(folderName);
+        if(!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        return ASAPEngineFS.getASAPEngineFS(
+                sender.toString(), // becomes owner
+                folderName, // folder
+                this.getFormat()); // format taken from superior storage
+    }
+
     @Override
     public List<CharSequence> getSender() {
         List<CharSequence> senderList = new ArrayList<>();

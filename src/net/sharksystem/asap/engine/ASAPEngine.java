@@ -310,16 +310,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         return this.getASAPChannelImpl(uri);
     }
 
-    @Override
-    public ASAPChannel getChannel(CharSequence uri, boolean peerOnly) throws ASAPException, IOException {
-        throw new SharkNotSupportedException("not yet implemented");
-    }
-
-    @Override
-    public ASAPChannel getChannel(CharSequence uri, List<CharSequence> senderList) throws ASAPException, IOException {
-        throw new SharkNotSupportedException("not yet implemented");
-    }
-
     private ASAPChannelImpl getASAPChannelImpl(CharSequence uri) throws ASAPException, IOException {
         if(this.channelExists(uri)) {
             return new ASAPChannelImpl(this, uri);
