@@ -2,13 +2,12 @@ package net.sharksystem.components;
 
 import net.sharksystem.SharkException;
 import net.sharksystem.SharkUnknownBehaviourException;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPMessageReceivedListener;
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.*;
+import net.sharksystem.asap.utils.ASAPMessages2StringCollectionWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class YourComponentImpl implements YourComponent, ASAPMessageReceivedListener {
@@ -54,6 +53,15 @@ public class YourComponentImpl implements YourComponent, ASAPMessageReceivedList
             System.err.println("cannot send message: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Iterator<String> getMessagesA(String uri) throws IOException, ASAPException {
+        ASAPStorage asapStorage = this.asapPeer.getASAPStorage(YourComponent.FORMAT_A);
+        ASAPChannel channel = asapStorage.getChannel(uri);
+        ASAPMessages messages = channel.getMessages();
+
+        return new ASAPMessages2StringCollectionWrapper(messages);
     }
 
     String deserializeMessage(byte[] messageBytes) {

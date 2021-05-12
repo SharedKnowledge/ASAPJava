@@ -83,4 +83,14 @@ public interface SharkPeer {
      * @return set of all formats supported by all added components
      */
     Set<CharSequence> getFormats();
+
+    /**
+     * Returns true if both peer represent the same peer - IDs are compared.
+     * @param otherPeer
+     * @throws SharkException peer not yet set and/or initialized
+     * @return
+     */
+    boolean samePeer(SharkPeer otherPeer) throws SharkException;
+
+    boolean samePeer(CharSequence otherPeerID) throws SharkException;
 }

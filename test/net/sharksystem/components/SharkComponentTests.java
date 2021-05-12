@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Iterator;
 
 public class SharkComponentTests {
     static final CharSequence ALICE = "Alice";
@@ -16,8 +17,8 @@ public class SharkComponentTests {
     static final CharSequence ROOTFOLDER = "sharkComponent";
     static final CharSequence ALICE_ROOTFOLDER = ROOTFOLDER + "/" + ALICE;
     static final CharSequence BOB_ROOTFOLDER = ROOTFOLDER + "/" + BOB;
-    static final CharSequence YOUR_APP_NAME = "yourAppName";
-    static final CharSequence YOUR_URI = "yourSchema://example";
+    static final String YOUR_APP_NAME = "yourAppName";
+    static final String YOUR_URI = "yourSchema://example";
 
     @Test
     public void usage1() throws SharkException, IOException, ASAPException {
@@ -50,7 +51,7 @@ public class SharkComponentTests {
 
 
     @Test
-    public void aliceCreatesBondAsCreditor() throws SharkException, ASAPException, IOException, InterruptedException {
+    public void sendAMessage() throws SharkException, ASAPException, IOException, InterruptedException {
         ////////////// setup Alice
         SharkTestPeerFS.removeFolder(ALICE_ROOTFOLDER);
         SharkTestPeerFS aliceSharkPeer = new SharkTestPeerFS(ALICE, ALICE_ROOTFOLDER);
@@ -71,8 +72,8 @@ public class SharkComponentTests {
         // Start alice peer
         bobSharkPeer.start();
 
-        // Bob sends a broadcast on uri A
-        bobComponent.sendBroadcastMessageA(YourComponent.FORMAT_A, "Hi all listeners of A");
+        // Bob sends a broadcast on format A
+        bobComponent.sendBroadcastMessageA(YOUR_URI, "Hi all listeners of A");
 
         ///////////////////////////////// Test specific code - make an encounter Alice Bob
         aliceSharkPeer.getASAPTestPeerFS().startEncounter(7777, bobSharkPeer.getASAPTestPeerFS());
@@ -83,7 +84,7 @@ public class SharkComponentTests {
         System.out.println("slept a moment");
 
         ////////////////////////////////// test if anything was ok.
-        // Alice should have received Bob broadcast on A
+        // Alice should have received Bob broadcast on format A but nothing on format B
         Assert.assertEquals(1, aliceListener.counterA);
         Assert.assertEquals(0, aliceListener.counterB);
     }

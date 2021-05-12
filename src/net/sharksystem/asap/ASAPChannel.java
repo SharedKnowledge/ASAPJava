@@ -12,5 +12,6 @@ public interface ASAPChannel {
     void putExtraData(String key, String value) throws IOException;
     void removeExtraData(String key) throws IOException;
     ASAPMessages getMessages() throws IOException;
+    ASAPMessages getMessages(ASAPMessageCompare compare) throws IOException;
     void addMessage(byte[] message) throws IOException;
 }

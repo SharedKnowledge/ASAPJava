@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkNotSupportedException;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -33,14 +34,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     static int DEFAULT_INIT_ERA = 0;
 
     protected String owner = ANONYMOUS_OWNER;
-    protected String format = ASAP_1_0.ANY_FORMAT.toString();
 
     protected int era = 0;
     protected int oldestEra = 0;
     protected HashMap<String, Integer> lastSeen = new HashMap<>();
     protected ASAPMemento memento = null;
     
-    /* private */ final private ASAPChunkStorage chunkStorage;
     protected boolean dropDeliveredChunks = false;
 
     private ASAPOnlineMessageSender asapOnlineMessageSender;
@@ -49,7 +48,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
-        
+        //super(chunkStorage, chunkContentFormat);
+
         this.chunkStorage = chunkStorage;
         if(chunkContentFormat != null) {
             this.format = chunkContentFormat.toString();
@@ -78,15 +78,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     public ASAPPoint2PointCryptoSettings getASAPCommunicationCryptoSettings() {
         return this.securityAdministrator;
-    }
-
-    @Override
-    public ASAPChunkStorage getChunkStorage() {
-        return this.chunkStorage;
-    }
-    
-    ASAPChunkStorage getStorage() {
-        return this.chunkStorage;
     }
 
     public void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender) {
@@ -134,11 +125,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 if(this.memento != null) this.memento.save(this);
 
                 // drop very very old chunks - if available
-                this.chunkStorage.dropChunks(nextEra);
+                this.getChunkStorage().dropChunks(nextEra);
 
                 // setup new era - copy all chunks
-                for(ASAPInternalChunk chunk : this.chunkStorage.getChunks(oldEra)) {
-                    ASAPInternalChunk copyChunk = this.chunkStorage.getChunk(chunk.getUri(), nextEra);
+                for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(oldEra)) {
+                    ASAPInternalChunk copyChunk = this.getChunkStorage().getChunk(chunk.getUri(), nextEra);
                     copyChunk.clone(chunk);
                 }
 
@@ -157,21 +148,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     //////////////////////////////////////////////////////////////////////
     //                               Writer                             //
     //////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void putExtra(CharSequence uri, String key, String value) throws IOException {
-        this.chunkStorage.getChunk(uri, this.era).putExtra(key, value);
-    }
-
-    @Override
-    public CharSequence removeExtra(CharSequence uri, String key) throws IOException {
-        return this.chunkStorage.getChunk(uri, this.era).removeExtra(key);
-    }
-
-    @Override
-    public CharSequence getExtra(CharSequence uri, String key) throws IOException {
-        return this.chunkStorage.getChunk(uri, this.era).getExtra(key);
-    }
 
     @Override
     public void createChannel(CharSequence uri, Collection<CharSequence> recipients) throws IOException, ASAPException {
@@ -290,6 +266,34 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         this.saveStatus();
     }
 
+    private final ASAPChunkStorage chunkStorage;
+    protected String format = ASAP_1_0.ANY_FORMAT.toString();
+
+    @Override
+    public ASAPChunkStorage getChunkStorage() {
+        return this.chunkStorage;
+    }
+
+    ASAPChunkStorage getStorage() {
+        return this.chunkStorage;
+    }
+
+    @Override
+    public void putExtra(CharSequence uri, String key, String value) throws IOException {
+        this.chunkStorage.getChunk(uri, this.era).putExtra(key, value);
+    }
+
+    @Override
+    public CharSequence removeExtra(CharSequence uri, String key) throws IOException {
+        return this.chunkStorage.getChunk(uri, this.era).removeExtra(key);
+    }
+
+    @Override
+    public CharSequence getExtra(CharSequence uri, String key) throws IOException {
+        return this.chunkStorage.getChunk(uri, this.era).getExtra(key);
+    }
+
+
     public List<CharSequence> getChannelURIs() throws IOException {
         List<CharSequence> uriList = new ArrayList<>();
 
@@ -304,6 +308,16 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     @Override
     public ASAPChannel getChannel(CharSequence uri) throws ASAPException, IOException {
         return this.getASAPChannelImpl(uri);
+    }
+
+    @Override
+    public ASAPChannel getChannel(CharSequence uri, boolean peerOnly) throws ASAPException, IOException {
+        throw new SharkNotSupportedException("not yet implemented");
+    }
+
+    @Override
+    public ASAPChannel getChannel(CharSequence uri, List<CharSequence> senderList) throws ASAPException, IOException {
+        throw new SharkNotSupportedException("not yet implemented");
     }
 
     private ASAPChannelImpl getASAPChannelImpl(CharSequence uri) throws ASAPException, IOException {

@@ -4,6 +4,7 @@ import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
+import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
@@ -30,6 +31,14 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
 
     public CharSequence getPeerID() {
         return this.peer.getOwner();
+    }
+
+    public boolean samePeer(ASAPPeer otherPeer) {
+        return this.samePeer(otherPeer.getPeerID());
+    }
+
+    public boolean samePeer(CharSequence otherPeerID) {
+        return PeerIDHelper.sameID(this.getPeerID(), otherPeerID);
     }
 
     @Override

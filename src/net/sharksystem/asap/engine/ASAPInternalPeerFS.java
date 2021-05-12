@@ -84,7 +84,19 @@ public class ASAPInternalPeerFS implements
     }
 
     private ASAPInternalPeerFS(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                               Collection<CharSequence> apps, ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+                               Collection<CharSequence> apps, ASAPChunkReceivedListener listener)
+            throws ASAPException, IOException {
+
+        // owner id must not be a numerical value only - it would interfere with our era numbers
+        try {
+            Integer.parseInt(owner.toString());
+            throw new ASAPException("peer id must not only a numeric number, like 42. " +
+                    "It can be ArthurDent_42, though: " + owner);
+        }
+        catch(NumberFormatException e) {
+            // that's a good thing - id is not only a number
+        }
+
         this.owner = owner;
         this.maxExecutionTime = maxExecutionTime;
         this.rootFolderName = rootFolderName;

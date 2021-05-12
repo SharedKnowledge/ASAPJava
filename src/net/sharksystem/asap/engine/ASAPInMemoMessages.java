@@ -154,7 +154,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         this.initialize();
 
         if(position >= this.numberOfMessages)
-            throw new ASAPException("Position exceeds number of message");
+            throw new ASAPException("Position reaches beyond total number of messages in this chunk (is it even empty?)");
 
         if(!chronologically) {
             // invert position - first becomes last etc.

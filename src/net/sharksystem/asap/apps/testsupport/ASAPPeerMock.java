@@ -1,9 +1,9 @@
 package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 import net.sharksystem.asap.protocol.ASAPConnection;
+import net.sharksystem.asap.utils.PeerIDHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,14 +16,23 @@ import java.util.*;
  *
  */
 public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerService {
-    private final CharSequence peerName;
+    private final CharSequence peerID;
 
-    public ASAPPeerMock(CharSequence peerName) {
-        this.peerName = peerName;
+    public ASAPPeerMock(CharSequence peerID) {
+        this.peerID = peerID;
     }
 
     public ASAPPeerMock() {
         this(ASAP.createUniqueID());
+    }
+
+    @Override
+    public boolean samePeer(ASAPPeer otherPeer) {
+        return this.samePeer(otherPeer.getPeerID());
+    }
+
+    public boolean samePeer(CharSequence otherPeerID) {
+        return PeerIDHelper.sameID(this.getPeerID(), otherPeerID);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +128,7 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
     }
 
     public CharSequence getPeerID() {
-        return this.peerName;
+        return this.peerID;
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.sharksystem;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
 import net.sharksystem.asap.ASAPPeerFS;
+import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
@@ -163,6 +164,14 @@ public class SharkPeerFS implements SharkPeer {
     @Override
     public SharkPeerStatus getStatus() {
         return this.status;
+    }
+
+    public boolean samePeer(SharkPeer otherPeer) throws SharkException {
+        return this.getASAPPeer().samePeer(otherPeer.getASAPPeer());
+    }
+
+    public boolean samePeer(CharSequence otherPeerID) throws SharkException {
+        return this.getASAPPeer().samePeer(otherPeerID);
     }
 
     @Override

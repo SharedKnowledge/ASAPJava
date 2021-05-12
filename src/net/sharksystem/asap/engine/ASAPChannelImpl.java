@@ -1,6 +1,8 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkNotSupportedException;
 import net.sharksystem.asap.ASAPChannel;
+import net.sharksystem.asap.ASAPMessageCompare;
 import net.sharksystem.asap.ASAPMessages;
 
 import java.io.IOException;
@@ -50,6 +52,11 @@ public class ASAPChannelImpl implements ASAPChannel {
     @Override
     public ASAPMessages getMessages() throws IOException {
         return this.asapEngine.getChunkStorage().getASAPMessages(this.getUri(), this.asapEngine.getEra());
+    }
+
+    @Override
+    public ASAPMessages getMessages(ASAPMessageCompare compare) throws IOException {
+        throw new SharkNotSupportedException("not yet implemented");
     }
 
     @Override
