@@ -4,7 +4,7 @@ import net.sharksystem.TestConstants;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.asap.engine.ASAPInternalStorage;
+import net.sharksystem.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,14 +66,15 @@ public class StorageTests {
         ASAPMessages messages = storage.getChannel(URI).getMessages(new ASAPMessageCompare() {
             @Override
             public boolean earlier(byte[] messageA, byte[] messageB) {
-                return messageA[0] > messageB[0];
+                return messageA[0] < messageB[0];
             }
         });
 
         Iterator<byte[]> messageIter = messages.getMessages();
         byte expected = 0;
         while(messageIter.hasNext()) {
-            Assert.assertEquals(expected, messageIter.next()[0]);
+            byte[] msg = messageIter.next();
+            Assert.assertEquals(expected, msg[0]);
             expected++;
         }
     }
