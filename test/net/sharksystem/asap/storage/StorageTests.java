@@ -20,6 +20,7 @@ public class StorageTests {
 
     @Test
     public void removeChannel() throws IOException, ASAPException {
+        ASAPEngineFS.removeFolder(ALICEFOLDER);
         ASAPEngine storage =
                 ASAPEngineFS.getASAPStorage(
                         TestConstants.ALICE_NAME, ALICEFOLDER, FORMAT);
