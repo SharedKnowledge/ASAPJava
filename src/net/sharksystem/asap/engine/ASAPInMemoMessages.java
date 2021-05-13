@@ -85,7 +85,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         boolean finalLoop = !anotherLoop;
          */
         
-        // drop old vunk list - if any
+        // drop old chunk list - if any
         this.chunkList = new ArrayList<>();
         
 //        do {

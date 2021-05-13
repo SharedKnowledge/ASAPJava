@@ -12,4 +12,12 @@ public class PeerIDHelper {
         // no difference
         return true;
     }
+
+    public static boolean sameFormat(CharSequence formatA, CharSequence formatB) {
+        return PeerIDHelper.sameID(formatA, formatB);
+    }
+
+    public static boolean sameUri(CharSequence uriA, CharSequence uriB) {
+        return PeerIDHelper.sameID(uriA, uriB);
+    }
 }
