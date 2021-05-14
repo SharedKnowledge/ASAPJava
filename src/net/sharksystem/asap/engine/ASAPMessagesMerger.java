@@ -73,6 +73,25 @@ public class ASAPMessagesMerger implements ASAPMessages {
         for(ASAPMessages source : messageSources) {
             if(source.size() > 0) this.messageSources[i++] = source;
         }
+
+        if(this.messageCompare == null) {
+            // source will be returned in their order
+            int globalIndex = 0;
+            for(int sIndex = 0; sIndex < this.messageSources.length; sIndex++) {
+                SourceIndex index = new SourceIndex(globalIndex, sIndex, 0);
+                this.oldFirstPositionList.add(index);
+                this.newFirstPositionList.add(index);
+                globalIndex += this.messageSources[sIndex].size();
+            }
+            // last entry
+            int lastSourceI = this.messageSources.length-1;
+            SourceIndex lastSourceIndex = new SourceIndex(
+                    globalIndex-1, // last index
+                    lastSourceI, // last source
+                    this.messageSources[lastSourceI].size()-1);
+            this.oldFirstPositionList.add(lastSourceIndex);
+            this.newFirstPositionList.add(lastSourceIndex);
+        }
     }
 
     @Override
@@ -160,6 +179,19 @@ public class ASAPMessagesMerger implements ASAPMessages {
         return new String(this.getMessage(position, chronologically));
     }
 
+    /**
+    The list is organized like this: Each entry describes a position of the merged sources: wantedPosition.
+    It also describes source (actually the index of the source: sourceIndex) and position of the message
+    in the source (positionInSource). There is not necessarily and entry for each wantedPosition - to keep
+    that list short.
+
+    A entry is made if the list was empty. There will always be an entry for wantedPosition == 0. Another entry
+    will only added if source has changed. Assumed we would have two sources (A and B), first messages come from
+    A, follow by B again and so forth, list would look like this: (wantedPosition: 0, A, 0) Both positions will be
+    0 in the first entry. Next entry could be: (4, B, 0). Message for position comes from source B index 0. But
+    where come message at 1, 2 and 3? From A. There was no change of source, no entry was made. We avoid a series of
+    entries like: (1, A, 1), (2, A, 2), (3, A, 3). They can easily be calculated.
+     */
     private SourceIndex getSourceIndex(int position, List<SourceIndex> indexList) {
         if(indexList.isEmpty()) return null; // not yet initialized?
         SourceIndex previousIndexEntry = null;
@@ -217,6 +249,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
     }
 
     private void setupLookAhead(boolean chronologically) throws IOException, ASAPException {
+        // optimize it if we don not have a comparison method
         byte[][] lookAheadMessagesArray = this.getLookAheadMessages(chronologically);
         SourceIndex[] lookAheadSourceIndexArray = this.getLookAheadSourceIndex(chronologically);
 
@@ -330,6 +363,10 @@ public class ASAPMessagesMerger implements ASAPMessages {
         return foundSourceIndex;
     }
 
+    private List<SourceIndex> getIndexList(boolean chronologically) {
+        return chronologically ? oldFirstPositionList : newFirstPositionList;
+    }
+
     @Override
     public byte[] getMessage(int position, boolean chronologically) throws ASAPException, IOException {
         if(position >= this.size)
@@ -337,7 +374,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
                 + position + " >= " + this.size);
 
         SourceIndex sourceIndex = null;
-        List<SourceIndex> usedList = chronologically ? oldFirstPositionList : newFirstPositionList;
+        List<SourceIndex> usedList = this.getIndexList(chronologically);
 
         sourceIndex = this.getSourceIndex(position, usedList);
 

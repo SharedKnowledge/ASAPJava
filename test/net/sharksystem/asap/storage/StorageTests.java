@@ -17,6 +17,7 @@ public class StorageTests {
     static final String ALICEFOLDER_1 = ALICEFOLDER + "_Test_1";
     static final String ALICEFOLDER_2 = ALICEFOLDER + "_Test_2";
     static final String ALICEFOLDER_3 = ALICEFOLDER + "_Test_3";
+    static final String ALICEFOLDER_4 = ALICEFOLDER + "_Test_4";
 
     static final String FORMAT = "TestFormat";
     static final String URI = "test/anURI";
@@ -97,7 +98,7 @@ public class StorageTests {
     }
 
     @Test
-    public void channelTestOneMessageOnly() throws IOException, ASAPException {
+    public void channelTest2() throws IOException, ASAPException {
         String testFolder = ALICEFOLDER_2;
 
         byte[] aliceMessageContent1 = new byte[] {0};
@@ -118,7 +119,7 @@ public class StorageTests {
     }
 
     @Test
-    public void channelTest2() throws IOException, ASAPException {
+    public void channelTest3() throws IOException, ASAPException {
         String testFolder = ALICEFOLDER_3;
 
         byte[] bobMessageContent1 = new byte[] {0};
@@ -163,5 +164,45 @@ public class StorageTests {
             Assert.assertEquals(expected, msg[0]);
             expected++;
         }
+    }
+
+    @Test
+    public void channelTest4() throws IOException, ASAPException {
+        String testFolder = ALICEFOLDER_4;
+
+        byte[] aliceMessageContent1 = new byte[] {0};
+        byte[] aliceMessageContent2 = new byte[] {1};
+        byte[] bobMessageContent1 = new byte[] {2};
+        byte[] bobMessageContent2 = new byte[] {3};
+        byte[] claraMessageContent1 = new byte[] {4};
+        byte[] claraMessageContent2 = new byte[] {5};
+
+        ASAPEngineFS.removeFolder(testFolder);
+
+        ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, testFolder, FORMAT);
+        storage.add(URI, aliceMessageContent1);
+        storage.add(URI, aliceMessageContent2);
+
+        ASAPStorage bobStorage = storage.getIncomingStorage(TestConstants.BOB_NAME);
+        bobStorage.add(URI, bobMessageContent1);
+        bobStorage.add(URI, bobMessageContent2);
+
+        ASAPStorage claraStorage = storage.getIncomingStorage(TestConstants.CLARA_NAME);
+        claraStorage.add(URI, claraMessageContent1);
+        claraStorage.add(URI, claraMessageContent2);
+
+        ASAPMessages messages = storage.getChannel(URI).getMessages(false);
+
+        Assert.assertEquals(0, messages.getMessage(0, true)[0]);
+        Assert.assertEquals(1, messages.getMessage(1, true)[0]);
+
+        byte[] msg = messages.getMessage(2, true);
+        Assert.assertTrue(msg[0] == 2 || msg[0] == 4); // comes from B or C
+        msg = messages.getMessage(3, true);
+        Assert.assertTrue(msg[0] == 3 || msg[0] == 5); // comes from B or C
+        msg = messages.getMessage(4, true);
+        Assert.assertTrue(msg[0] == 2 || msg[0] == 4); // comes from B or C
+        msg = messages.getMessage(5, true);
+        Assert.assertTrue(msg[0] == 3 || msg[0] == 5); // comes from B or C
     }
 }
