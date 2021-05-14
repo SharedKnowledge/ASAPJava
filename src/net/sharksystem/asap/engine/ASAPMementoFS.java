@@ -116,6 +116,7 @@ class ASAPMementoFS implements ASAPMemento {
         catch(IOException ioe) {
             // ok  no more data
         }
+        dis.close();
     }
 
     public void restore(ASAPEngine engine) throws IOException {
@@ -165,9 +166,14 @@ class ASAPMementoFS implements ASAPMemento {
         catch(IOException ioe) {
             // ok  no more data
         }
+        dis.close();
     }
 
     private String getMementoFileName() {
         return this.rootDirectory + "/" + ASAPEngineFS.MEMENTO_FILENAME;
+    }
+
+    public String getFormat() {
+        return this.format;
     }
 }

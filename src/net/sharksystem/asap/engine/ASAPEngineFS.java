@@ -111,6 +111,12 @@ public class ASAPEngineFS extends ASAPEngine {
             throw new ASAPException("chunk root directory must exist when creating an ASAPEngine: " + rootDirectory);
         }
 
+        if(format == null || format.toString().equalsIgnoreCase(ASAP_1_0.ANY_FORMAT)) {
+            ASAPMementoFS asapMementoFS = new ASAPMementoFS(root);
+            asapMementoFS.read();
+            format = asapMementoFS.getFormat();
+        }
+
         String formatString = format != null ? format.toString() : ASAP_1_0.ANY_FORMAT;
         ASAPEngineFS engine = new ASAPEngineFS(
                 owner,
