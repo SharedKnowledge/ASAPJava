@@ -12,6 +12,14 @@ import java.util.HashMap;
  */
 class ASAPMementoFS implements ASAPMemento {
     private final File rootDirectory;
+    private String owner;
+    private String format;
+    private int era;
+    private int oldestEra;
+    private boolean contentChanged;
+    private boolean dropDeliveredChunks;
+    private boolean sendReceivedChunks;
+    private HashMap<String, Integer> lastSeen;
 
     public ASAPMementoFS(File rootDirectory) {
         this.rootDirectory = rootDirectory;
@@ -62,6 +70,54 @@ class ASAPMementoFS implements ASAPMemento {
         engine.sendReceivedChunks = false;
     }
 
+    public void read() throws IOException {
+        String fName = this.getMementoFileName();
+
+        File file = new File(fName);
+        if(!file.exists()) {
+            return;
+        }
+
+        DataInputStream dis = new DataInputStream(
+                new FileInputStream(file));
+
+        try {
+            this.owner = dis.readUTF();
+            this.format = dis.readUTF();
+            this.era = dis.readInt();
+            this.oldestEra = dis.readInt();
+            this.contentChanged = dis.readBoolean();
+            this.dropDeliveredChunks = dis.readBoolean();
+            this.sendReceivedChunks = dis.readBoolean();
+        }
+        catch(EOFException e) {
+            // ignore and work with set defaults
+            return; // reached end of file - nothing to do here
+        }
+
+        // try to read lastSeen list
+        boolean first = true;
+        try {
+            for(;;) { // escapes from that loop via ioexception
+                String peer = dis.readUTF();
+                // got one
+                if(first) {
+                    // init empty list
+                    this.lastSeen = new HashMap<>();
+                    first = false;
+                }
+
+                Integer era = dis.readInt();
+
+                // remember
+                this.lastSeen.put(peer, era);
+            }
+        }
+        catch(IOException ioe) {
+            // ok  no more data
+        }
+    }
+
     public void restore(ASAPEngine engine) throws IOException {
         String fName = this.getMementoFileName();
 
@@ -72,7 +128,7 @@ class ASAPMementoFS implements ASAPMemento {
         }
 
         DataInputStream dis = new DataInputStream(
-                                new FileInputStream(file));
+                new FileInputStream(file));
 
         try {
             engine.owner = dis.readUTF();
@@ -107,7 +163,7 @@ class ASAPMementoFS implements ASAPMemento {
             }
         }
         catch(IOException ioe) {
-                // ok  no more data
+            // ok  no more data
         }
     }
 
