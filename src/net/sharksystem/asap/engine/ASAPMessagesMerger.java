@@ -248,20 +248,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
         return s;
     }
 
-    private void setupLookAhead(boolean chronologically) throws IOException, ASAPException {
-        // optimize it if we don not have a comparison method
-        byte[][] lookAheadMessagesArray = this.getLookAheadMessages(chronologically);
-        SourceIndex[] lookAheadSourceIndexArray = this.getLookAheadSourceIndex(chronologically);
-
-        if(lookAheadMessagesArray[0] != null) return; // already set up.
-
-        // set it up - read first message from each non empty source
-        for(int i = 0; i < this.messageSources.length; i++) {
-            lookAheadMessagesArray[i] = this.messageSources[i].getMessage(0, chronologically);
-            lookAheadSourceIndexArray[i] = new SourceIndex(-1, i, 0);
-        }
-    }
-
+    private boolean lookAheadSettedUp = false;
     private SourceIndex lookAhead(int position, List<SourceIndex> indexList, boolean chronologically)
             throws ASAPException, IOException {
 
@@ -275,14 +262,20 @@ public class ASAPMessagesMerger implements ASAPMessages {
             if (sourceIndex != null && sourceIndex.wantedPosition >= position)
                 throw new ASAPException("internal error - look ahead algorithm buggy");
 
-            wantedLookAheadPosition = sourceIndex.wantedPosition +1;
+            wantedLookAheadPosition = sourceIndex.wantedPosition + 1;
         }
 
-        this.setupLookAhead(chronologically);
-
-        byte[][] lookAheadMessage = this.getLookAheadMessages(chronologically);
+        byte[][] lookAheadMessages = this.getLookAheadMessages(chronologically);
         SourceIndex[] lookAheadSourceIndexArray = this.getLookAheadSourceIndex(chronologically);
-        //int[] lookAheadMessagePositionInSource = this.getLookAheadPositionInSource(chronologically);
+
+        if(!this.lookAheadSettedUp) { // setup
+            // set it up - read first message from each non empty source
+            this.lookAheadSettedUp = true;
+            for (int i = 0; i < this.messageSources.length; i++) {
+                lookAheadMessages[i] = this.messageSources[i].getMessage(0, chronologically);
+                lookAheadSourceIndexArray[i] = new SourceIndex(-1, i, 0);
+            }
+        }
 
         // find message for next position.
         SourceIndex previousSourceIndex = null;
@@ -294,7 +287,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
             lastSourceIndexAdded = false; // not yet at least
 
             for (int i = 0; i < this.messageSources.length; i++) {
-                if(lookAheadMessage[i] == null) continue; // nothing to do in this round
+                if(lookAheadMessages[i] == null) continue; // nothing to do in this round
                 if(bestSourceIndex == -1) {
                     // guess we have a winner without opponent
                     bestSourceIndex = i;
@@ -302,7 +295,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
                 }
 
                 boolean previousEarlier =
-                        this.messageCompare.earlier(lookAheadMessage[bestSourceIndex], lookAheadMessage[i]);
+                        this.messageCompare.earlier(lookAheadMessages[bestSourceIndex], lookAheadMessages[i]);
 
             /*
             previous earlier | chronologically | what wins?
@@ -341,10 +334,10 @@ public class ASAPMessagesMerger implements ASAPMessages {
 
             // read ahead - if possible
             lookAheadSourceIndexArray[bestSourceIndex] = null;
-            lookAheadMessage[bestSourceIndex] = null;
+            lookAheadMessages[bestSourceIndex] = null;
             int nextPositionInSource = foundSourceIndex.positionInSource + 1;
             try {
-                lookAheadMessage[bestSourceIndex] =
+                lookAheadMessages[bestSourceIndex] =
                         messageSources[bestSourceIndex].getMessage(nextPositionInSource, chronologically);
 
                 // remember read ahead
@@ -387,7 +380,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
             throw new ASAPException("no message at position: " + position);
         }
 
-        return this.messageSources[sourceIndex.sourceIndex].
-                getMessage(sourceIndex.positionInSource, chronologically);
+        return this.messageSources[sourceIndex.sourceIndex].getMessage(
+                sourceIndex.positionInSource, chronologically);
     }
 }
