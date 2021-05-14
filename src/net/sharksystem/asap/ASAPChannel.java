@@ -28,8 +28,7 @@ public interface ASAPChannel {
     ASAPMessages getMessages(boolean peerOnly) throws IOException, ASAPException;
 
     /**
-     * Get all message (including received messages). Object helps to bring messages in order. Note: It is expected
-     * that messages in a previous era do always proceed message in later eras
+     * Get all message (including received messages). Compare Object helps to bring messages in order.
      *
      * @param compare
      * @return

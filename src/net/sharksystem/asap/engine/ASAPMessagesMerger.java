@@ -170,7 +170,9 @@ public class ASAPMessagesMerger implements ASAPMessages {
 
             if(indexEntry.wantedPosition == position) return indexEntry; // found match
 
-            if(previousIndexEntry != null && previousIndexEntry.wantedPosition < position && position < indexEntry.wantedPosition) {
+            if(previousIndexEntry != null
+                    && previousIndexEntry.wantedPosition < position
+                    && position < indexEntry.wantedPosition) {
                 // we are within a range.
                 int offsetIndex = previousIndexEntry.wantedPosition;
                 int steps = position - offsetIndex;
