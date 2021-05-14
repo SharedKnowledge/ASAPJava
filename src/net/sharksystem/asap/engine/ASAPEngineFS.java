@@ -21,8 +21,7 @@ public class ASAPEngineFS extends ASAPEngine {
     
     public static final String DEFAULT_ROOT_FOLDER_NAME = "SHARKSYSTEM_ASAP";
 
-    private ASAPEngineFS(String owner,
-                         String rootDirectory, ASAPChunkStorageFS chunkStorage, CharSequence format)
+    private ASAPEngineFS(String owner, String rootDirectory, CharSequence format)
         throws ASAPException, IOException {
         
         super(new ASAPChunkStorageFS(rootDirectory, format.toString()), format);
@@ -115,10 +114,11 @@ public class ASAPEngineFS extends ASAPEngine {
         String formatString = format != null ? format.toString() : ASAP_1_0.ANY_FORMAT;
         ASAPEngineFS engine = new ASAPEngineFS(
                 owner,
-                rootDirectory, 
-                new ASAPChunkStorageFS(rootDirectory, formatString),
+                rootDirectory,
+//                new ASAPChunkStorageFS(rootDirectory, formatString),
 //                ASAP_1_0.ANY_FORMAT // set to default - real value is restored by memento anyway
                 formatString
+
         );
 
         

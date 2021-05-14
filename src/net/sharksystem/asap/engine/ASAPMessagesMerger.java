@@ -51,7 +51,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
             CharSequence currentFormat = source.getFormat();
             if(this.format != null && !PeerIDHelper.sameFormat(currentFormat, this.format)) {
                 throw new ASAPException("message source must not have different formats: " + this.format
-                        + " | " + currentFormat);
+                        + " != " + currentFormat);
             }
             // else
             this.format = currentFormat;
@@ -59,7 +59,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
             CharSequence currentUri = source.getURI();
             if(this.uri != null && !PeerIDHelper.sameFormat(currentUri, this.uri)) {
                 throw new ASAPException("message source must not have different uris: " + this.uri
-                        + " | " + currentUri);
+                        + " != " + currentUri);
             }
 
             // else

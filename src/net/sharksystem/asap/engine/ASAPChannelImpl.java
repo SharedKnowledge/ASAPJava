@@ -56,6 +56,8 @@ public class ASAPChannelImpl implements ASAPChannel {
 
     @Override
     public ASAPMessages getMessages(boolean peerOnly) throws IOException, ASAPException {
+        if(peerOnly) return this.getMessages();
+        // else
         return this.getMessages(null);
     }
 

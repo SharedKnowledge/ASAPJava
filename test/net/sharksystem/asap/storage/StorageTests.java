@@ -4,7 +4,6 @@ import net.sharksystem.TestConstants;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
