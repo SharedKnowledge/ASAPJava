@@ -191,4 +191,9 @@ public class SharkPeerFS implements SharkPeer {
     public Set<CharSequence> getFormats() {
         return this.components.keySet();
     }
+
+    @Override
+    public CharSequence getPeerID() throws SharkException {
+        return this.getASAPPeer().getPeerID();
+    }
 }

@@ -93,4 +93,6 @@ public interface SharkPeer {
     boolean samePeer(SharkPeer otherPeer) throws SharkException;
 
     boolean samePeer(CharSequence otherPeerID) throws SharkException;
+
+    CharSequence getPeerID() throws SharkException;
 }
