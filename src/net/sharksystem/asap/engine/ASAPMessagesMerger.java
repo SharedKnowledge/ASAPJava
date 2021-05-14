@@ -1,12 +1,10 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessageCompare;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.utils.PeerIDHelper;
 
-import javax.xml.transform.Source;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,12 +22,12 @@ public class ASAPMessagesMerger implements ASAPMessages {
     private List<SourceIndex> oldFirstPositionList = new ArrayList<>();
 
     private class SourceIndex {
-        public int position;
-        public int sourceIndex;
-        public int positionInSource;
+        public int wantedPosition; // overall position
+        public int sourceIndex; // which had fitting message
+        public int positionInSource; // position in source where to find message.
 
-        public SourceIndex(int position, int sourceIndex, int positionInSource) {
-            this.position = position;
+        public SourceIndex(int wantedPosition, int sourceIndex, int positionInSource) {
+            this.wantedPosition = wantedPosition;
             this.sourceIndex = sourceIndex;
             this.positionInSource = positionInSource;
         }
@@ -170,11 +168,11 @@ public class ASAPMessagesMerger implements ASAPMessages {
             if(indexList.size() <= i) return null;
             SourceIndex indexEntry = indexList.get(i++);
 
-            if(indexEntry.position == position) return indexEntry; // found match
+            if(indexEntry.wantedPosition == position) return indexEntry; // found match
 
-            if(previousIndexEntry != null && previousIndexEntry.position < position && position < indexEntry.position) {
+            if(previousIndexEntry != null && previousIndexEntry.wantedPosition < position && position < indexEntry.wantedPosition) {
                 // we are within a range.
-                int offsetIndex = previousIndexEntry.position;
+                int offsetIndex = previousIndexEntry.wantedPosition;
                 int steps = position - offsetIndex;
                 return new SourceIndex(position,
                         previousIndexEntry.sourceIndex,
@@ -182,7 +180,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
             }
 
             previousIndexEntry = indexEntry;
-        } while(previousIndexEntry.position < position); // we have still a chance to find anything
+        } while(previousIndexEntry.wantedPosition < position); // we have still a chance to find anything
 
         return null; // there is no entry
     }
@@ -225,7 +223,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
         // set it up - read first message from each non empty source
         for(int i = 0; i < this.messageSources.length; i++) {
             lookAheadMessagesArray[i] = this.messageSources[i].getMessage(0, chronologically);
-            lookAheadSourceIndexArray[i] = new SourceIndex(0, i, 0);
+            lookAheadSourceIndexArray[i] = new SourceIndex(-1, i, 0);
         }
     }
 
@@ -239,10 +237,10 @@ public class ASAPMessagesMerger implements ASAPMessages {
             SourceIndex sourceIndex = indexList.get(indexList.size() - 1);
 
             // check for your own stupidity - last position is before our wanted position - we would not be here otherwise
-            if (sourceIndex != null && sourceIndex.position >= position)
+            if (sourceIndex != null && sourceIndex.wantedPosition >= position)
                 throw new ASAPException("internal error - look ahead algorithm buggy");
 
-            wantedLookAheadPosition = sourceIndex.position+1;
+            wantedLookAheadPosition = sourceIndex.wantedPosition +1;
         }
 
         this.setupLookAhead(chronologically);
@@ -252,61 +250,82 @@ public class ASAPMessagesMerger implements ASAPMessages {
         //int[] lookAheadMessagePositionInSource = this.getLookAheadPositionInSource(chronologically);
 
         // find message for next position.
-        int bestSourceIndex = 0; // init source index 0 wins?
         SourceIndex previousSourceIndex = null;
-        SourceIndex currentSourceIndex = null;
+        SourceIndex foundSourceIndex = null;
 
+        boolean lastSourceIndexAdded;
         do {
-            for (int i = 1; i < this.messageSources.length; i++) {
+            int bestSourceIndex = -1; // init source index 0 wins?
+            lastSourceIndexAdded = false; // not yet at least
+
+            for (int i = 0; i < this.messageSources.length; i++) {
+                if(lookAheadMessage[i] == null) continue; // nothing to do in this round
+                if(bestSourceIndex == -1) {
+                    // guess we have a winner without opponent
+                    bestSourceIndex = i;
+                    continue;
+                }
+
                 boolean previousEarlier =
-                        this.messageCompare.earlier(lookAheadMessage[i - 1], lookAheadMessage[i]);
+                        this.messageCompare.earlier(lookAheadMessage[bestSourceIndex], lookAheadMessage[i]);
 
             /*
             previous earlier | chronologically | what wins?
             -----------------------------------------------
-                   true             true           i-1
-                   false            true            i
-                   true             false           i
-                   false            false          i-1
+                   true             true           no change
+                   false            true            i is better
+                   true             false           i is better
+                   false            false          no change
              */
 
-                if ((previousEarlier && chronologically) || (!previousEarlier && !chronologically)) {
-                    bestSourceIndex = i - 1;
-                } else {
-                    bestSourceIndex = 1;
-                }
+                if (previousEarlier != chronologically) { bestSourceIndex = i; }
             }
 
+            if(bestSourceIndex == -1) // failure in algorithm - should not happen due to test of size()..
+                throw new ASAPException("no more message - cannot look ahead");
+
             // we have a winner
-            currentSourceIndex = lookAheadSourceIndexArray[bestSourceIndex];
+            foundSourceIndex = lookAheadSourceIndexArray[bestSourceIndex];
+
+            // now we can tell at what overall position this message is
+            foundSourceIndex.wantedPosition = wantedLookAheadPosition;
 
             if(previousSourceIndex != null) {
-                if(previousSourceIndex.sourceIndex != currentSourceIndex.sourceIndex) {
+                if(previousSourceIndex.sourceIndex != foundSourceIndex.sourceIndex) {
                     // remember previous - we have a change in sources
-                    indexList.add(previousSourceIndex);
+                    indexList.add(foundSourceIndex);
+                    lastSourceIndexAdded = true;
                 }
+            } else {
+                indexList.add(foundSourceIndex);
+                lastSourceIndexAdded = true;
             }
 
             // prepare next round
-            previousSourceIndex = currentSourceIndex;
+            previousSourceIndex = foundSourceIndex;
 
-            // look ahead
-            int nextPositionInSource = currentSourceIndex.positionInSource + 1;
+            // read ahead - if possible
+            lookAheadSourceIndexArray[bestSourceIndex] = null;
+            lookAheadMessage[bestSourceIndex] = null;
+            int nextPositionInSource = foundSourceIndex.positionInSource + 1;
+            try {
+                lookAheadMessage[bestSourceIndex] =
+                        messageSources[bestSourceIndex].getMessage(nextPositionInSource, chronologically);
 
-            // read ahead
-            lookAheadMessage[bestSourceIndex] =
-                    messageSources[bestSourceIndex].getMessage(nextPositionInSource, chronologically);
+                // remember read ahead
+                lookAheadSourceIndexArray[bestSourceIndex] =
+                        new SourceIndex(-1, // we cannot tell yet
+                                bestSourceIndex, nextPositionInSource); // we know where it comes from
+            }
+            catch(Exception e) {
+                // no more messages
+            }
+        } while(position > wantedLookAheadPosition++);
 
-            // remember read ahead
-            lookAheadSourceIndexArray[bestSourceIndex] =
-                    new SourceIndex(wantedLookAheadPosition, bestSourceIndex, nextPositionInSource);
+        // remember this in any case
+        if(!lastSourceIndexAdded) indexList.add(foundSourceIndex);
 
-        } while(position > wantedLookAheadPosition);
-
-        // remember this
-        indexList.add(currentSourceIndex);
-
-        return currentSourceIndex;
+        return foundSourceIndex;
     }
 
     @Override

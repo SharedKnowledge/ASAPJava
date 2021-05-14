@@ -71,6 +71,38 @@ public class StorageTests {
         });
 
         Iterator<byte[]> messageIter = messages.getMessages();
+
+        messages.getMessage(5, true);
+
+
+        byte expected = 0;
+        while(messageIter.hasNext()) {
+            System.out.print(", " + expected);
+            if(expected == 4) {
+                int i = 42; // debug breakpoint
+            }
+            byte[] msg = messageIter.next();
+            Assert.assertEquals(expected, msg[0]);
+            expected++;
+        }
+    }
+
+    @Test
+    public void channelTestOneMessageOnly() throws IOException, ASAPException {
+        byte[] aliceMessageContent1 = new byte[] {0};
+
+        ASAPEngineFS.removeFolder(ALICEFOLDER);
+
+        ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, ALICEFOLDER, FORMAT);
+        storage.add(URI, aliceMessageContent1);
+
+        ASAPStorage bobStorage = storage.getIncomingStorage(TestConstants.BOB_NAME);
+
+        ASAPStorage claraStorage = storage.getIncomingStorage(TestConstants.CLARA_NAME);
+
+        ASAPMessages messages = storage.getChannel(URI).getMessages(false);
+
+        Iterator<byte[]> messageIter = messages.getMessages();
         byte expected = 0;
         while(messageIter.hasNext()) {
             byte[] msg = messageIter.next();
