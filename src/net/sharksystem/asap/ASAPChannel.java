@@ -21,11 +21,11 @@ public interface ASAPChannel {
 
     /**
      * Get messages in this channel only (most probably sent) from this peer or also received messages
-     * @param peerOnly
+     * @param sentMessagesOnly
      * @return
      * @throws IOException
      */
-    ASAPMessages getMessages(boolean peerOnly) throws IOException, ASAPException;
+    ASAPMessages getMessages(boolean sentMessagesOnly) throws IOException, ASAPException;
 
     /**
      * Get all message (including received messages). Compare Object helps to bring messages in order.
