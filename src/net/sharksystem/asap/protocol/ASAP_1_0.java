@@ -40,8 +40,8 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void offer(CharSequence peer, CharSequence format, CharSequence channel, int era, OutputStream os, boolean signed)
-            throws IOException, ASAPException;
+//    void offer(CharSequence peer, CharSequence format, CharSequence channel, int era, OutputStream os, boolean signed)
+//            throws IOException, ASAPException;
 
     /**
      * @param recipient identifies a peer - can be null
@@ -52,8 +52,8 @@ public interface ASAP_1_0 {
      * @throws IOException exception during writing on stream
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
-    void offer(CharSequence recipient, CharSequence format, CharSequence channel, OutputStream os, boolean signed)
-            throws IOException, ASAPException;
+//    void offer(CharSequence recipient, CharSequence format, CharSequence channel, OutputStream os, boolean signed)
+//            throws IOException, ASAPException;
 
     /*
     INTEREST: Sender declares an interest for data from a peer (optional) within a range of era (optional) of a

@@ -15,7 +15,7 @@ public class PDUTests {
     public static final String ALICE_ID = "Alice";
     public static final String BOB_ID = "Bob";
     public static final String CLARA_ID = "Clara";
-
+/*
     @Test
     public void sendAndReceiveOffer() throws IOException, ASAPException {
 
@@ -27,12 +27,14 @@ public class PDUTests {
         int era = 1;
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
+*/
+
 
         /*
             void offer(CharSequence peer, CharSequence format, CharSequence channel, int era, OutputStream os, boolean signed)
             throws IOException, ASAPException;
          */
-
+/*
         protocolEngine.offer(peer, format, channel, era, os, false);
 
         // try t read output
@@ -47,6 +49,7 @@ public class PDUTests {
         Assert.assertTrue(offerPDU.getSender().equalsIgnoreCase(peer));
         Assert.assertEquals(offerPDU.getEra(), era);
     }
+*/
 
     ////////////////////           interest          /////////////////////////////////////////
     @Test

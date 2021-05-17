@@ -46,6 +46,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
     CMD | algorithm | recipient | encrypted message len | encrypted FLAGS | ... specifics
     */
 
+    /*
     @Override
     public void offer(CharSequence peer, CharSequence format, CharSequence channel, int era,
                       OutputStream os, boolean signed) throws IOException, ASAPException {
@@ -57,6 +58,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                       OutputStream os, boolean signed) throws IOException, ASAPException {
         this.offer(recipient, format, channel, ERA_NOT_DEFINED, os, signed);
     }
+     */
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,

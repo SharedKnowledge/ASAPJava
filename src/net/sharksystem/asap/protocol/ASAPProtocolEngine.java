@@ -35,7 +35,9 @@ public abstract class ASAPProtocolEngine {
      * send an interest with nothing but own name / id
      * @param signed if message is signed
      */
+    /*
     protected void sendIntroductionOffer(CharSequence owner, boolean signed) throws IOException, ASAPException {
         protocol.offer(owner, ASAP_MANAGEMENT_FORMAT, null, this.os, signed);
     }
+     */
 }
