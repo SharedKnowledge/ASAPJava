@@ -19,9 +19,8 @@ public interface ASAP_1_0 {
     byte ENCRYPTED_CMD = 1;
 
     int CMD_MASK = 0x6; // 0110 - first bit tells if encrypted or not
-    byte OFFER_CMD = 0;
-    byte INTEREST_CMD = 2;
-    byte ASSIMILATE_CMD = 4;
+    byte INTEREST_CMD = 0;
+    byte ASSIMILATE_CMD = 2;
 
     String ANY_FORMAT = "ASAP_ANY_FORMAT";
     String ASAP_MANAGEMENT_FORMAT = "asap/control";

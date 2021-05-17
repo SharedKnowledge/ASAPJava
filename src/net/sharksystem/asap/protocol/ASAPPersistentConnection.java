@@ -381,10 +381,6 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPInterest");
                         engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
                         break;
-                    case ASAP_1_0.OFFER_CMD:
-                        Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPOffer");
-                        engineSetting.engine.handleASAPOffer((ASAP_OfferPDU_1_0) asapPDU, protocol, os);
-                        break;
                     case ASAP_1_0.ASSIMILATE_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");
                         engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
