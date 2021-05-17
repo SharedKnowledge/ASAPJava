@@ -17,6 +17,7 @@ import java.util.List;
 public class ASAP_Modem_Impl implements ASAP_1_0 {
     private final ASAPKeyStore signAndEncryptionKeyStorage;
     private final ASAPUndecryptableMessageHandler undecryptableMessageHandler;
+    private byte initialTTL = DEFAULT_INITIAL_TTL;
 
     public ASAP_Modem_Impl() {
         this(null, null);
@@ -101,6 +102,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
                          boolean encrypted) throws IOException, ASAPException {
 
+        this.sendTTL(os);
+
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.INTEREST_CMD,
                 os, signed, encrypted, recipient,
@@ -137,6 +140,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
+        this.sendTTL(os);
+
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.ASSIMILATE_CMD,
                 os, signed, encrypted, recipient,
@@ -149,6 +154,10 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
+    }
+
+    private void sendTTL(OutputStream os) throws IOException {
+        ASAPSerialization.writeByteParameter(this.initialTTL, os);
     }
 
     @Override
@@ -173,6 +182,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
+        byte ttl = ASAPSerialization.readByte(is);
+
         byte cmd = ASAPSerialization.readByte(is);
 
         // encrypted?

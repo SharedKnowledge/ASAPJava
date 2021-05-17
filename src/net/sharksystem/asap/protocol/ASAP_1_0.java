@@ -13,6 +13,8 @@ import java.util.List;
  * Descriptions of ASAP protocol data units and some constants
  */
 public interface ASAP_1_0 {
+    byte DEFAULT_INITIAL_TTL = 6; // a small world is assumed
+
     int ENCRYPTED_MASK = 0x1; // 0001
     byte ENCRYPTED_CMD = 1;
 
