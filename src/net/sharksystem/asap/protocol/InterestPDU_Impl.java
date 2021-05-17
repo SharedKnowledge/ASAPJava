@@ -11,8 +11,8 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
     private int eraFrom;
     private int eraTo;
 
-    InterestPDU_Impl(int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
-        super(ASAP_1_0.INTEREST_CMD, encrypted);
+    InterestPDU_Impl(byte ttl, int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
+        super(ttl, ASAP_1_0.INTEREST_CMD, encrypted);
 
         evaluateFlags(flagsInt);
 

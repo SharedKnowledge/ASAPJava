@@ -20,8 +20,8 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
     // PDU: CMD | FLAGS | PEER | RECIPIENT | FORMAT | CHANNEL | ERA | OFFSETS | LENGTH | DATA
 
-    public AssimilationPDU_Impl(int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
-        super(ASAP_1_0.ASSIMILATE_CMD, encrypted);
+    public AssimilationPDU_Impl(byte ttl, int flagsInt, boolean encrypted, InputStream is) throws IOException, ASAPException {
+        super(ttl, ASAP_1_0.ASSIMILATE_CMD, encrypted);
 
         evaluateFlags(flagsInt);
 
