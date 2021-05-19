@@ -589,8 +589,31 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        // era we are about to transmit
-        int workingEra = this.getEraStartSync(peer);
+        /* We have got an interest from another peer.
+        First: Let's find what chunks from our peer are be be sent to get in sync. */
+        Map<String, Integer> encounterMap = null;
+        Integer lastSeenEra = null;
+
+        // has it even provided an encounter list?
+        if(asapInterest.encounterList()) {
+            encounterMap = asapInterest.getEncounterMap();
+            lastSeenEra = encounterMap.get(this.getOwner());
+        }
+
+        if(lastSeenEra != null) {
+            // remember this fact - will be overwritten later - but maybe when connection goes down before..
+            this.lastSeen.put(asapInterest.getSender(), lastSeenEra);
+        } else {
+            // no entry in encounter list - local history?
+            lastSeenEra = this.lastSeen.get(peer);
+        }
+
+        if(lastSeenEra == null) {
+            // still nothing
+            lastSeenEra = this.getOldestEra();
+        }
+
+        int workingEra = lastSeenEra;
         System.out.println(this.getLogStart() + "last_seen: " + workingEra + " | era: " + this.era);
 
         if(workingEra == this.era) {

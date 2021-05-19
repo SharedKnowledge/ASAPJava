@@ -69,4 +69,17 @@ public interface ASAP_PDU_1_0 {
      * @return a flag that indicates whether the optional era parameter was transmitted
      */
     boolean eraSet();
+
+    /**
+     * Routing allowed - yes or no
+     * @return
+     */
+    public boolean routing();
+
+    /**
+     * Sent an encounter list?
+     * @return
+     */
+    public boolean encounterList();
+
 }

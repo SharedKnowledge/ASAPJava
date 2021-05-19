@@ -13,7 +13,6 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         SerializationTests.class,
-        BatchprocessorTest.class,
         BasisMethodsTests.class,
         Point2PointTests.class,
         Point2PointTests2.class,
