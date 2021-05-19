@@ -341,7 +341,7 @@ public class ASAPInternalPeerFS implements
         sb.append("handleConnection");
         System.out.println(sb.toString());
 
-        // this.announceNewEra(); announce when connection is actually established
+        this.announceNewEra(); // announce when connection is actually established
 
         Thread thread = new Thread(asapConnection);
         thread.start();
@@ -455,11 +455,13 @@ public class ASAPInternalPeerFS implements
             return;
         }
 
+        /* we must do it handleConnection - this method is called when we are about processing the first interest pdu
         try {
             this.announceNewEra();
         } catch (IOException | ASAPException e) {
             System.err.println(this.getLogStart() + "could not announce new era: " + e.getLocalizedMessage());
         }
+         */
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
