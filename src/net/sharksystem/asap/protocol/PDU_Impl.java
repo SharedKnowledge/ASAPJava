@@ -19,6 +19,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     public static final int ERA_TO_BIT_POSITION = 5;
     public static final int OFFSETS_BIT_POSITION = 6;
     public static final int SIGNED_TO_BIT_POSITION = 7;
+    public static final int ROUTING_BIT_POSITION = 8;
+    public static final int ENCOUNTER_LIST_BIT_POSITION = 9;
 
     private boolean senderSet = false;
     private boolean recipientSet = false;
@@ -27,6 +29,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     private boolean eraFrom = false;
     private boolean eraTo = false;
     private boolean offsetsSet = false;
+    private boolean routing = false;
+    private boolean encounterList = false;
 
     private final byte cmd;
     private final boolean encrypted;
@@ -68,6 +72,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         sb.append(" | signed: "); this.appendTrueFalse(this.signed, sb);
         sb.append(" | verified: "); this.appendTrueFalse(this.verified, sb);
         sb.append(" | encrypted: "); this.appendTrueFalse(this.encrypted, sb);
+        sb.append(" | routing: "); this.appendTrueFalse(this.routing, sb);
+        sb.append(" | encounterList: "); this.appendTrueFalse(this.encounterList, sb);
 
         return sb.toString();
     }
@@ -90,7 +96,30 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     }
 
     public static void sendFlags(int flags, OutputStream os) throws IOException {
-        ASAPSerialization.writeByteParameter((byte)flags, os); // mand
+        // we need two bytes - sent least signification byte first
+        byte flagBytes = ASAPSerialization.getByteFromInt(flags, 0);
+        ASAPSerialization.writeByteParameter(flagBytes, os); // mand
+        flagBytes = ASAPSerialization.getByteFromInt(flags, 1);
+        ASAPSerialization.writeByteParameter(flagBytes, os); // mand
+    }
+
+    public static int readFlags(InputStream is) throws IOException, ASAPException {
+        byte byteLeastSignificant = ASAPSerialization.readByte(is);
+        byte byteNextByte = ASAPSerialization.readByte(is);
+
+        int flags = byteNextByte;
+        flags = flags << 8;
+        // set all random bits to 0
+        flags = flags & 0x0000FF00;
+
+        int leastSignificantInt = byteLeastSignificant;
+        // set all random bits to 0
+        leastSignificantInt = leastSignificantInt & 0x000000FF;
+
+        // merge
+        flags = flags | leastSignificantInt;
+
+        return flags;
     }
 
     public static void sendCmd(byte cmd, OutputStream os) throws IOException {
@@ -106,6 +135,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         this.eraTo = flagSet(ERA_TO_BIT_POSITION, flag);
         this.offsetsSet = flagSet(OFFSETS_BIT_POSITION, flag);
         this.signed = flagSet(SIGNED_TO_BIT_POSITION, flag);
+        this.routing = flagSet(ROUTING_BIT_POSITION, flag);
+        this.encounterList = flagSet(ENCOUNTER_LIST_BIT_POSITION, flag);
     }
 
     static boolean flagSet(int bitPosition, int flags) {

@@ -139,15 +139,16 @@ class ASAPCryptoMessage {
         }
     }
 
-    public InputStream setupCopyInputStream(int priorInt, InputStream is)
+    public InputStream setupCopyInputStream(int flags, InputStream is)
             throws IOException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 //        if(writeInt) {
-//            PDU_Impl.sendFlags(priorInt, baos);
+//            PDU_Impl.sendFlags(flags, baos);
 //        }
 
-        baos.write(priorInt);
+        PDU_Impl.sendFlags(flags, baos);
+        //baos.write(flags);
 
         this.inputStreamCopy = new InputStreamCopy(baos.toByteArray(), is);
         return this.inputStreamCopy;

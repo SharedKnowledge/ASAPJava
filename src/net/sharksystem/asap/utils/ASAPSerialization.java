@@ -43,6 +43,18 @@ public class ASAPSerialization {
         os.write(new byte[] { parameter} );
     }
 
+    /**
+     * Return a byte from an int - position starts with 0 at least significant bit
+     * @param source
+     * @param position
+     * @return
+     */
+    public static byte getByteFromInt(int source, int position) {
+        int bitCountShift = position * 8; // byte has got 8 bit
+        int tmpInt = source >> bitCountShift;
+        return (byte) (tmpInt);
+    }
+
     public static void writeShortParameter(short shortValue, OutputStream os) throws IOException {
         // short = 16 bit = 2 bytes
         short left = (short) (shortValue & BLANK_RIGHT_SHORT);

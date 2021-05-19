@@ -152,7 +152,7 @@ public class PDUTests {
     }
 
     @Test
-    public void sendAndReceiveInterestSigned() throws IOException, ASAPException {
+    public void sendAndReceiveInterestSignedNotEncrypted() throws IOException, ASAPException {
         InMemoASAPKeyStore keyStorageAlice = new InMemoASAPKeyStore(ALICE_ID);
 
         // add Bob

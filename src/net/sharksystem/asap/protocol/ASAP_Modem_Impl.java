@@ -201,7 +201,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             }
         }
 
-        int flagsInt = ASAPSerialization.readByte(is);
+        int flagsInt = PDU_Impl.readFlags(is);
+        //ASAPSerialization.readByte(is);
 
         InputStream realIS = is;
         ASAPCryptoMessage verifyCryptoMessage = null;
