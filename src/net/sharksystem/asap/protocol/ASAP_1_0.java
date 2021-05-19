@@ -118,7 +118,8 @@ public interface ASAP_1_0 {
 
     void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
-                  OutputStream os, boolean sign, boolean encrypted, boolean asapRoutingAllowed)
+                  OutputStream os, boolean sign, boolean encrypted,
+                  boolean asapRoutingAllowed, ASAPEncounterList encounterList)
             throws IOException, ASAPException, ASAPSecurityException;
 
     /**

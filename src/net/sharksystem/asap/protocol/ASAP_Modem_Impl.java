@@ -102,7 +102,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                          boolean asapRoutingAllowed) throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
-                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt(), asapRoutingAllowed);
+                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt(), asapRoutingAllowed, null);
 
     }
 
@@ -113,13 +113,14 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                          boolean encrypted) throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel,
-                eraFrom, eraTo, os, signed, encrypted, true);
+                eraFrom, eraTo, os, signed, encrypted, true, null);
     }
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                          CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
-                         boolean encrypted, boolean asapRoutingAllowed) throws IOException, ASAPException {
+                         boolean encrypted, boolean asapRoutingAllowed, ASAPEncounterList encounterList)
+            throws IOException, ASAPException {
 
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.INTEREST_CMD,
@@ -129,7 +130,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cryptoMessage.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
-                cryptoMessage.getOutputStream(), signed, asapRoutingAllowed);
+                cryptoMessage.getOutputStream(), signed, asapRoutingAllowed, encounterList);
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
