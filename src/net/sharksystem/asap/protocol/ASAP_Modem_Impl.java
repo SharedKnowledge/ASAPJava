@@ -102,8 +102,6 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
             CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
                          boolean encrypted) throws IOException, ASAPException {
 
-        this.sendTTL(os);
-
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.INTEREST_CMD,
                 os, signed, encrypted, recipient,
@@ -140,8 +138,6 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
-        this.sendTTL(os);
-
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.ASSIMILATE_CMD,
                 os, signed, encrypted, recipient,
@@ -154,10 +150,6 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
-    }
-
-    private void sendTTL(OutputStream os) throws IOException {
-        ASAPSerialization.writeByteParameter(this.initialTTL, os);
     }
 
     @Override
@@ -182,9 +174,6 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public ASAP_PDU_1_0 readPDU(InputStream is) throws IOException, ASAPException {
-        byte ttl = ASAPSerialization.readByte(is);
-        ttl--; // decrement time to life
-
         byte cmd = ASAPSerialization.readByte(is);
 
         // encrypted?
@@ -226,8 +215,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         // remove encrypted flag
         cmd = (byte)(cmd & CMD_MASK);
         switch(cmd) {
-            case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(ttl, flagsInt, encrypted, is); break;
-            case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(ttl, flagsInt, encrypted, is); break;
+            case ASAP_1_0.INTEREST_CMD: pdu = new InterestPDU_Impl(flagsInt, encrypted, is); break;
+            case ASAP_1_0.ASSIMILATE_CMD: pdu = new AssimilationPDU_Impl(flagsInt, encrypted, is); break;
             default: throw new ASAPException("unknown command: " + cmd);
         }
 

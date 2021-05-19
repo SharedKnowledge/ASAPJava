@@ -28,7 +28,6 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     private boolean eraTo = false;
     private boolean offsetsSet = false;
 
-    private final byte ttl;
     private final byte cmd;
     private final boolean encrypted;
 
@@ -41,8 +40,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     private String channel;
     private int era;
 
-    PDU_Impl(byte ttl, byte cmd, boolean encrypted) {
-        this.ttl = ttl;
+    PDU_Impl(byte cmd, boolean encrypted) {
         this.cmd = cmd;
         this.encrypted = encrypted;
     }

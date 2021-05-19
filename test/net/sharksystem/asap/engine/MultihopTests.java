@@ -1,13 +1,20 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.CountsReceivedMessagesListener;
+import net.sharksystem.TestConstants;
+import net.sharksystem.TestHelper;
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
+import net.sharksystem.asap.ASAPStorage;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.cmdline.CmdLineUI;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 public class MultihopTests {
@@ -289,5 +296,71 @@ public class MultihopTests {
     private ASAPInternalStorage getFreshStorageByName(CmdLineUI ui, String storageName) throws ASAPException, IOException {
         String rootFolder = ui.getEngineRootFolderByStorageName(storageName);
         return ASAPEngineFS.getExistingASAPEngineFS(rootFolder);
+    }
+
+    /**
+     * A creates two messages (to have a chunk with more than one message). A meets B. B gets chunk of A with local
+     * creation era. B meets C. C get routed chunk from A. A meets C. Nothing happens. C already has got this chunk.
+     */
+    @Test
+    public void negotiateRoutedChunksAvoidLoops() throws IOException, ASAPException, InterruptedException {
+        /////////////////////////////////// setup test environment
+        String aliceFolder = TestHelper.getFullRootFolderName(TestConstants.ALICE_ID, MultihopTests.class);
+        aliceFolder = TestHelper.getFullTempFolderName(aliceFolder, false);
+        ASAPEngineFS.removeFolder(aliceFolder);
+
+        String bobFolder = TestHelper.getFullRootFolderName(TestConstants.BOB_ID, MultihopTests.class);
+        bobFolder = TestHelper.getFullTempFolderName(bobFolder, false);
+        ASAPEngineFS.removeFolder(bobFolder);
+
+        String claraFolder = TestHelper.getFullRootFolderName(TestConstants.CLARA_ID, MultihopTests.class);
+        claraFolder = TestHelper.getFullTempFolderName(claraFolder, true);
+        ASAPEngineFS.removeFolder(bobFolder);
+
+        String appName = TestHelper.produceTestAppName(MultihopTests.class);
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(appName);
+
+        ////////////////////////////////////// setup test peers
+        // ALICE
+        ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(TestConstants.ALICE_ID, aliceFolder, formats);
+        CountsReceivedMessagesListener aliceListener = new CountsReceivedMessagesListener(TestConstants.ALICE_ID);
+        alicePeer.addASAPMessageReceivedListener(appName, aliceListener);
+        // BOB
+        ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(TestConstants.BOB_ID, bobFolder, formats);
+        CountsReceivedMessagesListener bobListener = new CountsReceivedMessagesListener(TestConstants.BOB_ID);
+        bobPeer.addASAPMessageReceivedListener(appName, bobListener);
+        // CLARA
+        ASAPTestPeerFS claraPeer = new ASAPTestPeerFS(TestConstants.CLARA_ID, claraFolder, formats);
+        CountsReceivedMessagesListener claraListener = new CountsReceivedMessagesListener(TestConstants.CLARA_ID);
+        claraPeer.addASAPMessageReceivedListener(appName, claraListener);
+
+        //////////////////////////////////// Alice creates messages
+        byte[] testMessage1 = TestHelper.produceTestMessage();
+        byte[] testMessage2 = TestHelper.produceTestMessage();
+        ASAPStorage aliceAppStorage = alicePeer.getASAPStorage(appName);
+        aliceAppStorage.add(TestConstants.URI, testMessage1);
+        aliceAppStorage.add(TestConstants.URI, testMessage2);
+
+        //////////////////////////////////// Alice meets Bob - first exchange
+        alicePeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
+        // give your app a moment to process
+        Thread.sleep(100);
+        alicePeer.stopEncounter(bobPeer);
+        Assert.assertEquals(1, bobListener.numberOfMessages);
+
+        //////////////////////////////////// Bob meets Clara - routing
+        claraPeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
+        // give your app a moment to process
+        Thread.sleep(100);
+        claraPeer.stopEncounter(bobPeer);
+        Assert.assertEquals(1, claraListener.numberOfMessages);
+
+        //////////////////////////////////// Alice meets Clara - nothing: Clara has already got era Alice:0.
+        alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
+        // give your app a moment to process
+        Thread.sleep(100);
+        alicePeer.stopEncounter(claraPeer);
+        Assert.assertEquals(0, claraListener.numberOfMessages);
     }
 }
