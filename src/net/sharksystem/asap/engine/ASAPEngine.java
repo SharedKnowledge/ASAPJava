@@ -663,9 +663,22 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             throws IOException, ASAPException {
 
         System.out.println(this.getLogStart() + "send interest for app/format: " + format);
-        protocol.interest(this.owner, null,
+
+        // produce encounter map
+        Map<String, Integer> encounterMap = new HashMap<>();
+
+        Set<String> encounteredPeers = this.lastSeen.keySet();
+        for(String peerID : encounteredPeers) {
+            int lastEra = this.getExistingIncomingStorage(peerID).getEra();
+            encounterMap.put(peerID, lastEra);
+        }
+
+        protocol.interest(ownerID, null,
                 format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
-                os, this.getASAPCommunicationCryptoSettings(), this.asapRoutingAllowed());
+                os, this.getASAPCommunicationCryptoSettings().mustSign(),
+                this.getASAPCommunicationCryptoSettings().mustEncrypt(),
+                this.asapRoutingAllowed(),
+                encounterMap);
     }
 
     private void sendChunks(CharSequence sender, String remotePeer, ASAPChunkStorage chunkStorage,

@@ -20,7 +20,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     public static final int OFFSETS_BIT_POSITION = 6;
     public static final int SIGNED_TO_BIT_POSITION = 7;
     public static final int ROUTING_BIT_POSITION = 8;
-    public static final int ENCOUNTER_LIST_BIT_POSITION = 9;
+    public static final int ENCOUNTER_MAP_BIT_POSITION = 9;
 
     private boolean senderSet = false;
     private boolean recipientSet = false;
@@ -52,6 +52,8 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
     public boolean encrypted() { return this.encrypted; }
     public boolean signed() { return this.signed; }
     public boolean verified() { return this.verified; };
+    public boolean routing() { return this.routing; };
+    public boolean encounterList() { return this.encounterList; };
 
     public void setVerified(boolean verified) {
         this.verified = verified;
@@ -136,7 +138,7 @@ abstract class PDU_Impl implements ASAP_PDU_1_0, ASAP_PDU_Management {
         this.offsetsSet = flagSet(OFFSETS_BIT_POSITION, flag);
         this.signed = flagSet(SIGNED_TO_BIT_POSITION, flag);
         this.routing = flagSet(ROUTING_BIT_POSITION, flag);
-        this.encounterList = flagSet(ENCOUNTER_LIST_BIT_POSITION, flag);
+        this.encounterList = flagSet(ENCOUNTER_MAP_BIT_POSITION, flag);
     }
 
     static boolean flagSet(int bitPosition, int flags) {

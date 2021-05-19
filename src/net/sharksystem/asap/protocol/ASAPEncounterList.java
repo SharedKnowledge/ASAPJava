@@ -2,6 +2,7 @@ package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
 
+import java.io.IOException;
 import java.util.Set;
 
 public interface ASAPEncounterList {
@@ -9,7 +10,7 @@ public interface ASAPEncounterList {
      * Provides a set of peer id. There is record of a previous encounter with those peers.
      * @return
      */
-    Set<CharSequence> getEncounteredPeers();
+    Set<String> getEncounteredPeers();
 
     /**
      * Provide era of last encounter with a peer. The local era, the counting of this peer is returned.
@@ -25,5 +26,5 @@ public interface ASAPEncounterList {
      * @return
      * @throws ASAPException There is not such peerID
      */
-    int getTheirMostRecentEra(CharSequence peerID) throws ASAPException;
+    int getTheirMostRecentEra(CharSequence peerID) throws ASAPException, IOException;
 }

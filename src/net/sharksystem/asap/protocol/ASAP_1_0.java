@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Descriptions of ASAP protocol data units and some constants
@@ -119,7 +120,7 @@ public interface ASAP_1_0 {
     void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean sign, boolean encrypted,
-                  boolean asapRoutingAllowed, ASAPEncounterList encounterList)
+                  boolean asapRoutingAllowed, Map<String, Integer> encounterMap)
             throws IOException, ASAPException, ASAPSecurityException;
 
     /**

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 public class ASAP_Modem_Impl implements ASAP_1_0 {
     private final ASAPKeyStore signAndEncryptionKeyStorage;
@@ -102,10 +103,10 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                          boolean asapRoutingAllowed) throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
-                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt(), asapRoutingAllowed, null);
+                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt(), asapRoutingAllowed,
+                (Map<String, Integer>) null);
 
     }
-
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
@@ -113,13 +114,13 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                          boolean encrypted) throws IOException, ASAPException {
 
         this.interest(sender, recipient, format, channel,
-                eraFrom, eraTo, os, signed, encrypted, true, null);
+                eraFrom, eraTo, os, signed, encrypted, true, (Map<String, Integer>) null);
     }
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                          CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
-                         boolean encrypted, boolean asapRoutingAllowed, ASAPEncounterList encounterList)
+                         boolean encrypted, boolean asapRoutingAllowed, Map<String, Integer> encounterMap)
             throws IOException, ASAPException {
 
         // prepare encryption and signing if required
@@ -130,7 +131,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cryptoMessage.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
-                cryptoMessage.getOutputStream(), signed, asapRoutingAllowed, encounterList);
+                cryptoMessage.getOutputStream(), signed, asapRoutingAllowed, encounterMap);
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
