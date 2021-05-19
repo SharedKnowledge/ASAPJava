@@ -541,6 +541,7 @@ public class ASAPInternalPeerFS implements
 
         // management messages must be sent first - if any
         try {
+            // exists?
             ASAPEngine managementEngine = this.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
             System.out.println(this.getLogStart() + "send interest for app/format: " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
             protocol.interest(this.owner, null,
@@ -555,14 +556,17 @@ public class ASAPInternalPeerFS implements
         // issue an interest for each owner / format combination
         for(CharSequence format : this.folderMap.keySet()) {
             if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already sent
+            ASAPEngine engine = this.getEngineByFormat(format);
+
             System.out.println(this.getLogStart() + "send interest for app/format: " + format);
             try {
                 protocol.interest(this.owner, null,
                         format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
-                        os, this.getASAPCommunicationCryptoSettings());
+                        os, this.getASAPCommunicationCryptoSettings(), engine.asapRoutingAllowed());
             }
             catch(ASAPSecurityException e) {
                 // give next engine a try
+                Log.writeLog(this, "format in key set but engine not available - weird");
             }
         }
     }

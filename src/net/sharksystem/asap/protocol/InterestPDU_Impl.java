@@ -34,7 +34,7 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
 
     static void sendPDUWithoutCmd(CharSequence sender, CharSequence recipient, CharSequence format,
                                   CharSequence channel, int eraFrom, int eraTo, OutputStream os,
-                                  boolean signed)
+                                  boolean signed, boolean routingAllowed)
             throws IOException, ASAPException {
 
         if(format == null || format.length() < 1) format = ASAP_1_0.ANY_FORMAT;
@@ -53,6 +53,7 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
         flags = PDU_Impl.setFlag(eraFrom, flags, ERA_FROM_BIT_POSITION);
         flags = PDU_Impl.setFlag(eraTo, flags, ERA_TO_BIT_POSITION);
         flags = PDU_Impl.setFlag(signed, flags, SIGNED_TO_BIT_POSITION);
+        flags = PDU_Impl.setFlag(routingAllowed, flags, ROUTING_BIT_POSITION);
 
         PDU_Impl.sendFlags(flags, os);
 

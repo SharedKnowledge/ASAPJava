@@ -81,6 +81,11 @@ public interface ASAP_1_0 {
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, ASAPPoint2PointCryptoSettings cryptoSettings) throws IOException, ASAPException;
 
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                  CharSequence channel, int eraFrom, int eraTo,
+                  OutputStream os, ASAPPoint2PointCryptoSettings cryptoSettings,
+                  boolean asapRoutingAllowed) throws IOException, ASAPException;
+
     /**
      * @param sender identifies sender - can be null
      * @param recipient can be null - no restriction - any encountered peer will get it.
@@ -109,6 +114,11 @@ public interface ASAP_1_0 {
     void interest(CharSequence sender, CharSequence recipient, CharSequence format,
                   CharSequence channel, int eraFrom, int eraTo,
                   OutputStream os, boolean sign, boolean encrypted)
+            throws IOException, ASAPException, ASAPSecurityException;
+
+    void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                  CharSequence channel, int eraFrom, int eraTo,
+                  OutputStream os, boolean sign, boolean encrypted, boolean asapRoutingAllowed)
             throws IOException, ASAPException, ASAPSecurityException;
 
     /**

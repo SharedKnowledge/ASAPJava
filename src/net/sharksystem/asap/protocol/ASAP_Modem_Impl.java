@@ -96,11 +96,30 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 cryptoSettings.mustSign(), cryptoSettings.mustEncrypt());
     }
 
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                         CharSequence channel, int eraFrom, int eraTo,
+                         OutputStream os, ASAPPoint2PointCryptoSettings cryptoSettings,
+                         boolean asapRoutingAllowed) throws IOException, ASAPException {
+
+        this.interest(sender, recipient, format, channel, eraFrom, eraTo, os,
+                cryptoSettings.mustSign(), cryptoSettings.mustEncrypt(), asapRoutingAllowed);
+
+    }
+
 
     @Override
     public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
-            CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
+                         CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
                          boolean encrypted) throws IOException, ASAPException {
+
+        this.interest(sender, recipient, format, channel,
+                eraFrom, eraTo, os, signed, encrypted, true);
+    }
+
+    @Override
+    public void interest(CharSequence sender, CharSequence recipient, CharSequence format,
+                         CharSequence channel, int eraFrom, int eraTo, OutputStream os, boolean signed,
+                         boolean encrypted, boolean asapRoutingAllowed) throws IOException, ASAPException {
 
         // prepare encryption and signing if required
         ASAPCryptoMessage cryptoMessage = new ASAPCryptoMessage(ASAP_1_0.INTEREST_CMD,
@@ -110,7 +129,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cryptoMessage.sendCmd();
 
         InterestPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, eraFrom, eraTo,
-                cryptoMessage.getOutputStream(), signed);
+                cryptoMessage.getOutputStream(), signed, asapRoutingAllowed);
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
@@ -121,7 +140,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os, signed, false);
+        this.assimilate(sender, recipient, format, channel, era, length,
+                offsets, dataIS, os, signed, false);
     }
 
     @Override
