@@ -25,6 +25,19 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         this.peer.activateOnlineMessages();
     }
 
+
+    @Override
+    public boolean asapRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException {
+        return this.getInternalPeer().asapRoutingAllowed(applicationFormat);
+    }
+
+    @Override
+    public void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
+            throws IOException, ASAPException {
+        
+        this.getInternalPeer().setAsapRoutingAllowed(applicationFormat, allowed);
+    }
+
     protected ASAPInternalPeer getInternalPeer() {
         return this.peer;
     }

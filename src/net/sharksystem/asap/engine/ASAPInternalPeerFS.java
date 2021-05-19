@@ -233,6 +233,16 @@ public class ASAPInternalPeerFS implements
         return asapEngine;
     }
 
+    public boolean asapRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException {
+        return this.getEngineByFormat(applicationFormat).asapRoutingAllowed();
+    }
+
+    public void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
+            throws IOException, ASAPException {
+
+        this.getEngineByFormat(applicationFormat).asapRoutingAllowed();
+    }
+
     @Override
     public ASAPEngine createEngineByFormat(CharSequence format) throws ASAPException, IOException {
         try {

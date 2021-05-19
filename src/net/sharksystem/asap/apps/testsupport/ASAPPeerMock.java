@@ -137,6 +137,16 @@ public class ASAPPeerMock extends ASAPListenerManagingPeer implements ASAPPeerSe
     }
 
     @Override
+    public boolean asapRoutingAllowed(CharSequence applicationFormat) {
+        return false;
+    }
+
+    @Override
+    public void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed) throws IOException, ASAPException {
+
+    }
+
+    @Override
     public ASAPConnection handleConnection(InputStream is, OutputStream os,
                boolean encrypt, boolean sign,
                Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {

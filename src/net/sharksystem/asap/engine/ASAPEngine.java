@@ -1,6 +1,5 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.SharkNotSupportedException;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -82,6 +81,17 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     public void attachASAPMessageAddListener(ASAPOnlineMessageSender asapOnlineMessageSender) {
         this.asapOnlineMessageSender = asapOnlineMessageSender;
+    }
+
+    private boolean routingAllowed = true;
+    @Override
+    public boolean asapRoutingAllowed() {
+        return this.routingAllowed;
+    }
+
+    @Override
+    public void setAsapRoutingAllowed(boolean allowed) {
+        this.routingAllowed = allowed;
     }
 
     public void detachASAPMessageAddListener() {

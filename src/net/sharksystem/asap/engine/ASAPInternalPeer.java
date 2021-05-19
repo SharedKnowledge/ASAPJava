@@ -34,6 +34,11 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler {
      */
     ASAPEngine getEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
+    boolean asapRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException;
+
+    void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
+            throws IOException, ASAPException;
+
     /**
      * return already existing or create an engine for a given format / application name
      * @param format

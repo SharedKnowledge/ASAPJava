@@ -40,4 +40,8 @@ public interface ASAPProtocolEngine {
      * @param on
      */
     void setBehaviourSendReceivedChunks(boolean on) throws IOException;
+
+    boolean asapRoutingAllowed();
+
+    void setAsapRoutingAllowed(boolean allowed);
 }
