@@ -17,9 +17,6 @@ public interface ASAPProtocolEngine {
     void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException;
 
-    void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
-            throws ASAPException, IOException;
-
     void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asap_assimilation, ASAP_1_0 protocol,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException;
@@ -39,9 +36,7 @@ public interface ASAPProtocolEngine {
      * engine can deliver local message but also received messages - default false - send no received messages
      * @param on
      */
-    void setBehaviourSendReceivedChunks(boolean on) throws IOException;
+    void setBehaviourAllowRouting(boolean on) throws IOException;
 
-    boolean asapRoutingAllowed();
-
-    void setAsapRoutingAllowed(boolean allowed);
+    boolean routingAllowed();
 }

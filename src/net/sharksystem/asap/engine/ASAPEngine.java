@@ -38,12 +38,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     protected int oldestEra = 0;
     protected HashMap<String, Integer> lastSeen = new HashMap<>();
     protected ASAPMemento memento = null;
-    
+    public long lastMementoWritten;
+
     protected boolean dropDeliveredChunks = false;
 
     private ASAPOnlineMessageSender asapOnlineMessageSender;
     protected boolean contentChanged = false;
-    protected boolean sendReceivedChunks = false;
+    protected boolean routingAllowed = false;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -83,17 +84,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         this.asapOnlineMessageSender = asapOnlineMessageSender;
     }
 
-    private boolean routingAllowed = true;
-    @Override
-    public boolean asapRoutingAllowed() {
-        return this.routingAllowed;
-    }
-
-    @Override
-    public void setAsapRoutingAllowed(boolean allowed) {
-        this.routingAllowed = allowed;
-    }
-
     public void detachASAPMessageAddListener() {
         this.asapOnlineMessageSender = null;
     }
@@ -108,8 +98,16 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         return chunk.getRecipients().isEmpty();
     }
 
+    abstract void syncMemento() throws IOException;
+
     @Override
     public void newEra() {
+        try {
+            this.syncMemento();
+        } catch (IOException e) {
+            Log.writeLogErr(this,"cannot read memento: " + e.getLocalizedMessage());
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append("newEra() | owner: ");
@@ -273,6 +271,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     private void contentChanged() throws IOException {
         this.contentChanged = true;
+        Log.writeLog(this, "content changed - save status");
         this.saveStatus();
     }
 
@@ -659,8 +658,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        if(this.isSendReceivedChunks()) {
-            System.out.println(this.getLogStart() + "send also received chunks - if any");
+        if(this.routingAllowed()) {
+            System.out.println(this.getLogStart() + "asap routing allowed");
 
             for(CharSequence sender : this.getSender()) {
                 System.out.println(this.getLogStart() + "send chunks received from: " + sender);
@@ -673,12 +672,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         }
     }
 
-    private boolean isSendReceivedChunks() {
-        return this.sendReceivedChunks;
+    public boolean routingAllowed() {
+        return this.routingAllowed;
     }
 
-    public void setBehaviourSendReceivedChunks(boolean on) throws IOException {
-        this.sendReceivedChunks = on;
+    public void setBehaviourAllowRouting(boolean on) throws IOException {
+        this.routingAllowed = on;
         this.saveStatus();
     }
 
@@ -700,7 +699,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
                 os, this.getASAPCommunicationCryptoSettings().mustSign(),
                 this.getASAPCommunicationCryptoSettings().mustEncrypt(),
-                this.asapRoutingAllowed(),
+                this.routingAllowed(),
                 encounterMap);
     }
 

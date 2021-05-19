@@ -619,7 +619,7 @@ public class CmdLineUI {
             boolean on = this.parseOnOffValue(onOff);
 
             ASAPEngine engine = this.getEngine(storageName);
-            engine.setBehaviourSendReceivedChunks(on);
+            engine.setBehaviourAllowRouting(on);
         }
         catch(RuntimeException | IOException | ASAPException e) {
             this.printUsage(SET_SEND_RECEIVED_MESSAGES, e.getLocalizedMessage());

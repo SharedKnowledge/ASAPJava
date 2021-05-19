@@ -336,6 +336,8 @@ public class MultihopTests {
         claraPeer.addASAPMessageReceivedListener(appName, claraListener);
 
         //////////////////////////////////// Alice creates messages
+        Thread.sleep(500); // let write logs
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> write two messages <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         byte[] testMessage1 = TestHelper.produceTestMessage();
         byte[] testMessage2 = TestHelper.produceTestMessage();
         ASAPStorage aliceAppStorage = alicePeer.getASAPStorage(appName);
@@ -345,15 +347,17 @@ public class MultihopTests {
         //////////////////////////////////// Alice meets Bob - first exchange
         alicePeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
-        Thread.sleep(100);
+        Thread.sleep(1000);
         alicePeer.stopEncounter(bobPeer);
+        Thread.sleep(1000);
         Assert.assertEquals(1, bobListener.numberOfMessages);
 
         //////////////////////////////////// Bob meets Clara - routing
         claraPeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
-        Thread.sleep(100);
+        Thread.sleep(1000);
         claraPeer.stopEncounter(bobPeer);
+        Thread.sleep(1000);
         Assert.assertEquals(1, claraListener.numberOfMessages);
 
         //////////////////////////////////// Alice meets Clara - nothing: Clara has already got era Alice:0.

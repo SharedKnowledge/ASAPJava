@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.utils.Log;
 
 import java.io.*;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ class ASAPMementoFS implements ASAPMemento {
     private boolean dropDeliveredChunks;
     private boolean sendReceivedChunks;
     private HashMap<String, Integer> lastSeen;
+    public long lastMementoWritten;
 
     public ASAPMementoFS(File rootDirectory) {
         this.rootDirectory = rootDirectory;
@@ -36,16 +38,21 @@ class ASAPMementoFS implements ASAPMemento {
             }
         }
 
-        DataOutputStream dos = new DataOutputStream(
-                                new FileOutputStream(fName));
+        DataOutputStream dos = new DataOutputStream(new FileOutputStream(fName));
 
+        long now = System.currentTimeMillis();
+
+        engine.lastMementoWritten = now;
+        this.lastMementoWritten = engine.lastMementoWritten;
+        dos.writeLong(now);
         dos.writeUTF(engine.owner);
         dos.writeUTF(engine.format);
         dos.writeInt(engine.era);
         dos.writeInt(engine.oldestEra);
         dos.writeBoolean(engine.contentChanged);
+        this.contentChanged = engine.contentChanged;
         dos.writeBoolean(engine.dropDeliveredChunks);
-        dos.writeBoolean(engine.sendReceivedChunks);
+        dos.writeBoolean(engine.routingAllowed);
 
         // write lastSeen hash map
         if(engine.lastSeen != null && !engine.lastSeen.isEmpty()) {
@@ -57,6 +64,8 @@ class ASAPMementoFS implements ASAPMemento {
                 dos.writeInt(era);
             }
         }
+
+        Log.writeLog(this, "saved: " + this);
     }
 
     private void setDefaults(ASAPEngine engine) {
@@ -67,7 +76,7 @@ class ASAPMementoFS implements ASAPMemento {
         engine.oldestEra = ASAPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
         engine.dropDeliveredChunks = false;
-        engine.sendReceivedChunks = false;
+        engine.routingAllowed = false;
     }
 
     public void read() throws IOException {
@@ -82,6 +91,7 @@ class ASAPMementoFS implements ASAPMemento {
                 new FileInputStream(file));
 
         try {
+            this.lastMementoWritten = dis.readLong();
             this.owner = dis.readUTF();
             this.format = dis.readUTF();
             this.era = dis.readInt();
@@ -132,13 +142,16 @@ class ASAPMementoFS implements ASAPMemento {
                 new FileInputStream(file));
 
         try {
+            engine.lastMementoWritten = dis.readLong();
+            this.lastMementoWritten = engine.lastMementoWritten;
             engine.owner = dis.readUTF();
             engine.format = dis.readUTF();
             engine.era = dis.readInt();
             engine.oldestEra = dis.readInt();
             engine.contentChanged = dis.readBoolean();
+            this.contentChanged = engine.contentChanged;
             engine.dropDeliveredChunks = dis.readBoolean();
-            engine.sendReceivedChunks = dis.readBoolean();
+            engine.routingAllowed = dis.readBoolean();
         }
         catch(EOFException e) {
             // ignore and work with set defaults
@@ -167,6 +180,8 @@ class ASAPMementoFS implements ASAPMemento {
             // ok  no more data
         }
         dis.close();
+
+        Log.writeLog(this, "restored: " + this);
     }
 
     private String getMementoFileName() {
@@ -175,5 +190,15 @@ class ASAPMementoFS implements ASAPMemento {
 
     public String getFormat() {
         return this.format;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("changed == ");
+        sb.append(this.contentChanged);
+        sb.append(" | written == ");
+        sb.append(this.lastMementoWritten);
+
+        return sb.toString();
     }
 }

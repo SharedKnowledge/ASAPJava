@@ -1,5 +1,6 @@
 package net.sharksystem;
 
+
 import net.sharksystem.asap.crypto.CryptoUsage;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.helper.HelperTester;
@@ -12,20 +13,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        SerializationTests.class,
-        BasisMethodsTests.class,
-        //Point2PointTests.class,
-        Point2PointTests2.class,
-        UsageExamples.class,
-        CreateNewChannelFromOutsideTest.class,
-        PDUTests.class,
-        CryptoTests.class,
-        StorageTests.class,
-        LongerMessages.class,
-        CryptoUsage.class,
-        HelperTester.class,
-        SharkComponentTests.class
+        Point2PointTests.class,
 })
-public class V1TestSuite {
-
+public class TodoTests {
 }

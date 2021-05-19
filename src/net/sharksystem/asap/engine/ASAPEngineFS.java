@@ -4,6 +4,7 @@ import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.utils.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -146,20 +147,6 @@ public class ASAPEngineFS extends ASAPEngine {
             }
         }
 
-        // reset owner? why not.
-        /*
-        if(owner != null && engine.owner != null
-                && !engine.owner.equalsIgnoreCase(ANONYMOUS_OWNER)
-                && !engine.owner.equalsIgnoreCase(DEFAULT_OWNER)
-                && !owner.equalsIgnoreCase(ANONYMOUS_OWNER)
-                && !owner.equalsIgnoreCase(DEFAULT_OWNER)
-                && !owner.equalsIgnoreCase(engine.owner)) {
-            
-                    throw new ASAPException("cannot overwrite folder of a non-anonymous but different owner: "
-                            + engine.owner);
-        }
-         */
-        
         // replacing owner could be done
         if(owner != null
                 && !owner.equalsIgnoreCase(ANONYMOUS_OWNER)
@@ -180,6 +167,18 @@ public class ASAPEngineFS extends ASAPEngine {
 
         mementoFS.restore(this);
 
+    }
+
+    void syncMemento() throws IOException {
+        ASAPMementoFS asapMementoFS = new ASAPMementoFS(new File(this.rootDirectory));
+        asapMementoFS.read();
+        Log.writeLog(this, "read memento: " + asapMementoFS);
+        Log.writeLog(this, "this.lastwritten: " + this.lastMementoWritten);
+
+        if(asapMementoFS.lastMementoWritten != this.lastMementoWritten) {
+            Log.writeLog(this, "restore from memento - out of sync");
+            this.restoreFromMemento();
+        }
     }
 
     @Override
