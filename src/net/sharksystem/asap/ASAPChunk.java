@@ -80,7 +80,6 @@ public interface ASAPChunk {
      *
      * @param messageAsBytes
      * @throws IOException
-     * @deprecated
      * @see net.sharksystem.asap.ASAPPeer#sendASAPMessage(CharSequence, CharSequence, byte[])
      */
     void addMessage(byte[] messageAsBytes) throws IOException;

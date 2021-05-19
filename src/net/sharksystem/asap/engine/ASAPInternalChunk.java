@@ -58,7 +58,7 @@ public interface ASAPInternalChunk extends ASAPChunk {
 
     void addMessage(InputStream messageByteIS, long length) throws IOException;
 
-    public long getLength();
+    long getLength();
 
     List<Long> getOffsetList();
 

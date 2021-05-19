@@ -558,16 +558,7 @@ public class ASAPInternalPeerFS implements
             if(format.toString().equalsIgnoreCase(ASAP_1_0.ASAP_MANAGEMENT_FORMAT)) continue; // already sent
             ASAPEngine engine = this.getEngineByFormat(format);
 
-            System.out.println(this.getLogStart() + "send interest for app/format: " + format);
-            try {
-                protocol.interest(this.owner, null,
-                        format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
-                        os, this.getASAPCommunicationCryptoSettings(), engine.asapRoutingAllowed());
-            }
-            catch(ASAPSecurityException e) {
-                // give next engine a try
-                Log.writeLog(this, "format in key set but engine not available - weird");
-            }
+            engine.sendInterest(this.owner, protocol, os);
         }
     }
 

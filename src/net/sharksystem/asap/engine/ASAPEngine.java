@@ -659,6 +659,15 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         this.saveStatus();
     }
 
+    void sendInterest(CharSequence ownerID, ASAP_1_0 protocol, OutputStream os)
+            throws IOException, ASAPException {
+
+        System.out.println(this.getLogStart() + "send interest for app/format: " + format);
+        protocol.interest(this.owner, null,
+                format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
+                os, this.getASAPCommunicationCryptoSettings(), this.asapRoutingAllowed());
+    }
+
     private void sendChunks(CharSequence sender, String remotePeer, ASAPChunkStorage chunkStorage,
                             ASAP_1_0 protocol, int workingEra,
                             int lastEra, OutputStream os) throws IOException, ASAPException {
