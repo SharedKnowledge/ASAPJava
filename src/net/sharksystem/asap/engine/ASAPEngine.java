@@ -44,7 +44,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     private ASAPOnlineMessageSender asapOnlineMessageSender;
     protected boolean contentChanged = false;
-    protected boolean routingAllowed = false;
+    protected boolean routingAllowed = true;
 
     protected ASAPEngine(ASAPChunkStorage chunkStorage, CharSequence chunkContentFormat)
             throws ASAPException, IOException {
@@ -578,13 +578,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         if(!hasSufficientCrypto(asapInterest)) return;
 
         // get remote peer
-        String peer = asapInterest.getSender();
+        String senderID = asapInterest.getSender();
 
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("handle interest pdu received from ");
-        b.append(peer);
+        b.append(senderID);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
@@ -604,7 +604,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             this.lastSeen.put(asapInterest.getSender(), lastSeenEra);
         } else {
             // no entry in encounter list - local history?
-            lastSeenEra = this.lastSeen.get(peer);
+            lastSeenEra = this.lastSeen.get(senderID);
         }
 
         if(lastSeenEra == null) {
@@ -649,7 +649,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        this.sendChunks(this.owner, peer, this.getChunkStorage(), protocol, workingEra, lastEra, os);
+        this.sendChunks(this.owner, senderID, this.getChunkStorage(), protocol, workingEra, lastEra, os, true);
 
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
@@ -659,13 +659,32 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         //>>>>>>>>>>>>>>>>>>>debug
 
         if(this.routingAllowed()) {
-            System.out.println(this.getLogStart() + "asap routing allowed");
+            Log.writeLog(this, "asap routing allowed");
+            // iterate: what sender do we know in our side?
+            for(CharSequence receivedFromID : this.getSender()) {
+                Log.writeLog(this, "we have messages from " + receivedFromID);
+                try {
+                    ASAPStorage receivedMessagesStorage = this.getExistingIncomingStorage(receivedFromID);
 
-            for(CharSequence sender : this.getSender()) {
-                System.out.println(this.getLogStart() + "send chunks received from: " + sender);
-                ASAPChunkStorage incomingChunkStorage = this.getReceivedChunksStorage(sender);
+                    int routeSinceEra = ASAP.INITIAL_ERA;
+                    // maybe we can do better and there is an entry in encounter map
+                    if(encounterMap != null) {
+                        Integer lastMetEra = encounterMap.get(receivedFromID);
+                        if(lastMetEra != null) {
+                            routeSinceEra = lastMetEra;
+                            Log.writeLog(this, "found sender received encounter map");
+                        }
+                    }
 
-                this.sendChunks(sender, peer, incomingChunkStorage, protocol, workingEra, lastEra, os);
+                    this.sendChunks(receivedFromID, senderID,
+                            receivedMessagesStorage.getChunkStorage(),
+                            protocol, routeSinceEra,
+                            receivedMessagesStorage.getEra(), os,
+                            false);
+                }
+                catch(ASAPException e) {
+                    Log.writeLogErr(this, "internal problem: we know sender but cannot access its storage");
+                }
             }
         } else {
             System.out.println(this.getLogStart() + "engine does not send received chunks");
@@ -705,7 +724,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     private void sendChunks(CharSequence sender, String remotePeer, ASAPChunkStorage chunkStorage,
                             ASAP_1_0 protocol, int workingEra,
-                            int lastEra, OutputStream os) throws IOException, ASAPException {
+                            int lastEra, OutputStream os, boolean remember) throws IOException, ASAPException {
         /*
         There is a little challenge: era uses a circle of numbers
         We cannot say: higher number, later era. That rule does *not*
@@ -726,7 +745,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             //<<<<<<<<<<<<<<<<<<debug
             StringBuilder b = new StringBuilder();
             b.append(this.getLogStart());
-            b.append("start iterating chunks with working Era: ");
+            b.append("start iterating chunks with working era: ");
             b.append(workingEra);
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
@@ -764,8 +783,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     System.out.println(b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
 
-                    protocol.assimilate(sender, // remotePeer
-                            remotePeer, // remotePeer
+                    protocol.assimilate(sender, // owner or source from received message
+                            remotePeer, // peer to which we are connected right now
                             this.format,
                             chunk.getUri(), // channel ok
                             workingEra, // era ok
@@ -783,6 +802,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     b.append("remembered delivered to ");
                     b.append(remotePeer);
                     System.out.println(b.toString());
+
                     //>>>>>>>>>>>>>>>>>>>debug
                     // sent to all recipients
                     if (chunk.getRecipients().size() == chunk.getDeliveredTo().size()) {
@@ -806,13 +826,15 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 }
             }
 
-            // remember that we are in sync until that era
-            this.setLastSeen(remotePeer, workingEra);
+            if(remember) {
+                // remember that we are in sync until that era
+                this.setLastSeen(remotePeer, workingEra);
 
-            // make a breakpoint here
-            if(this.memento != null) this.memento.save(this);
+                // make a breakpoint here
+                if (this.memento != null) this.memento.save(this);
+            }
 
-            // next era which isn't necessarilly workingEra++
+            // next era which isn't necessarily workingEra++
             workingEra = this.getNextEra(workingEra);
 
             // as long as not already performed last round

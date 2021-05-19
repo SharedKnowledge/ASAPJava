@@ -1,5 +1,7 @@
 package net.sharksystem.asap.utils;
 
+import net.sharksystem.asap.ASAP;
+
 public class PeerIDHelper {
     public static boolean sameID(CharSequence idA, CharSequence idB) {
         if(idA.length() != idB.length()) return false;
@@ -19,5 +21,9 @@ public class PeerIDHelper {
 
     public static boolean sameUri(CharSequence uriA, CharSequence uriB) {
         return PeerIDHelper.sameID(uriA, uriB);
+    }
+
+    public static String createUniqueID() {
+        return ASAP.createUniqueID();
     }
 }

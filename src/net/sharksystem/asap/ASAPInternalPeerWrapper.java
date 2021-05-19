@@ -27,12 +27,12 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
 
 
     @Override
-    public boolean asapRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException {
+    public boolean isASAPRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException {
         return this.getInternalPeer().asapRoutingAllowed(applicationFormat);
     }
 
     @Override
-    public void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
+    public void setASAPRoutingAllowed(CharSequence applicationFormat, boolean allowed)
             throws IOException, ASAPException {
         
         this.getInternalPeer().setAsapRoutingAllowed(applicationFormat, allowed);

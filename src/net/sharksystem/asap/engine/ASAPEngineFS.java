@@ -41,6 +41,8 @@ public class ASAPEngineFS extends ASAPEngine {
         sb.append(this.getOldestEra());
         sb.append(" | era: ");
         sb.append(this.getEra());
+        sb.append(" | routing: ");
+        sb.append(this.routingAllowed());
         sb.append(" | rootFolder: ");
         sb.append(this.rootDirectory);
 

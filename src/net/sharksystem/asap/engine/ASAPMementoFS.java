@@ -76,7 +76,7 @@ class ASAPMementoFS implements ASAPMemento {
         engine.oldestEra = ASAPEngine.DEFAULT_INIT_ERA;
         engine.lastSeen = new HashMap<>();
         engine.dropDeliveredChunks = false;
-        engine.routingAllowed = false;
+        engine.routingAllowed = true;
     }
 
     public void read() throws IOException {

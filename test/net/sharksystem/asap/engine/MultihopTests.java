@@ -324,14 +324,17 @@ public class MultihopTests {
         ////////////////////////////////////// setup test peers
         // ALICE
         ASAPTestPeerFS alicePeer = new ASAPTestPeerFS(TestConstants.ALICE_ID, aliceFolder, formats);
+        alicePeer.setASAPRoutingAllowed(appName, true);
         CountsReceivedMessagesListener aliceListener = new CountsReceivedMessagesListener(TestConstants.ALICE_ID);
         alicePeer.addASAPMessageReceivedListener(appName, aliceListener);
         // BOB
         ASAPTestPeerFS bobPeer = new ASAPTestPeerFS(TestConstants.BOB_ID, bobFolder, formats);
+        bobPeer.setASAPRoutingAllowed(appName, true);
         CountsReceivedMessagesListener bobListener = new CountsReceivedMessagesListener(TestConstants.BOB_ID);
         bobPeer.addASAPMessageReceivedListener(appName, bobListener);
         // CLARA
         ASAPTestPeerFS claraPeer = new ASAPTestPeerFS(TestConstants.CLARA_ID, claraFolder, formats);
+        claraPeer.setASAPRoutingAllowed(appName, true);
         CountsReceivedMessagesListener claraListener = new CountsReceivedMessagesListener(TestConstants.CLARA_ID);
         claraPeer.addASAPMessageReceivedListener(appName, claraListener);
 
@@ -363,8 +366,9 @@ public class MultihopTests {
         //////////////////////////////////// Alice meets Clara - nothing: Clara has already got era Alice:0.
         alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
         // give your app a moment to process
-        Thread.sleep(100);
+        Thread.sleep(1000);
         alicePeer.stopEncounter(claraPeer);
+        Thread.sleep(1000);
         Assert.assertEquals(0, claraListener.numberOfMessages);
     }
 }

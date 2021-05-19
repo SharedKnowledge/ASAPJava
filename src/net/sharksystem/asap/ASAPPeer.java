@@ -21,9 +21,9 @@ public interface ASAPPeer extends
      * If true: This engine will route received messages
      * @return
      */
-    boolean asapRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException;
+    boolean isASAPRoutingAllowed(CharSequence applicationFormat) throws IOException, ASAPException;
 
-    void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
+    void setASAPRoutingAllowed(CharSequence applicationFormat, boolean allowed)
             throws IOException, ASAPException;
 
     /**
