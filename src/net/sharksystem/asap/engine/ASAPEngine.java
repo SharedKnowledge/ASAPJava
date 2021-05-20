@@ -6,6 +6,7 @@ import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.management.ASAPManagementStorage;
 import net.sharksystem.asap.management.ASAPManagementStorageImpl;
 import net.sharksystem.asap.protocol.*;
+import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.Log;
 import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 
@@ -388,37 +389,9 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     //                       ProtocolEngine                             //
     //////////////////////////////////////////////////////////////////////
 
-    // TODO: extract those algorithms to another class (ASAPDefaultProtocolEngine).
+    // extract those algorithms to another class (ASAPDefaultProtocolEngine) ?!
 
-    private ASAPProtocolEngine protocolEngine = null;
-
-    public void handleASAPOffer(ASAP_OfferPDU_1_0 asapOffer, ASAP_1_0 protocol, OutputStream os)
-            throws ASAPException, IOException {
-
-        if(!hasSufficientCrypto(asapOffer)) return;
-
-        /*
-        if(this.isASAPManagementMessage(asapOffer)) {
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("got asap management assimilate - not handled in this implementation.");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-            return;
-        } else {
-         */
-            //<<<<<<<<<<<<<<<<<<debug
-            StringBuilder b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("ASAP Offer is not processed in this implementation");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
-            return;
-//        }
-    }
-
-    public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocol,
+    public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
                               InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
@@ -427,6 +400,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         String sender = asapAssimilationPDU.getSender();
         int eraSender = asapAssimilationPDU.getEra();
+
+        // debug break
+        //Log.writeLog(this, "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU sender: " + sender);
+        if(PeerIDHelper.sameID(sender, "Alice_42")) {
+            int i = 42;
+        }
 
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
@@ -477,6 +456,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                         this.createChannel(uri);
                     }
                 }
+            } else {
+                Log.writeLog(this, "received chunk that already exists - did nothing: "
+                        + sender + " | " + eraSender + " | " + uri);
+
+                // read assimilation message payload to oblivion!
+                asapAssimilationPDU.takeDataFromStream();
+                return;
             }
 
             ASAPInternalChunk incomingChunk = incomingSenderStorage.getChunk(uri, eraSender);

@@ -164,6 +164,16 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     @Override
+    public void takeDataFromStream() {
+        // read data from stream - most probably to drop this pdu
+        try {
+            this.getData();
+        } catch (IOException e) {
+            // ok - in any case - data is taken away from stream
+        }
+    }
+
+    @Override
     public void streamData(OutputStream os) throws IOException {
         InputStream useIS;
 

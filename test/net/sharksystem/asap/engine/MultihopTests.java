@@ -299,11 +299,16 @@ public class MultihopTests {
     }
 
     /**
-     * A creates two messages (to have a chunk with more than one message). A meets B. B gets chunk of A with local
-     * creation era. B meets C. C get routed chunk from A. A meets C. Nothing happens. C already has got this chunk.
+     * 1) Alice creates two messages in era 0
+     * 2) Alice meets Bob. Alice:0->1, Bob:0. Alice:0 (2) -> Bob (two messages era A:0 received by Bob)
+     * 3) Bob meets Clara. Bob:0, Clara:0. Alice:0 (2) -> Bob -> Clara (two messages routed to Clara)
+     * 4) Alice meets Clara. Alice:1, Clara:0. no exchange: Clara is in sync with Alice:0, Clara has no messages at all
+     * 5) Alice creates another message in A:1
+     * 6) Alice meets Clara. Alice:1->2, Clara:0; Alice:1 (2) -> Clara (one message era A:1 received by Clara)
+     * 7) Bob meets Clara. Bob:0, Clara:0. Alice:1 (1) -> Clara -> Bob (one message routed to Bob)
      */
     @Test
-    public void negotiateRoutedChunksAvoidLoops() throws IOException, ASAPException, InterruptedException {
+    public void asapRoutingIsFiniteAndCheckEra() throws IOException, ASAPException, InterruptedException {
         /////////////////////////////////// setup test environment
         String aliceFolder = TestHelper.getFullRootFolderName(TestConstants.ALICE_ID, MultihopTests.class);
         aliceFolder = TestHelper.getFullTempFolderName(aliceFolder, false);
@@ -347,7 +352,7 @@ public class MultihopTests {
         aliceAppStorage.add(TestConstants.URI, testMessage1);
         aliceAppStorage.add(TestConstants.URI, testMessage2);
 
-        //////////////////////////////////// Alice meets Bob - first exchange
+        //////////////////////////////////// Alice meets Bob - first exchange: Alice:0 (2) -> Bob
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Bob <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -358,7 +363,13 @@ public class MultihopTests {
         Thread.sleep(1000);
         Assert.assertEquals(1, bobListener.numberOfMessages);
 
-        //////////////////////////////////// Bob meets Clara - routing
+        // check local eras
+        // one change after connection establishment
+        Assert.assertEquals(1, alicePeer.getASAPStorage(appName).getEra());
+        // no change - receiving message does not change local understanding of an era
+        Assert.assertEquals(0, bobPeer.getASAPStorage(appName).getEra());
+
+        //////////////////////////////////// Bob meets Clara - routing Alice:0 (2) -> Bob -> Clara
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Bob meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -369,10 +380,13 @@ public class MultihopTests {
         Thread.sleep(1000);
         Assert.assertEquals(1, claraListener.numberOfMessages);
 
+        // no change - receiving message does not change local understanding of an era
+        Assert.assertEquals(0, bobPeer.getASAPStorage(appName).getEra());
+        Assert.assertEquals(0, claraPeer.getASAPStorage(appName).getEra());
+
+        //////////////////////////////////// Alice meets Clara - nothing: Alice:0 (2) -X Clara already got this
         // reset counter on clara side
         claraListener.numberOfMessages = 0;
-
-        //////////////////////////////////// Alice meets Clara - nothing: Clara has already got era Alice:0.
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -382,5 +396,33 @@ public class MultihopTests {
         alicePeer.stopEncounter(claraPeer);
         Thread.sleep(1000);
         Assert.assertEquals(0, claraListener.numberOfMessages);
+
+        // no change - receiving message does not change local understanding of an era
+        Assert.assertEquals(0, alicePeer.getASAPStorage(appName).getEra());
+        Assert.assertEquals(0, claraPeer.getASAPStorage(appName).getEra());
+
+        //////////////////////////////////// Alice creates another message
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Alice writes another messages <<<<<<<<<<<<<<<<<<");
+        byte[] testMessage3 = TestHelper.produceTestMessage();
+        aliceAppStorage.add(TestConstants.URI, testMessage3);
+
+
+        //////////////////////////////////// Alice meets Clara again Alice:1 (1) -> Clara
+        // reset counter on clara side
+        claraListener.numberOfMessages = 0;
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
+        // give your app a moment to process
+        Thread.sleep(1000);
+        alicePeer.stopEncounter(claraPeer);
+        Thread.sleep(1000);
+        Assert.assertEquals(1, claraListener.numberOfMessages);
+
+        // Alice:1->2 new connection after new data added to channel.
+        Assert.assertEquals(2, alicePeer.getASAPStorage(appName).getEra());
+        // no change - receiving message does not change local understanding of an era
+        Assert.assertEquals(0, claraPeer.getASAPStorage(appName).getEra());
     }
 }

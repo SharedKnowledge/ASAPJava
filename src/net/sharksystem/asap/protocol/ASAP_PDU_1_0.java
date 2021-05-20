@@ -82,4 +82,8 @@ public interface ASAP_PDU_1_0 {
      */
     public boolean encounterList();
 
+    /**
+     * Make sure that their are no more data on the real input stream. This pdu object will no longer be used.
+     */
+    void takeDataFromStream();
 }

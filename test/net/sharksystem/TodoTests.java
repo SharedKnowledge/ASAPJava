@@ -14,6 +14,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         Point2PointTests.class,
+        MultihopTests.class
 })
 public class TodoTests {
 }

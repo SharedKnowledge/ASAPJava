@@ -113,4 +113,9 @@ class InterestPDU_Impl extends PDU_Impl implements ASAP_Interest_PDU_1_0 {
 
     @Override
     public int getEraTo() { return this.eraTo; }
+
+    @Override
+    public void takeDataFromStream() {
+        // there is nothing to do here - all data are already read when object was created
+    }
 }
