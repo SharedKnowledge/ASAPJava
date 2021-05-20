@@ -348,6 +348,9 @@ public class MultihopTests {
         aliceAppStorage.add(TestConstants.URI, testMessage2);
 
         //////////////////////////////////// Alice meets Bob - first exchange
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Bob <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
         Thread.sleep(1000);
@@ -356,6 +359,9 @@ public class MultihopTests {
         Assert.assertEquals(1, bobListener.numberOfMessages);
 
         //////////////////////////////////// Bob meets Clara - routing
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> Bob meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         claraPeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
         Thread.sleep(1000);
@@ -363,7 +369,13 @@ public class MultihopTests {
         Thread.sleep(1000);
         Assert.assertEquals(1, claraListener.numberOfMessages);
 
+        // reset counter on clara side
+        claraListener.numberOfMessages = 0;
+
         //////////////////////////////////// Alice meets Clara - nothing: Clara has already got era Alice:0.
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
         // give your app a moment to process
         Thread.sleep(1000);
