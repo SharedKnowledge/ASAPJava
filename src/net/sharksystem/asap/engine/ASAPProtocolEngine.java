@@ -4,7 +4,6 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
-import net.sharksystem.asap.protocol.ASAP_OfferPDU_1_0;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +16,8 @@ public interface ASAPProtocolEngine {
     void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
             throws ASAPException, IOException;
 
-    void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asap_assimilation, ASAP_1_0 protocol,
-                              InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
+    void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
+                              String encounteredPeer, InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException;
 
     /**

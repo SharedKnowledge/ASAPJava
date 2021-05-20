@@ -1,5 +1,6 @@
 package net.sharksystem.asap.management;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.engine.ASAPInternalChunk;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
@@ -40,13 +41,17 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         return null;
     }
 
-    public void chunkReceived(String format, String sender, String uri, int era) {
+    @Override
+    public void chunkReceived(String format, String senderE2E, String uri, int era,
+                              String senderPoint2Point, boolean verified, boolean encrypted,
+                              EncounterConnectionType connectionType) throws IOException {
+
         System.out.println(this.getLogStart()
-                + "handle received chunk (format|sender|uri|era) " + format + sender + "|" + uri + "|" + era);
+                + "handle received chunk (format|senderE2E|uri|era) " + format + senderE2E + "|" + uri + "|" + era);
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
-            ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getReceivedChunksStorage(sender);
+            ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getReceivedChunksStorage(senderE2E);
             ASAPInternalChunk chunk = incomingChunkStorage.getChunk(uri, era);
             Iterator<byte[]> messageIter = chunk.getMessages();
             System.out.println(this.getLogStart() + "iterate management messages");
@@ -71,7 +76,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
             }
             System.out.println(this.getLogStart() + "done iterating management messages");
             // remove incoming messages - handled
-            asapManagementEngine.getReceivedChunksStorage(sender).dropChunks(era);
+            asapManagementEngine.getReceivedChunksStorage(senderE2E).dropChunks(era);
             System.out.println(this.getLogStart() + "incoming asap management messages dropped");
         } catch (ASAPException | IOException e) {
             System.out.println("could get asap management engine but received chunk - looks like a bug");

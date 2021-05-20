@@ -1,7 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 public interface ASAPConnection {
-    CharSequence getRemotePeer();
+    CharSequence getEncounteredPeer();
 
     void addOnlineMessageSource(ASAPOnlineMessageSource source);
     void removeOnlineMessageSource(ASAPOnlineMessageSource source);

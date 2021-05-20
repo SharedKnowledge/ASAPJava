@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;
@@ -24,20 +25,24 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     }
 
     @Override
-    public void chunkReceived(String format, String sender, String uri, int era) throws IOException {
+    public void chunkReceived(String format, String senderE2E, String uri, int era,
+                              String senderPoint2Point, boolean verified, boolean encrypted,
+                              EncounterConnectionType connectionType) throws IOException {
+
         StringBuilder sb = new StringBuilder();
-        sb.append("\n++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++\n");
-        sb.append("app / format: " + format + " | " + sender + " | uri: " + uri + " | era: " + era);
-        sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        sb.append("\n+++++++++++++++++++++++++++++++ chunkReceived ++++++++++++++++++++++++++++++++\n");
+        sb.append("appFormat: " + format + " | " + senderE2E + " | uri: " + uri + " | era: " + era);
+        sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(this.chunkReceivedListener != null) {
             this.log("chunk received listener set - call this one");
-            this.chunkReceivedListener.chunkReceived(format, sender, uri, era);
+            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, senderPoint2Point,
+                    verified, encrypted, connectionType);
         } else {
             this.log("extract messages from chunk and notify listener");
             ASAPMessages receivedMessages =
-                    Helper.getMessagesByChunkReceivedInfos(format, sender, uri, this.rootFolder, era);
+                    Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
 
             this.asapMessageReceivedListenerManager.notifyReceived(format, receivedMessages, true);
         }
@@ -74,4 +79,5 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         this.getInternalPeer().sendOnlineASAPAssimilateMessage(appName, uri, message);
 
     }
+
 }

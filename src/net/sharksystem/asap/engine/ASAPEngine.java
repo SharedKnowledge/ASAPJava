@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -390,20 +391,19 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     //////////////////////////////////////////////////////////////////////
 
     // extract those algorithms to another class (ASAPDefaultProtocolEngine) ?!
-
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
-                              InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
+         String encounteredPeer, InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
             throws ASAPException, IOException {
 
         // before we start - lets crypto
         if(!hasSufficientCrypto(asapAssimilationPDU)) return;
 
-        String sender = asapAssimilationPDU.getSender();
+        String senderE2E = asapAssimilationPDU.getSender();
         int eraSender = asapAssimilationPDU.getEra();
 
         // debug break
-        //Log.writeLog(this, "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU sender: " + sender);
-        if(PeerIDHelper.sameID(sender, "Alice_42")) {
+        //Log.writeLog(this, "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU senderE2E: " + senderE2E);
+        if(PeerIDHelper.sameID(senderE2E, "Alice_42")) {
             int i = 42;
         }
 
@@ -411,19 +411,19 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("handle assimilate pdu received from ");
-        b.append(sender);
+        b.append(senderE2E);
         b.append(" | era: ");
         b.append(eraSender);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
         // get received storage
-        ASAPChunkStorage incomingSenderStorage = this.getReceivedChunksStorage(sender);
+        ASAPChunkStorage incomingSenderStorage = this.getReceivedChunksStorage(senderE2E);
         //<<<<<<<<<<<<<<<<<<debug
         b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("got incoming chunk storage for sender: ");
-        b.append(sender);
+        b.append("got incoming chunk storage for senderE2E: ");
+        b.append(senderE2E);
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
@@ -443,7 +443,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     localChunk = this.getStorage().getChunk(uri, this.getEra());
                 } else {
                     System.out.println(this.getLogStart()
-                            + "asked to set up new channel: (uri/sender): " + uri + " | " + sender);
+                            + "asked to set up new channel: (uri/senderE2E): " + uri + " | " + senderE2E);
                     // this channel is new to local peer - am I allowed to create it?
                     if(!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
                         System.out.println(this.getLogStart()
@@ -458,7 +458,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 }
             } else {
                 Log.writeLog(this, "received chunk that already exists - did nothing: "
-                        + sender + " | " + eraSender + " | " + uri);
+                        + senderE2E + " | " + eraSender + " | " + uri);
 
                 // read assimilation message payload to oblivion!
                 asapAssimilationPDU.takeDataFromStream();
@@ -504,7 +504,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             //>>>>>>>>>>>>>>>>>>>debug
 
             incomingChunk.addMessage(protocolInputStream, asapAssimilationPDU.getLength() - offset);
-            if(!changed) { changed = true; this.contentChanged();}
+            // receiving has no effect on era.
+            //if(!changed) { changed = true; this.contentChanged();}
 
             // read all messages
             if(listener != null) {
@@ -513,8 +514,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 b.append(this.getLogStart());
                 b.append("call ");
                 b.append(listener.getClass().getSimpleName());
-                b.append(".chunkReceived(sender: ");
-                b.append(sender);
+                b.append(".chunkReceived(senderE2E: ");
+                b.append(senderE2E);
                 b.append(", uri: ");
                 b.append(uri);
                 b.append(", eraSender: ");
@@ -523,7 +524,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
-                listener.chunkReceived(this.format, sender, uri, eraSender);
+                // TODO - find out the real encounter connection type
+                listener.chunkReceived(this.format,
+                        senderE2E, uri, eraSender,
+                        encounteredPeer,
+                        asapAssimilationPDU.verified(),
+                        asapAssimilationPDU.encrypted(),
+                        EncounterConnectionType.UNKNOWN);
             } else {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
@@ -708,7 +715,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 encounterMap);
     }
 
-    private void sendChunks(CharSequence sender, String remotePeer, ASAPChunkStorage chunkStorage,
+    private void sendChunks(CharSequence sender, String encounteredPeer, ASAPChunkStorage chunkStorage,
                             ASAP_1_0 protocol, int workingEra,
                             int lastEra, OutputStream os, boolean remember) throws IOException, ASAPException {
         /*
@@ -756,7 +763,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 // is not a public chunk
                 if (goAhead && !this.isPublic(chunk)) {
                     Set<CharSequence> recipients = chunk.getRecipients();
-                    if (recipients == null || !recipients.contains(remotePeer)) {
+                    if (recipients == null || !recipients.contains(encounteredPeer)) {
                         goAhead = false;
                     }
                 }
@@ -770,7 +777,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     //>>>>>>>>>>>>>>>>>>>debug
 
                     protocol.assimilate(sender, // owner or source from received message
-                            remotePeer, // peer to which we are connected right now
+                            encounteredPeer, // peer to which we are connected right now
                             this.format,
                             chunk.getUri(), // channel ok
                             workingEra, // era ok
@@ -781,12 +788,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                             this.getASAPCommunicationCryptoSettings());
 
                     // remember sent
-                    chunk.deliveredTo(remotePeer);
+                    chunk.deliveredTo(encounteredPeer);
                     //<<<<<<<<<<<<<<<<<<debug
                     b = new StringBuilder();
                     b.append(this.getLogStart());
                     b.append("remembered delivered to ");
-                    b.append(remotePeer);
+                    b.append(encounteredPeer);
                     System.out.println(b.toString());
 
                     //>>>>>>>>>>>>>>>>>>>debug
@@ -814,7 +821,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
             if(remember) {
                 // remember that we are in sync until that era
-                this.setLastSeen(remotePeer, workingEra);
+                this.setLastSeen(encounteredPeer, workingEra);
 
                 // make a breakpoint here
                 if (this.memento != null) this.memento.save(this);

@@ -1,7 +1,6 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.engine.EngineSetting;
@@ -24,7 +23,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private final boolean sign;
     private Thread managementThread = null;
     private final long maxExecutionTime;
-    private String remotePeer;
+    private String encounteredPeer;
 
     private List<ASAPOnlineMessageSource> onlineMessageSources = new ArrayList<>();
     private Thread threadWaiting4StreamsLock;
@@ -48,13 +47,13 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName() + "(to: " + this.remotePeer + "): ";
+        return this.getClass().getSimpleName() + "(to: " + this.encounteredPeer + "): ";
     }
 
-    private void setRemotePeer(String remotePeerName) {
-        if(this.remotePeer == null) {
+    private void setEncounteredPeer(String remotePeerName) {
+        if(this.encounteredPeer == null) {
 
-            this.remotePeer = remotePeerName;
+            this.encounteredPeer = remotePeerName;
 
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
@@ -69,8 +68,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     @Override
-    public CharSequence getRemotePeer() {
-        return this.remotePeer;
+    public CharSequence getEncounteredPeer() {
+        return this.encounteredPeer;
     }
 
     @Override
@@ -228,10 +227,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             /////////////////////////////// process
             if(asappdu != null) {
                 Log.writeLog(this, this.getLogStart() + "read valid pdu");
-                this.setRemotePeer(asappdu.getSender());
+                this.setEncounteredPeer(asappdu.getSender());
 
                 try {
                     this.executor = new ASAPPDUExecutor(asappdu,
+                                        this.encounteredPeer,
                                         this.is, this.os,
                                         this.asapInternalPeer.getEngineSettings(asappdu.getFormat()),
                                         protocol,this);
@@ -335,11 +335,13 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         private final EngineSetting engineSetting;
         private final ASAP_1_0 protocol;
         private final ThreadFinishedListener threadFinishedListener;
+        private final String encounteredPeer;
 
-        public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, InputStream is, OutputStream os,
+        public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, String encounteredPeer, InputStream is, OutputStream os,
                                EngineSetting engineSetting, ASAP_1_0 protocol,
                                ThreadFinishedListener threadFinishedListener) {
             this.asapPDU = asapPDU;
+            this.encounteredPeer = encounteredPeer;
             this.is = is;
             this.os = os;
             this.engineSetting = engineSetting;
@@ -383,8 +385,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");
-                        engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) asapPDU, protocol, is, os,
-                                engineSetting.listener);
+                        engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) this.asapPDU, this.protocol,
+                                this.encounteredPeer, this.is, this.os, this.engineSetting.listener);
                         break;
 
                     default:

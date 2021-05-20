@@ -155,6 +155,9 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 secureSetting.mustSign(), secureSetting.mustEncrypt());
     }
 
+    /* TODO we need three peers here: both side of the current encounter but also the E2E sender (which is sender here)
+    the Point2Point sender is not present which makes signing a problem
+     */
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,

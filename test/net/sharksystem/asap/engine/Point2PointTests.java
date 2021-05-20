@@ -140,7 +140,7 @@ public class Point2PointTests {
 
         // get messages alice received
         ASAPChunkStorage aliceSenderStored =
-                aliceStorage.getReceivedChunksStorage(aliceListener.getSender());
+                aliceStorage.getReceivedChunksStorage(aliceListener.getSenderE2E());
 
         ASAPInternalChunk aliceReceivedChunk =
                 aliceSenderStored.getChunk(aliceListener.getUri(),
@@ -156,7 +156,7 @@ public class Point2PointTests {
 
         // get message bob received
         ASAPChunkStorage bobSenderStored =
-                bobStorage.getReceivedChunksStorage(bobListener.getSender());
+                bobStorage.getReceivedChunksStorage(bobListener.getSenderE2E());
 
         ASAPInternalChunk bobReceivedChunk =
                 bobSenderStored.getChunk(bobListener.getUri(),

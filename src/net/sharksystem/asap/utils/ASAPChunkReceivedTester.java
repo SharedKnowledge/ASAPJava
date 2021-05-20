@@ -1,39 +1,45 @@
 package net.sharksystem.asap.utils;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
+
+import java.io.IOException;
 
 /**
  *
  * @author thsc
  */
 public class ASAPChunkReceivedTester implements ASAPChunkReceivedListener {
-    private String sender = null;
+    private String senderE2E = null;
     private String uri = null;
     private int era;
     private String format;
 
     @Override
-    public void chunkReceived(String format, String sender, String uri, int era) {
+    public void chunkReceived(String format, String senderE2E, String uri, int era,
+                              String senderPoint2Point, boolean verified, boolean encrypted,
+                              EncounterConnectionType connectionType) throws IOException {
+
         System.out.println("ChunkReceiverTester.chunkReceived called: (format|sender|uri|era) " +
                 format +
                 " | " +
-                sender +
+                senderE2E +
                 " | " +
                 uri +
                 " | " +
                 era);
         this.format = format;
-        this.sender = sender;
+        this.senderE2E = senderE2E;
         this.uri = uri;
         this.era = era;
     }
 
     public boolean chunkReceived() {
-        return this.sender != null;
+        return this.senderE2E != null;
     }
 
-    public String getSender() {
-        return this.sender;
+    public String getSenderE2E() {
+        return this.senderE2E;
     }
 
     public String getFormat() {
