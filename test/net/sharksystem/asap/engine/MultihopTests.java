@@ -398,7 +398,7 @@ public class MultihopTests {
         Assert.assertEquals(0, claraListener.numberOfMessages);
 
         // no change - receiving message does not change local understanding of an era
-        Assert.assertEquals(0, alicePeer.getASAPStorage(appName).getEra());
+        Assert.assertEquals(1, alicePeer.getASAPStorage(appName).getEra());
         Assert.assertEquals(0, claraPeer.getASAPStorage(appName).getEra());
 
         //////////////////////////////////// Alice creates another message
