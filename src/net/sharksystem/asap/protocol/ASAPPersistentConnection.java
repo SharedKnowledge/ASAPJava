@@ -387,7 +387,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                     // TODO add encrypt / sign as parameter..
                     case ASAP_1_0.INTEREST_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPInterest");
-                        engineSetting.engine.handleASAPInterest((ASAP_Interest_PDU_1_0) asapPDU, protocol, os);
+                        engineSetting.engine.handleASAPInterest(
+                                (ASAP_Interest_PDU_1_0) asapPDU, this.protocol,
+                                this.encounteredPeer,
+                                this.os,
+                                this.connectionType);
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");

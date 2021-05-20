@@ -24,7 +24,7 @@ public class MultihopTests {
      * @throws ASAPException
      * @throws InterruptedException
      */
-    @Test
+    //@Test // keep it as an example of batch processor based test case
     public void twoHops() throws IOException, ASAPException, InterruptedException {
         CmdLineUI ui = new CmdLineUI(System.out);
 
@@ -141,7 +141,7 @@ public class MultihopTests {
         ui.doKill("all");
     }
 
-    @Test
+//    @Test
     public void closedChannelTest() throws IOException, ASAPException, InterruptedException {
         CmdLineUI ui = new CmdLineUI(System.out);
         ui.doResetASAPStorages();
@@ -411,7 +411,7 @@ public class MultihopTests {
         // reset counter on clara side
         claraListener.numberOfMessages = 0;
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> Alice meets Clara <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Alice meets Clara again <<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
         // give your app a moment to process

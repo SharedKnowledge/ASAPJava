@@ -14,7 +14,8 @@ import java.io.OutputStream;
  * @author thsc
  */
 public interface ASAPProtocolEngine {
-    void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
+    void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol,
+                            String encounteredPeer, OutputStream os, EncounterConnectionType connectionType)
             throws ASAPException, IOException;
 
     void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,

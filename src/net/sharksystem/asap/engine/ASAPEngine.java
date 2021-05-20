@@ -402,8 +402,17 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         // debug break
         //Log.writeLog(this, "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU senderE2E: " + senderE2E);
+        /*
         if(PeerIDHelper.sameID(senderE2E, "Alice_42")) {
             int i = 42;
+        }
+         */
+
+        if(PeerIDHelper.sameID(senderE2E, this.owner)) {
+            Log.writeLogErr(this,  "I was offered messages from myself ("
+                    + this.owner + ") by " + encounteredPeer + " - refused: ");
+            asapAssimilationPDU.takeDataFromStream();
+            return;
         }
 
         //<<<<<<<<<<<<<<<<<<debug
@@ -559,7 +568,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         return proceed;
     }
 
-    public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol, OutputStream os)
+    public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol,
+               String encounteredPeer, OutputStream os, EncounterConnectionType connectionType)
             throws ASAPException, IOException {
 
         // before we start - lets crypto: TODO can be removed - do it on communication not engine level
@@ -583,9 +593,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         /* We have got an interest from another peer.
         First: Let's find what chunks from our peer are be be sent to get in sync. */
         Map<String, Integer> encounterMap = null;
-        Integer lastSeenEra = null;
+//        Integer lastSeenEra = null;
+        Integer lastSeenEra = this.lastSeen.get(senderID);
 
         // has it even provided an encounter list?
+        /* Cannot do this - sent era is their era not ours.
         if(asapInterest.encounterList()) {
             encounterMap = asapInterest.getEncounterMap();
             lastSeenEra = encounterMap.get(this.getOwner());
@@ -598,6 +610,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             // no entry in encounter list - local history?
             lastSeenEra = this.lastSeen.get(senderID);
         }
+         */
 
         if(lastSeenEra == null) {
             // still nothing
@@ -654,6 +667,10 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             // iterate: what sender do we know in our side?
             for(CharSequence receivedFromID : this.getSender()) {
                 Log.writeLog(this, "we have messages from " + receivedFromID);
+                if(PeerIDHelper.sameID(encounteredPeer, receivedFromID)) {
+                    // do not send messages back
+                    continue;
+                }
                 try {
                     ASAPStorage receivedMessagesStorage = this.getExistingIncomingStorage(receivedFromID);
 

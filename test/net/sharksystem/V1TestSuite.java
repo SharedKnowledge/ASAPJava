@@ -14,7 +14,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         SerializationTests.class,
         BasisMethodsTests.class,
-        //Point2PointTests.class,
         UsageExamples.class,
         CreateNewChannelFromOutsideTest.class,
         PDUTests.class,
@@ -23,6 +22,7 @@ import org.junit.runners.Suite;
         LongerMessages.class,
         CryptoUsage.class,
         HelperTester.class,
+        MultihopTests.class,
         SharkComponentTests.class
 })
 public class V1TestSuite {
