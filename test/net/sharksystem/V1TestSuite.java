@@ -15,7 +15,6 @@ import org.junit.runners.Suite;
         SerializationTests.class,
         BasisMethodsTests.class,
         //Point2PointTests.class,
-        Point2PointTests2.class,
         UsageExamples.class,
         CreateNewChannelFromOutsideTest.class,
         PDUTests.class,

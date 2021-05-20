@@ -29,6 +29,11 @@ class ASAPMementoFS implements ASAPMemento {
 
     @Override
     public void save(ASAPEngine engine) throws IOException {
+        /*
+        Log.writeLog(this, "\n" +
+                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>save memento<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n" +
+                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>save memento<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+         */
         String fName = this.getMementoFileName();
 
         File file = new File(fName);

@@ -175,8 +175,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         if(this.isASAPManagementStorageSet()) {
             this.getASAPManagementStorage().notifyChannelCreated(this.format, owner, uri, recipients);
         } else {
-            System.out.println(this.getLogStart()
-                    + "asap management storage not set - no propagation of channel creation");
+            Log.writeLog(this, "asap management storage not set - no propagation of channel creation");
         }
     }
 
@@ -442,17 +441,15 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 if(this.channelExists(uri)) {
                     localChunk = this.getStorage().getChunk(uri, this.getEra());
                 } else {
-                    System.out.println(this.getLogStart()
-                            + "asked to set up new channel: (uri/senderE2E): " + uri + " | " + senderE2E);
+                    Log.writeLog(this, "asked to set up new channel: (uri/senderE2E): "
+                            + uri + " | " + senderE2E);
                     // this channel is new to local peer - am I allowed to create it?
                     if(!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
-                        System.out.println(this.getLogStart()
-                                + ".. not allowed .. TODO not yet implemented .. always set up");
+                        Log.writeLog(this,".. not allowed .. TODO not yet implemented .. always set up");
 
                         allowedAssimilation = false; // TODO
                     } else {
-                        System.out.println(this.getLogStart()
-                                + "allowed. Set it up.");
+                        Log.writeLog(this, "allowed. Set it up.");
                         this.createChannel(uri);
                     }
                 }
@@ -488,7 +485,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
                 incomingChunk.addMessage(protocolInputStream, nextOffset - offset);
-                if(!changed) { changed = true; this.contentChanged();}
+                //if(!changed) { changed = true; this.contentChanged();}
                 offset = nextOffset;
             }
 
@@ -574,8 +571,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         //<<<<<<<<<<<<<<<<<<debug
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
-        b.append("handle interest pdu received from ");
+        b.append("handle interest: encPeer: ");
         b.append(senderID);
+        b.append(" | app: ");
+        b.append(asapInterest.getFormat());
+        b.append(" | uri:");
+        b.append(asapInterest.getChannelUri());
         System.out.println(b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
@@ -613,41 +614,40 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             b.append("there are no information before that era; ");
             b.append("we only deliver information from previous eras - nothing todo here.");
             System.out.println(b.toString());
-            return;
+        } else {
+            // we iterate up to era just before current one - current one is active sync.
+            int lastEra = this.getPreviousEra(this.era);
+
+            //<<<<<<<<<<<<<<<<<<debug
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("workingEra: ");
+            b.append(workingEra);
+            b.append(" | lastEra: ");
+            b.append(lastEra);
+            b.append(" | this.era: ");
+            b.append(this.era);
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+
+            // make a breakpoint here
+            if (this.memento != null) this.memento.save(this);
+            //<<<<<<<<<<<<<<<<<<debug
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("memento saved");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+
+            this.sendChunks(this.owner, senderID, this.getChunkStorage(), protocol, workingEra, lastEra, os, true);
+
+            //<<<<<<<<<<<<<<<<<<debug
+            b = new StringBuilder();
+            b.append(this.getLogStart());
+            b.append("ended iterating local chunks");
+            System.out.println(b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
         }
-
-        // we iterate up to era just before current one - current one is active sync.
-        int lastEra = this.getPreviousEra(this.era);
-
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("workingEra: ");
-        b.append(workingEra);
-        b.append(" | lastEra: ");
-        b.append(lastEra);
-        b.append(" | this.era: ");
-        b.append(this.era);
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
-
-        // make a breakpoint here
-        if(this.memento != null) this.memento.save(this);
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("memento saved");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
-
-        this.sendChunks(this.owner, senderID, this.getChunkStorage(), protocol, workingEra, lastEra, os, true);
-
-        //<<<<<<<<<<<<<<<<<<debug
-        b = new StringBuilder();
-        b.append(this.getLogStart());
-        b.append("ended iterating local chunks");
-        System.out.println(b.toString());
-        //>>>>>>>>>>>>>>>>>>>debug
 
         if(this.routingAllowed()) {
             Log.writeLog(this, "asap routing allowed");

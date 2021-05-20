@@ -30,9 +30,9 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
                               EncounterConnectionType connectionType) throws IOException {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("\n+++++++++++++++++++++++++++++++ chunkReceived ++++++++++++++++++++++++++++++++\n");
-        sb.append("appFormat: " + format + " | " + senderE2E + " | uri: " + uri + " | era: " + era);
-        sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        sb.append("\n++++++++++++++++++++++++++++++++++++++++++ chunkReceived ++++++++++++++++++++++++++++++++++++++++\n");
+        sb.append("E2E|P2P: " + senderE2E +  " | " + senderPoint2Point + " | uri: " + uri + " | era: " + era + " | appFormat: " + format + " | ");
+        sb.append("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(this.chunkReceivedListener != null) {
