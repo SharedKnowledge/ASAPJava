@@ -1,5 +1,6 @@
 package net.sharksystem.asap.protocol;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
@@ -21,6 +22,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private final ThreadFinishedListener threadFinishedListener;
     private final boolean encrypt;
     private final boolean sign;
+    private final EncounterConnectionType connectionType;
     private Thread managementThread = null;
     private final long maxExecutionTime;
     private String encounteredPeer;
@@ -30,11 +32,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private boolean terminated = false;
 
     public ASAPPersistentConnection(InputStream is, OutputStream os, ASAPInternalPeer asapInternalPeer,
-                ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
-                ASAPKeyStore ASAPKeyStore,
-                long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
-                ThreadFinishedListener threadFinishedListener,
-                boolean encrypt, boolean sign) {
+                                    ASAP_1_0 protocol, ASAPUndecryptableMessageHandler unencryptableMessageHandler,
+                                    ASAPKeyStore ASAPKeyStore,
+                                    long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
+                                    ThreadFinishedListener threadFinishedListener,
+                                    boolean encrypt, boolean sign, EncounterConnectionType connectionType) {
 
         super(is, os, protocol, unencryptableMessageHandler, ASAPKeyStore);
 
@@ -44,6 +46,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         this.threadFinishedListener = threadFinishedListener;
         this.encrypt = encrypt;
         this.sign = sign;
+        this.connectionType = connectionType;
     }
 
     private String getLogStart() {
@@ -234,7 +237,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                                         this.encounteredPeer,
                                         this.is, this.os,
                                         this.asapInternalPeer.getEngineSettings(asappdu.getFormat()),
-                                        protocol,this);
+                                        protocol,this.connectionType, this);
 
                     // get exclusive access to streams
                     Log.writeLog(this, this.getLogStart() + "asap pdu executor going to wait for stream access");
@@ -336,16 +339,18 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         private final ASAP_1_0 protocol;
         private final ThreadFinishedListener threadFinishedListener;
         private final String encounteredPeer;
+        private final EncounterConnectionType connectionType;
 
         public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, String encounteredPeer, InputStream is, OutputStream os,
-                               EngineSetting engineSetting, ASAP_1_0 protocol,
-                               ThreadFinishedListener threadFinishedListener) {
+                EngineSetting engineSetting, ASAP_1_0 protocol,
+                EncounterConnectionType connectionType, ThreadFinishedListener threadFinishedListener) {
             this.asapPDU = asapPDU;
             this.encounteredPeer = encounteredPeer;
             this.is = is;
             this.os = os;
             this.engineSetting = engineSetting;
             this.protocol = protocol;
+            this.connectionType = connectionType;
             this.threadFinishedListener = threadFinishedListener;
 
             StringBuilder sb = new StringBuilder();
@@ -385,8 +390,12 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
                         Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");
-                        engineSetting.engine.handleASAPAssimilate((ASAP_AssimilationPDU_1_0) this.asapPDU, this.protocol,
-                                this.encounteredPeer, this.is, this.os, this.engineSetting.listener);
+                        engineSetting.engine.handleASAPAssimilate(
+                                (ASAP_AssimilationPDU_1_0) this.asapPDU,
+                                this.protocol,
+                                this.encounteredPeer, this.is, this.os,
+                                this.connectionType,
+                                this.engineSetting.listener);
                         break;
 
                     default:

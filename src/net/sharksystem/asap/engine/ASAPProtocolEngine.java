@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
@@ -17,7 +18,9 @@ public interface ASAPProtocolEngine {
             throws ASAPException, IOException;
 
     void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
-                              String encounteredPeer, InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
+                              String encounteredPeer, InputStream is, OutputStream os,
+                              EncounterConnectionType connectionType,
+                              ASAPChunkReceivedListener listener)
             throws ASAPException, IOException;
 
     /**

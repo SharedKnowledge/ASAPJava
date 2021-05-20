@@ -392,8 +392,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     // extract those algorithms to another class (ASAPDefaultProtocolEngine) ?!
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
-         String encounteredPeer, InputStream is, OutputStream os, ASAPChunkReceivedListener listener)
-            throws ASAPException, IOException {
+         String encounteredPeer, InputStream is, OutputStream os, EncounterConnectionType connectionType,
+         ASAPChunkReceivedListener listener) throws ASAPException, IOException {
 
         // before we start - lets crypto
         if(!hasSufficientCrypto(asapAssimilationPDU)) return;
@@ -523,14 +523,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 b.append(")");
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
-
-                // TODO - find out the real encounter connection type
                 listener.chunkReceived(this.format,
                         senderE2E, uri, eraSender,
                         encounteredPeer,
                         asapAssimilationPDU.verified(),
                         asapAssimilationPDU.encrypted(),
-                        EncounterConnectionType.UNKNOWN);
+                        connectionType);
             } else {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();

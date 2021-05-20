@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;
@@ -325,8 +326,21 @@ public class ASAPInternalPeerFS implements
         return this.handleConnection(is, os,false, false,null, null);
     }
 
+    /**
+     *
+     * @deprecated need connection type
+     */
     public ASAPConnection handleConnection(
             InputStream is, OutputStream os, boolean encrypt, boolean sign,
+            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
+    ) throws IOException, ASAPException {
+
+        return this.handleConnection(is, os, encrypt, sign,
+                EncounterConnectionType.UNKNOWN, appsWhiteList, appsBlackList);
+    }
+
+    public ASAPConnection handleConnection(
+            InputStream is, OutputStream os, boolean encrypt, boolean sign, EncounterConnectionType connectionType,
             Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
         ) throws IOException, ASAPException {
 
@@ -334,7 +348,7 @@ public class ASAPInternalPeerFS implements
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
                 is, os, this, new ASAP_Modem_Impl(),
                 this, this.ASAPKeyStore,
-                maxExecutionTime, this, this, encrypt, sign);
+                maxExecutionTime, this, this, encrypt, sign, connectionType);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
