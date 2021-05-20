@@ -195,6 +195,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             this.asapInternalPeer.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
+            e.printStackTrace();
             return;
         }
 

@@ -320,7 +320,7 @@ public class MultihopTests {
 
         String claraFolder = TestHelper.getFullRootFolderName(TestConstants.CLARA_ID, MultihopTests.class);
         claraFolder = TestHelper.getFullTempFolderName(claraFolder, true);
-        ASAPEngineFS.removeFolder(bobFolder);
+        ASAPEngineFS.removeFolder(claraFolder);
 
         String appName = TestHelper.produceTestAppName(MultihopTests.class);
         Collection<CharSequence> formats = new ArrayList<>();

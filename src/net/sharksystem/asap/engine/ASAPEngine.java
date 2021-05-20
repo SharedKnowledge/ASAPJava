@@ -701,8 +701,17 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         Set<String> encounteredPeers = this.lastSeen.keySet();
         for(String peerID : encounteredPeers) {
-            int lastEra = this.getExistingIncomingStorage(peerID).getEra();
-            encounterMap.put(peerID, lastEra);
+            try {
+                int lastEra = this.getExistingIncomingStorage(peerID).getEra();
+                encounterMap.put(peerID, lastEra);
+            }
+            catch(ASAPException e) {
+                /*
+                There is no storage for encountered peer. Can happen - met but has not got anything from it.
+                So, take era from last seen...
+                 */
+                encounterMap.put(peerID, this.lastSeen.get(peerID));
+            }
         }
 
         protocol.interest(ownerID, null,

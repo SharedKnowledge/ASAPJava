@@ -174,11 +174,11 @@ public class ASAPEngineFS extends ASAPEngine {
     void syncMemento() throws IOException {
         ASAPMementoFS asapMementoFS = new ASAPMementoFS(new File(this.rootDirectory));
         asapMementoFS.read();
-        Log.writeLog(this, "read memento: " + asapMementoFS);
-        Log.writeLog(this, "this.lastwritten: " + this.lastMementoWritten);
+        Log.writeLog(this, this.toString(), "read memento: " + asapMementoFS);
+        Log.writeLog(this, this.toString(), "this.lastwritten: " + this.lastMementoWritten);
 
         if(asapMementoFS.lastMementoWritten != this.lastMementoWritten) {
-            Log.writeLog(this, "restore from memento - out of sync");
+            Log.writeLog(this, this.toString(),"restore from memento - out of sync");
             this.restoreFromMemento();
         }
     }
@@ -285,10 +285,11 @@ public class ASAPEngineFS extends ASAPEngine {
                 } else {
                     try {
                         if(!fileInDir.delete()) {
-                            System.out.println("ASAPEngineFS: cannot delete file (try deleteOnExit):" + fileInDir);
+                            Log.writeLog(ASAPEngineFS.class,"ASAPEngineFS: cannot delete file (try deleteOnExit):"
+                                    + fileInDir);
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("ASAPEngineFS: cannot file:" + e.getLocalizedMessage());
+                        Log.writeLog(ASAPEngineFS.class, "cannot file:" + e.getLocalizedMessage());
                         // try next
                     }
                 }
