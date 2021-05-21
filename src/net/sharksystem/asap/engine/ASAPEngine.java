@@ -632,34 +632,16 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             int lastEra = this.getPreviousEra(this.era);
 
             //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("workingEra: ");
-            b.append(workingEra);
-            b.append(" | lastEra: ");
-            b.append(lastEra);
-            b.append(" | this.era: ");
-            b.append(this.era);
+            b = new StringBuilder();  b.append(this.getLogStart()); b.append("workingEra: "); b.append(workingEra);
+            b.append(" | lastEra: "); b.append(lastEra); b.append(" | this.era: "); b.append(this.era);
             System.out.println(b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
             // make a breakpoint here
             if (this.memento != null) this.memento.save(this);
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("memento saved");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
 
             this.sendChunks(this.owner, senderID, this.getChunkStorage(), protocol, workingEra, lastEra, os, true);
-
-            //<<<<<<<<<<<<<<<<<<debug
-            b = new StringBuilder();
-            b.append(this.getLogStart());
-            b.append("ended iterating local chunks");
-            System.out.println(b.toString());
-            //>>>>>>>>>>>>>>>>>>>debug
+            Log.writeLog(this, "ended iterating local chunks");
         }
 
         if(this.routingAllowed()) {
@@ -691,11 +673,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                             false);
                 }
                 catch(ASAPException e) {
-                    Log.writeLogErr(this, "internal problem: we know sender but cannot access its storage");
+                    Log.writeLogErr(this, this.toString(),
+                            "internal problem: we know sender but cannot access its storage");
                 }
             }
         } else {
-            System.out.println(this.getLogStart() + "engine does not send received chunks");
+            Log.writeLog(this, this.toString(), "engine does not send received chunks");
         }
     }
 
