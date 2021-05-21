@@ -793,6 +793,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                             workingEra, // era ok
                             chunk.getLength(), // data length
                             chunk.getOffsetList(),
+                            chunk.getASAPHopList(),
                             chunk.getMessageInputStream(),
                             os,
                             this.getASAPCommunicationCryptoSettings());

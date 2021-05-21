@@ -2,6 +2,7 @@ package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPChunk;
+import net.sharksystem.asap.ASAPHop;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,4 +84,6 @@ public interface ASAPInternalChunk extends ASAPChunk {
     List<CharSequence> getDeliveredTo();
 
     void copyMetaData(ASAPChannel channel) throws IOException;
+
+    List<ASAPHop> getASAPHopList();
 }

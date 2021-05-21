@@ -51,6 +51,11 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         this.saveStatus();
     }
 
+    @Override
+    public List<ASAPHop> getASAPHopList() {
+        return this.hopList;
+    }
+
     public HashMap<String, String> getExtraData() {
         return this.extraData;
     }

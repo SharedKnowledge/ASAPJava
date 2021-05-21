@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
@@ -148,8 +149,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
-                           OutputStream os, ASAPPoint2PointCryptoSettings secureSetting) throws IOException, ASAPException {
+                           CharSequence channel, int era, long length, List<Long> offsets, List<ASAPHop> asapHops,
+                           InputStream dataIS, OutputStream os,
+                           ASAPPoint2PointCryptoSettings secureSetting)
+
+            throws IOException, ASAPException {
 
         this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os,
                 secureSetting.mustSign(), secureSetting.mustEncrypt());

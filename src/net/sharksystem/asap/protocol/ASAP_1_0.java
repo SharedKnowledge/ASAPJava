@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 
@@ -160,8 +161,9 @@ public interface ASAP_1_0 {
             throws IOException, ASAPException;
 
 
-    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+    void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+                           CharSequence channel, int era, long length, List<Long> offsets, List<ASAPHop> asapHopList,
+                           InputStream dataIS,
                            OutputStream os, ASAPPoint2PointCryptoSettings secureSetting) throws IOException, ASAPException;
 
     /**
