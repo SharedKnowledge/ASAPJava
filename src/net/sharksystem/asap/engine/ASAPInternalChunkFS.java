@@ -1,7 +1,9 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPChannel;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.asap.utils.Helper;
 
 import java.io.*;
@@ -300,10 +302,13 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         DataInputStream dis = new DataInputStream(new FileInputStream(metaFile));
 
         try {
+            // do it as first element - shure how many bytes we read..
+            this.hopList = ASAPSerialization.readASAPHopList(dis);
+
             this.uri = dis.readUTF();
             this.setExtraByString(dis.readUTF());
         }
-        catch(EOFException eof) {
+        catch(EOFException | ASAPException eof) {
             // file empty
             return false;
         }
@@ -316,10 +321,9 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
             String offsetList = dis.readUTF();
             this.messageStartOffsets = this.messageOffsetString2List(offsetList);
         }
-        catch(IOException ioe) {
+        catch(IOException e) {
             // no more data - ok
-        }
-        finally {
+        } finally {
             dis.close();
         }
         
@@ -329,6 +333,9 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
     private void writeMetaData(File metaFile) throws IOException {
         // write data to metafile
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(metaFile));
+
+        // do it as first element - shure how many bytes we read..
+        ASAPSerialization.writeASAPHopList(this.hopList, dos);
         
         dos.writeUTF(this.uri);
         dos.writeUTF(this.getExtraAsString());
