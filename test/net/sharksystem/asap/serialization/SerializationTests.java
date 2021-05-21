@@ -1,13 +1,19 @@
 package net.sharksystem.asap.serialization;
 
+import net.sharksystem.ASAPHopImpl;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.utils.ASAPSerialization;
+import net.sharksystem.asap.utils.PeerIDHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SerializationTests {
     @Test
@@ -20,5 +26,57 @@ public class SerializationTests {
         String messageOut = ASAPSerialization.readCharSequenceParameter(bais);
 
         Assert.assertTrue(messageOut.equals(messageIn));
+    }
+
+    @Test
+    public void serializeASAPHopListLen1() throws IOException, ASAPException {
+        List<ASAPHop> exampleList = new ArrayList<>();
+
+        exampleList.add(new ASAPHopImpl("Alice", true, true, EncounterConnectionType.ASAP_HUB));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeASAPHopList(exampleList, baos);
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        List<ASAPHop> receivedList = ASAPSerialization.readASAPHopList(bais);
+
+        Assert.assertEquals(exampleList.size(), receivedList.size());
+        for(int i = 0; i < exampleList.size(); i++) {
+            ASAPHop origHop = exampleList.get(i);
+            ASAPHop receivedHop = receivedList.get(i);
+
+            Assert.assertTrue(PeerIDHelper.sameID(origHop.sender(), receivedHop.sender()));
+            Assert.assertTrue(origHop.verified() == receivedHop.verified());
+            Assert.assertTrue(origHop.encrypted() == receivedHop.encrypted());
+            Assert.assertTrue(origHop.getConnectionType() == receivedHop.getConnectionType());
+        }
+    }
+
+    @Test
+    public void serializeASAPHopListLen5() throws IOException, ASAPException {
+        List<ASAPHop> exampleList = new ArrayList<>();
+
+        exampleList.add(new ASAPHopImpl("Alice", true, true, EncounterConnectionType.ASAP_HUB));
+        exampleList.add(new ASAPHopImpl("Bob", false, true, EncounterConnectionType.INTERNET));
+        exampleList.add(new ASAPHopImpl("Clara", false, false, EncounterConnectionType.AD_HOC_LAYER_2_NETWORK));
+        exampleList.add(new ASAPHopImpl("David", true, false, EncounterConnectionType.ONION_NETWORK));
+        exampleList.add(new ASAPHopImpl("Eveline", true, false, EncounterConnectionType.UNKNOWN));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeASAPHopList(exampleList, baos);
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        List<ASAPHop> receivedList = ASAPSerialization.readASAPHopList(bais);
+
+        Assert.assertEquals(exampleList.size(), receivedList.size());
+        for(int i = 0; i < exampleList.size(); i++) {
+            ASAPHop origHop = exampleList.get(i);
+            ASAPHop receivedHop = receivedList.get(i);
+
+            Assert.assertTrue(PeerIDHelper.sameID(origHop.sender(), receivedHop.sender()));
+            Assert.assertTrue(origHop.verified() == receivedHop.verified());
+            Assert.assertTrue(origHop.encrypted() == receivedHop.encrypted());
+            Assert.assertTrue(origHop.getConnectionType() == receivedHop.getConnectionType());
+        }
     }
 }

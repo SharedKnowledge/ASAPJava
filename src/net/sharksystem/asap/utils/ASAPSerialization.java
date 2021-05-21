@@ -8,7 +8,9 @@ import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.utils.Log;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ASAPSerialization {
@@ -254,29 +256,63 @@ public class ASAPSerialization {
 
     public static void writeBooleanParameter(boolean value, OutputStream os) throws IOException {
         if(value) ASAPSerialization.writeByteParameter((byte) 1, os);
-        ASAPSerialization.writeByteParameter((byte) 0, os);
+        else ASAPSerialization.writeByteParameter((byte) 0, os);
     }
 
     public static boolean readBooleanParameter(InputStream is) throws IOException, ASAPException {
         return ASAPSerialization.readByte(is) == 1;
     }
 
+    public static void writeASAPHop(ASAPHop asapHop, OutputStream os) throws IOException {
+        ASAPSerialization.writeCharSequenceParameter(asapHop.sender(), os);
+        ASAPSerialization.writeBooleanParameter(asapHop.verified(), os);
+        ASAPSerialization.writeBooleanParameter(asapHop.encrypted(), os);
+        ASAPSerialization.writeEncounterConnectionType(asapHop.getConnectionType(), os);
+    }
+
     public static byte[] asapHop2ByteArray(ASAPHop asapHop) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeCharSequenceParameter(asapHop.sender(), baos);
-        ASAPSerialization.writeBooleanParameter(asapHop.verified(), baos);
-        ASAPSerialization.writeBooleanParameter(asapHop.encrypted(), baos);
-        ASAPSerialization.writeEncounterConnectionType(asapHop.getConnectionType(), baos);
+        writeASAPHop(asapHop, baos);
         return baos.toByteArray();
+    }
+
+    public static ASAPHop readASAPHop(InputStream is) throws IOException, ASAPException {
+        CharSequence sender = ASAPSerialization.readCharSequenceParameter(is);
+        boolean verified = ASAPSerialization.readBooleanParameter(is);
+        boolean encrypted = ASAPSerialization.readBooleanParameter(is);
+        EncounterConnectionType connectionType = ASAPSerialization.readEncounterConnectionType(is);
+
+        return new ASAPHopImpl(sender, verified, encrypted, connectionType);
     }
 
     public static ASAPHop byteArray2ASAPHop(byte[] bytes) throws IOException, ASAPException {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        return new ASAPHopImpl(
-            ASAPSerialization.readCharSequenceParameter(bais),
-            ASAPSerialization.readBooleanParameter(bais),
-            ASAPSerialization.readBooleanParameter(bais),
-            ASAPSerialization.readEncounterConnectionType(bais)
-        );
+        return readASAPHop(bais);
+    }
+
+    public static void writeASAPHopList(List<ASAPHop> asapHopList, OutputStream os) throws IOException {
+        if(asapHopList == null || asapHopList.isEmpty()) {
+            // no hops
+            ASAPSerialization.writeIntegerParameter(0, os);
+            return;
+        }
+
+        // write number of hops
+        ASAPSerialization.writeIntegerParameter(asapHopList.size(), os);
+        for(ASAPHop asapHop : asapHopList) {
+            ASAPSerialization.writeASAPHop(asapHop, os);
+        }
+    }
+
+    public static List<ASAPHop> readASAPHopList(InputStream is) throws IOException, ASAPException {
+        List<ASAPHop> asapHopList = new ArrayList<>();
+
+        int number = ASAPSerialization.readIntegerParameter(is);
+        while(number-- > 0) {
+            asapHopList.add(ASAPSerialization.readASAPHop(is));
+        }
+
+        return asapHopList;
+
     }
 }

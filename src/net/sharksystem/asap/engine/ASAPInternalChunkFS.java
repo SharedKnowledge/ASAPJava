@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPChannel;
+import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.utils.Helper;
 
 import java.io.*;
@@ -22,6 +23,8 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
     private List<Long> messageStartOffsets = new ArrayList<>();
     private File metaFile;
     private File messageFile;
+
+    private List<ASAPHop> hopList;
     
     private int era;
 
@@ -105,6 +108,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
             this.recipients = new HashSet<>();
             this.deliveredTo = new ArrayList<>();
             this.messageStartOffsets = new ArrayList<>();
+            this.hopList = new ArrayList<>();
         }
     }
     
