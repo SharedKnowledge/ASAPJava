@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.ASAPHopImpl;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -529,12 +530,14 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 b.append(")");
                 System.out.println(b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
+
                 listener.chunkReceived(this.format,
                         senderE2E, uri, eraSender,
-                        encounteredPeer,
-                        asapAssimilationPDU.verified(),
-                        asapAssimilationPDU.encrypted(),
-                        connectionType);
+                        new ASAPHopImpl(encounteredPeer,
+                            asapAssimilationPDU.verified(),
+                            asapAssimilationPDU.encrypted(),
+                            connectionType)
+                        );
             } else {
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();

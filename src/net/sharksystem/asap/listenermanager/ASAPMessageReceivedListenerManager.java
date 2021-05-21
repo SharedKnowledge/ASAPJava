@@ -1,9 +1,6 @@
 package net.sharksystem.asap.listenermanager;
 
-import net.sharksystem.EncounterConnectionType;
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.ASAPMessageReceivedListener;
-import net.sharksystem.asap.ASAPMessageReceivedListenerManagement;
+import net.sharksystem.asap.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,22 +35,18 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
 
     public void notifyReceived(CharSequence format, ASAPMessages asapMessage,
                                String senderE2E, // E2E part
-                               String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
-                               EncounterConnectionType connectionType) {
+                               ASAPHop asapHop) {
 
-        this.notifyReceived(format, asapMessage, false, senderE2E, senderPoint2Point,
-                verified, encrypted, connectionType);
+        this.notifyReceived(format, asapMessage, false, senderE2E, asapHop);
     }
 
     public void notifyReceived(CharSequence format, ASAPMessages asapMessage, boolean useThreads,
-                               String senderE2E, String senderPoint2Point, boolean  verified, boolean encrypted,
-                               EncounterConnectionType connectionType) {
+                               String senderE2E, ASAPHop asapHop) {
 
         GenericListenerImplementation<ASAPMessageReceivedListener> listenerList = this.listenerMap.get(format);
         if(listenerList != null) {
             ASAPMessageReceivedNotifier asapMessageReceivedNotifier
-                    = new ASAPMessageReceivedNotifier(asapMessage, senderE2E, senderPoint2Point,
-                        verified, encrypted, connectionType);
+                    = new ASAPMessageReceivedNotifier(asapMessage, senderE2E, asapHop);
 
             listenerList.notifyAll(asapMessageReceivedNotifier, useThreads);
         }
@@ -62,28 +55,20 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
     public class ASAPMessageReceivedNotifier implements GenericNotifier<ASAPMessageReceivedListener> {
         private final ASAPMessages asapMessage;
         private final String senderE2E;
-        private final String senderPoint2Point;
-        private final boolean verified;
-        private final boolean encrypted;
-        private final EncounterConnectionType connectionType;
+        private ASAPHop asapHop;
 
         ASAPMessageReceivedNotifier(ASAPMessages asapMessage,
                                     String senderE2E,
-                                    String senderPoint2Point, boolean verified, boolean encrypted,
-                                    EncounterConnectionType connectionType) {
+                                    ASAPHop asapHop) {
 
             this.asapMessage = asapMessage;
             this.senderE2E = senderE2E;
-            this.senderPoint2Point = senderPoint2Point;
-            this.verified = verified;
-            this.encrypted = encrypted;
-            this.connectionType = connectionType;
+            this.asapHop = asapHop;
         }
 
         public void doNotify(ASAPMessageReceivedListener listener) {
             try {
-                listener.asapMessagesReceived(this.asapMessage, this.senderE2E, this.senderPoint2Point,
-                        this.verified, this.encrypted, this.connectionType);
+                listener.asapMessagesReceived(this.asapMessage, this.senderE2E, this.asapHop);
             } catch (IOException e) {
                 System.err.println("error when notifying about received asap message: "
                         + e.getLocalizedMessage());

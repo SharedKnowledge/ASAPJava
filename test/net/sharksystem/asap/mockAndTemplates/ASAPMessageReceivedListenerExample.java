@@ -1,6 +1,7 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 
@@ -21,8 +22,7 @@ class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener 
     @Override
     public void asapMessagesReceived(ASAPMessages messages,
                                      String senderE2E, // E2E part
-                                     String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
-                                     EncounterConnectionType connectionType) throws IOException {
+                                     ASAPHop asapHop) throws IOException {
 
         CharSequence format = messages.getFormat();
         CharSequence uri = messages.getURI();

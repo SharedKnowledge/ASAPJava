@@ -1,11 +1,6 @@
 package net.sharksystem.asap.mockAndTemplates;
 
-import net.sharksystem.EncounterConnectionType;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.ASAPEnvironmentChangesListener;
-import net.sharksystem.asap.ASAPMessageReceivedListener;
-import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.*;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
@@ -127,8 +122,7 @@ public class DiscoverPeerAndStartEGChat {
         @Override
         public void asapMessagesReceived(ASAPMessages messages,
                                          String senderE2E, // E2E part
-                                         String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
-                                         EncounterConnectionType connectionType) throws IOException {
+                                         ASAPHop asapHop) throws IOException {
             Iterator<byte[]> msgIter = messages.getMessages();
 
             // you could check uri, e.g. to figure out what chat is addressed, what running game, what POS offering...

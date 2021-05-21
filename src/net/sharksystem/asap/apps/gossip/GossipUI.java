@@ -1,6 +1,7 @@
 package net.sharksystem.asap.apps.gossip;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.*;
@@ -98,8 +99,7 @@ public class GossipUI implements ASAPChunkReceivedListener {
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              String senderPoint2Point, boolean verified, boolean encrypted,
-                              EncounterConnectionType connectionType) throws IOException {
+                              ASAPHop asapHop) throws IOException {
 
         ASAPMessages receivedMessages =
                 Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolderName, era);

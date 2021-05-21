@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;
@@ -26,19 +25,17 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              String senderPoint2Point, boolean verified, boolean encrypted,
-                              EncounterConnectionType connectionType) throws IOException {
+                              ASAPHop asapHop) throws IOException {
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n++++++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++++\n");
-        sb.append("E2E|P2P: " + senderE2E +  " | " + senderPoint2Point + " | uri: " + uri + " | era: " + era + " | appFormat: " + format);
+        sb.append("E2E|P2P: " + senderE2E +  " | " + asapHop.sender() + " | uri: " + uri + " | era: " + era + " | appFormat: " + format);
         sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(this.chunkReceivedListener != null) {
             this.log("chunk received listener set - call this one");
-            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, senderPoint2Point,
-                    verified, encrypted, connectionType);
+            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, asapHop);
         } else {
             this.log("extract messages from chunk and notify listener");
             ASAPMessages receivedMessages =
@@ -46,9 +43,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
             this.asapMessageReceivedListenerManager.notifyReceived(
                     format, receivedMessages, true,
-                    senderE2E,
-                    senderPoint2Point, verified, encrypted,
-                    connectionType);
+                    senderE2E, asapHop);
         }
     }
 

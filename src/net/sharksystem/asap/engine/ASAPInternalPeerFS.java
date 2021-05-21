@@ -1,6 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;

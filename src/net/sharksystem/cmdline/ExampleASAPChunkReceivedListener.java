@@ -1,6 +1,7 @@
 package net.sharksystem.cmdline;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
 
 import java.io.IOException;
@@ -20,8 +21,7 @@ public class ExampleASAPChunkReceivedListener implements ASAPChunkReceivedListen
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              String senderPoint2Point, boolean verified, boolean encrypted,
-                              EncounterConnectionType connectionType) throws IOException {
+                              ASAPHop asapHop) throws IOException {
 
         this.receivedList.add(new ASAPChunkReceivedParameters(format, senderE2E, uri, era));
     }

@@ -1,6 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.EncounterConnectionType;
+import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAP_1_0;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
