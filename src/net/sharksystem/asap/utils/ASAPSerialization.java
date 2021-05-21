@@ -1,10 +1,13 @@
 package net.sharksystem.asap.utils;
 
+import net.sharksystem.ASAPHopImpl;
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.ASAPPeer;
+import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.utils.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -222,5 +225,58 @@ public class ASAPSerialization {
         }
 
         return charSet;
+    }
+
+    public static EncounterConnectionType readEncounterConnectionType(InputStream is) throws IOException, ASAPException {
+        byte readByte = ASAPSerialization.readByte(is);
+        switch(readByte) {
+            case 1: return EncounterConnectionType.ASAP_HUB;
+            case 2: return EncounterConnectionType.AD_HOC_LAYER_2_NETWORK;
+            case 3: return EncounterConnectionType.ONION_NETWORK;
+            case 4: return EncounterConnectionType.INTERNET;
+            default:
+                Log.writeLogErr(ASAPSerialization.class, "unknown encounter connection type: " + readByte);
+        }
+        // default
+        return EncounterConnectionType.UNKNOWN;
+    }
+
+    public static void writeEncounterConnectionType(EncounterConnectionType connectionType, OutputStream os) throws IOException {
+        switch(connectionType) {
+            case ASAP_HUB: ASAPSerialization.writeByteParameter((byte) 1, os); break;
+            case AD_HOC_LAYER_2_NETWORK: ASAPSerialization.writeByteParameter((byte) 2, os); break;
+            case ONION_NETWORK: ASAPSerialization.writeByteParameter((byte) 3, os); break;
+            case INTERNET: ASAPSerialization.writeByteParameter((byte) 4, os); break;
+            case UNKNOWN:
+            default: ASAPSerialization.writeByteParameter((byte) 0, os);
+        }
+    }
+
+    public static void writeBooleanParameter(boolean value, OutputStream os) throws IOException {
+        if(value) ASAPSerialization.writeByteParameter((byte) 1, os);
+        ASAPSerialization.writeByteParameter((byte) 0, os);
+    }
+
+    public static boolean readBooleanParameter(InputStream is) throws IOException, ASAPException {
+        return ASAPSerialization.readByte(is) == 1;
+    }
+
+    public static byte[] asapHop2ByteArray(ASAPHop asapHop) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(asapHop.sender(), baos);
+        ASAPSerialization.writeBooleanParameter(asapHop.verified(), baos);
+        ASAPSerialization.writeBooleanParameter(asapHop.encrypted(), baos);
+        ASAPSerialization.writeEncounterConnectionType(asapHop.getConnectionType(), baos);
+        return baos.toByteArray();
+    }
+
+    public static ASAPHop byteArray2ASAPHop(byte[] bytes) throws IOException, ASAPException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        return new ASAPHopImpl(
+            ASAPSerialization.readCharSequenceParameter(bais),
+            ASAPSerialization.readBooleanParameter(bais),
+            ASAPSerialization.readBooleanParameter(bais),
+            ASAPSerialization.readEncounterConnectionType(bais)
+        );
     }
 }

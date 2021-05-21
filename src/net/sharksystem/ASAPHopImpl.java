@@ -35,4 +35,27 @@ public class ASAPHopImpl implements ASAPHop {
     public boolean encrypted() {
         return this.encrypted;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("sender: ");
+        sb.append(this.sender);
+        sb.append(" | ");
+        sb.append("verified: ");
+        sb.append(this.verified);
+        sb.append(" | ");
+        sb.append("encrypted: ");
+        sb.append(this.encrypted);
+        sb.append(" | ");
+        sb.append("connectionType: ");
+        switch (this.connectionType) {
+            case ONION_NETWORK: sb.append("onionNetwork"); break;
+            case ASAP_HUB: sb.append("ASAP Hub"); break;
+            case AD_HOC_LAYER_2_NETWORK: sb.append("Ad-hoc protocol"); break;
+            case INTERNET: sb.append("Internet"); break;
+            default: sb.append("unknown"); break;
+        }
+
+        return sb.toString();
+    }
 }
