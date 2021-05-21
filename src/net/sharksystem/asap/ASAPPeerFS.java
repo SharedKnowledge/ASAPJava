@@ -44,7 +44,11 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             ASAPMessages receivedMessages =
                     Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
 
-            this.asapMessageReceivedListenerManager.notifyReceived(format, receivedMessages, true);
+            this.asapMessageReceivedListenerManager.notifyReceived(
+                    format, receivedMessages, true,
+                    senderE2E,
+                    senderPoint2Point, verified, encrypted,
+                    connectionType);
         }
     }
 

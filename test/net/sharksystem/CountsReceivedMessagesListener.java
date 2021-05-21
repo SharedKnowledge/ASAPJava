@@ -18,7 +18,10 @@ public class CountsReceivedMessagesListener implements ASAPMessageReceivedListen
     }
 
     @Override
-    public void asapMessagesReceived(ASAPMessages messages) throws IOException {
+    public void asapMessagesReceived(ASAPMessages messages,
+                                     String senderE2E, // E2E part
+                                     String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
+                                     EncounterConnectionType connectionType) throws IOException {
         CharSequence format = messages.getFormat();
         CharSequence uri = messages.getURI();
         if (peerName != null) {

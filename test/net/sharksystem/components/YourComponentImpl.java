@@ -1,5 +1,6 @@
 package net.sharksystem.components;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.SharkException;
 import net.sharksystem.SharkUnknownBehaviourException;
 import net.sharksystem.asap.*;
@@ -75,7 +76,10 @@ public class YourComponentImpl implements YourComponent, ASAPMessageReceivedList
     }
 
     @Override
-    public void asapMessagesReceived(ASAPMessages asapMessages) throws IOException {
+    public void asapMessagesReceived(ASAPMessages asapMessages,
+                                     String senderE2E, // E2E part
+                                     String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
+                                     EncounterConnectionType connectionType) throws IOException {
         try {
             // get first message
             byte[] message = asapMessages.getMessage(0, true);

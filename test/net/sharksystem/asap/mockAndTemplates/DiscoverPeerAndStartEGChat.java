@@ -1,11 +1,11 @@
 package net.sharksystem.asap.mockAndTemplates;
 
+import net.sharksystem.EncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.apps.testsupport.ASAPPeerMock;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
@@ -125,7 +125,10 @@ public class DiscoverPeerAndStartEGChat {
          * @throws IOException
          */
         @Override
-        public void asapMessagesReceived(ASAPMessages messages) throws IOException {
+        public void asapMessagesReceived(ASAPMessages messages,
+                                         String senderE2E, // E2E part
+                                         String senderPoint2Point, boolean verified, boolean encrypted, // Point2Point part
+                                         EncounterConnectionType connectionType) throws IOException {
             Iterator<byte[]> msgIter = messages.getMessages();
 
             // you could check uri, e.g. to figure out what chat is addressed, what running game, what POS offering...
@@ -197,21 +200,6 @@ public class DiscoverPeerAndStartEGChat {
         // have a look in the constructor or YourApplication
         YourApplication aliceInstanceOfYourApplication = new YourApplication(alicePeer);
         YourApplication bobInstanceOfYourApplication = new YourApplication(bobPeer);
-    }
-
-    @Test
-    public void mockVariant() {
-        // create two peer - here as peer mock.
-        ASAPPeerMock alicePeer = new ASAPPeerMock(ALICE);
-        ASAPPeerMock bobPeer = new ASAPPeerMock(BOB);
-
-        this.recognizePeerInNeighbourhood(alicePeer, bobPeer);
-
-        // simulate an encounter
-        alicePeer.startEncounter(bobPeer);
-
-        // trigger another exchange
-        alicePeer.startEncounter(bobPeer);
     }
 
     @Test

@@ -2,7 +2,6 @@ package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.apps.testsupport.ASAPPeerMock;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
@@ -40,30 +39,6 @@ public class UseThisAsTemplate4YourAppTests {
         }
 
         return UseThisAsTemplate4YourAppTests.port;
-    }
-
-    @Test
-    public void mockTestExample() throws IOException, ASAPException, InterruptedException {
-        ///////////////// ALICE //////////////////////////////////////////////////////////////
-        // setup mocked peer / asap application and activity in android
-        ASAPPeerMock aliceMockPeer = new ASAPPeerMock(ALICE);
-        ASAPPeerMock bobMockPeer = new ASAPPeerMock(BOB);
-
-        // 1st encounter
-        this.scenarioPart1(aliceMockPeer, bobMockPeer);
-
-        aliceMockPeer.startEncounter(bobMockPeer);
-        // give your app a moment to process
-        Thread.sleep(1000);
-        // stop encounter
-        bobMockPeer.stopEncounter(aliceMockPeer);
-        // give your app a moment to process
-        Thread.sleep(1000);
-
-        // 2nd encounter
-        this.scenarioPart2(aliceMockPeer, bobMockPeer);
-
-        bobMockPeer.startEncounter(bobMockPeer);
     }
 
     @Test
