@@ -1,10 +1,12 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkNotSupportedException;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessageCompare;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.utils.PeerIDHelper;
 
+import javax.xml.transform.Source;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -360,13 +362,12 @@ public class ASAPMessagesMerger implements ASAPMessages {
         return chronologically ? oldFirstPositionList : newFirstPositionList;
     }
 
-    @Override
-    public byte[] getMessage(int position, boolean chronologically) throws ASAPException, IOException {
+    private SourceIndex getSourceIndex(int position, boolean chronologically) throws ASAPException, IOException {
         if(position >= this.size)
             throw new ASAPException("position index must not exceed total number of messages: "
-                + position + " >= " + this.size);
+                    + position + " >= " + this.size);
 
-        SourceIndex sourceIndex = null;
+        SourceIndex sourceIndex;
         List<SourceIndex> usedList = this.getIndexList(chronologically);
 
         sourceIndex = this.getSourceIndex(position, usedList);
@@ -380,7 +381,19 @@ public class ASAPMessagesMerger implements ASAPMessages {
             throw new ASAPException("no message at position: " + position);
         }
 
+        return sourceIndex;
+    }
+
+    @Override
+    public byte[] getMessage(int position, boolean chronologically) throws ASAPException, IOException {
+        SourceIndex sourceIndex = this.getSourceIndex(position, chronologically);
         return this.messageSources[sourceIndex.sourceIndex].getMessage(
                 sourceIndex.positionInSource, chronologically);
+    }
+
+    @Override
+    public ASAPInternalChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException {
+        SourceIndex sourceIndex = this.getSourceIndex(position, chronologically);
+        return this.messageSources[sourceIndex.positionInSource].getChunk(sourceIndex.positionInSource, chronologically);
     }
 }

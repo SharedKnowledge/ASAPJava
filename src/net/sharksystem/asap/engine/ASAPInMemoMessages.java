@@ -147,6 +147,32 @@ class ASAPInMemoMessages implements ASAPMessages {
         return new String(this.getMessage(position, chronologically));
     }
 
+    public ASAPInternalChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException {
+        this.initialize();
+
+        if(position >= this.numberOfMessages)
+            throw new ASAPException("Position reaches beyond total number of messages in this chunk (is it even empty?)");
+
+        if(!chronologically) {
+            // invert position - first becomes last etc.
+            position = this.numberOfMessages - 1 - position;
+        }
+
+        ASAPInternalChunk foundChunk = null;
+        // find chunk
+        for(ASAPInternalChunk chunk : this.chunkList) {
+            if(position < chunk.getNumberMessage()) {
+                foundChunk = chunk;
+                break;
+            }
+
+            position -= chunk.getNumberMessage();
+        }
+
+        if(foundChunk == null) throw new ASAPException("cannot find chunk for position - looks like a bug");
+        return foundChunk;
+    }
+
     @Override
     public byte[] getMessage(int position, boolean chronologically)
             throws ASAPException, IOException {
@@ -162,7 +188,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         }
 
         if(this.messageCache != null && position >= this.firstIndexMessageCache && position <= this.lastIndexMessageCache) {
-            return this.messageCache.get(position - this.firstIndexMessageCache); 
+            return this.messageCache.get(position - this.firstIndexMessageCache);
         }
 
         // not yet in cache - find chunk with required message

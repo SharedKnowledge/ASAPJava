@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.engine.ASAPInternalChunk;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -69,4 +70,12 @@ public interface ASAPMessages {
 
     byte[] getMessage(int position, boolean chronologically)
             throws ASAPException, IOException;
+
+    /**
+     * Return chunk in which message at position is to be found
+     * @param position
+     * @param chronologically
+     * @return
+     */
+    ASAPInternalChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException;
 }
