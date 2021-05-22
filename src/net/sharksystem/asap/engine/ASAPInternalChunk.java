@@ -86,4 +86,6 @@ public interface ASAPInternalChunk extends ASAPChunk {
     void copyMetaData(ASAPChannel channel) throws IOException;
 
     List<ASAPHop> getASAPHopList();
+
+    void setASAPHopList(List<ASAPHop> asapHopList);
 }

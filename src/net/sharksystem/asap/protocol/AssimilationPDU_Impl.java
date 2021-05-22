@@ -140,6 +140,10 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         return this.offsets;
     }
 
+    public List<ASAPHop> getASAPHopList() {
+        return this.asapHopList;
+    }
+
     @Override
     public byte[] getData() throws IOException {
         if(this.data == null) {

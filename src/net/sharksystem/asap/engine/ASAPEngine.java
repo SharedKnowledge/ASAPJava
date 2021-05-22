@@ -514,6 +514,18 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             // receiving has no effect on era.
             //if(!changed) { changed = true; this.contentChanged();}
 
+            // add hop list.
+            List<ASAPHop> asapHopList = asapAssimilationPDU.getASAPHopList();
+            Log.writeLog(this, "got hop list: " + asapHopList);
+
+            // add this new hop
+            ASAPHop lastHop = new ASAPHopImpl(encounteredPeer, asapAssimilationPDU.verified(),
+                    asapAssimilationPDU.encrypted(), connectionType);
+
+            asapHopList.add(lastHop);
+
+            incomingChunk.setASAPHopList(asapHopList);
+
             // read all messages
             if(listener != null) {
                 //<<<<<<<<<<<<<<<<<<debug

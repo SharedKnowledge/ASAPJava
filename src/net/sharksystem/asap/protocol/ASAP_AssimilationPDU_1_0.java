@@ -1,5 +1,7 @@
 package net.sharksystem.asap.protocol;
 
+import net.sharksystem.asap.ASAPHop;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +32,8 @@ public interface ASAP_AssimilationPDU_1_0 extends ASAP_PDU_1_0 {
      * of each message. There is no number 0: First message starts - of course - at the beginning.
      */
     List<Integer> getMessageOffsets();
+
+    List<ASAPHop> getASAPHopList();
 
     /**
      * Streams data into a storage. That method should be used instead of getData() when possible.
