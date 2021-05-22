@@ -4,6 +4,7 @@ import net.sharksystem.asap.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedListenerManagement {
     private HashMap<CharSequence, GenericListenerImplementation<ASAPMessageReceivedListener>> listenerMap =
@@ -35,18 +36,18 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
 
     public void notifyReceived(CharSequence format, ASAPMessages asapMessage,
                                String senderE2E, // E2E part
-                               ASAPHop asapHop) {
+                               List<ASAPHop> asapHopList) {
 
-        this.notifyReceived(format, asapMessage, false, senderE2E, asapHop);
+        this.notifyReceived(format, asapMessage, false, senderE2E, asapHopList);
     }
 
     public void notifyReceived(CharSequence format, ASAPMessages asapMessage, boolean useThreads,
-                               String senderE2E, ASAPHop asapHop) {
+                               String senderE2E, List<ASAPHop> asapHopList) {
 
         GenericListenerImplementation<ASAPMessageReceivedListener> listenerList = this.listenerMap.get(format);
         if(listenerList != null) {
             ASAPMessageReceivedNotifier asapMessageReceivedNotifier
-                    = new ASAPMessageReceivedNotifier(asapMessage, senderE2E, asapHop);
+                    = new ASAPMessageReceivedNotifier(asapMessage, senderE2E, asapHopList);
 
             listenerList.notifyAll(asapMessageReceivedNotifier, useThreads);
         }
@@ -55,20 +56,20 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
     public class ASAPMessageReceivedNotifier implements GenericNotifier<ASAPMessageReceivedListener> {
         private final ASAPMessages asapMessage;
         private final String senderE2E;
-        private ASAPHop asapHop;
+        private List<ASAPHop> asapHopList;
 
         ASAPMessageReceivedNotifier(ASAPMessages asapMessage,
                                     String senderE2E,
-                                    ASAPHop asapHop) {
+                                    List<ASAPHop> asapHopList) {
 
             this.asapMessage = asapMessage;
             this.senderE2E = senderE2E;
-            this.asapHop = asapHop;
+            this.asapHopList = asapHopList;
         }
 
         public void doNotify(ASAPMessageReceivedListener listener) {
             try {
-                listener.asapMessagesReceived(this.asapMessage, this.senderE2E, this.asapHop);
+                listener.asapMessagesReceived(this.asapMessage, this.senderE2E, this.asapHopList);
             } catch (IOException e) {
                 System.err.println("error when notifying about received asap message: "
                         + e.getLocalizedMessage());

@@ -1,7 +1,6 @@
 package net.sharksystem.asap.management;
 
 import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.engine.ASAPInternalChunk;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
@@ -44,7 +43,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              ASAPHop asapHop) throws IOException {
+                              List<ASAPHop> asapHop) throws IOException {
 
         System.out.println(this.getLogStart()
                 + "handle received chunk (format|senderE2E|uri|era) " + format + senderE2E + "|" + uri + "|" + era);

@@ -117,12 +117,13 @@ public class DiscoverPeerAndStartEGChat {
         /**
          * Called whenever new messaged arrived
          * @param messages
+         * @param asapHop
          * @throws IOException
          */
         @Override
         public void asapMessagesReceived(ASAPMessages messages,
                                          String senderE2E, // E2E part
-                                         ASAPHop asapHop) throws IOException {
+                                         List<ASAPHop> asapHop) throws IOException {
             Iterator<byte[]> msgIter = messages.getMessages();
 
             // you could check uri, e.g. to figure out what chat is addressed, what running game, what POS offering...

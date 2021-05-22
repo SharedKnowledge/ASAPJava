@@ -545,10 +545,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
                 listener.chunkReceived(this.format,
                         senderE2E, uri, eraSender,
-                        new ASAPHopImpl(encounteredPeer,
-                            asapAssimilationPDU.verified(),
-                            asapAssimilationPDU.encrypted(),
-                            connectionType)
+                        asapHopList
                         );
             } else {
                 //<<<<<<<<<<<<<<<<<<debug

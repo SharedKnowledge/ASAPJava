@@ -1,12 +1,12 @@
 package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener {
     private final String peerName;
@@ -22,7 +22,7 @@ class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener 
     @Override
     public void asapMessagesReceived(ASAPMessages messages,
                                      String senderE2E, // E2E part
-                                     ASAPHop asapHop) throws IOException {
+                                     List<ASAPHop> asapHop) throws IOException {
 
         CharSequence format = messages.getFormat();
         CharSequence uri = messages.getURI();

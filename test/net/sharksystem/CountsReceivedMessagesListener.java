@@ -3,9 +3,9 @@ package net.sharksystem;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPMessageReceivedListener;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.EncounterConnectionType;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CountsReceivedMessagesListener implements ASAPMessageReceivedListener {
     private final String peerName;
@@ -22,7 +22,7 @@ public class CountsReceivedMessagesListener implements ASAPMessageReceivedListen
     @Override
     public void asapMessagesReceived(ASAPMessages messages,
                                      String senderE2E, // E2E part
-                                     ASAPHop asapHop) throws IOException {
+                                     List<ASAPHop> asapHop) throws IOException {
         CharSequence format = messages.getFormat();
         CharSequence uri = messages.getURI();
         if (peerName != null) {

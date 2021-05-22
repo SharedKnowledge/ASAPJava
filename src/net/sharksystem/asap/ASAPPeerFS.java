@@ -6,6 +6,7 @@ import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerService, ASAPChunkReceivedListener {
     public static final CharSequence DEFAULT_ROOT_FOLDER_NAME = ASAPEngineFS.DEFAULT_ROOT_FOLDER_NAME;
@@ -25,17 +26,17 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              ASAPHop asapHop) throws IOException {
+                              List<ASAPHop> asapHopList) throws IOException {
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n++++++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++++\n");
-        sb.append("E2E|P2P: " + senderE2E +  " | " + asapHop.sender() + " | uri: " + uri + " | era: " + era + " | appFormat: " + format);
+        sb.append("E2E|P2P: " + senderE2E +  " | " + asapHopList.get(asapHopList.size()-1).sender() + " | uri: " + uri + " | era: " + era + " | appFormat: " + format);
         sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(this.chunkReceivedListener != null) {
             this.log("chunk received listener set - call this one");
-            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, asapHop);
+            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, asapHopList);
         } else {
             this.log("extract messages from chunk and notify listener");
             ASAPMessages receivedMessages =
@@ -43,7 +44,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
             this.asapMessageReceivedListenerManager.notifyReceived(
                     format, receivedMessages, true,
-                    senderE2E, asapHop);
+                    senderE2E, asapHopList);
         }
     }
 

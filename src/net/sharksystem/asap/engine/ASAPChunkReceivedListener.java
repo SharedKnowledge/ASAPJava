@@ -1,9 +1,9 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  *
@@ -28,5 +28,5 @@ public interface ASAPChunkReceivedListener {
      *
      */
     void chunkReceived(String format, String senderE2E, String uri, int era, // E2E part
-                       ASAPHop asapHop) throws IOException;
+                       List<ASAPHop> asapHop) throws IOException;
 }
