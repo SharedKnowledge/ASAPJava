@@ -56,8 +56,9 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         return this.hopList;
     }
 
-    public void setASAPHopList(List<ASAPHop> asapHopList) {
+    public void setASAPHopList(List<ASAPHop> asapHopList) throws IOException {
         this.hopList = asapHopList;
+        this.saveStatus();
     }
 
     public HashMap<String, String> getExtraData() {

@@ -29,9 +29,25 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
                               List<ASAPHop> asapHopList) throws IOException {
 
         StringBuilder sb = new StringBuilder();
+        String hopListString = "hoplist == null";
+        if(asapHopList != null) {
+            int i = 0;
+            for (ASAPHop hop : asapHopList) {
+                sb.append("hop#");
+                sb.append(i++);
+                sb.append(": ");
+                sb.append(hop.toString());
+                sb.append("\n");
+            }
+            hopListString = sb.toString();
+        }
+
+        sb = new StringBuilder();
         sb.append("\n++++++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++++\n");
         sb.append("E2E|P2P: " + senderE2E +  " | " + asapHopList.get(asapHopList.size()-1).sender() + " | uri: " + uri + " | era: " + era + " | appFormat: " + format);
-        sb.append("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        sb.append("\n");
+        sb.append(hopListString);
+        sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(this.chunkReceivedListener != null) {

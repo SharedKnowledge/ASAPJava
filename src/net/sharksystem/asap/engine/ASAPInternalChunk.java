@@ -87,5 +87,5 @@ public interface ASAPInternalChunk extends ASAPChunk {
 
     List<ASAPHop> getASAPHopList();
 
-    void setASAPHopList(List<ASAPHop> asapHopList);
+    void setASAPHopList(List<ASAPHop> asapHopList) throws IOException;
 }

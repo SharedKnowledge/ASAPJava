@@ -162,7 +162,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         }
 
         if(this.messageCache != null && position >= this.firstIndexMessageCache && position <= this.lastIndexMessageCache) {
-            return this.messageCache.get(position - this.firstIndexMessageCache); // TODO calculation correct?
+            return this.messageCache.get(position - this.firstIndexMessageCache); 
         }
 
         // not yet in cache - find chunk with required message

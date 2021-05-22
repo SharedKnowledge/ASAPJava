@@ -403,11 +403,9 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         // debug break
         //Log.writeLog(this, "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU senderE2E: " + senderE2E);
-        /*
         if(PeerIDHelper.sameID(senderE2E, "Alice_42")) {
             int i = 42;
         }
-         */
 
         if(PeerIDHelper.sameID(senderE2E, this.owner)) {
             Log.writeLogErr(this,  "I was offered messages from myself ("
@@ -628,6 +626,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             // still nothing
             lastSeenEra = this.getOldestEra();
         }
+
+        /*
+        if(PeerIDHelper.sameID(encounteredPeer, "Clara_44")) {
+            int i = 42; // debug break;
+        }
+         */
 
         int workingEra = lastSeenEra;
         System.out.println(this.getLogStart() + "last_seen: " + workingEra + " | era: " + this.era);
