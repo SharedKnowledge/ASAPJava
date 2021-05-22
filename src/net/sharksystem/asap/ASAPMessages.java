@@ -77,5 +77,5 @@ public interface ASAPMessages {
      * @param chronologically
      * @return
      */
-    ASAPInternalChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException;
+    ASAPChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException;
 }

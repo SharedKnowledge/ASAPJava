@@ -2,6 +2,7 @@ package net.sharksystem.asap;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * An ASAP chunk is a set of message with the same format, same uri and same era.
@@ -83,4 +84,8 @@ public interface ASAPChunk {
      * @see net.sharksystem.asap.ASAPPeer#sendASAPMessage(CharSequence, CharSequence, byte[])
      */
     void addMessage(byte[] messageAsBytes) throws IOException;
+
+    List<ASAPHop> getASAPHopList();
+
+    void setASAPHopList(List<ASAPHop> asapHopList) throws IOException;
 }

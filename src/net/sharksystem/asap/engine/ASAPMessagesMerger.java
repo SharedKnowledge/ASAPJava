@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.SharkNotSupportedException;
+import net.sharksystem.asap.ASAPChunk;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessageCompare;
 import net.sharksystem.asap.ASAPMessages;
@@ -392,7 +393,7 @@ public class ASAPMessagesMerger implements ASAPMessages {
     }
 
     @Override
-    public ASAPInternalChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException {
+    public ASAPChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException {
         SourceIndex sourceIndex = this.getSourceIndex(position, chronologically);
         return this.messageSources[sourceIndex.positionInSource].getChunk(sourceIndex.positionInSource, chronologically);
     }
