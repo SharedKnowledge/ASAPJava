@@ -22,14 +22,23 @@ public class CountsReceivedMessagesListener implements ASAPMessageReceivedListen
     @Override
     public void asapMessagesReceived(ASAPMessages messages,
                                      String senderE2E, // E2E part
-                                     List<ASAPHop> asapHop) throws IOException {
+                                     List<ASAPHop> asapHopsList) throws IOException {
         CharSequence format = messages.getFormat();
         CharSequence uri = messages.getURI();
         if (peerName != null) {
             System.out.print(peerName);
         }
 
-        System.out.println("asap message received (" + format + " | " + uri + "). size == " + messages.size());
+        StringBuilder sb = new StringBuilder();
+        for(ASAPHop hop : asapHopsList) {
+            sb.append(hop.toString());
+            sb.append("\n");
+        }
+
+        System.out.println("\n###############################################################################");
+        System.out.println("messages received (" + format + " | " + uri + "). size == " + messages.size()
+                + "hops\n" + sb.toString());
+        System.out.println("###############################################################################");
 
         this.numberOfMessages++;
     }
