@@ -157,7 +157,7 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channelUri, int era,
-                    long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed)
+                    long length, List<Long> offsets, List<ASAPHop> asapHops, InputStream dataIS, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
 
@@ -182,7 +182,8 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channelUri, int era,
-                    long length, List<Long> offsets, InputStream dataIS, OutputStream os, boolean signed, boolean encrypted)
+                    long length, List<Long> offsets, List<ASAPHop> asapHops,
+                    InputStream dataIS, OutputStream os, boolean signed, boolean encrypted)
             throws IOException, ASAPException;
 
     /**
@@ -200,7 +201,7 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channel, int era,
-                    List<Long> offsets, byte[] data, OutputStream os, boolean signed)
+                    List<Long> offsets, List<ASAPHop> asapHops, byte[] data, OutputStream os, boolean signed)
             throws IOException, ASAPException;
 
     /**
@@ -219,7 +220,7 @@ public interface ASAP_1_0 {
      * @throws ASAPException protocol exception: mandatory parameter missing, invalid combination of parameters, ..
      */
     void assimilate(CharSequence sender, CharSequence recipient, CharSequence format, CharSequence channel, int era,
-                    List<Long> offsets, byte[] data, OutputStream os, boolean signed, boolean encrypted)
+                    List<Long> offsets, List<ASAPHop> asapHops, byte[] data, OutputStream os, boolean signed, boolean encrypted)
             throws IOException, ASAPException;
 
 

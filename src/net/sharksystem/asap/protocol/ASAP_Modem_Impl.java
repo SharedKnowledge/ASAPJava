@@ -140,22 +140,23 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+                           CharSequence channel, int era, long length, List<Long> offsets, List<ASAPHop> asapHops,
+                           InputStream dataIS,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
         this.assimilate(sender, recipient, format, channel, era, length,
-                offsets, dataIS, os, signed, false);
+                offsets, asapHops, dataIS, os, signed, false);
     }
 
     @Override
-    public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
+    public void assimilate(CharSequence sender, CharSequence receiver, CharSequence format,
                            CharSequence channel, int era, long length, List<Long> offsets, List<ASAPHop> asapHops,
                            InputStream dataIS, OutputStream os,
                            ASAPPoint2PointCryptoSettings secureSetting)
 
             throws IOException, ASAPException {
 
-        this.assimilate(sender, recipient, format, channel, era, length, offsets, dataIS, os,
+        this.assimilate(sender, receiver, format, channel, era, length, offsets, asapHops, dataIS, os,
                 secureSetting.mustSign(), secureSetting.mustEncrypt());
     }
 
@@ -164,7 +165,8 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
      */
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, long length, List<Long> offsets, InputStream dataIS,
+                           CharSequence channel, int era, long length, List<Long> offsets, List<ASAPHop> asapHops,
+                           InputStream dataIS,
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
         // prepare encryption and signing if required
@@ -175,7 +177,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
         cryptoMessage.sendCmd();
 
         AssimilationPDU_Impl.sendPDUWithoutCmd(sender, recipient, format, channel, era,
-                length, offsets, dataIS, cryptoMessage.getOutputStream(), signed);
+                length, offsets, asapHops, dataIS, cryptoMessage.getOutputStream(), signed);
 
         // finish crypto session - maybe nothing has to be done
         cryptoMessage.finish();
@@ -183,21 +185,21 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
 
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, List<Long> offsets, byte[] data,
+                           CharSequence channel, int era, List<Long> offsets, List<ASAPHop> asapHops, byte[] data,
                            OutputStream os, boolean signed) throws IOException, ASAPException {
 
-        this.assimilate(sender, recipient, format, channel, era, offsets, data, os, signed, false);
+        this.assimilate(sender, recipient, format, channel, era, offsets, asapHops, data, os, signed, false);
     }
 
     @Override
     public void assimilate(CharSequence sender, CharSequence recipient, CharSequence format,
-                           CharSequence channel, int era, List<Long> offsets, byte[] data,
+                           CharSequence channel, int era, List<Long> offsets, List<ASAPHop> asapHops, byte[] data,
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
         if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
 
-        this.assimilate(sender, recipient, format, channel, era, data.length, offsets,
+        this.assimilate(sender, recipient, format, channel, era, data.length, offsets, asapHops,
                 new ByteArrayInputStream(data), os, signed, encrypted);
     }
 

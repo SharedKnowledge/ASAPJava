@@ -288,7 +288,7 @@ public class PDUTests {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        protocolEngine.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,false);
+        protocolEngine.assimilate(sender, recipient, format, channel, era, offsetsList, null, data, os,false);
 
         // try t read output
         InputStream is = new ByteArrayInputStream(os.toByteArray());
@@ -360,7 +360,7 @@ public class PDUTests {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 
-        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, null, data, os,
                 true, true);
 
         // try t read output
@@ -433,7 +433,7 @@ public class PDUTests {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 
-        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, null, data, os,
                 true, false);
 
         // try t read output
@@ -536,7 +536,7 @@ public class PDUTests {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 
-        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, data, os,
+        asapModemAlice.assimilate(sender, recipient, format, channel, era, offsetsList, null, data, os,
                 false, true);
 
         // try t read output

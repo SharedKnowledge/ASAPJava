@@ -51,10 +51,10 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         this.sendASAPAssimilateMessage(format, uri, onlinePeerList, messageAsBytes, era);
     }
 
-    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, Set<CharSequence> recipients,
+    public void sendASAPAssimilateMessage(CharSequence format, CharSequence uri, Set<CharSequence> receiver,
                                           byte[] messageAsBytes, int era) throws IOException, ASAPException {
 
-        if(recipients == null || recipients.size() < 1) {
+        if(receiver == null || receiver.size() < 1) {
             // replace empty recipient list with list of online peers.
             this.sendASAPAssimilateMessage(format, uri, messageAsBytes, era);
             return;
@@ -67,19 +67,19 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         sb.append(uri);
         sb.append("| era: ");
         sb.append(era);
-        sb.append("| #recipients: ");
-        if(recipients != null) sb.append(recipients.size());
+        sb.append("| #receiver: ");
+        if(receiver != null) sb.append(receiver.size());
         else sb.append("null");
         sb.append("| length: ");
         sb.append(messageAsBytes.length);
         sb.append(")");
         System.out.println(sb.toString());
 
-        // each message can have multiple recipients. Iterate
+        // each message can have multiple receiver. Iterate
 
-        // is there an open connection to each of the recipients.
+        // is there an open connection to each of the receiver.
         boolean foundAll = true; // optimism captain :)
-        for(CharSequence recipient : recipients) {
+        for(CharSequence recipient : receiver) {
             sb = Log.startLog(this);
             sb.append("try to find connection for recipient: ");
             sb.append(recipient);
@@ -93,7 +93,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
                 // serialize message for this recipient
                 ByteArrayOutputStream asapPDUBytes = new ByteArrayOutputStream();
                 protocol.assimilate(this.multiEngine.getOwner(), recipient, format, uri, era, null, // no offsets
-                        messageAsBytes, asapPDUBytes, asapConnection.isSigned());
+                        null, messageAsBytes, asapPDUBytes, asapConnection.isSigned());
 
                 // I guess maps are synchronized
                 List<byte[]> messageList = this.messages.get(recipient);

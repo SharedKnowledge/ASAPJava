@@ -1,6 +1,7 @@
 package net.sharksystem.asap.protocol;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.utils.ASAPSerialization;
 
 import java.io.*;
@@ -51,7 +52,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
     }
 
     static void sendPDUWithoutCmd(CharSequence peer, CharSequence recipient, CharSequence format, CharSequence channel,
-                                  int era, long length, List<Long> offsets, InputStream is, OutputStream os,
+                                  int era, long length, List<Long> offsets, List<ASAPHop> asapHops, InputStream is, OutputStream os,
                                   boolean signed)
             throws IOException, ASAPException {
 
