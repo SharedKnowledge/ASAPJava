@@ -18,6 +18,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
     private byte[] data = null;
     private boolean dataNoLongerOnStream = false;
+    private List<ASAPHop> asapHopList;
 
     // PDU: CMD | FLAGS | PEER | RECIPIENT | FORMAT | CHANNEL | ERA | OFFSETS | LENGTH | DATA
 
@@ -32,6 +33,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         if(this.channelSet()) { this.readChannel(is); }
         if(this.eraSet()) { this.readEra(is); }
         if(this.offsetsSet()) { this.readOffsets(is); }
+        this.readASAPHops(is);
 
         this.dataLength = ASAPSerialization.readLongParameter(is);
 
@@ -45,6 +47,10 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
 
     private void readOffsets(InputStream is) throws IOException, ASAPException {
         this.offsets = string2list(ASAPSerialization.readCharSequenceParameter(is));
+    }
+
+    private void readASAPHops(InputStream is) throws IOException, ASAPException {
+        this.asapHopList = ASAPSerialization.readASAPHopList(is);
     }
 
     private void readRecipientPeer(InputStream is) throws IOException, ASAPException {
@@ -78,6 +84,7 @@ class AssimilationPDU_Impl extends PDU_Impl implements ASAP_AssimilationPDU_1_0 
         ASAPSerialization.writeCharSequenceParameter(channel, os); // opt
         ASAPSerialization.writeNonNegativeIntegerParameter(era, os); // opt
         ASAPSerialization.writeCharSequenceParameter(list2string(offsets), os); // opt
+        ASAPSerialization.writeASAPHopList(asapHops, os); // mand - can be null (length == 0)
         ASAPSerialization.writeLongParameter(length, os); // mand
 
         // stream data
