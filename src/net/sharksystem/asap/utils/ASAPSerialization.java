@@ -276,6 +276,12 @@ public class ASAPSerialization {
         return baos.toByteArray();
     }
 
+    public static byte[] asapHopList2ByteArray(List<ASAPHop> asapHops) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writeASAPHopList(asapHops, baos);
+        return baos.toByteArray();
+    }
+
     public static ASAPHop readASAPHop(InputStream is) throws IOException, ASAPException {
         CharSequence sender = ASAPSerialization.readCharSequenceParameter(is);
         boolean verified = ASAPSerialization.readBooleanParameter(is);
@@ -288,6 +294,11 @@ public class ASAPSerialization {
     public static ASAPHop byteArray2ASAPHop(byte[] bytes) throws IOException, ASAPException {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         return readASAPHop(bais);
+    }
+
+    public static List<ASAPHop> byteArray2ASAPHopList(byte[] bytes) throws IOException, ASAPException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        return readASAPHopList(bais);
     }
 
     public static void writeASAPHopList(List<ASAPHop> asapHopList, OutputStream os) throws IOException {
