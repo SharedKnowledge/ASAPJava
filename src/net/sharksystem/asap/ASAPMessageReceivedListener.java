@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface ASAPMessageReceivedListener {
     void asapMessagesReceived(ASAPMessages messages, String senderE2E, // E2E part
-                              List<ASAPHop> asapHop /* Point-to-point part */ ) throws IOException;
+                              List<ASAPHop> asapHops /* Point-to-point part */ ) throws IOException;
 }
