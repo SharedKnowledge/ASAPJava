@@ -395,6 +395,6 @@ public class ASAPMessagesMerger implements ASAPMessages {
     @Override
     public ASAPChunk getChunk(int position, boolean chronologically) throws IOException, ASAPException {
         SourceIndex sourceIndex = this.getSourceIndex(position, chronologically);
-        return this.messageSources[sourceIndex.positionInSource].getChunk(sourceIndex.positionInSource, chronologically);
+        return this.messageSources[sourceIndex.sourceIndex].getChunk(sourceIndex.positionInSource, chronologically);
     }
 }
