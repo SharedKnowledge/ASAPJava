@@ -1,6 +1,10 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.protocol.ASAPConnection;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public interface ASAPPeer extends
         ASAPMessageSender,
@@ -34,4 +38,18 @@ public interface ASAPPeer extends
     boolean samePeer(ASAPPeer otherPeer);
 
     boolean samePeer(CharSequence otherPeerID);
+
+    /**
+     * Handle a connection
+     * @param is
+     * @param os
+     * @param encrypt point-to-point encryption
+     * @param sign point-to-point signing / verifying ?
+     * @param connectionType
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
+    ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
+                                    EncounterConnectionType connectionType) throws IOException, ASAPException;
 }

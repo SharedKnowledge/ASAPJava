@@ -1,9 +1,8 @@
 package net.sharksystem.asap.utils;
 
-import net.sharksystem.ASAPHopImpl;
+import net.sharksystem.asap.ASAPHopImpl;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.ASAPPeer;
 import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.utils.Log;
 

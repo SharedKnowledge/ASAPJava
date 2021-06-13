@@ -29,6 +29,11 @@ public interface ASAPConnectionHandler {
             Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
     ) throws IOException, ASAPException;
 
+    ASAPConnection handleConnection(
+            InputStream is, OutputStream os, boolean encrypt, boolean sign,EncounterConnectionType connectionType,
+            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
+    ) throws IOException, ASAPException;
+
     /**
      *
      * Ask the entity to run an ASAP session based on this point-to-point connection. Message are neither

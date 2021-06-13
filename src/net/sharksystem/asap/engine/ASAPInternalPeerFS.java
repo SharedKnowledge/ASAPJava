@@ -341,8 +341,10 @@ public class ASAPInternalPeerFS implements
 
     public ASAPConnection handleConnection(
             InputStream is, OutputStream os, boolean encrypt, boolean sign, EncounterConnectionType connectionType,
-            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
-        ) throws IOException, ASAPException {
+            Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
+
+        if(appsWhiteList == null) appsWhiteList = new HashSet<>(); // empty set no null
+        if(appsBlackList == null) appsBlackList = new HashSet<>(); // empty set no null
 
         // TODO add white / black list.
         ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(

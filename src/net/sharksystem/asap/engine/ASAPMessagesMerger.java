@@ -1,6 +1,5 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.SharkNotSupportedException;
 import net.sharksystem.asap.ASAPChunk;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessageCompare;

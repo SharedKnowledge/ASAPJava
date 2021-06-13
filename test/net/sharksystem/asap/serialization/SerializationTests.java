@@ -1,6 +1,6 @@
 package net.sharksystem.asap.serialization;
 
-import net.sharksystem.ASAPHopImpl;
+import net.sharksystem.asap.ASAPHopImpl;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.EncounterConnectionType;

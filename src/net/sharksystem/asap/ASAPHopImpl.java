@@ -1,4 +1,4 @@
-package net.sharksystem;
+package net.sharksystem.asap;
 
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.EncounterConnectionType;

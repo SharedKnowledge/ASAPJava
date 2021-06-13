@@ -1,6 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.ASAPHopImpl;
+import net.sharksystem.asap.ASAPHopImpl;
 import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
