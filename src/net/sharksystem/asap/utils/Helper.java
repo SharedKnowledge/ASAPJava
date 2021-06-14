@@ -146,4 +146,16 @@ public class Helper {
 
         return null;
     }
+
+    public static final boolean sameByteArray(byte[] a, byte[] b) {
+        if(a == null && b == null) return true;
+        if(a.length != b.length) return false;
+
+        // not null, same length
+        for(int i = 0; i < a.length; i++) {
+            if(a[i] != b[i]) return false;
+        }
+
+        return true;
+    }
 }

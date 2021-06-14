@@ -52,4 +52,19 @@ public interface ASAPPeer extends
      */
     ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
                                     EncounterConnectionType connectionType) throws IOException, ASAPException;
+
+
+    /**
+     * Make a value persistent with key
+     * @param key
+     * @param value
+     */
+    void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException;
+
+    /**
+     * Return a value. Throws an exception if not set
+     * @param key
+     * @throws ASAPException key never used in putExtra
+     */
+    byte[] getExtra(CharSequence key) throws ASAPException, IOException;
 }

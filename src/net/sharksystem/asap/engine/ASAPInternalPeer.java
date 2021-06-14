@@ -6,6 +6,7 @@ import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
@@ -113,4 +114,18 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler {
     ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
+
+    /**
+     * Make a value persistent with key
+     * @param key
+     * @param value
+     */
+    void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException;
+
+    /**
+     * Return a value. Throws an exception if not set
+     * @param key
+     * @throws ASAPException key never used in putExtra
+     */
+    byte[] getExtra(CharSequence key) throws ASAPException, IOException;
 }

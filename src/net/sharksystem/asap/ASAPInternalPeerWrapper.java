@@ -91,4 +91,24 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
     public void notifyOnlinePeersChanged(Set<CharSequence> peerList) {
         this.environmentChangesListenerManager.notifyListeners(peerList);
     }
+
+
+    /**
+     * Make a value persistent with key
+     * @param key
+     * @param value
+     */
+    public void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException {
+        this.peer.putExtra(key, value);
+    }
+
+    /**
+     * Return a value. Throws an exception if not set
+     * @param key
+     * @throws ASAPException key never used in putExtra
+     */
+    public byte[] getExtra(CharSequence key) throws ASAPException, IOException {
+        return this.peer.getExtra(key);
+    }
+
 }

@@ -21,15 +21,20 @@ public class ASAPSerialization {
     public static final short BLANK_RIGHT_SHORT = (short) 0xFF00;
 
     public static void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
-        writeNonNegativeIntegerParameter(bytes2Write.length, os);
-        os.write(bytes2Write);
+        if(bytes2Write == null) {
+            writeNonNegativeIntegerParameter(0, os);
+        } else {
+            writeNonNegativeIntegerParameter(bytes2Write.length, os);
+            os.write(bytes2Write);
+        }
     }
 
     public static byte[] readByteArray(InputStream is) throws IOException, ASAPException {
         // read len
         int len = readIntegerParameter(is);
-        byte[] messageBytes = new byte[len];
+        if(len == 0) return new byte[0];
 
+        byte[] messageBytes = new byte[len];
         // read encrypted bytes from stream
         is.read(messageBytes);
 

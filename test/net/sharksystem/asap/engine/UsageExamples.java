@@ -132,4 +132,33 @@ public class UsageExamples {
             System.out.println("message received: " + msg);
         }
     }
+
+    @Test
+    public void workWithExtraData() throws IOException, ASAPException, InterruptedException {
+        ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
+
+        ///// Prepare Alice
+        String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;
+
+        // setup alice peer
+        ASAPInternalPeer alicePeer = ASAPInternalPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, null);
+
+        String key1 = "testKey";
+        byte[] value1 = "TestString".getBytes();
+
+        String key2 = "testKey2";
+        byte[] value2 = "TestString2".getBytes();
+
+        alicePeer.putExtra(key1, value1);
+        alicePeer.putExtra(key2, value2);
+
+        // set up new peer object
+        ASAPInternalPeer alicePeer2 = ASAPInternalPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, null);
+
+        byte[] valueR1 = alicePeer2.getExtra(key1);
+        Assert.assertTrue(Helper.sameByteArray(value1, valueR1));
+
+        byte[] valueR2 = alicePeer2.getExtra(key2);
+        Assert.assertTrue(Helper.sameByteArray(value2, valueR2));
+    }
 }
