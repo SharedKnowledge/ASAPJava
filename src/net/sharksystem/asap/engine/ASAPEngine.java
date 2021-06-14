@@ -255,10 +255,10 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                         this.format, uri, chunk.getRecipients(),
                         messageAsBytes, this.era);
             } catch (IOException | ASAPException e) {
-                StringBuilder sb = Log.startLog(this);
+                StringBuilder sb = new StringBuilder();
                 sb.append("message written to local storage - but could not write to open asap connection: ");
                 sb.append(e.getLocalizedMessage());
-                System.err.println(sb.toString());
+                Log.writeLog(this, sb.toString());
             }
             this.writeLog("... done sending online message");
         } else {
