@@ -82,8 +82,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             }
             catch(ASAPException e) {
                 // no online peers - that's ok
-                Log.writeLog(this, "(" + this.getInternalPeer().getOwner()
-                        + "could not send message online - that's ok.");
+                Log.writeLog(this, this.toString(), "could not send message online - that's ok.");
             }
         } catch (IOException e) {
             this.log(e.getLocalizedMessage());
@@ -98,5 +97,9 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
                 "try sending message over existing connections ");
         this.getInternalPeer().sendOnlineASAPAssimilateMessage(appName, uri, message);
 
+    }
+
+    public String toString() {
+        return this.getInternalPeer().getOwner().toString();
     }
 }
