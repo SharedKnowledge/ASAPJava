@@ -174,11 +174,11 @@ public class ASAPEngineFS extends ASAPEngine {
     void syncMemento() throws IOException {
         ASAPMementoFS asapMementoFS = new ASAPMementoFS(new File(this.rootDirectory));
         asapMementoFS.read();
-        Log.writeLog(this, this.toString(), "read memento: " + asapMementoFS);
-        Log.writeLog(this, this.toString(), "this.lastwritten: " + this.lastMementoWritten);
+//        Log.writeLog(this, this.toString(), "read memento: " + asapMementoFS);
+//        Log.writeLog(this, this.toString(), "this.lastwritten: " + this.lastMementoWritten);
 
         if(asapMementoFS.lastMementoWritten != this.lastMementoWritten) {
-            Log.writeLog(this, this.toString(),"restore from memento - out of sync");
+//            Log.writeLog(this, this.toString(),"restore from memento - out of sync");
             this.restoreFromMemento();
         }
     }

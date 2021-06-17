@@ -147,20 +147,6 @@ public class Helper {
         return null;
     }
 
-    public static String collOfCharSequence2DebugOutput(Collection<CharSequence> coll) {
-        if(coll == null || coll.isEmpty()) return "null/empty";
-
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for(CharSequence c : coll) {
-            if(!first) sb.append(" | ");
-            else first = false;
-            sb.append(c);
-        }
-
-        return sb.toString();
-    }
-
     public static final boolean sameByteArray(byte[] a, byte[] b) {
         if(a == null && b == null) return true;
         if(a.length != b.length) return false;

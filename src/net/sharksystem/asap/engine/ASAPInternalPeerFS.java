@@ -119,23 +119,13 @@ public class ASAPInternalPeerFS implements
 
         /////////////////// asap management app //////////////////////////////////////////////////////
         // check if management engine running
+        /*
         if(!this.isASAPManagementEngineRunning()) {
             System.out.println(this.getLogStart() + "no asap management engine yet - set it up.");
 
             this.setupEngine(DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER, ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-            /*
-            String fileName = rootFolderName + "/" + DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER;
-            ASAPEngine asapManagementEngine = ASAPEngineFS.getASAPStorage(this.getOwner().toString(),
-                    fileName, ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-
-            EngineSetting setting = new EngineSetting(
-                    fileName, // folder
-                    listener// listener
-            );
-            setting.setASAPEngine(asapManagementEngine);
-            this.folderMap.put(ASAP_1_0.ASAP_MANAGEMENT_FORMAT, setting);
-            */
         }
+         */
 
         // set listener to asap management app
         EngineSetting folderAndListener = folderMap.get(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
