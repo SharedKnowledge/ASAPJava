@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -134,7 +135,7 @@ public class UsageExamples {
     }
 
     @Test
-    public void workWithExtraData() throws IOException, ASAPException, InterruptedException {
+    public void workWithExtraData() throws IOException, SharkException, InterruptedException {
         ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice

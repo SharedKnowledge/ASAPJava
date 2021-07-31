@@ -1,8 +1,11 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
 import net.sharksystem.asap.utils.ASAPSerialization;
+import net.sharksystem.utils.ExtraData;
+import net.sharksystem.utils.ExtraDataFS;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
@@ -146,7 +149,7 @@ public class ASAPInternalPeerFS implements
             }
         }
 
-        this.restoreExtraData();
+        //this.restoreExtraData();
 
 //        System.out.println(this.getLogStart() + "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
     }
@@ -681,14 +684,24 @@ public class ASAPInternalPeerFS implements
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                        make extra data persist                                        //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private ExtraData extraData = null;
 
-    public static final String EXTRA_FILE_NAME = ".extraData";
+    private ExtraData getExtraData() throws SharkException, IOException {
+        if(this.extraData == null) {
+            this.extraData = new ExtraDataFS(this.rootFolderName);
+        }
+
+        return this.extraData;
+    }
+    /*
+    private static final String EXTRA_FILE_NAME = ".extraData";
     private Map<CharSequence, byte[]> extraData = new HashMap<>();
 
     private File getExtraFile() {
         String extraFileName = this.rootFolderName + "/" + EXTRA_FILE_NAME;
         return new File(extraFileName);
     }
+     */
 
     /*
     Here is the catch... There can be - and in Android will - two instances share data over file system. The use
@@ -699,105 +712,11 @@ public class ASAPInternalPeerFS implements
 
      */
 
-    private long timeStampSyncExtraData = -1; // never saved anything
-
-    private void extraDataSync() throws IOException, ASAPException {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(this.getExtraFile());
-        }
-        catch(IOException ioEx) {
-            // no such file - save it instead - there is no conflict
-            this.saveExtraData();
-            return;
-        }
-
-        // read time stamp
-        long timeStampSaved = ASAPSerialization.readLongParameter(is);
-
-        if(this.timeStampSyncExtraData < timeStampSaved) {
-            // there is an external copy that was created after our last sync
-        }
-
-        // discard local changes and read from file
-        this.restoreExtraData();
+    public void putExtra(CharSequence key, byte[] value) throws IOException, SharkException {
+        this.getExtraData().putExtra(key, value);
     }
 
-    public void saveExtraData() throws IOException {
-        OutputStream os = new FileOutputStream(this.getExtraFile());
-
-        // write time stamp
-        this.timeStampSyncExtraData = System.currentTimeMillis();
-        ASAPSerialization.writeLongParameter(this.timeStampSyncExtraData, os);
-        ASAPSerialization.writeNonNegativeIntegerParameter(this.extraData.size(), os);
-
-        for(CharSequence key : this.extraData.keySet()) {
-            // write key
-            ASAPSerialization.writeCharSequenceParameter(key, os);
-            // value
-            ASAPSerialization.writeByteArray(this.extraData.get(key), os);
-        }
-
-        os.close();
-    }
-
-    /**
-     * Always restore. If there is no such file - write it.
-     * @throws IOException
-     * @throws ASAPException
-     */
-    public void restoreExtraData() throws IOException, ASAPException {
-        InputStream is = null;
-        try {
-             is = new FileInputStream(this.getExtraFile());
-        }
-        catch(IOException ioEx) {
-            // no such file - nothing to do here
-            return;
-        }
-
-        long timeStampSaved = ASAPSerialization.readLongParameter(is);
-        if(timeStampSaved == this.timeStampSyncExtraData) {
-            is.close();
-            return;
-        }
-
-        // something changed - get a fresh copy
-        this.timeStampSyncExtraData = timeStampSaved;
-
-        this.extraData = new HashMap<>();
-        int counter = ASAPSerialization.readIntegerParameter(is);
-
-        while(counter-- > 0) {
-            // read key
-            CharSequence key = ASAPSerialization.readCharSequenceParameter(is);
-            // value
-            byte[] value = ASAPSerialization.readByteArray(is);
-
-            // save in memory
-            this.extraData.put(key, value);
-        }
-        is.close();
-    }
-
-    /**
-     * Make a value persistent with key
-     * @param key
-     * @param value
-     */
-    public void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException {
-        this.extraDataSync();
-        this.extraData.put(key, value);
-        this.saveExtraData();
-    }
-
-    /**
-     * Return a value - can be null if null was set as value.
-     * @param key
-     * @throws ASAPException key never used in putExtra
-     */
-    public byte[] getExtra(CharSequence key) throws IOException, ASAPException {
-        this.restoreExtraData();
-        return this.extraData.get(key);
+    public byte[] getExtra(CharSequence key) throws IOException, SharkException {
+        return this.getExtraData().getExtra(key);
     }
 }

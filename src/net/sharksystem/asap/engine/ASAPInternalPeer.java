@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
+import net.sharksystem.utils.ExtraData;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.Set;
  *
  * That interface hides those different engines.
  */
-public interface ASAPInternalPeer extends ASAPConnectionHandler {
+public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
     long DEFAULT_MAX_PROCESSING_TIME = Long.MAX_VALUE;
 
     /**
@@ -114,18 +115,4 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler {
     ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
-
-    /**
-     * Make a value persistent with key
-     * @param key
-     * @param value
-     */
-    void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException;
-
-    /**
-     * Return a value. Throws an exception if not set
-     * @param key
-     * @throws ASAPException key never used in putExtra
-     */
-    byte[] getExtra(CharSequence key) throws ASAPException, IOException;
 }

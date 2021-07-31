@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
@@ -105,7 +106,11 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
      * @param value
      */
     public void putExtra(CharSequence key, byte[] value) throws IOException, ASAPException {
-        this.peer.putExtra(key, value);
+        try {
+            this.peer.putExtra(key, value);
+        } catch (SharkException e) {
+            throw new ASAPException(e);
+        }
     }
 
     /**
@@ -114,7 +119,10 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
      * @throws ASAPException key never used in putExtra
      */
     public byte[] getExtra(CharSequence key) throws ASAPException, IOException {
-        return this.peer.getExtra(key);
+        try {
+            return this.peer.getExtra(key);
+        } catch (SharkException e) {
+            throw new ASAPException(e);
+        }
     }
-
 }
