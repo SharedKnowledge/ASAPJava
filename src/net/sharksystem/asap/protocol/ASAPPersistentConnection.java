@@ -17,7 +17,7 @@ import java.util.List;
 public class ASAPPersistentConnection extends ASAPProtocolEngine
         implements ASAPConnection, Runnable, ThreadFinishedListener {
 
-    private final ASAPConnectionListener asapConnectionListener;
+    private final List<ASAPConnectionListener> asapConnectionListener;
     private final ASAPInternalPeer asapInternalPeer;
     private final ThreadFinishedListener threadFinishedListener;
     private final boolean encrypt;
@@ -42,11 +42,21 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
         this.asapInternalPeer = asapInternalPeer;
         this.maxExecutionTime = maxExecutionTime;
-        this.asapConnectionListener = asapConnectionListener;
+        this.asapConnectionListener = new ArrayList<>();
+        this.asapConnectionListener.add(asapConnectionListener);
+
         this.threadFinishedListener = threadFinishedListener;
         this.encrypt = encrypt;
         this.sign = sign;
         this.connectionType = connectionType;
+    }
+
+    public void addASAPConnectionListener(ASAPConnectionListener asapConnectionListener) {
+        this.asapConnectionListener.add(asapConnectionListener);
+    }
+
+    public void removeASAPConnectionListener(ASAPConnectionListener asapConnectionListener) {
+        this.asapConnectionListener.remove(asapConnectionListener);
     }
 
     private String getLogStart() {
@@ -65,7 +75,9 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             Log.startLog(this, sb.toString());
 
             if(this.asapConnectionListener != null) {
-                this.asapConnectionListener.asapConnectionStarted(remotePeerName, this);
+                for(ASAPConnectionListener l : this.asapConnectionListener) {
+                    l.asapConnectionStarted(remotePeerName, this);
+                }
             }
         }
     }
@@ -101,7 +113,9 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             }
             // inform listener
             if (this.asapConnectionListener != null) {
-                this.asapConnectionListener.asapConnectionTerminated(e, this);
+                for(ASAPConnectionListener l : this.asapConnectionListener) {
+                    l.asapConnectionTerminated(e, this);
+                }
             }
 
             if (this.threadFinishedListener != null) {

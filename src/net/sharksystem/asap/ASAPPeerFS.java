@@ -1,16 +1,12 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.engine.*;
-import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerService, ASAPChunkReceivedListener {
     public static final CharSequence DEFAULT_ROOT_FOLDER_NAME = ASAPEngineFS.DEFAULT_ROOT_FOLDER_NAME;
@@ -27,6 +23,8 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     public void overwriteChuckReceivedListener(ASAPChunkReceivedListener listener) {
         this.chunkReceivedListener = listener;
     }
+
+    private ASAPEncounterManager ASAPEncounterManager = null;
 
     @Override
     public void chunkReceived(String format, String senderE2E, String uri, int era,

@@ -6,6 +6,7 @@ import net.sharksystem.asap.helper.HelperTester;
 import net.sharksystem.asap.protocol.PDUTests;
 import net.sharksystem.asap.serialization.SerializationTests;
 import net.sharksystem.asap.storage.StorageTests;
+import net.sharksystem.streams.E2EStreamPairLinkTestVersion2;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -22,6 +23,7 @@ import org.junit.runners.Suite;
         CryptoUsage.class,
         HelperTester.class,
         MultihopTests.class,
+        E2EStreamPairLinkTestVersion2.class
 })
 public class V1TestSuite {
 

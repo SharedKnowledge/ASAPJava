@@ -319,6 +319,12 @@ public class ASAPInternalPeerFS implements
         return this.handleConnection(is, os,false, false,null, null);
     }
 
+    public ASAPConnection handleConnection(InputStream is, OutputStream os, EncounterConnectionType connectionType)
+            throws IOException, ASAPException {
+
+        return this.handleConnection(is, os,false, false, connectionType, null, null);
+    }
+
     /**
      *
      * @deprecated need connection type
@@ -455,7 +461,7 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public void asapConnectionStarted(String peerName, ASAPConnection thread) {
+    public void asapConnectionStarted(String remotePeerName, ASAPConnection thread) {
         if(thread == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
@@ -475,11 +481,11 @@ public class ASAPInternalPeerFS implements
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append("asap connection started, got a peername: ");
-        sb.append(peerName);
+        sb.append(remotePeerName);
         System.out.println(sb.toString());
 
-        this.connectedThreads.put(peerName, thread);
-        this.threadPeerNames.put(thread, peerName);
+        this.connectedThreads.put(remotePeerName, thread);
+        this.threadPeerNames.put(thread, remotePeerName);
         this.notifyOnlinePeersChangedListener();
     }
 

@@ -61,6 +61,12 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         return this.peer.handleConnection(is, os);
     }
 
+    public ASAPConnection handleConnection(InputStream is, OutputStream os,
+                                           EncounterConnectionType connectionType) throws IOException, ASAPException {
+
+        return this.peer.handleConnection(is, os, connectionType);
+    }
+
     public ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
                                            EncounterConnectionType connectionType) throws IOException, ASAPException {
 

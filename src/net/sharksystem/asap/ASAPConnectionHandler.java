@@ -46,4 +46,6 @@ public interface ASAPConnectionHandler {
      */
     ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
 
+    ASAPConnection handleConnection(InputStream inputStream, OutputStream outputStream,
+                                    EncounterConnectionType connectionType) throws IOException, ASAPException;
 }

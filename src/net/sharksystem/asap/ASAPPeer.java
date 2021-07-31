@@ -50,9 +50,12 @@ public interface ASAPPeer extends
      * @throws IOException
      * @throws ASAPException
      */
+    /*
     ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
                                     EncounterConnectionType connectionType) throws IOException, ASAPException;
 
+
+     */
 
     /**
      * Make a value persistent with key
