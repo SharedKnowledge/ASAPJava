@@ -693,24 +693,6 @@ public class ASAPInternalPeerFS implements
 
         return this.extraData;
     }
-    /*
-    private static final String EXTRA_FILE_NAME = ".extraData";
-    private Map<CharSequence, byte[]> extraData = new HashMap<>();
-
-    private File getExtraFile() {
-        String extraFileName = this.rootFolderName + "/" + EXTRA_FILE_NAME;
-        return new File(extraFileName);
-    }
-     */
-
-    /*
-    Here is the catch... There can be - and in Android will - two instances share data over file system. The use
-    same clock but run in different threads, most likely different processes. We have to synchronize both sides.
-
-    There will be two processes A and B. Let's assume we are in process A.
-    a) We never written something,
-
-     */
 
     public void putExtra(CharSequence key, byte[] value) throws IOException, SharkException {
         this.getExtraData().putExtra(key, value);
