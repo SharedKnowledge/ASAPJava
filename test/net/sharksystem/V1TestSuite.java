@@ -22,7 +22,8 @@ import org.junit.runners.Suite;
         LongerMessages.class,
         CryptoUsage.class,
         HelperTester.class,
-        MultihopTests.class
+        MultihopTests.class,
+        CommandlineTests.class
         //E2EStreamPairLinkTestVersion2.class TODO
 })
 public class V1TestSuite {
