@@ -1,9 +1,6 @@
 package net.sharksystem.asap.utils;
 
-import net.sharksystem.asap.ASAPHopImpl;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.*;
 import net.sharksystem.utils.Log;
 
 import java.io.*;
@@ -37,6 +34,30 @@ public class ASAPSerialization {
         byte[] messageBytes = new byte[len];
         // read encrypted bytes from stream
         is.read(messageBytes);
+
+        return messageBytes;
+    }
+
+    public static void writeByteArray(byte[][] bytes2Dim, OutputStream os) throws IOException {
+        if(bytes2Dim == null) {
+            writeNonNegativeIntegerParameter(0, os);
+        } else {
+            writeNonNegativeIntegerParameter(bytes2Dim.length, os);
+            for(int i = 0; i < bytes2Dim.length; i++) {
+                ASAPSerialization.writeByteArray(bytes2Dim[i], os);
+            }
+        }
+    }
+
+    public static byte[][] readByte2DimArray(InputStream is) throws IOException, ASAPException {
+        // read len
+        int len = readIntegerParameter(is);
+        if(len == 0) return new byte[0][];
+
+        byte[][] messageBytes = new byte[len][];
+        for(int i = 0; i < len; i++) {
+            messageBytes[i] = ASAPSerialization.readByteArray(is);
+        }
 
         return messageBytes;
     }
