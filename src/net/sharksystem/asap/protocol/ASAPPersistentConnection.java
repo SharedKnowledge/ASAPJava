@@ -209,7 +209,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             this.asapInternalPeer.pushInterests(this.os);
         } catch (IOException | ASAPException e) {
             this.terminate("error when pushing interest: ", e);
-            e.printStackTrace();
+            //e.printStackTrace();
             return;
         }
 
@@ -432,7 +432,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                     os.close(); // more important to close than input stream - do it first
                     is.close();
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    Log.writeLog(this, ex.getLocalizedMessage());
+                    //ex.printStackTrace();
                 }
             }
             finally {
