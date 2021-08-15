@@ -191,7 +191,7 @@ class ASAPCryptoMessage {
             return false;
         }
 
-        if(this.ASAPKeyStore.isOwner(this.encryptedMessagePackage.getRecipient())) {
+        if(this.ASAPKeyStore.isOwner(this.encryptedMessagePackage.getReceiver())) {
             return true;
         }
 

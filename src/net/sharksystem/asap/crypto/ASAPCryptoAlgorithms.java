@@ -111,7 +111,7 @@ public class ASAPCryptoAlgorithms {
     }
 
     public interface EncryptedMessagePackage {
-        CharSequence getRecipient();
+        CharSequence getReceiver();
         byte[] getEncryptedSymmetricKey();
         byte[] getEncryptedContent();
     }
@@ -130,7 +130,7 @@ public class ASAPCryptoAlgorithms {
 
         return new EncryptedMessagePackage() {
             @Override
-            public CharSequence getRecipient() { return recipient; }
+            public CharSequence getReceiver() { return recipient; }
             @Override
             public byte[] getEncryptedSymmetricKey() {   return encryptedSymmetricKey; }
             @Override
@@ -140,7 +140,7 @@ public class ASAPCryptoAlgorithms {
 
     public static void writeEncryptedMessagePackage(EncryptedMessagePackage encryptedPackage, OutputStream os)
             throws IOException, ASAPException {
-        ASAPSerialization.writeCharSequenceParameter(encryptedPackage.getRecipient(), os);
+        ASAPSerialization.writeCharSequenceParameter(encryptedPackage.getReceiver(), os);
         ASAPSerialization.writeByteArray(encryptedPackage.getEncryptedSymmetricKey(), os);
         ASAPSerialization.writeByteArray(encryptedPackage.getEncryptedContent(), os);
     }
