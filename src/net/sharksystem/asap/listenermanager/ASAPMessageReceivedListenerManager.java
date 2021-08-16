@@ -29,6 +29,12 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
         }
     }
 
+    @Override
+    public int getNumberListener() {
+        if(this.listenerMap == null) return 0;
+        return this.listenerMap.size();
+    }
+
     public void removeAllListeners() {
         // reset
         this.listenerMap = new HashMap();

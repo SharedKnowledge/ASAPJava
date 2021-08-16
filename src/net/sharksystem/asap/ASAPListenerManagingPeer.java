@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.asap.listenermanager.ASAPChannelContentChangedListenerManager;
 import net.sharksystem.asap.listenermanager.ASAPEnvironmentChangesListenerManager;
 import net.sharksystem.asap.listenermanager.ASAPMessageReceivedListenerManager;
 
@@ -17,6 +18,22 @@ public abstract class ASAPListenerManagingPeer implements ASAPPeer {
     @Override
     public void removeASAPMessageReceivedListener(CharSequence format, ASAPMessageReceivedListener listener) {
         this.asapMessageReceivedListenerManager.removeASAPMessageReceivedListener(format, listener);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                      ASAPChannelContentChangedListener                             //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    protected ASAPChannelContentChangedListenerManager asapChannelContentChangedListenerManager =
+            new ASAPChannelContentChangedListenerManager();
+
+    @Override
+    public void addASAPChannelContentChangedListener(CharSequence format, ASAPChannelContentChangedListener listener) {
+        this.asapChannelContentChangedListenerManager.addASAPChannelContentChangedListener(format, listener);
+    }
+
+    @Override
+    public void removeASAPChannelContentChangedListener(CharSequence format, ASAPChannelContentChangedListener listener) {
+        this.asapChannelContentChangedListenerManager.removeASAPChannelContentChangedListener(format, listener);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////

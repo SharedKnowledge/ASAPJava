@@ -56,14 +56,28 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             this.log("chunk received listener set - call this one");
             this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, asapHopList);
         } else {
-            this.log("extract messages from chunk and notify listener");
-            ASAPMessages receivedMessages =
-                    Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
+            this.log("notify listener");
+            if(this.asapMessageReceivedListenerManager.getNumberListener() > 0) {
+                this.log("extract messages from chunk and notify listener");
+                ASAPMessages receivedMessages =
+                        Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
 
-            this.asapMessageReceivedListenerManager.notifyReceived(
-                    format, receivedMessages, true,
-                    senderE2E, asapHopList);
+                this.asapMessageReceivedListenerManager.notifyReceived(
+                        format, receivedMessages, true,
+                        senderE2E, asapHopList);
+            }
+
+            if(this.asapChannelContentChangedListenerManager.getNumberListener() > 0) {
+                this.log("notify channel content changed listener");
+                this.asapChannelContentChangedListenerManager.notifyChanged(format, uri, era, true);
+            }
         }
+    }
+
+    /// TODO this method makes absolutely no sense in that class.
+    @Override
+    public int getNumberListener() {
+        return this.asapMessageReceivedListenerManager.getNumberListener();
     }
 
     // TODO move behaviour control into this package

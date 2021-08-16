@@ -8,4 +8,10 @@ public interface ASAPMessageReceivedListenerManagement {
      */
     void addASAPMessageReceivedListener(CharSequence format, ASAPMessageReceivedListener listener);
     void removeASAPMessageReceivedListener(CharSequence format, ASAPMessageReceivedListener listener);
+
+    /**
+     * @ return number of listeners
+     * @return
+     */
+    int getNumberListener();
 }

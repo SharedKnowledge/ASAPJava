@@ -1,15 +1,12 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.protocol.ASAPConnection;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public interface ASAPPeer extends
         ASAPMessageSender,
         ASAPEnvironmentChangesListenerManagement,
-        ASAPMessageReceivedListenerManagement
+        ASAPMessageReceivedListenerManagement,
+        ASAPChannelContentChangedListenerManagement
 {
     CharSequence UNKNOWN_USER = "anon";
     boolean ONLINE_EXCHANGE_DEFAULT = true;
