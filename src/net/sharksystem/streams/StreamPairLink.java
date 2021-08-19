@@ -9,6 +9,13 @@ public class StreamPairLink implements StreamPairListener {
     private StreamLink streamLinkB2A;
 
     public StreamPairLink(StreamPair pairA, CharSequence idA, StreamPair pairB, CharSequence idB) throws IOException {
+        this(pairA, idA, pairB, idB, true);
+    }
+
+    public StreamPairLink(
+            StreamPair pairA, CharSequence idA,
+            StreamPair pairB, CharSequence idB,
+            boolean autostart) throws IOException {
         String tagA2B = idB + " ==> " + idA;
         this.streamLinkA2B = new StreamLink(pairA.getInputStream(), pairB.getOutputStream(), true, tagA2B);
         String tagB2A = idA + " ==> " + idB;
@@ -18,8 +25,7 @@ public class StreamPairLink implements StreamPairListener {
         pairA.addListener(this);
         pairB.addListener(this);
 
-        this.streamLinkA2B.start();
-        this.streamLinkB2A.start();
+        if(autostart) this.start();
     }
 
     @Override
@@ -27,5 +33,10 @@ public class StreamPairLink implements StreamPairListener {
         Log.writeLog(this, "stream pair closed: " + key);
         this.streamLinkA2B.close();
         this.streamLinkB2A.close();
+    }
+
+    public void start() {
+        this.streamLinkA2B.start();
+        this.streamLinkB2A.start();
     }
 }

@@ -173,6 +173,9 @@ public class ASAPSerialization {
     public static String printByteArrayToString(byte[] byteArray) {
         StringBuilder sb = new StringBuilder();
         for(int index = byteArray.length - 1; index >= 0; index--) {
+            sb.append("[");
+            sb.append(index);
+            sb.append("]: ");
             sb.append(printByteToString(byteArray[index]));
         }
         return sb.toString();
