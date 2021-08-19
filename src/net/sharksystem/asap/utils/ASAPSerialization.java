@@ -67,6 +67,13 @@ public class ASAPSerialization {
         byte[] bytes = parameter.toString().getBytes();
         writeNonNegativeIntegerParameter(bytes.length, os);
         os.write(bytes);
+
+        /*
+        String lenString = printBitsToString(bytes.length);
+        String readBytesString = printByteArrayToString(bytes);
+        String log = "writeCharSequenceParameter\nlen: " + lenString + "\nbytes: " + readBytesString;
+        System.out.println(log);
+         */
     }
 
     public static void writeByteParameter(byte parameter, OutputStream os) throws IOException {
@@ -143,6 +150,37 @@ public class ASAPSerialization {
         System.out.print(" ");
     }
 
+    public static String printBitsToString(long l, int bits) {
+        StringBuilder sb = new StringBuilder();
+
+        long mask = 1;
+        mask = mask << bits-1;
+        short byteBitCounter = 4;
+        while(mask != 0) {
+            if((l & mask) != 0) sb.append("1");
+            else sb.append("0");
+            if(--byteBitCounter == 0) {
+                byteBitCounter = 4;
+                sb.append(" ");
+            }
+            mask = mask >> 1;
+        }
+        sb.append(" ");
+
+        return sb.toString();
+    }
+
+    public static String printByteArrayToString(byte[] byteArray) {
+        StringBuilder sb = new StringBuilder();
+        for(int index = byteArray.length - 1; index >= 0; index--) {
+            sb.append(printByteToString(byteArray[index]));
+        }
+        return sb.toString();
+    }
+
+    public static String printByteToString(short s) { return printBitsToString(s, 8); }
+    public static String printBitsToString(int i) { return printBitsToString(i, 16); }
+
     public static void printByteArray(byte[] byteArray) {
         for(int index = byteArray.length - 1; index >= 0; index--) {
             printByte(byteArray[index]);
@@ -186,8 +224,10 @@ public class ASAPSerialization {
     }
 
     public static int readIntegerParameter(InputStream is) throws IOException, ASAPException {
-        int value = readShortParameter(is);
+        int value = 0;
+        value = readShortParameter(is);
         value = value << 16;
+
         value = value & BLANK_RIGHT_INTEGER;
 
         int right = readShortParameter(is);
@@ -218,10 +258,32 @@ public class ASAPSerialization {
     }
 
     public static String readCharSequenceParameter(InputStream is) throws IOException, ASAPException {
-        int length = readIntegerParameter(is);
-        byte[] parameterBytes = new byte[length];
+        int length = 0;
+        byte[] parameterBytes = null;
+        String lenString = null;
+//        try {
+            length = readIntegerParameter(is);
+/*
+            lenString = printBitsToString(length);
+            System.out.println("readCharSequenceParameter length = " + lenString);
+
+ */
+            parameterBytes = new byte[length];
+/*
+        }
+        catch(OutOfMemoryError e) {
+            int i = 42;
+            throw new ASAPException(e);
+        }
+ */
 
         is.read(parameterBytes);
+
+        /*
+        String readBytesString = printByteArrayToString(parameterBytes);
+        String log = "readCharSequenceParameter\nlen: " + lenString + "\nbytes: " + readBytesString;
+        System.out.println(log);
+         */
 
         return new String(parameterBytes);
     }

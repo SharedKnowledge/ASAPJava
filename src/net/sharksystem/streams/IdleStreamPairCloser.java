@@ -32,7 +32,8 @@ public class IdleStreamPairCloser implements AlarmClockListener, WrappedStreamPa
     }
 
     public void start() {
-        this.alarmClock = new AlarmClock(this.timeout, this);
+        // give it more time in the first round - there will be a connection establishment process on its way...
+        this.alarmClock = new AlarmClock(this.timeout * 2, this);
     }
 
     @Override
