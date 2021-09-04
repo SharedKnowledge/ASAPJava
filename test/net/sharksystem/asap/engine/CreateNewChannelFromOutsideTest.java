@@ -2,7 +2,7 @@ package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
-import net.sharksystem.cmdline.TCPStream;
+import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Assert;
 import org.junit.Test;
 

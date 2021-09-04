@@ -6,8 +6,8 @@ import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.utils.Helper;
-import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
-import net.sharksystem.cmdline.TCPStream;
+import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
+import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Assert;
 import org.junit.Test;
 

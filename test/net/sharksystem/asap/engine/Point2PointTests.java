@@ -10,7 +10,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.utils.ASAPChunkReceivedTester;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
-import net.sharksystem.cmdline.TCPStream;
+import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Test;
 import org.junit.Assert;
 

@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="ASAPJava:jar">
-    <output-path>$PROJECT_DIR$/out</output-path>
-    <root id="archive" name="ASAPJava_x.y.z.jar">
-      <element id="module-output" name="ASAP" />
-    </root>
-  </artifact>
-</component>

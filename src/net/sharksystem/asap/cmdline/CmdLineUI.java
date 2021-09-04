@@ -1,4 +1,4 @@
-package net.sharksystem.cmdline;
+package net.sharksystem.asap.cmdline;
 
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;

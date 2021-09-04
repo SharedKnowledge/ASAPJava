@@ -1,4 +1,4 @@
-package net.sharksystem.cmdline;
+package net.sharksystem.asap.cmdline;
 
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.engine.ASAPChunkReceivedListener;

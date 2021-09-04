@@ -57,7 +57,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         Date lastEncounter = this.encounterDate.get(id);
 
         if(lastEncounter == null) {
-            Log.writeLog(this, "device/peer not in encounteredDevices - should connect");
+            Log.writeLog(this, this.toString(), "device/peer not in encounteredDevices - should connect");
             this.encounterDate.put(id, now);
             return true;
         }
@@ -69,20 +69,20 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         long reconnectedBeforeInMillis = nowInMillis - this.waitBeforeReconnect;
         Date reconnectBefore = new Date(reconnectedBeforeInMillis);
 
-        Log.writeLog(this, "now: " + now.toString());
-        Log.writeLog(this, "connectBefore: " + reconnectBefore.toString());
+        Log.writeLog(this, this.toString(), "now: " + now.toString());
+        Log.writeLog(this, this.toString(), "connectBefore: " + reconnectBefore.toString());
 
         // known peer
-        Log.writeLog(this, "device/peer (" + id + ") in encounteredDevices list?");
+        Log.writeLog(this, this.toString(), "device/peer (" + id + ") in encounteredDevices list?");
         // it was in the list
         if(lastEncounter.before(reconnectBefore)) {
-            Log.writeLog(this,  "yes - should connect: " + id);
+            Log.writeLog(this, this.toString(),  "yes - should connect: " + id);
             // remember that and overwrite previous entry
             this.encounterDate.put(id, now);
             return true;
         }
 
-        Log.writeLog(this, "should not connect - recently met: " + id);
+        Log.writeLog(this, this.toString(), "should not connect - recently met: " + id);
         return false;
     }
 
@@ -134,7 +134,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
 
         CharSequence streamPairID = streamPair.getSessionID();
 
-        Log.writeLog(this, "socket called: handle new encounter" + streamPair);
+        Log.writeLog(this, this.toString(), "socket called: handle new encounter" + streamPair);
 
         // should we connect in the first place
         if (!this.shouldCreateConnectionToPeer(streamPairID, connectionType)) {
@@ -161,13 +161,13 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         }
 
         // we a through with it - remember that new stream pair
-        Log.writeLog(this, "remember streamPair: " + streamPair);
+        Log.writeLog(this, this.toString(), "remember streamPair: " + streamPair);
         this.openStreamPairs.put(streamPairID, streamPair);
 
-        Log.writeLog(this, "going to launch a new asap connection");
+        Log.writeLog(this, this.toString(), "going to launch a new asap connection");
 
         try {
-            Log.writeLog(this, "call asap peer to handle connection");
+            Log.writeLog(this, this.toString(), "call asap peer to handle connection");
             ASAPConnection asapConnection =
                     this.asapConnectionHandler.handleConnection(
                             streamPair.getInputStream(), streamPair.getOutputStream(), connectionType);
@@ -177,7 +177,8 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
             this.openASAPConnections.put(asapConnection, streamPairID);
 
         } catch (IOException | ASAPException e) {
-            Log.writeLog(this, "while launching asap connection: " + e.getLocalizedMessage());
+            Log.writeLog(this, this.toString(), "while launching asap connection: "
+                    + e.getLocalizedMessage());
         }
     }
 
@@ -218,7 +219,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         sb.append(initiatorValue);
         sb.append(" | nonInitiatorValue == ");
         sb.append(nonInitiatorValue);
-        Log.writeLog(this, sb.toString());
+        Log.writeLog(this, this.toString(), sb.toString());
 
         /* Here comes the bias: An initiator with a smaller value waits a moment */
         if(connectionInitiator && initiatorValue < nonInitiatorValue) {
@@ -227,11 +228,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
                 sb.append("wait ");
                 sb.append(waitInMillis);
                 sb.append(" ms");
-                Log.writeLog(this, sb.toString());
+                Log.writeLog(this, this.toString(), sb.toString());
                 Thread.sleep(waitInMillis);
                 return true; // waited
             } catch (InterruptedException e) {
-                Log.writeLog(this, "wait interrupted");
+                Log.writeLog(this, this.toString(), "wait interrupted");
             }
         }
 
@@ -245,7 +246,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
     @Override
     public synchronized void asapConnectionStarted(String remotePeerName, ASAPConnection connection) {
         CharSequence peerID = connection.getEncounteredPeer();
-        Log.writeLog(this, "new ASAP session started with peerID " + peerID);
+        Log.writeLog(this, this.toString(), "new ASAP session started with peerID " + peerID);
 
         CharSequence streamPairID = this.openASAPConnections.get(connection);
         if(PeerIDHelper.sameID(streamPairID, peerID)) {
@@ -293,5 +294,9 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
                 }
             }
         }
+    }
+
+    public String toString() {
+        return this.asapConnectionHandler.toString();
     }
 }

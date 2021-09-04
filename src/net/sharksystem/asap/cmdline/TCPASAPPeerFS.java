@@ -1,4 +1,4 @@
-package net.sharksystem.cmdline;
+package net.sharksystem.asap.cmdline;
 
 /**
  * Run an ASAP peer that can communicate with TCP. It can offer an open tcp server socket.

@@ -1,4 +1,4 @@
-package net.sharksystem.cmdline;
+package net.sharksystem.asap.cmdline;
 
 import java.io.IOException;
 import java.io.InputStream;

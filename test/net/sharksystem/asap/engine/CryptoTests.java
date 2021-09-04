@@ -1,26 +1,14 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
-import net.sharksystem.asap.protocol.ASAP_1_0;
-import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
-import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
-import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
-import net.sharksystem.cmdline.ExampleASAPChunkReceivedListener;
-import net.sharksystem.cmdline.TCPStream;
+import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
+import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyPair;
 import java.util.List;
-
-import static net.sharksystem.TestConstants.ALICE_ID;
-import static net.sharksystem.TestConstants.BOB_ID;
 
 public class CryptoTests {
     public static final String WORKING_SUB_DIRECTORY = "cryptoTests/";

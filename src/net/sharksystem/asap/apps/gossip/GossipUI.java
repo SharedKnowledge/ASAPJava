@@ -5,8 +5,8 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.Helper;
-import net.sharksystem.cmdline.TCPStream;
-import net.sharksystem.cmdline.TCPStreamCreatedListener;
+import net.sharksystem.asap.cmdline.TCPStream;
+import net.sharksystem.asap.cmdline.TCPStreamCreatedListener;
 
 import java.io.IOException;
 import java.text.DateFormat;
