@@ -1,5 +1,6 @@
 package net.sharksystem.asap;
 
+import com.sun.istack.internal.NotNull;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.PeerIDHelper;
@@ -39,14 +40,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
     /** remember remote address of peers (they can have more than one): peerID -> remote address */
     private Map<CharSequence, Set<CharSequence>> peerRemoteAddresses = new HashMap<>();
 
-    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler) throws ASAPException {
+    public ASAPEncounterManagerImpl(@NotNull ASAPConnectionHandler asapConnectionHandler) {
         this(asapConnectionHandler, DEFAULT_WAIT_BEFORE_RECONNECT_TIME);
     }
 
-    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, long waitingPeriod)
-            throws ASAPException {
-
-        if(asapConnectionHandler == null) throw new ASAPException("connection manager must not be null");
+    public ASAPEncounterManagerImpl(@NotNull ASAPConnectionHandler asapConnectionHandler, long waitingPeriod) {
         this.asapConnectionHandler = asapConnectionHandler;
         this.randomValue = new Random(System.currentTimeMillis()).nextInt();
         this.waitBeforeReconnect = waitingPeriod;
