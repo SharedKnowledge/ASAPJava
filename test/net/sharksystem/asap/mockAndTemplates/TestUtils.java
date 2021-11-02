@@ -2,7 +2,7 @@ package net.sharksystem.asap.mockAndTemplates;
 
 import java.io.*;
 
-class TestUtils {
+public class TestUtils {
     static final CharSequence ALICE = "Alice";
     static final CharSequence BOB = "Bob";
     static final CharSequence YOUR_APP_NAME = "yourAppName";
@@ -15,7 +15,7 @@ class TestUtils {
      * @param exampleBoolean
      * @return
      */
-    static byte[] serializeExample(long exampleLong, String exampleString, boolean exampleBoolean) throws IOException {
+    public static byte[] serializeExample(long exampleLong, String exampleString, boolean exampleBoolean) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream daos = new DataOutputStream(baos);
 
@@ -30,7 +30,7 @@ class TestUtils {
     /**
      * a deserialization example
      */
-    static void deserializeExample(byte[] serializedData) throws IOException {
+    public static void deserializeExample(byte[] serializedData) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
         DataInputStream dais = new DataInputStream(bais);
 

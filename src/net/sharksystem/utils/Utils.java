@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class Utils {
     public static String url2FileName(String url) {
@@ -82,6 +83,35 @@ public class Utils {
 
         return eras;
 
+    }
+
+    /**
+     * Return true if both collections contain same number of elements and for each element in a there is an
+     * identical element in b (String.compareTo())
+     * in a has the "same"
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean sameContent(Collection<CharSequence> a, Collection<CharSequence> b) {
+        if(a == null && b == null) return true;
+        if(a == null) return false; // b is not null
+        if(b == null) return false; // a is not null
+        // bot not null
+        if(a.size() != b.size()) return false;
+
+        for(CharSequence aElement : a) {
+            String aString = aElement.toString();
+            boolean found = false;
+            Iterator<CharSequence> bIterator = b.iterator();
+            while(bIterator.hasNext() && !found) {
+                String bString = bIterator.next().toString();
+                if(bString.compareTo(aString) == 0) found = true;
+            }
+            if(!found) return false;
+        }
+
+        return true;
     }
 
     public static boolean compareArrays(byte[] a, byte[] b) {
