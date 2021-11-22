@@ -216,10 +216,10 @@ public class ASAPSerialization {
     public static short readShortParameter(InputStream is) throws IOException, ASAPException {
         int value = readByteParameter(is);
         value = value << 8;
-        // by sure
+        // be sure
         value = value & BLANK_RIGHT_SHORT;
         int right = readByteParameter(is);
-        // by sure
+        // be sure
         right = right & BLANK_LEFT_SHORT;
         value += right;
 
