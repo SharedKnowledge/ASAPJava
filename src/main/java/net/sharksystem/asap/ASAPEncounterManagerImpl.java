@@ -1,6 +1,6 @@
 package net.sharksystem.asap;
 
-import com.sun.istack.internal.NotNull;
+import com.sun.istack.NotNull;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.PeerIDHelper;

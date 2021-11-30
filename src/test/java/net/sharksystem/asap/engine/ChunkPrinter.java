@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.engine.ASAPInternalChunkFS;
 import org.junit.Test;
 
 /**

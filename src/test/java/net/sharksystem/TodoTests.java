@@ -1,9 +1,9 @@
 package net.sharksystem;
 
 
-import net.sharksystem.asap.engine.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import net.sharksystem.asap.engine.Point2PointTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

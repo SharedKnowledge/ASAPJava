@@ -3,6 +3,7 @@ package net.sharksystem.asap.protocol;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
+import net.sharksystem.asap.protocol.*;
 import org.junit.Assert;
 import org.junit.Test;
 

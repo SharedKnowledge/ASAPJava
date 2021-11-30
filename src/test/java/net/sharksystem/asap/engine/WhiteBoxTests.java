@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.engine.ASAPEngineFS;
+import net.sharksystem.asap.engine.ASAPInternalStorage;
 import org.junit.Assert;
 import org.junit.Test;
 

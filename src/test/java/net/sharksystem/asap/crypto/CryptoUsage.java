@@ -2,20 +2,11 @@ package net.sharksystem.asap.crypto;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.asap.protocol.ASAP_1_0;
-import net.sharksystem.asap.protocol.ASAP_Interest_PDU_1_0;
-import net.sharksystem.asap.protocol.ASAP_Modem_Impl;
-import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.crypto.SecretKey;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyPair;
 
 import static net.sharksystem.TestConstants.ALICE_ID;
 import static net.sharksystem.TestConstants.BOB_ID;
