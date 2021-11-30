@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener {
+public class ASAPMessageReceivedListenerExample implements ASAPMessageReceivedListener {
     private final String peerName;
 
     ASAPMessageReceivedListenerExample(String peerName) {
         this.peerName = peerName;
     }
 
-    ASAPMessageReceivedListenerExample() {
+    public ASAPMessageReceivedListenerExample() {
         this(null);
     }
 
