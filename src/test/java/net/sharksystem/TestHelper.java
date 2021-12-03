@@ -11,7 +11,8 @@ public class TestHelper {
     }
 
     public static String getFullTempFolderName(String fullRootFolderName, boolean increment) {
-        String retVal = fullRootFolderName + "_" + testNumber;
+//        String retVal = fullRootFolderName + "_" + testNumber;
+        String retVal = fullRootFolderName + "/test_" + testNumber;
         if(increment) testNumber++;
         return retVal;
     }
