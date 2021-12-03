@@ -31,10 +31,10 @@ public class BugReportASAPPeerFS {
     public static final String ALICE_URI_3 = "aliceUri3";
     public static final String ALICE_URI_4 = "aliceUri4";
 
-    public static final String BOB_URI_1 = "BobUri1";
-    public static final String BOB_URI_2 = "BobUri2";
-    public static final String BOB_URI_3 = "BobUri3";
-    public static final String BOB_URI_4 = "BobUri4";
+    public static final String BOB_URI_1 = "bobUri1";
+    public static final String BOB_URI_2 = "bobUri2";
+    public static final String BOB_URI_3 = "bobUri3";
+    public static final String BOB_URI_4 = "bobUri4";
 
     private static final String EXAMPLE_APP_FORMAT = "exampleAppFormat";
 
