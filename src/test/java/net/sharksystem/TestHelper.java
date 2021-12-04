@@ -12,14 +12,13 @@ public class TestHelper {
 
     public static String getFullTempFolderName(String fullRootFolderName, boolean increment) {
 //        String retVal = fullRootFolderName + "_" + testNumber;
-        String retVal = fullRootFolderName + "/test_" + testNumber;
+        String retVal = TestConstants.ROOT_DIRECTORY + "/" + fullRootFolderName + "/test_" + testNumber;
         if(increment) testNumber++;
         return retVal;
     }
 
     public static String getFullRootFolderName(String peerID, Class testClass) {
-        return TestConstants.ROOT_DIRECTORY
-                + testClass.getSimpleName()
+        return testClass.getSimpleName()
                 + "/"
                 + peerID;
     }

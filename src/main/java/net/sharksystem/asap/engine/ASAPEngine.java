@@ -754,7 +754,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         boolean lastRound = false; // assume more than one round
         do {
-            boolean goAhead = true; // to avoid deep if-if-if-if structures
             lastRound = workingEra == lastEra;
 
             List<ASAPInternalChunk> chunks = chunkStorage.getChunks(workingEra);
@@ -767,16 +766,19 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             //>>>>>>>>>>>>>>>>>>>debug
 
             for(ASAPInternalChunk chunk : chunks) {
+                boolean goAhead = true; // to avoid deep if-if-if-if structures
+
                 //<<<<<<<<<<<<<<<<<<debug
                 b = new StringBuilder();
-                b.append(this.getLogStart());
                 b.append("chunkUrl: ");
                 b.append(chunk.getUri());
                 b.append(" | isPublic: ");
                 b.append(this.isPublic(chunk));
                 b.append(" | len: ");
                 b.append(chunk.getLength());
-                System.out.println(b.toString());
+                b.append(" | recipients: ");
+                b.append(chunk.getRecipients());
+                Log.writeLog(this, this.owner, b.toString());
                 //>>>>>>>>>>>>>>>>>>>debug
 
                 if(chunk.getLength() < 1) {

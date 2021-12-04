@@ -1,4 +1,4 @@
-package bugreports;
+package junit5Tests.release_1;
 
 import net.sharksystem.TestConstants;
 import net.sharksystem.TestHelper;
@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BugReportASAPPeerFS {
-    private static final String TEST_FOLDER = "SemanticTests";
+public class MultipleEncounterTests {
+    private static final String TEST_FOLDER = "MultipleEncounterTests";
     public static final String ANIMAL = "animal";
     public static final String WATER = "water";
     public static final String ICE_CREAM = "ice_cream";
@@ -43,7 +43,7 @@ public class BugReportASAPPeerFS {
     private static int port = 0;
 
     /* clear folder before launching tests */
-    public BugReportASAPPeerFS() {
+    public MultipleEncounterTests() {
         ASAPEngineFS.removeFolder(TEST_FOLDER);
     }
 
@@ -155,10 +155,10 @@ public class BugReportASAPPeerFS {
     @Test
     public void multiEncounter_partiallyDifferentURIs() throws InterruptedException, IOException, ASAPException {
         // sending different uris back and forth now breaks it
-        simpleEncounterWithMessageExchange(TIGER_URI, ICE_CREAM);
-        simpleEncounterWithMessageExchange(ICE_CREAM, ELEPHANT_URI);
-        simpleEncounterWithMessageExchange(HELLO_URI, ICE_CREAM);
-        simpleEncounterWithMessageExchange(ICE_CREAM, HELLO_URI);
+        simpleEncounterWithMessageExchange(TIGER_URI, ICE_CREAM, 1);
+        simpleEncounterWithMessageExchange(ICE_CREAM, ELEPHANT_URI, 2);
+        simpleEncounterWithMessageExchange(HELLO_URI, ICE_CREAM, 3);
+        simpleEncounterWithMessageExchange(ICE_CREAM, HELLO_URI, 4);
 
         int era = 0;
         // encounter #1: Alice (TIGER_URI) < - > Bob (ICE_CREAM)
@@ -216,7 +216,7 @@ public class BugReportASAPPeerFS {
 
         // run encounter
         for(int i = 0; i < numberEncounter; i++) {
-            simpleEncounterWithMessageExchange(exchangedUris[i][0], exchangedUris[i][1]);
+            simpleEncounterWithMessageExchange(exchangedUris[i][0], exchangedUris[i][1], i);
         }
 
         // test
@@ -247,13 +247,19 @@ public class BugReportASAPPeerFS {
          */
     }
 
+    public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob)
+            throws IOException, ASAPException, InterruptedException {
+        this.simpleEncounterWithMessageExchange(uriAlice, uriBob, 0);
+    }
+
+
     // sends messages with given uri, starts and then stops the encounter
     // message content is irrelevant, we don't test for it
-    public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob)
+    public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob, int encounterNumber)
             throws IOException, ASAPException, InterruptedException {
 
         // simulate ASAP first encounter with full ASAP protocol stack and engines
-        System.out.println("+++++++++++++++++++ 1st encounter starts soon ++++++++++++++++++++");
+        System.out.println("+++++++++++++++++++ encounter #" + encounterNumber + " starts soon ++++++++++++++++++++");
         Thread.sleep(50);
 
         // setup message received listener - this should be replaced with your code - you implement a listener.

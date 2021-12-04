@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class CryptoTests {
-    public static final String WORKING_SUB_DIRECTORY = "cryptoTests/";
+    public static final String WORKING_SUB_DIRECTORY = TestConstants.ROOT_DIRECTORY + "cryptoTests/";
     public static final String ALICE_PEER_NAME = "Alice";
     public static final String BOB_PEER_NAME = "Bob";
     public static final String CLARA_PEER_NAME = "Clara";

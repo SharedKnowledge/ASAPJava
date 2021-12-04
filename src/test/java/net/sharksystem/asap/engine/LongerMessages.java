@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.engine.*;
@@ -20,12 +21,14 @@ import static net.sharksystem.asap.engine.ASAPInternalPeer.DEFAULT_MAX_PROCESSIN
 public class LongerMessages {
     public static final String ALICE_BOB_CHAT_URL = "content://aliceAndBob.talk";
     public static final String CHAT_FORMAT = "application/x-sn2-makan";
-    public static final String ALICE_ROOT_FOLDER = "longmessage/Alice";
-    public static final String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
-    public static final String BOB_ROOT_FOLDER = "longmessage/Bob";
+    public static String ALICE_ROOT_FOLDER = TestConstants.ROOT_DIRECTORY + "longmessage/Alice";
+    public static String ALICE_APP_FOLDER = ALICE_ROOT_FOLDER + "/appFolder";
+    public static final String BOB_ROOT_FOLDER = TestConstants.ROOT_DIRECTORY + "longmessage/Bob";
     public static final String BOB_APP_FOLDER = BOB_ROOT_FOLDER + "/appFolder";
     public static final String ALICE = "Alice";
     public static final String BOB = "Bob";
+
+
     // 200
     public static final String ALICE2BOB_MESSAGE = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
     //public static final String ALICE2BOB_MESSAGE = "Hi Bob";

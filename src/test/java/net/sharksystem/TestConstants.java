@@ -1,7 +1,7 @@
 package net.sharksystem;
 
 public interface TestConstants {
-    String ROOT_DIRECTORY = "playground/";
+    String ROOT_DIRECTORY = "testResultsRootFolder/";
     String ALICE_ID = "Alice_42";
     String ALICE_NAME = "Alice";
     String BOB_ID = "Bob_43";
