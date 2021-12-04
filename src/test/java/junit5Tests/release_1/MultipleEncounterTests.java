@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * @author Rankhole, thsc42
+ */
 public class MultipleEncounterTests {
     private static final String TEST_FOLDER = "MultipleEncounterTests";
     public static final String ANIMAL = "animal";
