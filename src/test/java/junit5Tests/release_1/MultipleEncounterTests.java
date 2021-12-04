@@ -9,6 +9,7 @@ import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.asap.mockAndTemplates.ASAPMessageReceivedListenerExample;
 import net.sharksystem.asap.mockAndTemplates.TestUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,30 +46,20 @@ public class MultipleEncounterTests {
     private static final int PORT = 7777;
     private static int port = 0;
 
-    /* clear folder before launching tests */
-    public MultipleEncounterTests() {
-        ASAPEngineFS.removeFolder(TEST_FOLDER);
+    @BeforeAll
+    public static void removePreviousTestFolder() {
+        ASAPEngineFS.removeFolder(TestConstants.ROOT_DIRECTORY + TEST_FOLDER);
     }
 
-    //ASAPPeerFSTestHelper testHelper;
     private ASAPTestPeerFS aliceTestPeer, bobTestPeer;
 
     @BeforeEach
     public void setUp() throws IOException, ASAPException {
-        // delete directory „testPeerFS” to prevent errors when running twice
-        //FileUtils.deleteDirectory(new File("testPeerFS"));
-
-        // root folder of all ASAPPeers
-        //String rootfolder = "./testPeerFS";
-
         // create a new folder for each test - avoids conflicts when removal does not work due to race condition
         String rootfolder = TestHelper.getFullTempFolderName(TEST_FOLDER, true);
 
         formats = new ArrayList<>();
         formats.add(EXAMPLE_APP_FORMAT);
-
-        // helper class with useful testing functions
-        // testHelper = new ASAPPeerFSTestHelper(rootfolder, EXAMPLE_APP_FORMAT);
 
         this.aliceTestPeer = new ASAPTestPeerFS(
                 TestConstants.ALICE_ID, rootfolder + "/" + TestConstants.ALICE_NAME, formats);
@@ -95,10 +86,6 @@ public class MultipleEncounterTests {
                 this.senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, uriBob, 0));
         Assertions.assertTrue(
                 this.senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, uriAlice, 0));
-/*
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uriBob, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uriAlice, 0));
- */
     }
 
     @Test
@@ -119,10 +106,6 @@ public class MultipleEncounterTests {
         // each message should have created a new era, so there should be a meta and content file in each subfolder
         Assertions.assertTrue(
                 this.senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, uriBob, 0));
-/*
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uriBob, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uriAlice, 0));
- */
     }
 
     @Test
@@ -140,19 +123,6 @@ public class MultipleEncounterTests {
             Assertions.assertTrue(
                     senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, uri, era));
         }
-
-/*
-        // each message should have created a new era, so there should be a meta and content file in each subfolder
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uri, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uri, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uri, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, uri, 3));
-
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uri, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uri, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uri, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, uri, 3));
- */
     }
 
     @Test
@@ -190,19 +160,6 @@ public class MultipleEncounterTests {
                 senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, era));
         Assertions.assertTrue(
                 senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ICE_CREAM, era));
-
-/*
-        // all eras SHOULD exists, but some are missing!
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, ICE_CREAM, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, ELEPHANT_URI, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, ICE_CREAM, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, HELLO_URI, 3));
-
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, TIGER_URI, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ICE_CREAM, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, HELLO_URI, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ICE_CREAM, 3));
- */
     }
 
     @Test
@@ -211,15 +168,18 @@ public class MultipleEncounterTests {
         int numberEncounter = 4;
         String[][] exchangedUris = new String[numberEncounter][];
 
+        int aliceIndex = 0; // take index 0 for alice uri
+        int bobIndex = 1; // take index 0 for bob uri
+
         // define what to exchange in each encounter
-        exchangedUris[0] = new String[] {ALICE_URI_1, BOB_URI_1};
+        exchangedUris[0] = new String[] {ALICE_URI_1, BOB_URI_1}; // alice at index 0 && bob at index 1
         exchangedUris[1] = new String[] {ALICE_URI_2, BOB_URI_2};
         exchangedUris[2] = new String[] {ALICE_URI_3, BOB_URI_3};
         exchangedUris[3] = new String[] {ALICE_URI_4, BOB_URI_4};
 
         // run encounter
         for(int i = 0; i < numberEncounter; i++) {
-            simpleEncounterWithMessageExchange(exchangedUris[i][0], exchangedUris[i][1], i);
+            simpleEncounterWithMessageExchange(exchangedUris[i][aliceIndex], exchangedUris[i][bobIndex], i);
         }
 
         // test
@@ -228,26 +188,12 @@ public class MultipleEncounterTests {
             // Alice got Bob's uri
             Assertions.assertTrue(
                     senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT,
-                            TestConstants.BOB_ID, exchangedUris[era][1], era));
+                            TestConstants.BOB_ID, exchangedUris[era][bobIndex], era));
             // Bob received Alice's uri
             Assertions.assertTrue(
                     senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT,
-                            TestConstants.ALICE_ID, exchangedUris[era][0], era));
+                            TestConstants.ALICE_ID, exchangedUris[era][aliceIndex], era));
         }
-
-        /*
-        // we expect ALL of the uris to exist, but they don't.
-        // only two messages of bob and one message of alice gets transmitted, then it stops transmitting for the rest..
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, BOB_URI_1, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, BOB_URI_2, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, BOB_URI_3, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.ALICE_ID, TestConstants.BOB_ID, BOB_URI_4, 3));
-
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ALICE_URI_1, 0));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ALICE_URI_2, 1));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ALICE_URI_3, 2));
-        Assertions.assertTrue(testHelper.senderEraShouldExist(TestConstants.BOB_ID, TestConstants.ALICE_ID, ALICE_URI_4, 3));
-         */
     }
 
     public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob)
@@ -255,8 +201,7 @@ public class MultipleEncounterTests {
         this.simpleEncounterWithMessageExchange(uriAlice, uriBob, 0);
     }
 
-
-    // sends messages with given uri, starts and then stops the encounter
+    // send messages with given uri, starts and then stops the encounter
     // message content is irrelevant, we don't test for it
     public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob, int encounterNumber)
             throws IOException, ASAPException, InterruptedException {
