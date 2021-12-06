@@ -51,7 +51,7 @@ public class MultipleEncounterTests {
         ASAPEngineFS.removeFolder(TestConstants.ROOT_DIRECTORY + TEST_FOLDER);
     }
 
-    private ASAPTestPeerFS aliceTestPeer, bobTestPeer;
+    private ASAPTestPeerFS aliceTestPeer, bobTestPeer, claraTestPeer;
 
     @BeforeEach
     public void setUp() throws IOException, ASAPException {
@@ -65,6 +65,8 @@ public class MultipleEncounterTests {
                 TestConstants.ALICE_ID, rootfolder + "/" + TestConstants.ALICE_NAME, formats);
         this.bobTestPeer = new ASAPTestPeerFS(
                 TestConstants.BOB_ID, rootfolder + "/" + TestConstants.BOB_NAME, formats);
+        this.claraTestPeer = new ASAPTestPeerFS(
+                TestConstants.CLARA_ID, rootfolder + "/" + TestConstants.CLARA_NAME, formats);
     }
 
     @Test
@@ -195,6 +197,49 @@ public class MultipleEncounterTests {
                             TestConstants.ALICE_ID, exchangedUris[era][aliceIndex], era));
         }
     }
+    
+    @Test
+    public void bugReport_multiHop() throws IOException, ASAPException, InterruptedException {
+        simpleEncounterWithMessageExchange(TIGER_URI, ANIMAL);
+
+        simpleEncounterWithMessageExchange(ANIMAL, ELEPHANT_URI);
+
+        simpleEncounterWithMessageExchange(HELLO_URI, ANIMAL);
+
+        simpleEncounterWithMessageExchange(ANIMAL, HELLO_URI);
+
+        // as always, alice and bob should have received all four messages
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 0));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ELEPHANT_URI, 1));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 2));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, 3));
+
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, TIGER_URI, 0));
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 1));
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, HELLO_URI, 2));
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 3));
+
+        // check if routing is allowed (should be by default)
+        Assertions.assertTrue(aliceTestPeer.isASAPRoutingAllowed(EXAMPLE_APP_FORMAT));
+        // exchange between alice and clara
+        simpleEncounterWithMessageExchange(aliceTestPeer, claraTestPeer, "HelloToClara", "FromClara", 5);
+        // Alice should have received message from Clara
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.CLARA_ID, "FromClara", 0));
+
+        // all messages from Alice should have arrived at Clara
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, TIGER_URI, 0));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 1));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, HELLO_URI, 2));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 3));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT,TestConstants.ALICE_ID, "HelloToClara", 4));
+
+        // all messages from Bob, which Alice had previously received, should have arrived at Clara
+        // BUG: only the first message is routed
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 0));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ELEPHANT_URI, 1));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 2));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, 3));
+    }
 
     public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob)
             throws IOException, ASAPException, InterruptedException {
@@ -206,6 +251,14 @@ public class MultipleEncounterTests {
     public void simpleEncounterWithMessageExchange(String uriAlice, String uriBob, int encounterNumber)
             throws IOException, ASAPException, InterruptedException {
 
+        simpleEncounterWithMessageExchange(aliceTestPeer, bobTestPeer, uriAlice, uriBob, encounterNumber);
+    }
+
+    // send messages with given uri, starts and then stops the encounter
+    // message content is irrelevant, we don't test for it
+    public void simpleEncounterWithMessageExchange(ASAPTestPeerFS peerA, ASAPTestPeerFS peerB, String uriAlice, String uriBob, int encounterNumber)
+            throws IOException, ASAPException, InterruptedException {
+
         // simulate ASAP first encounter with full ASAP protocol stack and engines
         System.out.println("+++++++++++++++++++ encounter #" + encounterNumber + " starts soon ++++++++++++++++++++");
         Thread.sleep(50);
@@ -214,12 +267,12 @@ public class MultipleEncounterTests {
         ASAPMessageReceivedListenerExample aliceMessageReceivedListenerExample =
                 new ASAPMessageReceivedListenerExample();
 
-        aliceTestPeer.addASAPMessageReceivedListener(EXAMPLE_APP_FORMAT, aliceMessageReceivedListenerExample);
+        peerA.addASAPMessageReceivedListener(EXAMPLE_APP_FORMAT, aliceMessageReceivedListenerExample);
 
         // example - this should be produced by your application
         byte[] serializedData = TestUtils.serializeExample(42, "from alice", true);
 
-        aliceTestPeer.sendASAPMessage(EXAMPLE_APP_FORMAT, uriAlice, serializedData);
+        peerA.sendASAPMessage(EXAMPLE_APP_FORMAT, uriAlice, serializedData);
 
         ///////////////// BOB //////////////////////////////////////////////////////////////
 
@@ -228,23 +281,23 @@ public class MultipleEncounterTests {
                 new ASAPMessageReceivedListenerExample();
 
         // register your listener (or that mock) with asap connection mock
-        bobTestPeer.addASAPMessageReceivedListener(EXAMPLE_APP_FORMAT, asapMessageReceivedListenerExample);
+        peerB.addASAPMessageReceivedListener(EXAMPLE_APP_FORMAT, asapMessageReceivedListenerExample);
 
         // bob writes something
-        bobTestPeer.sendASAPMessage(EXAMPLE_APP_FORMAT, uriBob,
+        peerB.sendASAPMessage(EXAMPLE_APP_FORMAT, uriBob,
                 TestUtils.serializeExample(43, "from bob", false));
-        bobTestPeer.sendASAPMessage(EXAMPLE_APP_FORMAT, uriBob,
+        peerB.sendASAPMessage(EXAMPLE_APP_FORMAT, uriBob,
                 TestUtils.serializeExample(44, "from bob again", false));
 
         // give your app a moment to process
         Thread.sleep(500);
         // start actual encounter
-        aliceTestPeer.startEncounter(TestHelper.getPortNumber(), bobTestPeer);
+        peerA.startEncounter(TestHelper.getPortNumber(), peerB);
 
         // give your app a moment to process
         Thread.sleep(1000);
         // stop encounter
-        bobTestPeer.stopEncounter(aliceTestPeer);
+        peerB.stopEncounter(peerA);
         // give your app a moment to process
         Thread.sleep(1000);
     }
