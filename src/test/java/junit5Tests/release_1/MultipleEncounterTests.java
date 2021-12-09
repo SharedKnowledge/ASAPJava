@@ -22,9 +22,9 @@ import java.util.Collection;
  */
 public class MultipleEncounterTests {
     private static final String TEST_FOLDER = "MultipleEncounterTests";
-    public static final String ANIMAL = "animal";
-    public static final String WATER = "water";
-    public static final String ICE_CREAM = "ice_cream";
+    public static final String ANIMAL_URI = "animal";
+    public static final String WATER_URI = "water";
+    public static final String ICE_CREAM_URI = "ice_cream";
 
     public static final String TIGER_URI = "tiger";
     public static final String ELEPHANT_URI = "elephant";
@@ -71,8 +71,8 @@ public class MultipleEncounterTests {
 
     @Test
     public void singleEncounter_differentURIs() throws InterruptedException, IOException, ASAPException {
-        String uriAlice = ANIMAL;
-        String uriBob = WATER;
+        String uriAlice = ANIMAL_URI;
+        String uriBob = WATER_URI;
 
         simpleEncounterWithMessageExchange(uriAlice, uriBob);
 
@@ -92,8 +92,8 @@ public class MultipleEncounterTests {
 
     @Test
     public void singleEncounter_sameURIs() throws InterruptedException, IOException, ASAPException {
-        String uriAlice = ANIMAL;
-        String uriBob = ANIMAL;
+        String uriAlice = ANIMAL_URI;
+        String uriBob = ANIMAL_URI;
 
         simpleEncounterWithMessageExchange(uriAlice, uriBob);
 
@@ -112,7 +112,7 @@ public class MultipleEncounterTests {
 
     @Test
     public void multiEncounter_sameURIs() throws InterruptedException, IOException, ASAPException {
-        String uri = ICE_CREAM;
+        String uri = ICE_CREAM_URI;
         int numberOfLoops = 4;
         for(int i = 0; i < numberOfLoops; i++) {
             simpleEncounterWithMessageExchange(uri, uri);
@@ -130,15 +130,15 @@ public class MultipleEncounterTests {
     @Test
     public void multiEncounter_partiallyDifferentURIs() throws InterruptedException, IOException, ASAPException {
         // sending different uris back and forth now breaks it
-        simpleEncounterWithMessageExchange(TIGER_URI, ICE_CREAM, 1);
-        simpleEncounterWithMessageExchange(ICE_CREAM, ELEPHANT_URI, 2);
-        simpleEncounterWithMessageExchange(HELLO_URI, ICE_CREAM, 3);
-        simpleEncounterWithMessageExchange(ICE_CREAM, HELLO_URI, 4);
+        simpleEncounterWithMessageExchange(TIGER_URI, ICE_CREAM_URI, 1);
+        simpleEncounterWithMessageExchange(ICE_CREAM_URI, ELEPHANT_URI, 2);
+        simpleEncounterWithMessageExchange(HELLO_URI, ICE_CREAM_URI, 3);
+        simpleEncounterWithMessageExchange(ICE_CREAM_URI, HELLO_URI, 4);
 
         int era = 0;
         // encounter #1: Alice (TIGER_URI) < - > Bob (ICE_CREAM)
         Assertions.assertTrue(
-                senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ICE_CREAM, era));
+                senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ICE_CREAM_URI, era));
         Assertions.assertTrue(
                 senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, TIGER_URI, era));
 
@@ -147,12 +147,12 @@ public class MultipleEncounterTests {
         Assertions.assertTrue(
                 senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ELEPHANT_URI, era));
         Assertions.assertTrue(
-                senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ICE_CREAM, era));
+                senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ICE_CREAM_URI, era));
 
         era++;
         // encounter #3: Alice (HELLO_URI) < - > Bob (ICE_CREAM)
         Assertions.assertTrue(
-                senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ICE_CREAM, era));
+                senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ICE_CREAM_URI, era));
         Assertions.assertTrue(
                 senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, HELLO_URI, era));
 
@@ -161,7 +161,7 @@ public class MultipleEncounterTests {
         Assertions.assertTrue(
                 senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, era));
         Assertions.assertTrue(
-                senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ICE_CREAM, era));
+                senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ICE_CREAM_URI, era));
     }
 
     @Test
@@ -200,44 +200,45 @@ public class MultipleEncounterTests {
     
     @Test
     public void bugReport_multiHop() throws IOException, ASAPException, InterruptedException {
-        simpleEncounterWithMessageExchange(TIGER_URI, ANIMAL);
-
-        simpleEncounterWithMessageExchange(ANIMAL, ELEPHANT_URI);
-
-        simpleEncounterWithMessageExchange(HELLO_URI, ANIMAL);
-
-        simpleEncounterWithMessageExchange(ANIMAL, HELLO_URI);
+        String alice2claraURI = "HelloToClara";
+        String clara2aliceURI = "FromClara";
+        int enounterCounter = 0;
+        simpleEncounterWithMessageExchange(TIGER_URI, ANIMAL_URI, enounterCounter++);
+        simpleEncounterWithMessageExchange(ANIMAL_URI, ELEPHANT_URI, enounterCounter++);
+        simpleEncounterWithMessageExchange(HELLO_URI, ANIMAL_URI, enounterCounter++);
+        simpleEncounterWithMessageExchange(ANIMAL_URI, HELLO_URI, enounterCounter++);
 
         // as always, alice and bob should have received all four messages
-        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 0));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL_URI, 0));
         Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ELEPHANT_URI, 1));
-        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 2));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL_URI, 2));
         Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, 3));
 
         Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, TIGER_URI, 0));
-        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 1));
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL_URI, 1));
         Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, HELLO_URI, 2));
-        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 3));
+        Assertions.assertTrue(senderEraShouldExist(bobTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL_URI, 3));
 
         // check if routing is allowed (should be by default)
         Assertions.assertTrue(aliceTestPeer.isASAPRoutingAllowed(EXAMPLE_APP_FORMAT));
         // exchange between alice and clara
-        simpleEncounterWithMessageExchange(aliceTestPeer, claraTestPeer, "HelloToClara", "FromClara", 5);
+        simpleEncounterWithMessageExchange(aliceTestPeer, claraTestPeer, alice2claraURI, clara2aliceURI, enounterCounter++);
         // Alice should have received message from Clara
-        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.CLARA_ID, "FromClara", 0));
+        Assertions.assertTrue(senderEraShouldExist(aliceTestPeer, EXAMPLE_APP_FORMAT, TestConstants.CLARA_ID, clara2aliceURI, 0));
+        // and vice versa
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, alice2claraURI, 4));
 
         // all messages from Alice should have arrived at Clara
         Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, TIGER_URI, 0));
-        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 1));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL_URI, 1));
         Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, HELLO_URI, 2));
-        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL, 3));
-        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT,TestConstants.ALICE_ID, "HelloToClara", 4));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.ALICE_ID, ANIMAL_URI, 3));
 
         // all messages from Bob, which Alice had previously received, should have arrived at Clara
         // BUG: only the first message is routed
-        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 0));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL_URI, 0));
         Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ELEPHANT_URI, 1));
-        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL, 2));
+        Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, ANIMAL_URI, 2));
         Assertions.assertTrue(senderEraShouldExist(claraTestPeer, EXAMPLE_APP_FORMAT, TestConstants.BOB_ID, HELLO_URI, 3));
     }
 

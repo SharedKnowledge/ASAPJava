@@ -70,7 +70,7 @@ class ASAPMementoFS implements ASAPMemento {
             }
         }
 
-        Log.writeLog(this, "saved: " + this);
+        //Log.writeLog(this, "saved: " + this);
     }
 
     private void setDefaults(ASAPEngine engine) {
@@ -186,7 +186,7 @@ class ASAPMementoFS implements ASAPMemento {
         }
         dis.close();
 
-        Log.writeLog(this, "restored: " + this);
+        //Log.writeLog(this, "restored: " + this);
     }
 
     private String getMementoFileName() {

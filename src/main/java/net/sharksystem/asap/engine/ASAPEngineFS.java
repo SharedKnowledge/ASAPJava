@@ -34,8 +34,6 @@ public class ASAPEngineFS extends ASAPEngine {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("owner: ");
-        sb.append(this.getClass().getSimpleName());
-        sb.append(" | ");
         sb.append(this.getOwner());
         sb.append(" | oldestEra: ");
         sb.append(this.getOldestEra());
@@ -43,8 +41,10 @@ public class ASAPEngineFS extends ASAPEngine {
         sb.append(this.getEra());
         sb.append(" | routing: ");
         sb.append(this.routingAllowed());
+        /*
         sb.append(" | rootFolder: ");
         sb.append(this.rootDirectory);
+         */
 
         return sb.toString();
     }
@@ -94,6 +94,15 @@ public class ASAPEngineFS extends ASAPEngine {
     public ASAPInternalStorage refresh() throws IOException, ASAPException {
         this.memento.save(this);
         return ASAPEngineFS.getExistingASAPEngineFS(this.rootDirectory);
+    }
+
+    public void setOldestEra(int oldestEra) throws IOException {
+        this.oldestEra = oldestEra;
+        this.saveMemento();
+    }
+
+    private void saveMemento() throws IOException {
+        this.getMemento(this.rootDirectory).save(this);
     }
 
     /**
@@ -199,7 +208,7 @@ public class ASAPEngineFS extends ASAPEngine {
         return ASAPEngineFS.getASAPEngine(null, rootDirectory, format);
 
     }*/
-    
+
     private ASAPMementoFS getMemento(String rootDirectory) {
         return new ASAPMementoFS(new File(rootDirectory));
     }

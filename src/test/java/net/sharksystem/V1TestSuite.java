@@ -23,8 +23,8 @@ import org.junit.runners.Suite;
         CryptoUsage.class,
         HelperTester.class,
         MultihopTests.class,
-        CommandlineTests.class,
-        MultipleEncounterTests.class
+        CommandlineTests.class//,
+        //MultipleEncounterTests.class
         //E2EStreamPairLinkTestVersion2.class TODO
 })
 public class V1TestSuite {
