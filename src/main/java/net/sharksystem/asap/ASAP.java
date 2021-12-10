@@ -99,4 +99,30 @@ public class ASAP {
             }
         }
     }
+
+    /**
+     *
+     * This method test if an era is within (or on the edge of) an era - range described by first and last era.
+     * @param era era that is tested. Is in within a given range
+     * @param eraFirst first era of that range.
+     * @param eraLast last era of that range
+     * @return true - era is in that range or on the edge, false otherwise
+     */
+    public static boolean isEraInRange(int era, int eraFirst, int eraLast) {
+        // deal wrapping around era numbers
+        if(eraLast -  eraFirst >= 0) { // not wrapped around
+            //   [init].... [eraFirst]  ++++ [eraLast] ..... [max]
+            return (era >= eraFirst && era <= eraLast);
+        }
+        // else: wrapped around:
+        /*
+        [init]++++++++++++++ [eraLast] .......... [eraFirst] +++++++++[max]
+                (a)                       (b)                    (c)
+         */
+        return (
+                isEraInRange(era, eraFirst, ASAP.MAX_ERA) // c)
+                ||
+                isEraInRange(era, ASAP.INITIAL_ERA, eraLast) // a)
+        );
+    }
 }

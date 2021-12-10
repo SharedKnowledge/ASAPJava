@@ -557,38 +557,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Log.writeLog(this, this.toString(), b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        /* We have got an interest from another peer.
-        First: Let's find what chunks from our peer are be be sent to get in sync. */
-        Map<String, Integer> encounterMap = null;
-//        Integer lastSeenEra = null;
         Integer lastSeenEra = this.lastSeen.get(senderID);
-
-        // has it even provided an encounter list?
-        /* Cannot do this - sent era is their era not ours.
-        if(asapInterest.encounterList()) {
-            encounterMap = asapInterest.getEncounterMap();
-            lastSeenEra = encounterMap.get(this.getOwner());
-        }
-
-        if(lastSeenEra != null) {
-            // remember this fact - will be overwritten later - but maybe when connection goes down before..
-            this.lastSeen.put(asapInterest.getSender(), lastSeenEra);
-        } else {
-            // no entry in encounter list - local history?
-            lastSeenEra = this.lastSeen.get(senderID);
-        }
-         */
 
         if(lastSeenEra == null) {
             // still nothing
             lastSeenEra = this.getOldestEra();
         }
-
-        /*
-        if(PeerIDHelper.sameID(encounteredPeer, "Clara_44")) {
-            int i = 42; // debug break;
-        }
-         */
 
         int workingEra = lastSeenEra;
         Log.writeLog(this, this.toString(), "last_seen: " + workingEra + " | era: " + this.era);
@@ -616,7 +590,12 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             Log.writeLog(this, this.toString(), "ended iterating local chunks");
         }
 
+        /////////////////////////////////// asap routing
+
         if(this.routingAllowed()) {
+            Map<String, Integer> encounterMap = asapInterest.getEncounterMap();
+            Log.writeLog(this, this.toString(), "routing allowed: encounterMap: " + encounterMap);
+
             // iterate: what sender do we know in our side?
             for(CharSequence receivedFromID : this.getSender()) {
                 if(PeerIDHelper.sameID(encounteredPeer, receivedFromID)) {
@@ -624,25 +603,39 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     continue;
                 }
                 Log.writeLog(this, this.toString(), "going to route messages from " + receivedFromID);
-                Log.writeLog(this, this.toString(), "received encounter map: " + encounterMap);
                 try {
                     ASAPStorage receivedMessagesStorage = this.getExistingIncomingStorage(receivedFromID);
+                    int eraLastToSend = receivedMessagesStorage.getEra();
+                    int eraFirstToSend = receivedMessagesStorage.getOldestEra();
 
-                    int routeSinceEra = ASAP.INITIAL_ERA;
-                    // maybe we can do better and there is an entry in encounter map
+                    // got encounter information from other peer?
                     if(encounterMap != null) {
-                        Integer lastMetEra = encounterMap.get(receivedFromID);
-                        if(lastMetEra != null) {
-                            routeSinceEra = lastMetEra;
-                            Log.writeLog(this, this.toString(), "found sender received encounter map");
+                        Integer eraLastMet = encounterMap.get(receivedFromID);
+                        if(eraLastMet != null) {
+                            Log.writeLog(this, this.toString(),
+                                    "found sender received encounter map; last encounter: " + eraLastMet);
+                            /*
+                            Peer told us last encounter era - from senders perspective of course.
+                            There are several options, sketch:
+
+                                  <------ our storage ------->
+                            ............ [eraFirst] +++++++++++++++ [eraLast] .........
+                               (a)                       (b)            (c)      (d)
+                            a) We send everything we have
+                            b) We send from b+1 until eraLast
+                            c) + d) We are in sync or behind - nothing to do
+                             */
+
+                            // we would start with the next era
+                            int eraAfterLastMet = ASAP.nextEra(eraLastMet);
+
+                            if(ASAP.isEraInRange(eraAfterLastMet, eraFirstToSend, eraLastToSend)) { // case b)
+                                eraFirstToSend = eraAfterLastMet;
+                            }
                         }
                     }
-
-                    this.sendChunks(receivedFromID, senderID,
-                            receivedMessagesStorage.getChunkStorage(),
-                            protocol, routeSinceEra,
-                            receivedMessagesStorage.getEra(), os,
-                            false);
+                    this.sendChunks(receivedFromID, senderID, receivedMessagesStorage.getChunkStorage(), protocol,
+                            eraFirstToSend, eraLastToSend, os,false);
                 }
                 catch(ASAPException e) {
                     Log.writeLogErr(this, this.toString(),
@@ -681,10 +674,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 /*
                 There is no storage for encountered peer. Can happen - met but has not got anything from it.
                 So, take era from last seen...
-                 */
+
+                I can't follow, sorry 2021, Dec, 10th (thsc42)
                 encounterMap.put(peerID, this.lastSeen.get(peerID));
+                 */
             }
         }
+        Log.writeLog(this, this.toString(), "send encounterMap with interest: " + encounterMap);
 
         protocol.interest(ownerID, null,
                 format, null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
