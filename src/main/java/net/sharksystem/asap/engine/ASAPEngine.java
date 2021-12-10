@@ -583,16 +583,22 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Map<String, Integer> encounterMap = asapInterest.getEncounterMap();
         Log.writeLog(this, this.toString(), "received encounterMap: " + encounterMap);
 
-        /*
         // am I in encounter list?
         if(encounterMap != null) {
-            int eraEncounter = encounterMap.get(this.owner);
-            if(ASAP.isEraInRange(eraEncounter, this.getOldestEra(), workingEra)) {
-                // this seems to be a valid era - maybe got routed data
-                workingEra = eraEncounter;
+            Integer eraEncounteredMe = encounterMap.get(this.owner);
+            if(eraEncounteredMe != null) {
+                int eraEncounter = eraEncounteredMe;
+                Log.writeLog(this, this.toString(), "found me in encounter map: " + encounterMap);
+                // would start with next era
+                eraEncounter = ASAP.nextEra(eraEncounter);
+                if (eraEncounter != workingEra && ASAP.isEraInRange(eraEncounter, this.getOldestEra(), workingEra)) {
+                    // this seems to be a valid era - maybe got routed data
+                    Log.writeLog(this, this.toString(),
+                            "change 1st era from " + workingEra + " to " + eraEncounter);
+                    workingEra = eraEncounter;
+                }
             }
         }
-         */
 
         Log.writeLog(this, this.toString(), "transmit chunks from " + workingEra + " to era: " + this.era);
 
