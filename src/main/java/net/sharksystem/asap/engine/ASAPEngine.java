@@ -105,17 +105,22 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     @Override
     public void newEra() {
+        this.newEra(false, -1);
+    }
+
+    private void newEra(boolean force, int nextEra) {
         try {
             this.syncMemento();
         } catch (IOException e) {
             Log.writeLogErr(this, this.toString(),"cannot read memento: " + e.getLocalizedMessage());
         }
 
-        if(this.contentChanged) {
-            Log.writeLog(this, this.toString(), "content changed - increment era...");
+        if(force || this.contentChanged) {
+            if(this.contentChanged) Log.writeLog(this, this.toString(), "content changed - increment era...");
+            if(force) Log.writeLog(this, this.toString(), "increment era to add new chunks");
             try {
                 int oldEra = this.era;
-                int nextEra = this.getNextEra(this.era);
+                nextEra = nextEra < 0 ? this.getNextEra(this.era) : nextEra;
 
                 // set as fast as possible to make race conditions less likely
                 this.contentChanged = false;
@@ -268,6 +273,15 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         return this.chunkStorage;
     }
 
+
+    @Override
+    public ASAPInternalChunk createNewChunk(String uri, int newEra) throws IOException {
+        ASAPInternalChunk chunk = this.getChunkStorage().getChunk(uri, newEra);
+        // set new era
+        this.newEra(true, newEra);
+        return chunk;
+    }
+
     ASAPChunkStorage getStorage() {
         return this.chunkStorage;
     }
@@ -394,7 +408,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         //>>>>>>>>>>>>>>>>>>>debug
 
         // get received storage
-        ASAPStorage incomingStorage = this.getIncomingStorage(senderE2E, true);
+        ASAPInternalStorage incomingStorage = (ASAPInternalStorage) this.getIncomingStorage(senderE2E, true);
         ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
         //ASAPChunkStorage incomingChunkStorage = this.getReceivedChunksStorage(senderE2E);
         Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
@@ -436,7 +450,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 return;
             }
 
-            ASAPInternalChunk incomingChunk = incomingChunkStorage.getChunk(uri, eraSender);
+            ASAPInternalChunk incomingChunk = incomingStorage.createNewChunk(uri, eraSender);
+            //ASAPInternalChunk incomingChunk = incomingChunkStorage.getChunk(uri, eraSender);
 
             if(localChunk != null) {
                 Log.writeLog(this, this.toString(), "copy local meta data into newly created incoming chunk");
@@ -555,15 +570,31 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Log.writeLog(this, this.toString(), b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        Integer lastSeenEra = this.lastSeen.get(senderID);
+        // init
+        int workingEra = this.getOldestEra();
 
-        if(lastSeenEra == null) {
-            // still nothing
-            lastSeenEra = this.getOldestEra();
+        // already met?
+        if(this.lastSeen != null) {
+            Integer lastSeenEra = this.lastSeen.get(senderID);
+            if(lastSeenEra != null) workingEra = lastSeenEra;
         }
 
-        int workingEra = lastSeenEra;
-        Log.writeLog(this, this.toString(), "last_seen: " + workingEra + " | era: " + this.era);
+        // got even information from other side?
+        Map<String, Integer> encounterMap = asapInterest.getEncounterMap();
+        Log.writeLog(this, this.toString(), "received encounterMap: " + encounterMap);
+
+        /*
+        // am I in encounter list?
+        if(encounterMap != null) {
+            int eraEncounter = encounterMap.get(this.owner);
+            if(ASAP.isEraInRange(eraEncounter, this.getOldestEra(), workingEra)) {
+                // this seems to be a valid era - maybe got routed data
+                workingEra = eraEncounter;
+            }
+        }
+         */
+
+        Log.writeLog(this, this.toString(), "transmit chunks from " + workingEra + " to era: " + this.era);
 
         if(workingEra == this.era) {
             // nothing todo
@@ -591,9 +622,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         /////////////////////////////////// asap routing
 
         if(this.routingAllowed()) {
-            Map<String, Integer> encounterMap = asapInterest.getEncounterMap();
-            Log.writeLog(this, this.toString(), "routing allowed: encounterMap: " + encounterMap);
-
             // iterate: what sender do we know in our side?
             for(CharSequence receivedFromID : this.getSender()) {
                 if(PeerIDHelper.sameID(encounteredPeer, receivedFromID)) {

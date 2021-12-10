@@ -199,7 +199,7 @@ public class MultipleEncounterTests {
     }
     
     @Test
-    public void bugReport_multiHop() throws IOException, ASAPException, InterruptedException {
+    public void multipleEncounterRouting() throws IOException, ASAPException, InterruptedException {
         String alice2claraURI = "HelloToClara";
         String clara2aliceURI = "FromClara";
         int enounterCounter = 0;

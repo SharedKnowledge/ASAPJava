@@ -164,9 +164,9 @@ public interface ASAPInternalStorage extends ASAPStorage {
     ASAPInternalStorage refresh() throws IOException, ASAPException;
 
     /**
-     * during assimilate - we create chunks based on era descriptions received from sender. We need a way to
-     * set this era in an incoming storage.
-     * @param newLastEra
+     * Get (and probably create a chunk - set era to this new era
+     * @param uri
+     * @param newEra
      */
-    void setOldestEra(int newLastEra) throws IOException;
+    ASAPInternalChunk createNewChunk(String uri, int newEra) throws IOException;
 }
