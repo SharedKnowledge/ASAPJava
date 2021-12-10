@@ -394,11 +394,9 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         //>>>>>>>>>>>>>>>>>>>debug
 
         // get received storage
-        /*
-        ASAPStorage incomingStorage = this.getExistingIncomingStorage(senderE2E);
+        ASAPStorage incomingStorage = this.getIncomingStorage(senderE2E, true);
         ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
-         */
-        ASAPChunkStorage incomingChunkStorage = this.getReceivedChunksStorage(senderE2E);
+        //ASAPChunkStorage incomingChunkStorage = this.getReceivedChunksStorage(senderE2E);
         Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
 
         boolean changed = false;

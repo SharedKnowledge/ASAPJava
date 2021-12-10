@@ -105,22 +105,31 @@ public class ASAPEngineFS extends ASAPEngine {
         this.getMemento(this.rootDirectory).save(this);
     }
 
-    /**
-     *
-     * @param owner can be null - restored
-     * @param rootDirectory must not be null
-     * @param format can be null - restored
-     * @return
-     * @throws IOException
-     * @throws ASAPException
-     */
     static ASAPEngineFS getASAPEngineFS(String owner, String rootDirectory, CharSequence format)
+            throws IOException, ASAPException {
+        return ASAPEngineFS.getASAPEngineFS(owner, rootDirectory, format, false);
+    }
+
+        /**
+         *
+         * @param owner can be null - restored
+         * @param rootDirectory must not be null
+         * @param format can be null - restored
+         * @return
+         * @throws IOException
+         * @throws ASAPException
+         */
+    static ASAPEngineFS getASAPEngineFS(String owner, String rootDirectory, CharSequence format, boolean createFolder)
             throws IOException, ASAPException {
         
         // root directory must exist when setting up an engine
         File root = new File(rootDirectory);
         if(!root.exists() || !root.isDirectory()) {
-            throw new ASAPException("chunk root directory must exist when creating an ASAPEngine: " + rootDirectory);
+            if(!createFolder) {
+                throw new ASAPException("chunk root directory must exist when creating an ASAPEngine: " + rootDirectory);
+            } else {
+                root.mkdirs();
+            }
         }
 
         if(format == null || format.toString().equalsIgnoreCase(ASAP_1_0.ANY_FORMAT)) {
@@ -221,11 +230,16 @@ public class ASAPEngineFS extends ASAPEngine {
         return new ASAPChunkStorageFS(dir, this.format, this.era);
     }
 
-    public ASAPInternalStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+    public ASAPInternalStorage getIncomingStorage(CharSequence sender, boolean create) throws IOException, ASAPException {
         return ASAPEngineFS.getASAPEngineFS(
                 sender.toString(), // becomes owner
                 this.rootDirectory + "/" + sender, // folder
-                this.getFormat()); // format taken from superior storage
+                this.getFormat(), // format taken from superior storage
+                create);
+    }
+
+    public ASAPInternalStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+        return this.getIncomingStorage(sender, true);
     }
 
     /**
@@ -236,6 +250,8 @@ public class ASAPEngineFS extends ASAPEngine {
      * @throws ASAPException
      */
     public ASAPInternalStorage getIncomingStorage(CharSequence sender) throws IOException, ASAPException {
+        return this.getIncomingStorage(sender, true);
+        /*
         String folderName = this.rootDirectory + "/" + sender;
         File folder = new File(folderName);
         if(!folder.exists()) {
@@ -246,6 +262,7 @@ public class ASAPEngineFS extends ASAPEngine {
                 sender.toString(), // becomes owner
                 folderName, // folder
                 this.getFormat()); // format taken from superior storage
+         */
     }
 
     @Override

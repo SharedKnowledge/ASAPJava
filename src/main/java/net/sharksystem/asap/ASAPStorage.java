@@ -27,6 +27,24 @@ public interface ASAPStorage {
     ASAPStorage getExistingIncomingStorage(CharSequence sender) throws IOException, ASAPException;
 
     /**
+     * Get storage - parameter decides if to create a non-existing storage
+     * @param sender
+     * @param create
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
+    ASAPStorage getIncomingStorage(CharSequence sender, boolean create) throws IOException, ASAPException;
+
+    /**
+     * Get storage - create of required
+     * @param sender
+     * @return
+     * @throws IOException
+     * @throws ASAPException
+     */
+    ASAPStorage getIncomingStorage(CharSequence sender) throws IOException, ASAPException;
+    /**
      *
      * @return storage format / app
      */
