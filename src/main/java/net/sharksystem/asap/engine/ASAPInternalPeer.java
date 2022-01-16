@@ -7,7 +7,6 @@ import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.utils.ExtraData;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
@@ -102,10 +101,10 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
      * @throws IOException
      * @throws ASAPException
      */
-    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
-                                         byte[] messageAsBytes) throws IOException, ASAPException;
+    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
+                                            byte[] messageAsBytes) throws IOException, ASAPException;
 
-    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
+    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
     void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore);

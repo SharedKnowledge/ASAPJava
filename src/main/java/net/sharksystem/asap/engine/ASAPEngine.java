@@ -650,7 +650,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                             Peer told us last encounter era - from senders perspective of course.
                             There are several options, sketch:
 
-                                  <------ our storage ------->
+                                              <------ our storage ------->
                             ............ [eraFirst] +++++++++++++++ [eraLast] .........
                                (a)                       (b)            (c)      (d)
                             a) We send everything we have

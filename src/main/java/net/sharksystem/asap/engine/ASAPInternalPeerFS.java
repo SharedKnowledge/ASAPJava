@@ -3,7 +3,6 @@ package net.sharksystem.asap.engine;
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
-import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.utils.ExtraData;
 import net.sharksystem.utils.ExtraDataFS;
 import net.sharksystem.utils.Utils;
@@ -605,10 +604,10 @@ public class ASAPInternalPeerFS implements
         }
     }
 
-    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                        byte[] messageAsBytes) throws IOException, ASAPException {
+    public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+                                                   byte[] messageAsBytes) throws IOException, ASAPException {
 
-        this.sendOnlineASAPAssimilateMessage(format, urlTarget, null, messageAsBytes);
+        this.sendTransientASAPAssimilateMessage(format, urlTarget, null, messageAsBytes);
     }
 
     @Override
@@ -616,24 +615,26 @@ public class ASAPInternalPeerFS implements
         this.ASAPKeyStore = ASAPKeyStore;
     }
 
-    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                                Set<CharSequence> recipients, byte[] messageAsBytes)
+    public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri,
+                                                   Set<CharSequence> receiver, byte[] messageAsBytes)
             throws IOException, ASAPException {
 
-        int era = ASAP.INITIAL_ERA; // init
+//        int era = ASAP.TRANSIENT_ERA; // init
 
+        /*
         try {
             era = this.getASAPEngine(format).getEra();
         } catch (ASAPException e) {
             // no engine.. ok
             System.out.println(this.getLogStart() + "send message with format but no engine exists (yet): " + format);
         }
+         */
 
         // setup online message sender thread
         Log.writeLog(this, "setup online message sender object");
         ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);
         Log.writeLog(this, "call send asap assimilate message with online message sender");
-        asapOnlineMessageSender.sendASAPAssimilateMessage(format, urlTarget, recipients, messageAsBytes, era);
+        asapOnlineMessageSender.sendASAPAssimilateMessage(format, uri, receiver, messageAsBytes, ASAP.TRANSIENT_ERA);
     }
 
     private Collection<ASAPEngine> getEngines() {

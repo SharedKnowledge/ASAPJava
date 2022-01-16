@@ -13,6 +13,6 @@ public interface ASAPMessageSender {
     void sendASAPMessage(CharSequence appName, CharSequence uri,
                          byte[] message) throws ASAPException;
 
-    void sendOnlineASAPMessage(CharSequence appName, CharSequence uri, byte[] message)
+    void sendTransientASAPMessage(CharSequence appName, CharSequence uri, byte[] message)
             throws ASAPException, IOException;
 }

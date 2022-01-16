@@ -12,4 +12,9 @@ public interface TestConstants {
     String DAVID_NAME = "David";
 
     String URI = "shark://testUri";
+    byte[] MESSAGE_1 = "1st message".getBytes();
+    byte[] MESSAGE_2 = "2nd message".getBytes();
+
+    byte[] MESSAGE_ALICE_TO_BOB_1 = "Alice -> Bob (#1)".getBytes();
+    byte[] MESSAGE_BOB_TO_ALICE_1 = "Bob -> Alice (#1)".getBytes();
 }
