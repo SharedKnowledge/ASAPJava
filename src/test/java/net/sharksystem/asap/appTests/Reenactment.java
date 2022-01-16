@@ -1,6 +1,6 @@
 package net.sharksystem.asap.appTests;
 
-import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
+import net.sharksystem.testsupport.ASAPTestPeerFS;
 import net.sharksystem.asap.ASAPException;
 import org.junit.Test;
 

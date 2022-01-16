@@ -1,5 +1,6 @@
 package net.sharksystem;
 
+import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.utils.Utils;
 
 public class TestHelper {
@@ -41,5 +42,9 @@ public class TestHelper {
 
     public static boolean sameMessages(byte[] msgA, byte[] msgB) {
         return Utils.compareArrays(msgA, msgB);
+    }
+
+    public static void removeFolder(String foldername) {
+        ASAPEngineFS.removeFolder(foldername);
     }
 }

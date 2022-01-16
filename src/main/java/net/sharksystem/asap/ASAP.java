@@ -3,10 +3,10 @@ package net.sharksystem.asap;
 import java.util.Random;
 
 public class ASAP {
-    public static final int TRANSIENT_ERA = -1;
+    public static final int TRANSIENT_ERA = Integer.MAX_VALUE;
     public static final int INITIAL_ERA = 0;
     public static final int MIN_ERA = INITIAL_ERA;
-    public static final int MAX_ERA = Integer.MAX_VALUE;
+    public static final int MAX_ERA = Integer.MAX_VALUE-1;
 
     public static int nextEra(int workingEra) {
         if(workingEra == ASAP.MAX_ERA) {

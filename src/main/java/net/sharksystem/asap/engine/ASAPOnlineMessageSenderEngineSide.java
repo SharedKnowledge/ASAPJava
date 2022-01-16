@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
@@ -66,7 +67,8 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         sb.append("| uri: ");
         sb.append(uri);
         sb.append("| era: ");
-        sb.append(era);
+        if(era != ASAP.TRANSIENT_ERA) sb.append(era);
+        else sb.append("transient");
         sb.append("| #receiver: ");
         if(receiver != null) sb.append(receiver.size());
         else sb.append("null");

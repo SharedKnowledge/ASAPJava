@@ -1,5 +1,6 @@
 package net.sharksystem.asap.protocol;
 
+import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPSecurityException;
@@ -197,7 +198,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                            OutputStream os, boolean signed, boolean encrypted) throws IOException, ASAPException {
 
         if(data == null || data.length == 0) throw new ASAPException("data must not be null");
-        if(era < 0) throw new ASAPException("era must be a non-negative value: " + era);
+        if(era < -1) throw new ASAPException("era must be a non-negative value: " + era);
 
         this.assimilate(sender, recipient, format, channel, era, data.length, offsets, asapHops,
                 new ByteArrayInputStream(data), os, signed, encrypted);
