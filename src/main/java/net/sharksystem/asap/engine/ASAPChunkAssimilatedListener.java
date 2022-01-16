@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.ASAPMessages;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
  *
  * @author thsc
  */
-public interface ASAPChunkReceivedListener {
+public interface ASAPChunkAssimilatedListener {
     /**
      * Announce incoming ASAP messages. Note the important difference of both senders. ASAP is a routing protocol.
      * An ASAP message has got an original sender (the end-to-end (E2E) sender). Other peers can route this message.
@@ -27,6 +28,8 @@ public interface ASAPChunkReceivedListener {
      * @see ASAPHop
      *
      */
-    void chunkReceived(String format, String senderE2E, String uri, int era, // E2E part
-                       List<ASAPHop> asapHop) throws IOException;
+    void chunkStored(String format, String senderE2E, String uri, int era, // E2E part
+                     List<ASAPHop> asapHop) throws IOException;
+
+    void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException;
 }

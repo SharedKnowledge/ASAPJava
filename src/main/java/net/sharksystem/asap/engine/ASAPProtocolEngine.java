@@ -21,7 +21,7 @@ public interface ASAPProtocolEngine {
     void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
                               String encounteredPeer, InputStream is, OutputStream os,
                               EncounterConnectionType connectionType,
-                              ASAPChunkReceivedListener listener)
+                              ASAPChunkAssimilatedListener listener)
             throws ASAPException, IOException;
 
     /**

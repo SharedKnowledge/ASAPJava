@@ -22,7 +22,7 @@ public class ASAPInternalPeerFS implements
 
     private static final String DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER = "ASAPManagement";
     private final CharSequence rootFolderName;
-    private final ASAPChunkReceivedListener listener;
+    private final ASAPChunkAssimilatedListener listener;
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
@@ -45,7 +45,7 @@ public class ASAPInternalPeerFS implements
     public static ASAPInternalPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
                                                   long maxExecutionTime,
                                                   Collection<CharSequence> supportFormats,
-                                                  ASAPChunkReceivedListener listener)
+                                                  ASAPChunkAssimilatedListener listener)
             throws ASAPException, IOException {
 
         return new ASAPInternalPeerFS(owner, rootFolder, maxExecutionTime, supportFormats, listener);
@@ -53,7 +53,7 @@ public class ASAPInternalPeerFS implements
 
     public static ASAPInternalPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
                                                   Collection<CharSequence> supportFormats,
-                                                  ASAPChunkReceivedListener listener)
+                                                  ASAPChunkAssimilatedListener listener)
             throws ASAPException, IOException {
 
         return new ASAPInternalPeerFS(owner, rootFolder, DEFAULT_MAX_PROCESSING_TIME, supportFormats, listener);
@@ -61,16 +61,16 @@ public class ASAPInternalPeerFS implements
 
     public static ASAPInternalPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
                                                   long maxExecutionTime,
-                                                  ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+                                                  ASAPChunkAssimilatedListener listener) throws ASAPException, IOException {
         return new ASAPInternalPeerFS(owner, rootFolder, maxExecutionTime, listener);
     }
 
     public static ASAPInternalPeer createASAPPeer(CharSequence owner, CharSequence rootFolder,
-                                                  ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+                                                  ASAPChunkAssimilatedListener listener) throws ASAPException, IOException {
         return new ASAPInternalPeerFS(owner, rootFolder, DEFAULT_MAX_PROCESSING_TIME, listener);
     }
 
-    public static ASAPInternalPeer createASAPPeer(CharSequence folder, ASAPChunkReceivedListener listener)
+    public static ASAPInternalPeer createASAPPeer(CharSequence folder, ASAPChunkAssimilatedListener listener)
             throws ASAPException, IOException {
 
         return ASAPInternalPeerFS.createASAPPeer(ASAPEngine.DEFAULT_OWNER, folder,
@@ -83,12 +83,12 @@ public class ASAPInternalPeerFS implements
      * @param rootFolderName
      */
     private ASAPInternalPeerFS(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                               ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+                               ASAPChunkAssimilatedListener listener) throws ASAPException, IOException {
         this(owner, rootFolderName, maxExecutionTime, null, listener);
     }
 
     private ASAPInternalPeerFS(CharSequence owner, CharSequence rootFolderName, long maxExecutionTime,
-                               Collection<CharSequence> apps, ASAPChunkReceivedListener listener)
+                               Collection<CharSequence> apps, ASAPChunkAssimilatedListener listener)
             throws ASAPException, IOException {
 
         // owner id must not be a numerical value only - it would interfere with our era numbers
@@ -201,7 +201,7 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener)
+    public void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkAssimilatedListener listener)
             throws ASAPException {
 
         EngineSetting engineSetting = this.folderMap.get(appName);
@@ -258,7 +258,7 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException {
+    public ASAPChunkAssimilatedListener getListenerByFormat(CharSequence format) throws ASAPException {
         EngineSetting engineSetting = this.folderMap.get(format);
         if(engineSetting == null) throw new ASAPException("unknown format: " + format);
 

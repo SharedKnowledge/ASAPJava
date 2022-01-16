@@ -7,6 +7,8 @@ import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalChunk;
 import net.sharksystem.testsupport.ASAPTestPeerFS;
+import net.sharksystem.testsupport.StoreReceivedMessages;
+import net.sharksystem.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,11 +33,11 @@ public class TransientMessages {
         ///////////////// ALICE //////////////////////////////////////////////////////////////
         // setup mocked peer / asap application and activity in android
         ASAPTestPeerFS aliceSimplePeer = new ASAPTestPeerFS(TestConstants.ALICE_ID, ALICE_DIRECTORY, formats);
-        CountsReceivedMessagesListener aliceListener = new CountsReceivedMessagesListener(TestConstants.ALICE_ID);
+        StoreReceivedMessages aliceListener = new StoreReceivedMessages();
         aliceSimplePeer.addASAPMessageReceivedListener(APPNAME, aliceListener);
 
         ASAPTestPeerFS bobSimplePeer = new ASAPTestPeerFS(TestConstants.BOB_ID, BOB_DIRECTORY, formats);
-        CountsReceivedMessagesListener bobListener = new CountsReceivedMessagesListener(TestConstants.ALICE_ID);
+        StoreReceivedMessages bobListener = new StoreReceivedMessages();
         bobSimplePeer.addASAPMessageReceivedListener(APPNAME, bobListener);
 
         aliceSimplePeer.startEncounter(7777, bobSimplePeer);
@@ -52,8 +54,14 @@ public class TransientMessages {
         // give your app a moment to process
         Thread.sleep(100);
 
-        Assert.assertEquals(1, aliceListener.numberOfMessages);
-        Assert.assertEquals(1, bobListener.numberOfMessages);
+        Assert.assertEquals(1, aliceListener.messageList.size());
+        Assert.assertEquals(1, bobListener.messageList.size());
+
+        byte[] message = aliceListener.messageList.get(0).getMessages().next();
+        Assert.assertTrue(Utils.compareArrays(message, TestConstants.MESSAGE_BOB_TO_ALICE_1));
+
+        message = bobListener.messageList.get(0).getMessages().next();
+        Assert.assertTrue(Utils.compareArrays(message, TestConstants.MESSAGE_ALICE_TO_BOB_1));
 
         // transient!! there must be no record
         try {

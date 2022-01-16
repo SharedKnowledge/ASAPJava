@@ -49,7 +49,7 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
      */
     ASAPEngine createEngineByFormat(CharSequence format) throws ASAPException, IOException;
 
-    ASAPChunkReceivedListener getListenerByFormat(CharSequence format) throws ASAPException;
+    ASAPChunkAssimilatedListener getListenerByFormat(CharSequence format) throws ASAPException;
 
     /**
      * get or create engine for a given application - mainly means: setup folder
@@ -70,7 +70,7 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
 
     void newEra() throws IOException, ASAPException;
 
-    void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkReceivedListener listener) throws ASAPException;
+    void setASAPChunkReceivedListener(CharSequence appName, ASAPChunkAssimilatedListener listener) throws ASAPException;
 
     void addOnlinePeersChangedListener(ASAPInternalOnlinePeersChangedListener listener);
 

@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerService, ASAPChunkReceivedListener {
+public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerService, ASAPChunkAssimilatedListener {
     public static final CharSequence DEFAULT_ROOT_FOLDER_NAME = ASAPEngineFS.DEFAULT_ROOT_FOLDER_NAME;
 
     private final String rootFolder;
-    private ASAPChunkReceivedListener chunkReceivedListener;
+    private ASAPChunkAssimilatedListener chunkReceivedListener;
 
     public ASAPPeerFS(CharSequence owner, CharSequence rootFolder,
                       Collection<CharSequence> supportFormats) throws IOException, ASAPException {
@@ -20,16 +20,17 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         this.rootFolder = rootFolder.toString();
     }
 
-    public void overwriteChuckReceivedListener(ASAPChunkReceivedListener listener) {
+    public void overwriteChuckReceivedListener(ASAPChunkAssimilatedListener listener) {
+        Log.writeLogErr(this, "do not use chunk received listener - message received listener is better");
         this.chunkReceivedListener = listener;
     }
 
     private ASAPEncounterManager ASAPEncounterManager = null;
 
-    @Override
-    public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              List<ASAPHop> asapHopList) throws IOException {
 
+    private void chunkAssimilated(ASAPMessages receivedMessages, CharSequence format,
+                                  CharSequence senderE2E, CharSequence uri, int era,
+                                  List<ASAPHop> asapHopList, boolean callListener) {
         StringBuilder sb = new StringBuilder();
         String hopListString = "hoplist == null";
         if(asapHopList != null) {
@@ -45,7 +46,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         }
 
         sb = new StringBuilder();
-        sb.append("\n++++++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++++\n");
+        sb.append("\n+++++++++++++++++++++++++++++++++++++++ chunkAssimilated +++++++++++++++++++++++++++++++++++++++++\n");
         sb.append("E2E|P2P: " + senderE2E +  " | " + asapHopList.get(asapHopList.size()-1).sender() + " | uri: " + uri);
         sb.append(" | era: ");
         if(era == ASAP.TRANSIENT_ERA) sb.append("transient");
@@ -56,25 +57,42 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
-        if(this.chunkReceivedListener != null) {
-            this.log("chunk received listener set - call this one");
-            this.chunkReceivedListener.chunkReceived(format, senderE2E, uri, era, asapHopList);
-        } else {
+        if(callListener) {
+            // call listener
             this.log("notify listener");
-            if(this.asapMessageReceivedListenerManager.getNumberListener() > 0) {
-                this.log("extract messages from chunk and notify listener");
-                ASAPMessages receivedMessages =
-                        Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
-
+            if (this.asapMessageReceivedListenerManager.getNumberListener() > 0) {
                 this.asapMessageReceivedListenerManager.notifyReceived(
                         format, receivedMessages, true,
-                        senderE2E, asapHopList);
+                        senderE2E.toString(), asapHopList);
             }
 
-            if(this.asapChannelContentChangedListenerManager.getNumberListener() > 0) {
+            if (this.asapChannelContentChangedListenerManager.getNumberListener() > 0) {
                 this.log("notify channel content changed listener");
                 this.asapChannelContentChangedListenerManager.notifyChanged(format, uri, era, true);
             }
+        }
+    }
+
+    @Override
+    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+        this.chunkAssimilated(transientMessages,
+                transientMessages.getFormat(), sender, transientMessages.getURI(),
+                ASAP.TRANSIENT_ERA, asapHop, true);
+    }
+
+    @Override
+    public void chunkStored(String format, String senderE2E, String uri, int era,
+                            List<ASAPHop> asapHopList) throws IOException {
+        if(this.chunkReceivedListener != null) {
+            this.log("chunk received listener set - call this one");
+            this.chunkReceivedListener.chunkStored(format, senderE2E, uri, era, asapHopList);
+            this.chunkAssimilated(null, format, senderE2E, uri, era, asapHopList, false);
+        } else {
+            this.log("extract messages from chunk and notify listener");
+            ASAPMessages receivedMessages =
+                    Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
+
+            this.chunkAssimilated(receivedMessages, format, senderE2E, uri, era, asapHopList, true);
         }
     }
 

@@ -1,6 +1,6 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.engine.ASAPChunkReceivedListener;
+import net.sharksystem.asap.engine.ASAPChunkAssimilatedListener;
 
 public interface ASAPPeerService extends ASAPPeer, ASAPConnectionHandler {
     //    long DEFAULT_MAX_PROCESSING_TIME = 30000; // 30 seconds
@@ -12,5 +12,5 @@ public interface ASAPPeerService extends ASAPPeer, ASAPConnectionHandler {
      *
      * @param listener this listener is called instead - no further chunk processing is made by this object.
      */
-    void overwriteChuckReceivedListener(ASAPChunkReceivedListener listener);
+    void overwriteChuckReceivedListener(ASAPChunkAssimilatedListener listener);
 }

@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 // java -cp ASAP_Engine_x.y.z.jar net.sharksystem.asap.apps.gossip.GossipUI Alice 7070 7071
-public class GossipUI implements ASAPChunkReceivedListener {
+public class GossipUI implements ASAPChunkAssimilatedListener {
     private List<Integer> remotePortNumber;
     private String peerName;
     private int portnumber;
@@ -97,13 +97,13 @@ public class GossipUI implements ASAPChunkReceivedListener {
     }
 
     @Override
-    public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              List<ASAPHop> asapHop) throws IOException {
+    public void chunkStored(String format, String senderE2E, String uri, int era,
+                            List<ASAPHop> asapHop) throws IOException {
 
         ASAPMessages receivedMessages =
                 Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolderName, era);
 
-        this.println("chunk received: " + format + " | " + senderE2E + " | " + uri);
+        this.println("messages received: " + format + " | " + senderE2E + " | " + uri);
 
         Iterator<byte[]> messages = receivedMessages.getMessages();
         while(messages.hasNext()) {
@@ -111,6 +111,21 @@ public class GossipUI implements ASAPChunkReceivedListener {
             String receivedMessage = Helper.bytes2str(msgBytes);
             this.println("message received: " + receivedMessage);
         };
+    }
+
+    private void printReceivedMessages(ASAPMessages asapMessages, List<ASAPHop> asapHop) throws IOException {
+        this.println("messages received: " + asapMessages.getFormat() + " | " + asapMessages.getURI());
+
+        Iterator<byte[]> messages = asapMessages.getMessages();
+        while(messages.hasNext()) {
+            byte[] msgBytes = messages.next();
+            String receivedMessage = Helper.bytes2str(msgBytes);
+            this.println("message received: " + receivedMessage);
+        };
+    }
+
+    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+        this.printReceivedMessages(transientMessages, asapHop);
     }
 
     private class ASAPConnectionCreator extends Thread implements TCPStreamCreatedListener {

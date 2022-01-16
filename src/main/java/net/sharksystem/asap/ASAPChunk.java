@@ -1,5 +1,8 @@
 package net.sharksystem.asap;
 
+import com.sun.xml.internal.ws.wsdl.writer.document.Message;
+import net.sharksystem.asap.engine.MessagesContainer;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +15,7 @@ import java.util.List;
  *
  * @author thsc
  */
-public interface ASAPChunk {
+public interface ASAPChunk extends MessagesContainer {
     /**
      *
      * @return number of message in that chunk
@@ -87,5 +90,4 @@ public interface ASAPChunk {
 
     List<ASAPHop> getASAPHopList();
 
-    void setASAPHopList(List<ASAPHop> asapHopList) throws IOException;
 }

@@ -22,7 +22,7 @@ import java.util.*;
  *
  * @author thsc
  */
-public interface ASAPInternalChunk extends ASAPChunk {
+public interface ASAPInternalChunk extends ASAPChunk, MessagesContainer {
     /**
      * Convenient methode: It calls getMessages and transforms each message into a string
      * @return iterator of all messages in the chunk
@@ -56,8 +56,6 @@ public interface ASAPInternalChunk extends ASAPChunk {
      * @throws IOException 
      */
     void removeRecipient(CharSequence recipients) throws IOException;
-
-    void addMessage(InputStream messageByteIS, long length) throws IOException;
 
     long getLength();
 

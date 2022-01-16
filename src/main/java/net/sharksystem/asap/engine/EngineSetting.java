@@ -2,10 +2,10 @@ package net.sharksystem.asap.engine;
 
 public class EngineSetting {
     public final CharSequence folder;
-    public ASAPChunkReceivedListener listener;
+    public ASAPChunkAssimilatedListener listener;
     public ASAPEngine engine;
 
-    EngineSetting(CharSequence folder, ASAPChunkReceivedListener listener) {
+    EngineSetting(CharSequence folder, ASAPChunkAssimilatedListener listener) {
         this.folder = folder;
         this.listener = listener;
     }

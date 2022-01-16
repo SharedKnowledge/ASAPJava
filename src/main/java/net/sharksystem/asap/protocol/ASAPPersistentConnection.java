@@ -131,13 +131,13 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         }
     }
 
-    private void terminate(String message, Exception e) {
+    private void terminate(String message, Throwable t) {
         // write log
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append(message);
-        if(e != null) {
-            sb.append(e.getLocalizedMessage());
+        if(t != null) {
+            sb.append(t.getLocalizedMessage());
         }
 
         sb.append(" | ");
@@ -216,19 +216,26 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         /////////////////////////////// read
         while (!this.terminated) {
             this.pduReader = new ASAPPDUReader(protocol, is, this);
+            Throwable unexpectedThrowable = null;
             try {
                 Log.writeLog(this, this.getLogStart() + "start reading");
                 this.runObservedThread(pduReader, this.maxExecutionTime);
             } catch (ASAPExecTimeExceededException e) {
                 Log.writeLog(this, this.getLogStart() + "reading on stream took longer than allowed");
             }
+            catch(Throwable t) {
+                unexpectedThrowable = t;
+                Log.writeLog(this, this.getLogStart() + "while reading PDU: " + t.getLocalizedMessage());
+            }
 
             Log.writeLog(this, this.getLogStart() + "back from reading");
             if(terminated) break; // thread could be killed in the meantime
 
-            if (pduReader.getIoException() != null || pduReader.getAsapException() != null) {
-                Exception e = pduReader.getIoException() != null ?
+            if (unexpectedThrowable != null || pduReader.getIoException() != null || pduReader.getAsapException() != null) {
+                Throwable problem = pduReader.getIoException() != null ?
                         pduReader.getIoException() : pduReader.getAsapException();
+
+                if(problem == null) problem = unexpectedThrowable;
 
                 try {
                     this.is.close();
@@ -237,7 +244,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                             + "tried to close stream after exception caught: " + exception.getLocalizedMessage());
                 }
 
-                this.terminate("exception when reading from stream (stop asap session, stream closed): ", e);
+                this.terminate("problem when reading from stream (close asap session and stream): ", problem);
                 break;
             }
 

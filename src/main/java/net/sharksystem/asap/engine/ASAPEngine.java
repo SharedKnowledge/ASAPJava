@@ -377,7 +377,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     // extract those algorithms to another class (ASAPDefaultProtocolEngine) ?!
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
          String encounteredPeer, InputStream is, OutputStream os, EncounterConnectionType connectionType,
-         ASAPChunkReceivedListener listener) throws ASAPException, IOException {
+         ASAPChunkAssimilatedListener listener) throws ASAPException, IOException {
 
         // before we start - lets crypto
         if(!hasSufficientCrypto(asapAssimilationPDU)) return;
@@ -386,10 +386,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         int eraSender = asapAssimilationPDU.getEra();
 
         // debug break
-        //Log.writeLog(this, this.toString(), "!!!!!!!!!!!!!!!!!!!!!!!! ASSIMILATE PDU senderE2E: " + senderE2E);
-        if(PeerIDHelper.sameID(senderE2E, "Alice_42")) {
-            int i = 42;
-        }
+        //if(PeerIDHelper.sameID(senderE2E, "Alice_42")) { int i = 42;  }
 
         if(PeerIDHelper.sameID(senderE2E, this.owner)) {
             Log.writeLogErr(this, this.toString(), "I was offered messages from myself ("
@@ -408,13 +405,28 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Log.writeLog(this, this.toString(), b.toString());
         //>>>>>>>>>>>>>>>>>>>debug
 
-        // get received storage
-        ASAPInternalStorage incomingStorage = (ASAPInternalStorage) this.getIncomingStorage(senderE2E, true);
-        ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
-        Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
-
         boolean changed = false;
         boolean allowedAssimilation = true;
+
+        ASAPInternalChunk incomingChunk = null;
+        MessagesContainer messagesContainer = null;
+        ASAPInMemoTransientMessages transientMessages = null;
+
+        if(eraSender != ASAP.TRANSIENT_ERA) {
+            incomingChunk = this.getIncomingChunk(asapAssimilationPDU);
+            messagesContainer = incomingChunk;
+        } else {
+            transientMessages = new ASAPInMemoTransientMessages(asapAssimilationPDU);
+            messagesContainer = transientMessages;
+        }
+
+        // put messages into container - incoming chunk or transient message container
+        List<Integer> messageOffsets = asapAssimilationPDU.getMessageOffsets();
+
+        // iterate messages and stream into chunk
+        InputStream protocolInputStream = asapAssimilationPDU.getInputStream();
+        this.streamReceivedMessages2Container(messagesContainer, protocolInputStream,
+                messageOffsets, asapAssimilationPDU.getLength());
 
         // add entry to hop list
         List<ASAPHop> asapHopList = asapAssimilationPDU.getASAPHopList();
@@ -423,102 +435,19 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         // add this new hop
         ASAPHop lastHop = new ASAPHopImpl(encounteredPeer, asapAssimilationPDU.verified(),
                 asapAssimilationPDU.encrypted(), connectionType);
-
         asapHopList.add(lastHop);
 
-        // get URI
+        // add hop list to newly create message container
+        messagesContainer.setASAPHopList(asapHopList);
+
+        ////////////////// write log
         String uri = asapAssimilationPDU.getChannelUri();
-
-        if(eraSender != ASAP.TRANSIENT_ERA) {
-            try {
-                // get local target for data to come
-                ASAPInternalChunk localChunk = null;
-
-                if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
-                    // is there a local chunk - to clone recipients from?
-                    if (this.channelExists(uri)) {
-                        localChunk = this.getStorage().getChunk(uri, this.getEra());
-                    } else {
-                        Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
-                                + uri + " | " + senderE2E);
-                        // this channel is new to local peer - am I allowed to create it?
-                        if (!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
-                            Log.writeLog(this, this.toString(),
-                                    ".. not allowed .. TODO not yet implemented .. always set up");
-
-                            allowedAssimilation = false; // TODO
-                        } else {
-                            Log.writeLog(this, this.toString(), "allowed. Set it up.");
-                            this.createChannel(uri);
-                        }
-                    }
-                } else {
-                    Log.writeLog(this, this.toString(), "received chunk that already exists - did nothing: "
-                            + senderE2E + " | " + eraSender + " | " + uri);
-
-                    // read assimilation message payload to oblivion!
-                    asapAssimilationPDU.takeDataFromStream();
-                    return;
-                }
-
-                ASAPInternalChunk incomingChunk = incomingStorage.createNewChunk(uri, eraSender);
-                //ASAPInternalChunk incomingChunk = incomingChunkStorage.getChunk(uri, eraSender);
-
-                if (localChunk != null) {
-                    Log.writeLog(this, this.toString(), "copy local meta data into newly created incoming chunk");
-                    incomingChunk.copyMetaData(this.getChannel(uri));
-                }
-
-                List<Integer> messageOffsets = asapAssimilationPDU.getMessageOffsets();
-
-                // iterate messages and stream into chunk
-                InputStream protocolInputStream = asapAssimilationPDU.getInputStream();
-                long offset = 0;
-                for (long nextOffset : messageOffsets) {
-                    //<<<<<<<<<<<<<<<<<<debug
-                    b = new StringBuilder();
-                    b.append("going to read message: [");
-                    b.append(offset);
-                    b.append(", ");
-                    b.append(nextOffset);
-                    b.append(")");
-                    Log.writeLog(this, this.toString(), b.toString());
-                    //>>>>>>>>>>>>>>>>>>>debug
-                    incomingChunk.addMessage(protocolInputStream, nextOffset - offset);
-                    //if(!changed) { changed = true; this.contentChanged();}
-                    offset = nextOffset;
-                }
-
-                // last round
-                //<<<<<<<<<<<<<<<<<<debug
-                b = new StringBuilder();
-                b.append("going to read last message: from offset ");
-                b.append(offset);
-                b.append(" to end of file - total length: ");
-                b.append(asapAssimilationPDU.getLength());
-                Log.writeLog(this, this.toString(), b.toString());
-                //>>>>>>>>>>>>>>>>>>>debug
-
-                incomingChunk.addMessage(protocolInputStream, asapAssimilationPDU.getLength() - offset);
-
-                // add hop list to newly create chunk
-                incomingChunk.setASAPHopList(asapHopList);
-            } catch (IOException | ASAPException e) {
-                Log.writeLogErr(this, this.toString(),
-                        "exception (give up, keep streams untouched): " + e.getLocalizedMessage());
-                throw e;
-            }
-        }
-
-        /////// notify listeners - if any
-
         // read all messages
-        if(listener != null) {
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
             b.append("call ");
             b.append(listener.getClass().getSimpleName());
-            b.append(".chunkReceived(senderE2E: ");
+            b.append(".chunkAssimilated(senderE2E: ");
             b.append(senderE2E);
             b.append(", uri: ");
             b.append(uri);
@@ -529,13 +458,111 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             Log.writeLog(this, this.toString(), b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
-            listener.chunkReceived(this.format,
-                    senderE2E, uri, eraSender,
-                    asapHopList
-                    );
+        if(listener != null) {
+            /////// notify listeners - if any
+            if(eraSender != ASAP.TRANSIENT_ERA) {
+                listener.chunkStored(this.format,
+                        senderE2E,
+                        uri,
+                        eraSender,
+                        asapHopList
+                );
+            } else {
+                listener.transientChunkReceived(transientMessages, encounteredPeer, asapHopList);
+            }
+
         } else {
             Log.writeLog(this, this.toString(), "no chunk received listener found");
         }
+    }
+
+    private ASAPInternalChunk getIncomingChunk(ASAP_AssimilationPDU_1_0 asapAssimilationPDU)
+            throws IOException, ASAPException {
+
+        String uri = asapAssimilationPDU.getChannelUri();
+        int eraSender = asapAssimilationPDU.getEra();
+        String senderE2E = asapAssimilationPDU.getSender();
+        ASAPInternalStorage incomingStorage = (ASAPInternalStorage) this.getIncomingStorage(senderE2E, true);
+        ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
+        Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
+
+        try {
+            // get local target for data to come
+            ASAPInternalChunk localChunk = null;
+
+            if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
+                // is there a local chunk - to clone recipients from?
+                if (this.channelExists(uri)) {
+                    localChunk = this.getStorage().getChunk(uri, this.getEra());
+                } else {
+                    Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
+                            + uri + " | " + senderE2E);
+                    // this channel is new to local peer - am I allowed to create it?
+                    if (!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
+                        Log.writeLog(this, this.toString(),
+                                ".. not allowed .. TODO not yet implemented .. always set up");
+
+                        //allowedAssimilation = false; // TODO
+                    } else {
+                        Log.writeLog(this, this.toString(), "allowed. Set it up.");
+                        this.createChannel(uri);
+                    }
+                }
+            } else {
+                Log.writeLog(this, this.toString(), "received chunk that already exists - did nothing: "
+                        + senderE2E + " | " + eraSender + " | " + uri);
+
+                // read assimilation message payload to oblivion!
+                asapAssimilationPDU.takeDataFromStream();
+            }
+
+            ASAPInternalChunk incomingChunk = incomingStorage.createNewChunk(uri, eraSender);
+            //ASAPInternalChunk incomingChunk = incomingChunkStorage.getChunk(uri, eraSender);
+
+            if (localChunk != null) {
+                Log.writeLog(this, this.toString(), "copy local meta data into newly created incoming chunk");
+                incomingChunk.copyMetaData(this.getChannel(uri));
+            }
+
+            return incomingChunk;
+
+        } catch (IOException | ASAPException e) {
+            Log.writeLogErr(this, this.toString(),
+                    "exception (give up, keep streams untouched): " + e.getLocalizedMessage());
+            throw e;
+        }
+    }
+
+    private void streamReceivedMessages2Container(MessagesContainer messagesContainer,
+          InputStream is, List<Integer> messageOffsets, long totalLength) throws IOException {
+
+        long offset = 0;
+        for (long nextOffset : messageOffsets) {
+            //<<<<<<<<<<<<<<<<<<debug
+            StringBuilder b = new StringBuilder();
+            b.append("going to read message: [");
+            b.append(offset);
+            b.append(", ");
+            b.append(nextOffset);
+            b.append(")");
+            Log.writeLog(this, this.toString(), b.toString());
+            //>>>>>>>>>>>>>>>>>>>debug
+            messagesContainer.addMessage(is, nextOffset - offset);
+            //if(!changed) { changed = true; this.contentChanged();}
+            offset = nextOffset;
+        }
+
+        // last round
+        //<<<<<<<<<<<<<<<<<<debug
+        StringBuilder b = new StringBuilder();
+        b.append("going to read last message: from offset ");
+        b.append(offset);
+        b.append(" to end of file - total length: ");
+        b.append(totalLength);
+        Log.writeLog(this, this.toString(), b.toString());
+        //>>>>>>>>>>>>>>>>>>>debug
+
+        messagesContainer.addMessage(is, totalLength - offset);
     }
 
     private boolean hasSufficientCrypto(ASAP_PDU_1_0 pdu) {

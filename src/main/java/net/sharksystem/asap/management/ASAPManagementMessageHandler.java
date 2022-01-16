@@ -1,6 +1,7 @@
 package net.sharksystem.asap.management;
 
 import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.ASAPInternalChunk;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
@@ -11,7 +12,7 @@ import net.sharksystem.asap.protocol.ASAP_1_0;
 import java.io.IOException;
 import java.util.*;
 
-public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
+public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListener {
     private final ASAPInternalPeer multiASAPEngine;
 
     public ASAPManagementMessageHandler(ASAPInternalPeer multiASAPEngine) throws IOException, ASAPException {
@@ -42,8 +43,8 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
     }
 
     @Override
-    public void chunkReceived(String format, String senderE2E, String uri, int era,
-                              List<ASAPHop> asapHop) throws IOException {
+    public void chunkStored(String format, String senderE2E, String uri, int era,
+                            List<ASAPHop> asapHop) throws IOException {
 
         System.out.println(this.getLogStart()
                 + "handle received chunk (format|senderE2E|uri|era) " + format + senderE2E + "|" + uri + "|" + era);
@@ -80,6 +81,11 @@ public class ASAPManagementMessageHandler implements ASAPChunkReceivedListener {
         } catch (ASAPException | IOException e) {
             System.out.println("could get asap management engine but received chunk - looks like a bug");
         }
+    }
+
+    @Override
+    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+        System.err.println("transientChunkReceived not yet implement");
     }
 
     private Set<CharSequence> handleASAPManagementMessage(byte[] message) throws ASAPException, IOException {
