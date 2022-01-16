@@ -429,7 +429,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 }
             }
             catch(ASAPException asape) {
-                Log.writeLogErr(this, "asap exception while processing PDU - but go ahead: "
+                Log.writeLog(this, "while processing PDU (go ahead): "
                         + asape.getLocalizedMessage());
             }
             catch(IOException ioe) {

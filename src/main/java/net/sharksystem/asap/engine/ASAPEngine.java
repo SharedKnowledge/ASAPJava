@@ -412,12 +412,18 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         MessagesContainer messagesContainer = null;
         ASAPInMemoTransientMessages transientMessages = null;
 
-        if(eraSender != ASAP.TRANSIENT_ERA) {
-            incomingChunk = this.getIncomingChunk(asapAssimilationPDU);
-            messagesContainer = incomingChunk;
-        } else {
-            transientMessages = new ASAPInMemoTransientMessages(asapAssimilationPDU);
-            messagesContainer = transientMessages;
+        try {
+            if(eraSender != ASAP.TRANSIENT_ERA) {
+                    incomingChunk = this.getIncomingChunk(encounteredPeer, asapAssimilationPDU);
+                    messagesContainer = incomingChunk;
+            } else {
+                transientMessages = new ASAPInMemoTransientMessages(asapAssimilationPDU);
+                messagesContainer = transientMessages;
+            }
+        }
+        catch(ASAPException e) {
+            asapAssimilationPDU.takeDataFromStream();
+            throw e;
         }
 
         // put messages into container - incoming chunk or transient message container
@@ -476,7 +482,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         }
     }
 
-    private ASAPInternalChunk getIncomingChunk(ASAP_AssimilationPDU_1_0 asapAssimilationPDU)
+    private ASAPInternalChunk getIncomingChunk(String encounteredPeer, ASAP_AssimilationPDU_1_0 asapAssimilationPDU)
             throws IOException, ASAPException {
 
         String uri = asapAssimilationPDU.getChannelUri();
@@ -486,50 +492,53 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
         Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
 
-        try {
             // get local target for data to come
+        if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
             ASAPInternalChunk localChunk = null;
-
-            if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
-                // is there a local chunk - to clone recipients from?
-                if (this.channelExists(uri)) {
-                    localChunk = this.getStorage().getChunk(uri, this.getEra());
-                } else {
-                    Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
-                            + uri + " | " + senderE2E);
-                    // this channel is new to local peer - am I allowed to create it?
-                    if (!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
-                        Log.writeLog(this, this.toString(),
-                                ".. not allowed .. TODO not yet implemented .. always set up");
-
-                        //allowedAssimilation = false; // TODO
-                    } else {
-                        Log.writeLog(this, this.toString(), "allowed. Set it up.");
-                        this.createChannel(uri);
-                    }
-                }
+            // is there a local chunk - to clone recipients from?
+            if (this.channelExists(uri)) {
+                localChunk = this.getStorage().getChunk(uri, this.getEra());
             } else {
-                Log.writeLog(this, this.toString(), "received chunk that already exists - did nothing: "
-                        + senderE2E + " | " + eraSender + " | " + uri);
+                Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
+                        + uri + " | " + senderE2E);
+                // this channel is new to local peer - am I allowed to create it?
+                if (!this.securityAdministrator.allowedToCreateChannel(asapAssimilationPDU)) {
+                    Log.writeLog(this, this.toString(),
+                            ".. not allowed .. TODO not yet implemented .. always set up");
 
-                // read assimilation message payload to oblivion!
-                asapAssimilationPDU.takeDataFromStream();
+                    //allowedAssimilation = false; // TODO
+                } else {
+                    Log.writeLog(this, this.toString(), "allowed. Set it up.");
+                    this.createChannel(uri);
+                }
             }
-
             ASAPInternalChunk incomingChunk = incomingStorage.createNewChunk(uri, eraSender);
-            //ASAPInternalChunk incomingChunk = incomingChunkStorage.getChunk(uri, eraSender);
 
             if (localChunk != null) {
                 Log.writeLog(this, this.toString(), "copy local meta data into newly created incoming chunk");
                 incomingChunk.copyMetaData(this.getChannel(uri));
             }
-
             return incomingChunk;
+        } else {
+            // already exists. Add message if sender == originator and era last era of this channel
+            if(incomingStorage.getEra() == eraSender // era is current era
+                    && PeerIDHelper.sameID(encounteredPeer, senderE2E) // E2E sender == P2P sender
+                    ) {
+                Log.writeLog(this, this.toString(),
+                        "received chunk exists but sender is originator and current era: "
+                        + senderE2E + " | " + eraSender + " | " + uri);
 
-        } catch (IOException | ASAPException e) {
-            Log.writeLogErr(this, this.toString(),
-                    "exception (give up, keep streams untouched): " + e.getLocalizedMessage());
-            throw e;
+                // finish routing...
+                if(incomingChunkStorage.getChunk(uri, eraSender).getASAPHopList().size() > 1) {
+                    throw new ASAPException("chunk was already routed to me - met originator - will no overwrite chunk");
+                }
+
+                return incomingChunkStorage.getChunk(uri, eraSender);
+            } else {
+                // read assimilation message payload to oblivion!
+                throw new ASAPException("chunk that already exists; not current era or not originator: "
+                        + senderE2E + " | " + eraSender + " | " + uri);
+            }
         }
     }
 

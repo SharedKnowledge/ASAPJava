@@ -358,9 +358,9 @@ public class MultihopTests {
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
-        Thread.sleep(1000);
+        Thread.sleep(500);
         alicePeer.stopEncounter(bobPeer);
-        Thread.sleep(1000);
+        Thread.sleep(500);
         Assert.assertEquals(1, bobListener.numberOfMessages);
 
         // check local eras
@@ -375,9 +375,9 @@ public class MultihopTests {
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         claraPeer.startEncounter(TestHelper.getPortNumber(), bobPeer);
         // give your app a moment to process
-        Thread.sleep(1000);
+        Thread.sleep(500);
         claraPeer.stopEncounter(bobPeer);
-        Thread.sleep(1000);
+        Thread.sleep(500);
         Assert.assertEquals(1, claraListener.numberOfMessages);
 
         // no change - receiving message does not change local understanding of an era
@@ -392,9 +392,9 @@ public class MultihopTests {
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
         // give your app a moment to process
-        Thread.sleep(1000);
+        Thread.sleep(500);
         alicePeer.stopEncounter(claraPeer);
-        Thread.sleep(1000);
+        Thread.sleep(500);
         Assert.assertEquals(0, claraListener.numberOfMessages);
 
         // no change - receiving message does not change local understanding of an era
