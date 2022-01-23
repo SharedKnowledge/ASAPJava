@@ -412,12 +412,17 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         MessagesContainer messagesContainer = null;
         ASAPInMemoTransientMessages transientMessages = null;
 
+        ASAPHop lastHop = new ASAPHopImpl(encounteredPeer, asapAssimilationPDU.verified(),
+                asapAssimilationPDU.encrypted(), connectionType);
+
         try {
             if(eraSender != ASAP.TRANSIENT_ERA) {
                     incomingChunk = this.getIncomingChunk(encounteredPeer, asapAssimilationPDU);
                     messagesContainer = incomingChunk;
             } else {
-                transientMessages = new ASAPInMemoTransientMessages(asapAssimilationPDU);
+                transientMessages =
+                        new ASAPInMemoTransientMessages(asapAssimilationPDU, lastHop);
+
                 messagesContainer = transientMessages;
             }
         }
@@ -439,8 +444,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Log.writeLog(this, this.toString(), "got hop list: " + asapHopList);
 
         // add this new hop
-        ASAPHop lastHop = new ASAPHopImpl(encounteredPeer, asapAssimilationPDU.verified(),
-                asapAssimilationPDU.encrypted(), connectionType);
         asapHopList.add(lastHop);
 
         // add hop list to newly create message container
@@ -451,16 +454,17 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         // read all messages
             //<<<<<<<<<<<<<<<<<<debug
             b = new StringBuilder();
-            b.append("call ");
-            b.append(listener.getClass().getSimpleName());
-            b.append(".chunkAssimilated(senderE2E: ");
+            b.append("assimilated: senderE2E: ");
             b.append(senderE2E);
             b.append(", uri: ");
             b.append(uri);
             b.append(", eraSender: ");
             if(eraSender != ASAP.TRANSIENT_ERA) b.append(eraSender);
             else b.append("transient");
-            b.append(")");
+            if(listener != null) {
+                b.append(" | listener: ");
+                b.append(listener.getClass().getSimpleName());
+            }
             Log.writeLog(this, this.toString(), b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
@@ -474,11 +478,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                         asapHopList
                 );
             } else {
-                listener.transientChunkReceived(transientMessages, encounteredPeer, asapHopList);
+                listener.transientMessagesReceived(transientMessages, lastHop);
             }
 
         } else {
-            Log.writeLog(this, this.toString(), "no chunk received listener found");
+            Log.writeLog(this, this.toString(), "no chunk assimilated listener found");
         }
     }
 
@@ -490,7 +494,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         String senderE2E = asapAssimilationPDU.getSender();
         ASAPInternalStorage incomingStorage = (ASAPInternalStorage) this.getIncomingStorage(senderE2E, true);
         ASAPChunkStorage incomingChunkStorage = incomingStorage.getChunkStorage();
-        Log.writeLog(this, this.toString(), "got incoming chunk storage for senderE2E: " + senderE2E);
+        Log.writeLog(this, this.toString(), "got incoming chunk storage "
+                + incomingChunkStorage);
 
             // get local target for data to come
         if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
@@ -525,7 +530,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     && PeerIDHelper.sameID(encounteredPeer, senderE2E) // E2E sender == P2P sender
                     ) {
                 Log.writeLog(this, this.toString(),
-                        "received chunk exists but sender is originator and current era: "
+                        "received chunk exists but sender is originator and current era - message will be added: "
                         + senderE2E + " | " + eraSender + " | " + uri);
 
                 // finish routing...
@@ -556,6 +561,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             b.append(")");
             Log.writeLog(this, this.toString(), b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
+
             messagesContainer.addMessage(is, nextOffset - offset);
             //if(!changed) { changed = true; this.contentChanged();}
             offset = nextOffset;
@@ -576,7 +582,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     private boolean hasSufficientCrypto(ASAP_PDU_1_0 pdu) {
         if(this.getCryptoControl() == null) {
-            Log.writeLog(this, this.toString(), "crypto control set allow anything");
+            Log.writeLog(this, this.toString(), "crypto control set to allow anything");
             return true;
         }
 

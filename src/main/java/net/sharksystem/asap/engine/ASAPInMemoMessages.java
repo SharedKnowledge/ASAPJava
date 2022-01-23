@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;

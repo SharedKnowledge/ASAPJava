@@ -89,12 +89,12 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             if(multiEngine.existASAPConnection(recipient)) {
                 ASAPConnection asapConnection = multiEngine.getASAPConnection(recipient);
                 sb = Log.startLog(this);
-                sb.append("got asap connection, subscribe / and store message");
+                sb.append("got asap connection, subscribe and store message");
                 System.out.println(sb.toString());
 
                 // serialize message for this recipient
                 ByteArrayOutputStream asapPDUBytes = new ByteArrayOutputStream();
-                protocol.assimilate(this.multiEngine.getOwner(), recipient, format, uri, era, null, // no offsets
+                this.protocol.assimilate(this.multiEngine.getOwner(), recipient, format, uri, era, null, // no offsets
                         null, messageAsBytes, asapPDUBytes, asapConnection.isSigned());
 
                 // I guess maps are synchronized
@@ -109,7 +109,6 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
                 // subscribe and remember it
                 asapConnection.addOnlineMessageSource(this);
                 this.connectionPeers.put(asapConnection, recipient);
-
             } else {
                 sb = Log.startLog(this);
                 sb.append("no connection found");
@@ -128,9 +127,8 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         CharSequence recipient = this.connectionPeers.get(asapConnection);
 
         List<byte[]> messageList = this.messages.get(recipient);
-        System.out.println(this.getLogStart() + "send message(s) to " + recipient);
-        System.out.println(this.getLogStart() + "send message to " + recipient);
-        System.out.println(this.getLogStart() + "outstream: " + os.getClass().getSimpleName());
+        Log.writeLog(this, this.getLogStart() + "send message(s) to " + recipient + " via: "
+                + os.getClass().getSimpleName());
         while(!messageList.isEmpty()) {
             byte[] messageBytes = messageList.remove(0);
             os.write(messageBytes);

@@ -3,6 +3,8 @@ package net.sharksystem.asap.utils;
 import net.sharksystem.asap.ASAP;
 
 public class PeerIDHelper {
+    private static long lastCall = 0;
+
     public static boolean sameID(CharSequence idA, CharSequence idB) {
         if(idA.length() != idB.length()) return false;
 
@@ -24,6 +26,14 @@ public class PeerIDHelper {
     }
 
     public static String createUniqueID() {
+        if(lastCall == System.currentTimeMillis()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        lastCall = System.currentTimeMillis();
         return ASAP.createUniqueID();
     }
 }

@@ -1,9 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.asap.ASAPChunk;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.ASAPMessages;
+import net.sharksystem.asap.*;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 
 import java.io.IOException;
@@ -12,26 +9,35 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class ASAPInMemoTransientMessages implements ASAPMessages, MessagesContainer {
+public class ASAPInMemoTransientMessages implements ASAPMessages, MessagesContainer {
     private final CharSequence format;
     private final CharSequence uri;
     private final CharSequence sender;
+    private ASAPHop asapHop;
     private int size = -1;
-    private List<ASAPHop> asapHopList;
     private List<byte[]> messageList = new ArrayList<>();
 
-    ASAPInMemoTransientMessages(ASAP_AssimilationPDU_1_0 pdu) {
+    ASAPInMemoTransientMessages(ASAP_AssimilationPDU_1_0 pdu, ASAPHop asapHop) {
         this.format = pdu.getFormat();
         this.uri = pdu.getChannelUri();
         this.sender = pdu.getSender();
+        this.asapHop = asapHop;
     }
 
-    private void checkStatus() throws ASAPException {
-        if(this.size < 0) throw new ASAPException("transient message container not yet filled");
+    public ASAPInMemoTransientMessages(CharSequence format, CharSequence uri, CharSequence sender, ASAPHop asapHop) {
+        this.format = format;
+        this.uri = uri;
+        this.sender = sender;
+        this.asapHop = asapHop;
+    }
+
+    private void checkStatus() throws IOException {
+        if(this.size < 0) throw new IOException("transient message container not yet filled");
     }
 
     @Override
     public int size() throws IOException {
+        this.checkStatus();
         return this.size;
     }
 
@@ -47,10 +53,11 @@ class ASAPInMemoTransientMessages implements ASAPMessages, MessagesContainer {
 
     public CharSequence getSender() { return this.sender; }
 
-
     @Override
     public void setASAPHopList(List<ASAPHop> asapHopList) throws IOException {
-        this.asapHopList = asapHopList;
+        if(this.asapHop == null) {
+            this.asapHop = asapHopList.get(asapHopList.size()-1);
+        }
     }
 
     @Override
@@ -90,6 +97,10 @@ class ASAPInMemoTransientMessages implements ASAPMessages, MessagesContainer {
         byte[] message = new byte[(int)length];
         is.read(message);
 
+        this.addMessage(message);
+    }
+
+    public void addMessage(byte[] message) throws IOException {
         this.messageList.add(message);
     }
 }

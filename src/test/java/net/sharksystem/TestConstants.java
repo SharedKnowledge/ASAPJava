@@ -17,4 +17,6 @@ public interface TestConstants {
 
     byte[] MESSAGE_ALICE_TO_BOB_1 = "Alice -> Bob (#1)".getBytes();
     byte[] MESSAGE_BOB_TO_ALICE_1 = "Bob -> Alice (#1)".getBytes();
+    byte[] MESSAGE_ALICE_TO_BOB_2 = "Alice -> Bob (#1)".getBytes();
+    byte[] MESSAGE_BOB_TO_ALICE_2 = "Bob -> Alice (#1)".getBytes();
 }

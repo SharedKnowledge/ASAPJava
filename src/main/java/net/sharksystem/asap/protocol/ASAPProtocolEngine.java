@@ -1,6 +1,5 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.utils.Log;
@@ -8,8 +7,6 @@ import net.sharksystem.utils.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import static net.sharksystem.asap.protocol.ASAP_1_0.ASAP_MANAGEMENT_FORMAT;
 
 public abstract class ASAPProtocolEngine {
     protected final ASAP_1_0 protocol;
@@ -21,6 +18,10 @@ public abstract class ASAPProtocolEngine {
     public ASAPProtocolEngine(InputStream is, OutputStream os, ASAP_1_0 protocol,
                               ASAPUndecryptableMessageHandler undecryptableMessageHandler,
                               ASAPKeyStore ASAPKeyStore) {
+        /*
+        this.is = new ISWrapper(is);
+        this.os = new OSWrapper(os);
+         */
         this.is = is;
         this.os = os;
         this.protocol = protocol;
@@ -31,13 +32,35 @@ public abstract class ASAPProtocolEngine {
                 + is.getClass().getSimpleName() + " | os: " + os.getClass().getSimpleName());
     }
 
-    /**
-     * send an interest with nothing but own name / id
-     * @param signed if message is signed
-     */
-    /*
-    protected void sendIntroductionOffer(CharSequence owner, boolean signed) throws IOException, ASAPException {
-        protocol.offer(owner, ASAP_MANAGEMENT_FORMAT, null, this.os, signed);
+    private class ISWrapper extends InputStream {
+        private final InputStream is;
+
+        ISWrapper(InputStream is) {
+            this.is = is;
+        }
+        @Override
+        public int read() throws IOException {
+            return is.read();
+        }
+        public void close() {
+            Log.writeLog(this, "wrapper: close called");
+        }
     }
-     */
+
+    private class OSWrapper extends OutputStream {
+        private final OutputStream os;
+
+        OSWrapper(OutputStream is) {
+            this.os = is;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            this.os.write(b);
+        }
+
+        public void close() {
+            Log.writeLog(this, "wrapper: close called");
+        }
+    }
 }

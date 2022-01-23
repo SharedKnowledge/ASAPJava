@@ -31,5 +31,5 @@ public interface ASAPChunkAssimilatedListener {
     void chunkStored(String format, String senderE2E, String uri, int era, // E2E part
                      List<ASAPHop> asapHop) throws IOException;
 
-    void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException;
+    void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException;
 }

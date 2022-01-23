@@ -84,7 +84,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListene
     }
 
     @Override
-    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+    public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
         System.err.println("transientChunkReceived not yet implement");
     }
 

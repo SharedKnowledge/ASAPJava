@@ -163,4 +163,16 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         }
         return this.getASAPMessages(uri, this.era);
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getClass().getSimpleName());
+        sb.append(": ");
+        sb.append(this.rootDirectory);
+        sb.append(" | ");
+        sb.append(this.format);
+        sb.append(" | ");
+        sb.append(this.era);
+        return sb.toString();
+    }
 }

@@ -107,6 +107,12 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
     void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
+    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, int era,
+         Set<CharSequence> recipients, byte[] messageAsBytes) throws IOException, ASAPException;
+
+    void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, int era, byte[] messageAsBytes)
+            throws IOException, ASAPException;
+
     void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore);
 
     ASAPCommunicationSetting getASAPCommunicationControl();

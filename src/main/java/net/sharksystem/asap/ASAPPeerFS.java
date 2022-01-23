@@ -5,6 +5,7 @@ import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         sb.append(" | appFormat: " + format);
         sb.append("\n");
         sb.append(hopListString);
-        sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         this.log(sb.toString());
 
         if(callListener) {
@@ -74,10 +75,14 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     }
 
     @Override
-    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+    public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
+        // produce hop list object
+
+        List<ASAPHop> asapHopList = new ArrayList<>();
+        asapHopList.add(asapHop);
         this.chunkAssimilated(transientMessages,
-                transientMessages.getFormat(), sender, transientMessages.getURI(),
-                ASAP.TRANSIENT_ERA, asapHop, true);
+                transientMessages.getFormat(), asapHop.sender(), transientMessages.getURI(),
+                ASAP.TRANSIENT_ERA, asapHopList, true);
     }
 
     @Override
@@ -110,14 +115,16 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             ASAPEngine engine = this.getInternalPeer().createEngineByFormat(appName);
             engine.activateOnlineMessages(this.getInternalPeer());
             engine.add(uri, message);
-            // send online
+            // send online (already done by activating online messages and adding message with engine
+            /*
             try {
-                this.sendTransientASAPMessage(appName, uri, message);
+                this.getInternalPeer().sendOnlineASAPAssimilateMessage(appName, uri, engine.getEra(), message);
             }
             catch(ASAPException e) {
                 // no online peers - that's ok
                 Log.writeLog(this, this.toString(), "could not send message online - that's ok.");
             }
+             */
         } catch (IOException e) {
             this.log(e.getLocalizedMessage());
             throw new ASAPException("problems getting asap engine", e);

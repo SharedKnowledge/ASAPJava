@@ -6,6 +6,7 @@ import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.ASAPChunkAssimilatedListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,8 +27,11 @@ public class ASAPChunkReceivedTester implements ASAPChunkAssimilatedListener {
     }
 
     @Override
-    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
-        this.chunkAssimilated(transientMessages.getFormat(), sender, transientMessages.getURI(), ASAP.TRANSIENT_ERA, asapHop);
+    public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
+        List<ASAPHop> asapHops = new ArrayList<>();
+        asapHops.add(asapHop);
+        this.chunkAssimilated(transientMessages.getFormat(), asapHop.sender(),
+                transientMessages.getURI(), ASAP.TRANSIENT_ERA, asapHops);
     }
 
     private void chunkAssimilated(CharSequence format, CharSequence senderE2E, CharSequence uri, int era, List<ASAPHop> asapHop) {

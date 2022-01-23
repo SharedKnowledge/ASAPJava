@@ -4,6 +4,7 @@ import net.sharksystem.asap.crypto.CryptoUsage;
 import junit5Tests.release_1.MultipleEncounterTests;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.helper.HelperTester;
+import net.sharksystem.asap.peer.Point2Point2Test2;
 import net.sharksystem.asap.peer.TransientMessages;
 import net.sharksystem.asap.protocol.PDUTests;
 import net.sharksystem.asap.serialization.SerializationTests;
@@ -25,7 +26,8 @@ import org.junit.runners.Suite;
         HelperTester.class,
         MultihopTests.class,
         CommandlineTests.class,
-        TransientMessages.class//,
+        TransientMessages.class,
+        Point2Point2Test2.class//,
         //MultipleEncounterTests.class
         //E2EStreamPairLinkTestVersion2.class TODO
 })

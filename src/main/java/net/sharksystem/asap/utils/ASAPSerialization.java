@@ -206,11 +206,19 @@ public class ASAPSerialization {
     }
 
     public static byte readByte(InputStream is) throws IOException, ASAPException {
-        int value = is.read();
-        if(value < 0) {
-            throw new ASAPException("read -1: no more data in stream");
+        try {
+            int value = is.read();
+            if(value < 0) {
+                throw new ASAPException("read -1: no more data in stream");
+            }
+            return (byte) value;
         }
-        return (byte) value;
+        catch(IOException e) {
+            Log.writeLog(ASAPSerialization.class, "caught IOException during readByte(): "
+                    + e.getClass().getSimpleName() + ": "
+                    + e.getLocalizedMessage());
+            throw e;
+        }
     }
 
     public static short readShortParameter(InputStream is) throws IOException, ASAPException {

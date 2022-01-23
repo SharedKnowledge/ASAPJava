@@ -8,9 +8,7 @@ import net.sharksystem.asap.engine.EngineSetting;
 import net.sharksystem.utils.Log;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +58,13 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     }
 
     private String getLogStart() {
-        return this.getClass().getSimpleName() + "(to: " + this.encounteredPeer + "): ";
+        return this.getClass().getSimpleName() + " " + this.getLogParameter();
+    }
+
+    private String getLogParameter() {
+        String s = "to: ";
+        s += this.encounteredPeer != null ? this.encounteredPeer : "unknown yet";
+        return s;
     }
 
     private void setEncounteredPeer(String remotePeerName) {
@@ -69,7 +73,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             this.encounteredPeer = remotePeerName;
 
             StringBuilder sb = new StringBuilder();
-            sb.append(this.getLogStart());
+            sb.append(this.getLogParameter());
             sb.append("set remotePeerName after reading first asap message: ");
             sb.append(remotePeerName);
             Log.startLog(this, sb.toString());
@@ -134,39 +138,39 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private void terminate(String message, Throwable t) {
         // write log
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getLogStart());
         sb.append(message);
         if(t != null) {
+            sb.append(" | issued by: ");
+            sb.append(t.getClass().getSimpleName());
+            sb.append(": ");
             sb.append(t.getLocalizedMessage());
+            // debugging
+            //t.printStackTrace();
         }
-
-        sb.append(" | ");
-        Log.writeLog(this, sb.toString());
+        Log.writeLog(this, this.getLogParameter(), sb.toString());
 
         this.kill();
     }
 
     private void sendOnlineMessages() throws IOException {
-        List<ASAPOnlineMessageSource> copy = onlineMessageSources;
+        List<ASAPOnlineMessageSource> copy = this.onlineMessageSources;
         this.onlineMessageSources = new ArrayList<>();
         while(!copy.isEmpty()) {
             ASAPOnlineMessageSource asapOnline = copy.remove(0);
             StringBuilder sb = new StringBuilder();
-            sb.append(this.getLogStart());
             sb.append("going to send online message");
-            Log.writeLog(this, sb.toString());
+            Log.writeLog(this, this.getLogParameter(), sb.toString());
             asapOnline.sendStoredMessages(this, this.os);
         }
     }
 
     private class OnlineMessageSenderThread extends Thread {
-        public Exception caughtException = null;
         public void run() {
             try {
                 // get exclusive access to streams
-                Log.writeLog(this, getLogStart() + "online sender is going to wait for stream access");
+                Log.writeLog(this, getLogParameter(), "online sender is going to wait for stream access");
                 wait4ExclusiveStreamsAccess();
-                Log.writeLog(this, getLogStart() + "online sender got stream access");
+                Log.writeLog(this, getLogParameter(), "online sender got stream access");
                 sendOnlineMessages();
                 // prepare a graceful death
                 onlineMessageSenderThread = null;
@@ -176,7 +180,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 terminate("could not write data into stream", e);
             }
             finally {
-                Log.writeLog(this, getLogStart() + "online sender releases lock");
+                Log.writeLog(this, getLogParameter(), "online sender releases lock");
                 releaseStreamsLock();
             }
         }
@@ -218,40 +222,44 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             this.pduReader = new ASAPPDUReader(protocol, is, this);
             Throwable unexpectedThrowable = null;
             try {
-                Log.writeLog(this, this.getLogStart() + "start reading");
+                Log.writeLog(this, this.getLogParameter(), "start reading");
                 this.runObservedThread(pduReader, this.maxExecutionTime);
             } catch (ASAPExecTimeExceededException e) {
-                Log.writeLog(this, this.getLogStart() + "reading on stream took longer than allowed");
+                Log.writeLog(this, this.getLogParameter(),  "reading on stream took longer than allowed");
             }
             catch(Throwable t) {
                 unexpectedThrowable = t;
-                Log.writeLog(this, this.getLogStart() + "while reading PDU: " + t.getLocalizedMessage());
+                Log.writeLog(this, this.getLogParameter(),  "while reading PDU: "
+                        + t.getClass().getSimpleName() + ": " + t.getLocalizedMessage());
             }
 
-            Log.writeLog(this, this.getLogStart() + "back from reading");
+            Log.writeLog(this, this.getLogParameter(),  "back from reading");
             if(terminated) break; // thread could be killed in the meantime
 
             if (unexpectedThrowable != null || pduReader.getIoException() != null || pduReader.getAsapException() != null) {
+                Log.writeLog(this, this.getLogParameter(), "connection broken");
+
                 Throwable problem = pduReader.getIoException() != null ?
                         pduReader.getIoException() : pduReader.getAsapException();
 
                 if(problem == null) problem = unexpectedThrowable;
 
                 try {
+                    Log.writeLog(this, this.getLogParameter(), "close input stream");
                     this.is.close();
                 } catch (IOException exception) {
-                    Log.writeLog(this, this.getLogStart()
-                            + "tried to close stream after exception caught: " + exception.getLocalizedMessage());
+                    Log.writeLog(this, this.getLogParameter(),
+                            "tried to close stream after exception caught: " + exception.getLocalizedMessage());
                 }
 
                 this.terminate("problem when reading from stream (close asap session and stream): ", problem);
                 break;
             }
-
+            
             ASAP_PDU_1_0 asappdu = pduReader.getASAPPDU();
             /////////////////////////////// process
             if(asappdu != null) {
-                Log.writeLog(this, this.getLogStart() + "read valid pdu");
+                Log.writeLog(this, this.getLogParameter(),  "read valid pdu");
                 this.setEncounteredPeer(asappdu.getSender());
 
                 try {
@@ -262,22 +270,22 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                                         protocol,this.connectionType, this);
 
                     // get exclusive access to streams
-                    Log.writeLog(this, this.getLogStart() + "asap pdu executor going to wait for stream access");
+                    Log.writeLog(this, this.getLogParameter(),  "asap pdu executor going to wait for stream access");
                     this.wait4ExclusiveStreamsAccess();
                     try {
-                        Log.writeLog(this, this.getLogStart() + "asap pdu executor got stream access - process pdu");
+                        Log.writeLog(this, this.getLogParameter(),  "asap pdu executor got stream access - process pdu");
                         this.runObservedThread(executor, maxExecutionTime);
                     } catch (ASAPExecTimeExceededException e) {
-                        Log.writeLog(this, this.getLogStart() + "asap pdu processing took longer than allowed");
+                        Log.writeLog(this, this.getLogParameter(),  "asap pdu processing took longer than allowed");
                         this.terminate("asap pdu processing took longer than allowed", e);
                         break;
                     } finally {
                         // wake waiting thread if any
                         this.releaseStreamsLock();
-                        Log.writeLog(this, this.getLogStart() + "asap pdu executor release locks");
+                        Log.writeLog(this, this.getLogParameter(),  "asap pdu executor release locks");
                     }
                 } catch (ASAPException e) {
-                    Log.writeLog(this, this.getLogStart() + " problem when executing asap received pdu: " + e);
+                    Log.writeLog(this, this.getLogParameter(),  " problem when executing asap received pdu: " + e);
                 }
             }
         }
@@ -293,7 +301,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         return this.threadUsingStreams;
     }
 
-    // why not simply synchronized(this) { ... }?? OK, that code works but look complicated (thsc42)
+    // why not simply synchronized(this) { ... }?? OK, that code works but looks complicated (thsc42)
     private void wait4ExclusiveStreamsAccess() {
         // synchronize with other thread using streams
         Thread threadUsingStreams = this.getThreadUsingStreams(Thread.currentThread());
@@ -305,28 +313,28 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
         // there is another thread - wait until it dies
         do {
-            Log.writeLog(this, this.getLogStart() + "enter waiting loop for exclusive stream access");
+            Log.writeLog(this, this.getLogParameter(),  "enter waiting loop for exclusive stream access");
             // wait
             try {
                 this.threadWaiting4StreamsLock = Thread.currentThread();
                 threadUsingStreams.join();
             } catch (InterruptedException e) {
-                Log.writeLog(this, this.getLogStart() + "woke up from join");
+                Log.writeLog(this, this.getLogParameter(),  "woke up from join");
             }
             finally {
                 this.threadWaiting4StreamsLock = null;
             }
             // try again
-            Log.writeLog(this, this.getLogStart() + "try to get streams access again");
+            Log.writeLog(this, this.getLogParameter(),  "try to get streams access again");
             threadUsingStreams = this.getThreadUsingStreams(Thread.currentThread());
         } while(threadUsingStreams != null);
-        Log.writeLog(this, this.getLogStart() + "leave waiting loop for exclusive stream access");
+        Log.writeLog(this, this.getLogParameter(),  "leave waiting loop for exclusive stream access");
     }
 
     private void releaseStreamsLock() {
         this.threadUsingStreams = null; // take me out
         if(this.threadWaiting4StreamsLock != null) {
-            Log.writeLog(this, this.getLogStart() + "wake waiting thread");
+            Log.writeLog(this, this.getLogParameter(),  "wake waiting thread");
             this.threadWaiting4StreamsLock.interrupt();
         }
     }
@@ -376,7 +384,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             this.threadFinishedListener = threadFinishedListener;
 
             StringBuilder sb = new StringBuilder();
-            sb.append(getLogStart());
+            sb.append(getLogParameter());
             sb.append("ASAPPDUExecutor: ");
             sb.append("engine: " + engineSetting.engine.getClass().getSimpleName() + " | ");
             if(engineSetting.listener != null) {
@@ -384,7 +392,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
             }
             sb.append("folder: " + engineSetting.folder);
 
-            Log.writeLog(this, sb.toString());
+            Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(), sb.toString());
         }
 
         private void finish() {
@@ -395,19 +403,21 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
 
         public void run() {
             if(engineSetting.engine == null) {
-                Log.writeLogErr(this,  "ASAPPDUExecutor called without engine set - fatal");
+                Log.writeLogErr(this, ASAPPersistentConnection.this.getLogParameter(),
+                        "ASAPPDUExecutor called without engine set - fatal");
                 this.finish();
                 return;
             }
 
-            Log.writeLog(this, getLogStart() + "ASAPPDUExecutor calls engine: "
-                    + engineSetting.engine.getClass().getSimpleName());
+            Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                    "ASAPPDUExecutor calls engine: " + engineSetting.engine.getClass().getSimpleName());
 
             try {
                 switch (asapPDU.getCommand()) {
                     // TODO add encrypt / sign as parameter..
                     case ASAP_1_0.INTEREST_CMD:
-                        Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPInterest");
+                        Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                                "ASAPPDUExecutor call handleASAPInterest");
                         engineSetting.engine.handleASAPInterest(
                                 (ASAP_Interest_PDU_1_0) asapPDU, this.protocol,
                                 this.encounteredPeer,
@@ -415,7 +425,8 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                                 this.connectionType);
                         break;
                     case ASAP_1_0.ASSIMILATE_CMD:
-                        Log.writeLog(this, getLogStart() + "ASAPPDUExecutor call handleASAPAssimilate");
+                        Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                                "ASAPPDUExecutor call handleASAPAssimilate");
                         engineSetting.engine.handleASAPAssimilate(
                                 (ASAP_AssimilationPDU_1_0) this.asapPDU,
                                 this.protocol,
@@ -425,21 +436,22 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                         break;
 
                     default:
-                        Log.writeLogErr(this, "unknown ASAP command: " + asapPDU.getCommand());
+                        Log.writeLogErr(this, ASAPPersistentConnection.this.getLogParameter(),
+                                "unknown ASAP command: " + asapPDU.getCommand());
                 }
             }
             catch(ASAPException asape) {
-                Log.writeLog(this, "while processing PDU (go ahead): "
-                        + asape.getLocalizedMessage());
+                Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                        "while processing PDU (go ahead): " + asape.getLocalizedMessage());
             }
             catch(IOException ioe) {
-                Log.writeLogErr(this,"IOException while processing ASAP PDU - close streams: "
-                        + ioe.getLocalizedMessage());
+                Log.writeLogErr(this,ASAPPersistentConnection.this.getLogParameter(),
+                        "IOException while processing ASAP PDU - close streams: " + ioe.getLocalizedMessage());
                 try {
-                    os.close(); // more important to close than input stream - do it first
+                    os.close(); // more important to close than input stream - try first
                     is.close();
                 } catch (IOException ex) {
-                    Log.writeLog(this, ex.getLocalizedMessage());
+                    Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(), ex.getLocalizedMessage());
                     //ex.printStackTrace();
                 }
             }
@@ -489,11 +501,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                 //while((encrypt && !this.asapPDU.encrypted()) || (sign && !this.asapPDU.verified()));
             } catch (IOException e) {
                 this.ioException = e;
-                Log.writeLog(this, ASAPPersistentConnection.this.getLogStart()
-                        + "IOException when reading from stream");
+                Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                        "IOException when reading from stream");
             } catch (ASAPException e) {
-                Log.writeLog(this, ASAPPersistentConnection.this.getLogStart()
-                        + "ASAPException when reading from stream");
+                Log.writeLog(this, ASAPPersistentConnection.this.getLogParameter(),
+                        "ASAPException when reading from stream");
                 this.asapException = e;
             }
             finally {

@@ -124,8 +124,8 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
         };
     }
 
-    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
-        this.printReceivedMessages(transientMessages, asapHop);
+    public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
+        this.printReceivedMessages(transientMessages, null);
     }
 
     private class ASAPConnectionCreator extends Thread implements TCPStreamCreatedListener {

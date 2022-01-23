@@ -604,15 +604,15 @@ public class ASAPInternalPeerFS implements
         }
     }
 
-    public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
-                                                   byte[] messageAsBytes) throws IOException, ASAPException {
-
-        this.sendTransientASAPAssimilateMessage(format, urlTarget, null, messageAsBytes);
-    }
 
     @Override
     public void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore) {
         this.ASAPKeyStore = ASAPKeyStore;
+    }
+
+    public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes)
+            throws IOException, ASAPException {
+        this.sendTransientASAPAssimilateMessage(format, uri, null, messageAsBytes);
     }
 
     public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri,
@@ -630,6 +630,17 @@ public class ASAPInternalPeerFS implements
         }
          */
 
+        this.sendOnlineASAPAssimilateMessage(format, uri, ASAP.TRANSIENT_ERA, receiver, messageAsBytes);
+    }
+
+    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence uri, int era, byte[] messageAsBytes)
+            throws IOException, ASAPException {
+
+        this.sendOnlineASAPAssimilateMessage(format, uri, era, null, messageAsBytes);
+    }
+
+    public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence uri, int era,
+                     Set<CharSequence> receiver, byte[] messageAsBytes) throws IOException, ASAPException {
         // setup online message sender thread
         Log.writeLog(this, "setup online message sender object");
         ASAPOnlineMessageSender asapOnlineMessageSender = new ASAPOnlineMessageSenderEngineSide(this);

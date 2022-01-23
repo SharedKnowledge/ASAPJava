@@ -27,7 +27,7 @@ public class ExampleASAPChunkReceivedListener implements ASAPChunkAssimilatedLis
     }
 
     @Override
-    public void transientChunkReceived(ASAPMessages transientMessages, CharSequence sender, List<ASAPHop> asapHop) throws IOException {
+    public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
         System.out.println("transient message received - TODO?");
     }
 
