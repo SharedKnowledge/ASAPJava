@@ -81,15 +81,16 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         this(storage, uri, era, null);
     }
 
-    ASAPInternalChunkFS(ASAPChunkStorageFS storage, String targetUri, int era, String sender) throws IOException {
+    ASAPInternalChunkFS(ASAPChunkStorageFS storage, String uri, int era, String sender) throws IOException {
         this.storage = storage;
-        if(targetUri != null) {
-            this.uri = targetUri;
+        if(uri != null) {
+            this.uri = uri;
         }
         this.era = era;
         this.sender = sender;
-        
-        String trunkName = this.storage.setupChunkFolder(era, targetUri);
+
+        //Log.writeLog(this, this.toString(), "construct chunkFS");
+        String trunkName = this.storage.setupChunkFolder(era, uri);
         
         // init
         this.initFiles(trunkName);
@@ -105,12 +106,16 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
     private void initFiles(String trunkName) throws IOException {
         String messageFileName = trunkName + "." +  DATA_EXTENSION;
         String metaFileName = trunkName + "." + META_DATA_EXTENSION;
-        
+
         this.messageFile = new File(messageFileName);
         this.metaFile = new File(metaFileName);
         
         // init meta file - message file keeps untouched (good idea?)
         if(!this.metaFile.exists()) {
+            if(!this.metaFile.getParentFile().exists()) {
+                this.metaFile.getParentFile().mkdirs();
+                Log.writeLog(this, "parent folder created: " + this.messageFile.getParentFile().exists());
+            }
             this.metaFile.createNewFile();
         }
 
@@ -181,32 +186,32 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
     }
 
     public void addMessage(InputStream messageByteIS, long length) throws IOException {
-        Log.writeLog(this, "going to add message to chunkFS" );
+        //Log.writeLog(this, "going to add message to chunkFS" );
         if(length > Integer.MAX_VALUE) {
             throw new IOException("message must not be longer than Integer.MAXVALUE");
         }
 
         long offset = 0;
         if(!this.messageFile.exists()) {
-            Log.writeLog(this, "content file does not exist yet - create: " + this.messageFile.getName());
-            Log.writeLog(this, "apath " + this.messageFile.getAbsolutePath());
-            Log.writeLog(this, "cpath " + this.messageFile.getCanonicalPath());
-            Log.writeLog(this, "path " + this.messageFile.getPath());
+            if(!this.messageFile.getParentFile().exists()) {
+                this.messageFile.getParentFile().mkdirs();
+                Log.writeLog(this, "parent folder created: " + this.messageFile.getParentFile().exists());
+            }
             this.messageFile.createNewFile();
         } else {
             offset = this.messageFile.length();
         }
-        Log.writeLog(this, "got chunk content file length: " + offset);
+        //Log.writeLog(this, "got chunk content file length: " + offset);
 
         OutputStream os = new FileOutputStream(this.messageFile, true);
-        Log.writeLog(this, "opened chunk content file to append data");
+        //Log.writeLog(this, "opened chunk content file to append data");
 
-        Log.writeLog(this, "write message to the end of chunk file");
+        //Log.writeLog(this, "write message to the end of chunk file");
         while(length-- > 0) {
             os.write(messageByteIS.read());
         }
 
-        Log.writeLog(this, "closing");
+        //Log.writeLog(this, "closing");
         os.close();
 
         // remember offset if not 0
@@ -454,4 +459,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         return this.era;
     }
 
+    public String toString() {
+        return "sender: " + this.sender + " | era: " + era + " | metafile: " + this.metaFile;
+    }
 }

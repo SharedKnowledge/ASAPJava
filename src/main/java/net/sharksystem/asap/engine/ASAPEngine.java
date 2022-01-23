@@ -436,6 +436,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
         // iterate messages and stream into chunk
         InputStream protocolInputStream = asapAssimilationPDU.getInputStream();
+        Log.writeLog(this, this.toString(), "take data to local chunk or transient message: " + messagesContainer);
         this.streamReceivedMessages2Container(messagesContainer, protocolInputStream,
                 messageOffsets, asapAssimilationPDU.getLength());
 
@@ -489,6 +490,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     private ASAPInternalChunk getIncomingChunk(String encounteredPeer, ASAP_AssimilationPDU_1_0 asapAssimilationPDU)
             throws IOException, ASAPException {
 
+        Log.writeLog(this, this.toString(), "called: get incoming chunk");
         String uri = asapAssimilationPDU.getChannelUri();
         int eraSender = asapAssimilationPDU.getEra();
         String senderE2E = asapAssimilationPDU.getSender();
@@ -502,9 +504,9 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             ASAPInternalChunk localChunk = null;
             // is there a local chunk - to clone recipients from?
             if (this.channelExists(uri)) {
-//                localChunk = incomingChunkStorage.getChunk(uri, this.getEra());
-                localChunk = incomingChunkStorage.getChunk(uri, eraSender);
-            } else {
+                Log.writeLog(this, this.toString(), "get local chunk to copy channel data");
+                localChunk = incomingChunkStorage.getChunk(uri, this.getEra()); // get channel information
+            } else { // no information that can be copied
                 Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
                         + uri + " | " + senderE2E);
                 // this channel is new to local peer - am I allowed to create it?
@@ -518,12 +520,14 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                     this.createChannel(uri);
                 }
             }
+            Log.writeLog(this, this.toString(), "create new chunk to assimilate received data");
             ASAPInternalChunk incomingChunk = incomingStorage.createNewChunk(uri, eraSender);
 
             if (localChunk != null) {
                 Log.writeLog(this, this.toString(), "copy local meta data into newly created incoming chunk");
                 incomingChunk.copyMetaData(this.getChannel(uri));
             }
+            Log.writeLog(this, this.toString(), "new incoming chunk created: " + incomingChunk);
             return incomingChunk;
         } else {
             // already exists. Add message if sender == originator and era last era of this channel
