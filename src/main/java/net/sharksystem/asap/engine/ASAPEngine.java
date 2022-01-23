@@ -497,12 +497,13 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         Log.writeLog(this, this.toString(), "got incoming chunk storage "
                 + incomingChunkStorage);
 
-            // get local target for data to come
+        // get local target for data to come
         if (!incomingChunkStorage.existsChunk(uri, eraSender)) {
             ASAPInternalChunk localChunk = null;
             // is there a local chunk - to clone recipients from?
             if (this.channelExists(uri)) {
-                localChunk = this.getStorage().getChunk(uri, this.getEra());
+//                localChunk = incomingChunkStorage.getChunk(uri, this.getEra());
+                localChunk = incomingChunkStorage.getChunk(uri, eraSender);
             } else {
                 Log.writeLog(this, this.toString(), "asked to set up new channel: (uri/senderE2E): "
                         + uri + " | " + senderE2E);

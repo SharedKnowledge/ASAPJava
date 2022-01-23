@@ -4,8 +4,6 @@ import net.sharksystem.TestConstants;
 import net.sharksystem.TestHelper;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.engine.ASAPInternalChunk;
-import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.testsupport.ASAPTestPeerFS;
 import net.sharksystem.testsupport.StoreReceivedMessages;
 import net.sharksystem.utils.Utils;
@@ -35,8 +33,8 @@ public class Point2Point2Test2 {
         String uri = "asapExample://uriExample";
         byte[] message = "ASAP example message".getBytes(StandardCharsets.UTF_8);
 
-        String aliceID = PeerIDHelper.createUniqueID();
-        String bobID = PeerIDHelper.createUniqueID();
+        String aliceID = TestConstants.ALICE_ID;
+        String bobID = TestConstants.BOB_ID;
         String aliceDirectory = WORKING_SUB_DIRECTORY + "/" + aliceID;
         String bobDirectory = WORKING_SUB_DIRECTORY + "/" + bobID;
 
@@ -59,6 +57,7 @@ public class Point2Point2Test2 {
         System.out.println("\n>>>>>>>>>>>>>>>>>>> send message #1 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
         aliceSimplePeer.sendASAPMessage(appName, uri, message);
         Thread.sleep(100);
+        //Thread.sleep(Long.MAX_VALUE);
 
         Assert.assertEquals(1, bobListener.messageList.size());
 
@@ -66,6 +65,5 @@ public class Point2Point2Test2 {
         Assert.assertTrue(Utils.compareArrays(messageReceived, message));
 
         aliceSimplePeer.stopEncounter(bobSimplePeer);
-        //Thread.sleep(Long.MAX_VALUE);
     }
 }

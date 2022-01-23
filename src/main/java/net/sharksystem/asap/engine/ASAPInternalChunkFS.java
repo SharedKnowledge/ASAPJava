@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.utils.Log;
 
 import java.io.*;
 import java.util.*;
@@ -115,7 +116,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
 
         // try to read existing meta data
         if(!this.readMetaData(this.metaFile)) {
-            // no metadate to be read - set defaults
+            // no meta date to be read - set defaults
             this.writeMetaData(this.metaFile);
             this.recipients = new HashSet<>();
             this.deliveredTo = new ArrayList<>();
@@ -180,21 +181,32 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
     }
 
     public void addMessage(InputStream messageByteIS, long length) throws IOException {
+        Log.writeLog(this, "going to add message to chunkFS" );
         if(length > Integer.MAX_VALUE) {
             throw new IOException("message must not be longer than Integer.MAXVALUE");
         }
 
-        long offset = this.messageFile.length();
+        long offset = 0;
+        if(!this.messageFile.exists()) {
+            Log.writeLog(this, "content file does not exist yet - create: " + this.messageFile.getName());
+            Log.writeLog(this, "apath " + this.messageFile.getAbsolutePath());
+            Log.writeLog(this, "cpath " + this.messageFile.getCanonicalPath());
+            Log.writeLog(this, "path " + this.messageFile.getPath());
+            this.messageFile.createNewFile();
+        } else {
+            offset = this.messageFile.length();
+        }
+        Log.writeLog(this, "got chunk content file length: " + offset);
 
-//        Log.writeLog(this, "chunk file offset == " + offset);
         OutputStream os = new FileOutputStream(this.messageFile, true);
+        Log.writeLog(this, "opened chunk content file to append data");
 
-//        Log.writeLog(this, "write message to the end of chunk file");
+        Log.writeLog(this, "write message to the end of chunk file");
         while(length-- > 0) {
             os.write(messageByteIS.read());
         }
 
-//        Log.writeLog(this, "closing");
+        Log.writeLog(this, "closing");
         os.close();
 
         // remember offset if not 0
