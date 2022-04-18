@@ -9,7 +9,7 @@ import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
-import net.sharksystem.asap.management.ASAPManagementMessageHandler;
+import net.sharksystem.asap.listenermanager.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.utils.Helper;
 import net.sharksystem.utils.Log;

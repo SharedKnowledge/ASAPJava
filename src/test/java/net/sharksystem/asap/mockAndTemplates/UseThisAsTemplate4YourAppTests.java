@@ -2,7 +2,7 @@ package net.sharksystem.asap.mockAndTemplates;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.testsupport.ASAPTestPeerFS;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import org.junit.Test;
 
 import java.io.*;

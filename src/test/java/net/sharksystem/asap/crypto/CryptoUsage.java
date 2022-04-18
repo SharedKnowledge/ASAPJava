@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static net.sharksystem.TestConstants.ALICE_ID;
-import static net.sharksystem.TestConstants.BOB_ID;
+import static net.sharksystem.asap.apps.testsupport.TestConstants.ALICE_ID;
+import static net.sharksystem.asap.apps.testsupport.TestConstants.BOB_ID;
 
 public class CryptoUsage {
     private InMemoASAPKeyStore aliceKeyStorage;

@@ -1,19 +1,17 @@
 package net.sharksystem.asap.peer;
 
-import net.sharksystem.CountsReceivedMessagesListener;
-import net.sharksystem.TestConstants;
-import net.sharksystem.TestHelper;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestHelper;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalChunk;
-import net.sharksystem.testsupport.ASAPTestPeerFS;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.testsupport.StoreReceivedMessages;
 import net.sharksystem.utils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 

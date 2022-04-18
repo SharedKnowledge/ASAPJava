@@ -1,13 +1,13 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.CountsReceivedMessagesListener;
-import net.sharksystem.TestConstants;
-import net.sharksystem.TestHelper;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestHelper;
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPStorage;
-import net.sharksystem.testsupport.ASAPTestPeerFS;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.asap.cmdline.CmdLineUI;
 import org.junit.Assert;
 import org.junit.Test;

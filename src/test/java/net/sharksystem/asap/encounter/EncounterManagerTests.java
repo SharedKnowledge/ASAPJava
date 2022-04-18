@@ -1,8 +1,9 @@
 package net.sharksystem.asap.encounter;
 
-import net.sharksystem.SocketFactory;
-import net.sharksystem.TestHelper;
+import net.sharksystem.asap.apps.testsupport.SocketFactory;
+import net.sharksystem.asap.apps.testsupport.TestHelper;
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.apps.testsupport.TestASAPConnectionHandler;
 import net.sharksystem.streams.StreamPair;
 import net.sharksystem.streams.StreamPairImpl;
 import org.junit.Test;

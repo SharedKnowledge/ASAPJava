@@ -1,6 +1,6 @@
 package net.sharksystem.streams;
 
-import net.sharksystem.SocketFactory;
+import net.sharksystem.asap.apps.testsupport.SocketFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

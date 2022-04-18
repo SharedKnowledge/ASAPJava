@@ -1,4 +1,4 @@
-package net.sharksystem;
+package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPEncounterHelper;
 

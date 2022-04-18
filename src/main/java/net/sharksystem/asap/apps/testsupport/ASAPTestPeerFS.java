@@ -1,4 +1,4 @@
-package net.sharksystem.testsupport;
+package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPPeerFS;
 import net.sharksystem.asap.ASAPException;

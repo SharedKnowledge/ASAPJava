@@ -1,4 +1,4 @@
-package net.sharksystem.asap.encounter;
+package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;

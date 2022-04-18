@@ -1,11 +1,7 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.engine.ASAPEngine;
-import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.asap.engine.ASAPInternalPeer;
-import net.sharksystem.asap.engine.ASAPInternalPeerFS;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.asap.cmdline.TCPStream;

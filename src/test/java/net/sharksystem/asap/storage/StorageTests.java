@@ -1,6 +1,6 @@
 package net.sharksystem.asap.storage;
 
-import net.sharksystem.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;

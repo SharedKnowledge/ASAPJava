@@ -1,10 +1,10 @@
 package junit5Tests.release_1;
 
-import net.sharksystem.TestConstants;
-import net.sharksystem.TestHelper;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestHelper;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.testsupport.ASAPTestPeerFS;
+import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.asap.mockAndTemplates.ASAPMessageReceivedListenerExample;
 import net.sharksystem.asap.mockAndTemplates.TestUtils;

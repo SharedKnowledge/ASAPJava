@@ -1,7 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.*;
-import net.sharksystem.asap.management.ASAPManagementStorage;
+import net.sharksystem.asap.listenermanager.management.ASAPManagementStorage;
 
 import java.io.IOException;
 import java.util.Collection;

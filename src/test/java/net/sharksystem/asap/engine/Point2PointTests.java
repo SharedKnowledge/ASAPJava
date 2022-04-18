@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sharksystem.TestConstants;
+import net.sharksystem.asap.apps.testsupport.TestConstants;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
@@ -14,7 +14,7 @@ import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Test;
 import org.junit.Assert;
 
-import static net.sharksystem.TestConstants.*;
+import static net.sharksystem.asap.apps.testsupport.TestConstants.*;
 import static net.sharksystem.asap.engine.ASAPInternalPeer.DEFAULT_MAX_PROCESSING_TIME;
 
 /**
