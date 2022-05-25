@@ -31,7 +31,8 @@ public class SocketFactory implements Runnable {
             this.remoteAddress = ASAPEncounterHelper.getRemoteAddress(socket);
             System.out.println("socket created");
             if(this.waitForConnectionThread != null) {
-                this.waitForConnectionThread.interrupt();
+                //this.waitForConnectionThread.interrupt();
+                this.waitForConnectionThread.notify();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,7 +46,8 @@ public class SocketFactory implements Runnable {
             }
         this.waitForConnectionThread = Thread.currentThread();
             try {
-                Thread.sleep(Long.MAX_VALUE);
+                //Thread.sleep(Long.MAX_VALUE);
+                this.waitForConnectionThread.wait();
             } catch (InterruptedException e) {
                 // great - do it again
                 return this.getInputStream();
@@ -62,7 +64,8 @@ public class SocketFactory implements Runnable {
             }
             this.waitForConnectionThread = Thread.currentThread();
             try {
-                Thread.sleep(Long.MAX_VALUE);
+                //Thread.sleep(Long.MAX_VALUE);
+                this.waitForConnectionThread.wait();
             } catch (InterruptedException e) {
                 // great - do it again
                 return this.getOutputStream();
@@ -79,7 +82,8 @@ public class SocketFactory implements Runnable {
             }
             this.waitForConnectionThread = Thread.currentThread();
             try {
-                Thread.sleep(Long.MAX_VALUE);
+                //Thread.sleep(Long.MAX_VALUE);
+                this.waitForConnectionThread.wait();
             } catch (InterruptedException e) {
                 // great - do it again
             }
