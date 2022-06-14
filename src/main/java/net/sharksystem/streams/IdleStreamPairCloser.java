@@ -4,6 +4,8 @@ import net.sharksystem.utils.AlarmClock;
 import net.sharksystem.utils.AlarmClockListener;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class IdleStreamPairCloser implements AlarmClockListener, WrappedStreamPairListener {
     private final int timeout;
@@ -25,6 +27,18 @@ public class IdleStreamPairCloser implements AlarmClockListener, WrappedStreamPa
         // now: put wrapper into listener
         idleStreamPairCloser.setStreamPairWrapper(streamPairWrapper);
         return idleStreamPairCloser;
+    }
+
+    public InputStream getInputStream() {
+        return this.streamPairWrapper.getInputStream();
+    }
+
+    public OutputStream getOutputStream() {
+        return this.streamPairWrapper.getOutputStream();
+    }
+
+    public StreamPair getStreamPair() {
+        return this.streamPairWrapper;
     }
 
     void setStreamPairWrapper(StreamPairWrapper streamPairWrapper) {
