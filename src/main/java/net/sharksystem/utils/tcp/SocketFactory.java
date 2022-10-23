@@ -1,10 +1,11 @@
-package net.sharksystem.asap.apps.testsupport;
+package net.sharksystem.utils.tcp;
 
-import net.sharksystem.asap.ASAPEncounterHelper;
+//import net.sharksystem.asap.ASAPEncounterHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -28,7 +29,7 @@ public class SocketFactory implements Runnable {
             Socket socket = srv.accept();
             this.is = socket.getInputStream();
             this.os = socket.getOutputStream();
-            this.remoteAddress = ASAPEncounterHelper.getRemoteAddress(socket);
+            this.remoteAddress = SocketFactory.getRemoteAddress(socket);
             System.out.println("socket created");
             if(this.waitForConnectionThread != null) {
                 //this.waitForConnectionThread.interrupt();
@@ -44,7 +45,7 @@ public class SocketFactory implements Runnable {
             if(!running) {
                 throw new IOException("start factory thread first");
             }
-        this.waitForConnectionThread = Thread.currentThread();
+            this.waitForConnectionThread = Thread.currentThread();
             try {
                 //Thread.sleep(Long.MAX_VALUE);
                 this.waitForConnectionThread.wait();
@@ -91,4 +92,14 @@ public class SocketFactory implements Runnable {
 
         return this.remoteAddress;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                           other useful stuff                                          //
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static final String getRemoteAddress(Socket connectedSocket) throws IOException {
+        InetAddress inetAddress = connectedSocket.getInetAddress();
+        int port = connectedSocket.getPort();
+        return inetAddress.getHostAddress() + ":" + port;
+    }
+
 }

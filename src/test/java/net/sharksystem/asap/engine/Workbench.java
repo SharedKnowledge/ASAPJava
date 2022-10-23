@@ -9,6 +9,7 @@ import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.asap.cmdline.TCPStream;
 import net.sharksystem.asap.crypto.InMemoASAPKeyStore;
+import net.sharksystem.utils.fs.FSUtils;
 import org.junit.Test;
 
 import java.io.*;
@@ -112,7 +113,7 @@ public class Workbench {
         keyStorageClara.addKeyPair(ALICE_PEER_NAME, keyStorageAlice.getKeyPair());
 
         // clean up ASAP
-        ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
+        FSUtils.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;

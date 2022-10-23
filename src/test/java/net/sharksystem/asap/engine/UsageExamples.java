@@ -4,11 +4,12 @@ import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
-import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.asap.cmdline.TCPStream;
+import net.sharksystem.utils.SerializationHelper;
+import net.sharksystem.utils.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class UsageExamples {
 
     @Test
     public void basicTwoPartyTest() throws IOException, ASAPException, InterruptedException {
-        ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
+        FSUtils.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;
@@ -122,7 +123,7 @@ public class UsageExamples {
 
         // make it a bit easier with a helper class
         ASAPMessages receivedMessages =
-                Helper.getMessagesByChunkReceivedInfos(parameters.getFormat(), parameters.getSender(),
+                ASAPLogHelper.getMessagesByChunkReceivedInfos(parameters.getFormat(), parameters.getSender(),
                         parameters.getUri(),
                         bobFolder, // peers' root directory!
                         parameters.getEra());
@@ -137,7 +138,7 @@ public class UsageExamples {
 
     @Test
     public void workWithExtraData() throws IOException, SharkException, InterruptedException {
-        ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
+        FSUtils.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;
@@ -158,9 +159,9 @@ public class UsageExamples {
         ASAPInternalPeer alicePeer2 = ASAPInternalPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, null);
 
         byte[] valueR1 = alicePeer2.getExtra(key1);
-        Assert.assertTrue(Helper.sameByteArray(value1, valueR1));
+        Assert.assertTrue(SerializationHelper.sameByteArray(value1, valueR1));
 
         byte[] valueR2 = alicePeer2.getExtra(key2);
-        Assert.assertTrue(Helper.sameByteArray(value2, valueR2));
+        Assert.assertTrue(SerializationHelper.sameByteArray(value2, valueR2));
     }
 }

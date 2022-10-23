@@ -1,6 +1,10 @@
 package net.sharksystem.streams;
 
-import net.sharksystem.asap.apps.testsupport.SocketFactory;
+import net.sharksystem.utils.streams.StreamPair;
+import net.sharksystem.utils.streams.StreamPairLink;
+import net.sharksystem.utils.streams.StreamPairWrapper;
+import net.sharksystem.utils.streams.WrappedStreamPairListener;
+import net.sharksystem.utils.tcp.SocketFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

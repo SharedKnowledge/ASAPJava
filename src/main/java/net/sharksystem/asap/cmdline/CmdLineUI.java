@@ -4,6 +4,7 @@ import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
 import net.sharksystem.asap.engine.*;
+import net.sharksystem.utils.fs.FSUtils;
 
 import java.io.*;
 import java.util.*;
@@ -603,7 +604,7 @@ public class CmdLineUI {
     }
 
     public void doResetASAPStorages() {
-        ASAPEngineFS.removeFolder(PEERS_ROOT_FOLDER);
+        FSUtils.removeFolder(PEERS_ROOT_FOLDER);
         File rootFolder = new File(PEERS_ROOT_FOLDER);
         rootFolder.mkdirs();
 

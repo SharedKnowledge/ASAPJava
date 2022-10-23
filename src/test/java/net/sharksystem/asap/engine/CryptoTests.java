@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
@@ -23,7 +24,7 @@ public class CryptoTests {
 
     @Test
     public void noExchangeNotSigned() throws IOException, ASAPException, InterruptedException {
-        ASAPEngineFS.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
+        FSUtils.removeFolder(WORKING_SUB_DIRECTORY); // clean previous version before
 
         ///// Prepare Alice
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;

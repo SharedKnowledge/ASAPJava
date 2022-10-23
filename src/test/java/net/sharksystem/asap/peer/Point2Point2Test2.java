@@ -1,7 +1,7 @@
 package net.sharksystem.asap.peer;
 
-import net.sharksystem.asap.apps.testsupport.TestConstants;
-import net.sharksystem.asap.apps.testsupport.TestHelper;
+import net.sharksystem.utils.testsupport.TestConstants;
+import net.sharksystem.utils.testsupport.TestHelper;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
 import net.sharksystem.testsupport.StoreReceivedMessages;

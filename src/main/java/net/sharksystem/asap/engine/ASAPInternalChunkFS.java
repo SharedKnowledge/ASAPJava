@@ -4,8 +4,9 @@ import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.utils.ASAPSerialization;
-import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.utils.Log;
+import net.sharksystem.utils.SerializationHelper;
 
 import java.io.*;
 import java.util.*;
@@ -341,8 +342,8 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         }
         
         try {
-            this.recipients = Helper.string2CharSequenceSet(dis.readUTF());
-            this.deliveredTo = Helper.string2CharSequenceList(dis.readUTF());
+            this.recipients = SerializationHelper.string2CharSequenceSet(dis.readUTF());
+            this.deliveredTo = SerializationHelper.string2CharSequenceList(dis.readUTF());
 
             // finally read offset list
             String offsetList = dis.readUTF();
@@ -366,8 +367,8 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         
         dos.writeUTF(this.uri);
         dos.writeUTF(this.getExtraAsString());
-        dos.writeUTF(Helper.collection2String(this.recipients));
-        dos.writeUTF(Helper.collection2String(this.deliveredTo));
+        dos.writeUTF(SerializationHelper.collection2String(this.recipients));
+        dos.writeUTF(SerializationHelper.collection2String(this.deliveredTo));
 
         // write offsetList
         dos.writeUTF(this.messageStartOffsetListAsString());
@@ -381,7 +382,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         boolean first = true;
         for(Long offset : this.messageStartOffsets) {
             if(!first) {
-                sb.append(Helper.SERIALIZATION_DELIMITER);
+                sb.append(ASAPLogHelper.SERIALIZATION_DELIMITER);
             }
             first = false;
             sb.append(offset.toString());
@@ -401,10 +402,10 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
             };
 
             if(first) { first = false; }
-            else { sb.append(Helper.SERIALIZATION_DELIMITER); }
+            else { sb.append(ASAPLogHelper.SERIALIZATION_DELIMITER); }
 
             sb.append(key);
-            sb.append(Helper.SERIALIZATION_DELIMITER);
+            sb.append(ASAPLogHelper.SERIALIZATION_DELIMITER);
             sb.append(value);
         }
 
@@ -416,7 +417,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
 
         try {
             HashMap<String, String> extra = new HashMap<>();
-            StringTokenizer st = new StringTokenizer(extraString, Helper.SERIALIZATION_DELIMITER);
+            StringTokenizer st = new StringTokenizer(extraString, ASAPLogHelper.SERIALIZATION_DELIMITER);
             while (st.hasMoreTokens()) {
                 String key = st.nextToken();
                 String value = st.nextToken();
@@ -437,7 +438,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
 
         if(s == null || s.length() == 0) return longList;
 
-        StringTokenizer t = new StringTokenizer(s, Helper.SERIALIZATION_DELIMITER);
+        StringTokenizer t = new StringTokenizer(s, ASAPLogHelper.SERIALIZATION_DELIMITER);
 
         while(t.hasMoreTokens()) {
             Long offsetLong = Long.parseLong(t.nextToken());

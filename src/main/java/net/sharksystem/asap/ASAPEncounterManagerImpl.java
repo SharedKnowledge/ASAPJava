@@ -4,7 +4,7 @@ import com.sun.istack.NotNull;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.PeerIDHelper;
-import net.sharksystem.streams.StreamPair;
+import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.Log;
 
 import java.io.*;

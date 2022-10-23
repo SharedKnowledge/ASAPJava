@@ -1,11 +1,11 @@
 package net.sharksystem.asap.encounter;
 
-import net.sharksystem.asap.apps.testsupport.SocketFactory;
-import net.sharksystem.asap.apps.testsupport.TestHelper;
+import net.sharksystem.utils.tcp.SocketFactory;
+import net.sharksystem.utils.testsupport.TestHelper;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.apps.testsupport.TestASAPConnectionHandler;
-import net.sharksystem.streams.StreamPair;
-import net.sharksystem.streams.StreamPairImpl;
+import net.sharksystem.utils.streams.StreamPair;
+import net.sharksystem.utils.streams.StreamPairImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class EncounterManagerTests {
 
         Socket bob2Alice = new Socket("localhost", alicePortNumber);
         // connected
-        String b2aRemoteAddress = ASAPEncounterHelper.getRemoteAddress(bob2Alice);
+        String b2aRemoteAddress = SocketFactory.getRemoteAddress(bob2Alice);
 
         StreamPair bob2AliceStreamPair = StreamPairImpl.getStreamPairWithEndpointAddress(
                 bob2Alice.getInputStream(),

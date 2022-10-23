@@ -1,7 +1,7 @@
 package net.sharksystem.asap.helper;
 
 import net.sharksystem.asap.utils.ASAPSerialization;
-import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.utils.SerializationHelper;
 import org.junit.Test;
 
 public class HelperTester {
@@ -9,7 +9,7 @@ public class HelperTester {
     public void short2bytes() {
         long valueL = System.currentTimeMillis();
 
-        byte[] result = Helper.long2byteArray(valueL);
+        byte[] result = SerializationHelper.long2byteArray(valueL);
 
         ASAPSerialization.printByteArray(result);
     }

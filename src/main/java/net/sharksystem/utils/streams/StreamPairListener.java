@@ -1,4 +1,4 @@
-package net.sharksystem.streams;
+package net.sharksystem.utils.streams;
 
 public interface StreamPairListener {
     /** stream was closed

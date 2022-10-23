@@ -293,41 +293,4 @@ public class ASAPEngineFS extends ASAPEngine {
 
         return senderList;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////
-    //                                         helper                                     //
-    ////////////////////////////////////////////////////////////////////////////////////////
-
-    public static void removeFolder(String eraPathName) {
-        File dir = new File(eraPathName);
-
-        String[] dirEntries = dir.list();
-
-        if(dirEntries != null) {
-            for(String fileName : dirEntries) {
-                File fileInDir = new File(eraPathName + "/" + fileName);
-                if(fileInDir.isDirectory()) {
-                    ASAPEngineFS.removeFolder(fileInDir.getAbsolutePath());
-                } else {
-                    try {
-                        if(!fileInDir.delete()) {
-                            Log.writeLog(ASAPEngineFS.class,"ASAPEngineFS: cannot delete file (try deleteOnExit):"
-                                    + fileInDir);
-                        }
-                    } catch (RuntimeException e) {
-                        Log.writeLog(ASAPEngineFS.class, "cannot file:" + e.getLocalizedMessage());
-                        // try next
-                    }
-                }
-            }
-        }
-
-        dir.delete();
-        dir.deleteOnExit();
-        try {
-            Thread.sleep(1); // give file system a moment
-        } catch (InterruptedException e) {
-            // nobody wants to know
-        }
-    }
 }

@@ -1,7 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.asap.engine.*;
-import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         } else {
             this.log("extract messages from chunk and notify listener");
             ASAPMessages receivedMessages =
-                    Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
+                    ASAPLogHelper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
 
             this.chunkAssimilated(receivedMessages, format, senderE2E, uri, era, asapHopList, true);
         }

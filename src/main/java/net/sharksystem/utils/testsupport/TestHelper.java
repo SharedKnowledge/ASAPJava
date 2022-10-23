@@ -1,7 +1,8 @@
-package net.sharksystem.asap.apps.testsupport;
+package net.sharksystem.utils.testsupport;
 
 import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.utils.Utils;
+import net.sharksystem.utils.fs.FSUtils;
 
 public class TestHelper {
     public static int testNumber = 0;
@@ -45,6 +46,6 @@ public class TestHelper {
     }
 
     public static void removeFolder(String foldername) {
-        ASAPEngineFS.removeFolder(foldername);
+        FSUtils.removeFolder(foldername);
     }
 }

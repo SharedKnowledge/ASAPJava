@@ -1,6 +1,7 @@
 package net.sharksystem.asap.storage;
 
-import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;
@@ -27,7 +28,7 @@ public class StorageTests {
     public void removeChannel() throws IOException, ASAPException {
         String testFolder = ALICEFOLDER_0;
 
-        ASAPEngineFS.removeFolder(testFolder);
+        FSUtils.removeFolder(testFolder);
         ASAPEngine storage =
                 ASAPEngineFS.getASAPStorage(
                         TestConstants.ALICE_NAME, testFolder, FORMAT);
@@ -59,7 +60,7 @@ public class StorageTests {
         byte[] aliceMessageContent2 = new byte[] {4};
         byte[] claraMessageContent2 = new byte[] {5};
 
-        ASAPEngineFS.removeFolder(testFolder);
+        FSUtils.removeFolder(testFolder);
 
         ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, testFolder, FORMAT);
         storage.add(URI, aliceMessageContent1);
@@ -103,7 +104,7 @@ public class StorageTests {
 
         byte[] aliceMessageContent1 = new byte[] {0};
 
-        ASAPEngineFS.removeFolder(testFolder);
+        FSUtils.removeFolder(testFolder);
 
         ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, testFolder, FORMAT);
         storage.add(URI, aliceMessageContent1);
@@ -129,7 +130,7 @@ public class StorageTests {
         byte[] aliceMessageContent1 = new byte[] {4};
         byte[] aliceMessageContent2 = new byte[] {5};
 
-        ASAPEngineFS.removeFolder(testFolder);
+        FSUtils.removeFolder(testFolder);
 
         ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, testFolder, FORMAT);
         storage.add(URI, aliceMessageContent1);
@@ -177,7 +178,7 @@ public class StorageTests {
         byte[] claraMessageContent1 = new byte[] {4};
         byte[] claraMessageContent2 = new byte[] {5};
 
-        ASAPEngineFS.removeFolder(testFolder);
+        FSUtils.removeFolder(testFolder);
 
         ASAPEngineFS storage = (ASAPEngineFS) ASAPEngineFS.getASAPStorage(TestConstants.ALICE_NAME, testFolder, FORMAT);
         storage.add(URI, aliceMessageContent1);

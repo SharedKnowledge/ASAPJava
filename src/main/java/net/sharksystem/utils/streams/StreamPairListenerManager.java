@@ -1,4 +1,4 @@
-package net.sharksystem.streams;
+package net.sharksystem.utils.streams;
 
 import java.util.ArrayList;
 import java.util.List;

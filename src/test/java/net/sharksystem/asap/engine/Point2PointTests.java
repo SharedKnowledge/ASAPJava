@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
@@ -14,7 +15,7 @@ import net.sharksystem.asap.cmdline.TCPStream;
 import org.junit.Test;
 import org.junit.Assert;
 
-import static net.sharksystem.asap.apps.testsupport.TestConstants.*;
+import static net.sharksystem.utils.testsupport.TestConstants.*;
 import static net.sharksystem.asap.engine.ASAPInternalPeer.DEFAULT_MAX_PROCESSING_TIME;
 
 /**
@@ -49,8 +50,8 @@ public class Point2PointTests {
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage =
@@ -188,8 +189,8 @@ public class Point2PointTests {
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE_NAME, ALICE_APP_FOLDER, CHAT_FORMAT);
@@ -331,8 +332,8 @@ public class Point2PointTests {
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage =

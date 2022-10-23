@@ -6,6 +6,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.utils.Log;
+import net.sharksystem.utils.fs.FSUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -135,7 +136,7 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
         // here comes a Java 6 compatible version - fits to android SDK 23
         String eraPathName = this.rootDirectory + "/" + Integer.toString(era);
 
-        ASAPEngineFS.removeFolder(eraPathName);
+        FSUtils.removeFolder(eraPathName);
     }
 
     @Override

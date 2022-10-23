@@ -1,8 +1,9 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.CountsReceivedMessagesListener;
-import net.sharksystem.asap.apps.testsupport.TestConstants;
-import net.sharksystem.asap.apps.testsupport.TestHelper;
+import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.utils.testsupport.TestConstants;
+import net.sharksystem.utils.testsupport.TestHelper;
 import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
@@ -312,15 +313,15 @@ public class MultihopTests {
         /////////////////////////////////// setup test environment
         String aliceFolder = TestHelper.getFullRootFolderName(TestConstants.ALICE_ID, MultihopTests.class);
         aliceFolder = TestHelper.getFullTempFolderName(aliceFolder, false);
-        ASAPEngineFS.removeFolder(aliceFolder);
+        FSUtils.removeFolder(aliceFolder);
 
         String bobFolder = TestHelper.getFullRootFolderName(TestConstants.BOB_ID, MultihopTests.class);
         bobFolder = TestHelper.getFullTempFolderName(bobFolder, false);
-        ASAPEngineFS.removeFolder(bobFolder);
+        FSUtils.removeFolder(bobFolder);
 
         String claraFolder = TestHelper.getFullRootFolderName(TestConstants.CLARA_ID, MultihopTests.class);
         claraFolder = TestHelper.getFullTempFolderName(claraFolder, true);
-        ASAPEngineFS.removeFolder(claraFolder);
+        FSUtils.removeFolder(claraFolder);
 
         String appName = TestHelper.produceTestAppName(MultihopTests.class);
         Collection<CharSequence> formats = new ArrayList<>();

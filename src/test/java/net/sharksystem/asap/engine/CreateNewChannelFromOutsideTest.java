@@ -7,6 +7,7 @@ import net.sharksystem.asap.engine.ASAPInternalPeerFS;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.cmdline.TCPStream;
+import net.sharksystem.utils.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,8 +40,8 @@ public class CreateNewChannelFromOutsideTest {
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
-        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage =

@@ -1,17 +1,9 @@
-package net.sharksystem.asap.utils;
-
-import net.sharksystem.utils.Log;
-import net.sharksystem.utils.Utils;
-import net.sharksystem.asap.ASAPChunkStorage;
-import net.sharksystem.asap.engine.ASAPEngine;
-import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPMessages;
+package net.sharksystem.utils;
 
 import java.io.*;
 import java.util.*;
 
-public class Helper {
+public class SerializationHelper {
     public static final String SERIALIZATION_DELIMITER = "|||";
 
     public static String collection2String(Collection<CharSequence> stringList) {
@@ -78,7 +70,7 @@ public class Helper {
     }
 
     public static Set<CharSequence> string2CharSequenceSet(String s) {
-        List<CharSequence> charSequences = Helper.string2CharSequenceList(s);
+        List<CharSequence> charSequences = SerializationHelper.string2CharSequenceList(s);
         Set charSet = new HashSet();
         for(CharSequence c : charSequences) {
             charSet.add(c);
@@ -121,30 +113,6 @@ public class Helper {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         DataInputStream daos = new DataInputStream(bais);
         return daos.readUTF();
-    }
-
-    public static ASAPMessages getMessagesByChunkReceivedInfos(String format, String sender, String uri,
-                                                               String folderName, int era) {
-        try {
-            String rootIncomingStorage = folderName + "/" + Utils.url2FileName(format);
-            Log.writeLog(Helper.class, "try getting storage in folder " + rootIncomingStorage);
-            ASAPEngine existingASAPEngineFS =
-                    ASAPEngineFS.getExistingASAPEngineFS(rootIncomingStorage);
-            Log.writeLog(Helper.class, "got existing asap engine");
-
-            ASAPChunkStorage chunkStorage = existingASAPEngineFS.getReceivedChunksStorage(sender);
-            Log.writeLog(Helper.class, "got incoming channel of " + sender);
-
-            ASAPMessages asapMessages = chunkStorage.getASAPMessages(uri, era, era);
-            Log.writeLog(Helper.class, "got messages uri: " + uri + " / era: " + era);
-
-            return asapMessages;
-        } catch (IOException | ASAPException e) {
-            Log.writeLog(Helper.class, "could not access message after be informed about new chunk arrival"
-                            + e.getLocalizedMessage());
-        }
-
-        return null;
     }
 
     public static final boolean sameByteArray(byte[] a, byte[] b) {

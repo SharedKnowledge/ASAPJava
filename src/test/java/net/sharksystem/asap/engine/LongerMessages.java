@@ -1,6 +1,7 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.asap.apps.testsupport.TestConstants;
+import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.utils.ASAPChunkReceivedTester;
@@ -59,8 +60,8 @@ public class LongerMessages {
         //                                        prepare storages                                       //
         ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ASAPEngineFS.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
-        ASAPEngineFS.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_ROOT_FOLDER); // clean previous version before
+        FSUtils.removeFolder(BOB_ROOT_FOLDER); // clean previous version before
 
         // alice writes a message into chunkStorage
         ASAPInternalStorage aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_APP_FOLDER, CHAT_FORMAT);

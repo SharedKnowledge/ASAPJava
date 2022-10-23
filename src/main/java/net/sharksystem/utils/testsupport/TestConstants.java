@@ -1,4 +1,4 @@
-package net.sharksystem.asap.apps.testsupport;
+package net.sharksystem.utils.testsupport;
 
 public interface TestConstants {
     String ROOT_DIRECTORY = "testResultsRootFolder/";

@@ -5,7 +5,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.protocol.*;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
-import net.sharksystem.utils.ExtraData;
+import net.sharksystem.asap.fs.ExtraData;
 
 import java.io.IOException;
 import java.io.OutputStream;

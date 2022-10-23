@@ -3,16 +3,14 @@ package net.sharksystem.asap.engine;
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.EncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
-import net.sharksystem.utils.ExtraData;
-import net.sharksystem.utils.ExtraDataFS;
-import net.sharksystem.utils.Utils;
+import net.sharksystem.asap.fs.ExtraData;
+import net.sharksystem.asap.fs.ExtraDataFS;
+import net.sharksystem.utils.*;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.listenermanager.management.ASAPManagementMessageHandler;
 import net.sharksystem.asap.protocol.*;
-import net.sharksystem.asap.utils.Helper;
-import net.sharksystem.utils.Log;
 
 import java.io.*;
 import java.util.*;
@@ -436,7 +434,7 @@ public class ASAPInternalPeerFS implements
         if(!this.connectedThreads.isEmpty()) {
             System.out.println(this.getLogStart()
                     + "#online peers: " + this.connectedThreads.keySet().size()
-                    + " | " + Helper.collection2String(this.connectedThreads.keySet()));
+                    + " | " + SerializationHelper.collection2String(this.connectedThreads.keySet()));
         } else {
             System.out.println(this.getLogStart() + "no (more) peers: ");
         }
@@ -454,7 +452,7 @@ public class ASAPInternalPeerFS implements
         if(!this.connectedThreads.isEmpty()) {
             System.out.println(this.getLogStart()
                     + "getOnlinePeers called | #online peers: " + this.connectedThreads.keySet().size()
-                    + " | " + Helper.collection2String(this.connectedThreads.keySet()));
+                    + " | " + SerializationHelper.collection2String(this.connectedThreads.keySet()));
         } else {
             System.out.println(this.getLogStart() + "getOnlinePeers called | no (more) peers: ");
         }

@@ -4,6 +4,7 @@ import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.ASAPEngine;
 import net.sharksystem.asap.engine.ASAPEngineFS;
+import net.sharksystem.utils.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class ChunkCacheTests {
 
     @Test
     public void chunkTest0() throws IOException, ASAPException {
-        ASAPEngineFS.removeFolder(ALICE_FOLDER); // clean previous version before
+        FSUtils.removeFolder(ALICE_FOLDER); // clean previous version before
         ASAPEngine aliceStorage = ASAPEngineFS.getASAPStorage(ALICE, ALICE_FOLDER, TEST_APP);
 
         String[] message = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};

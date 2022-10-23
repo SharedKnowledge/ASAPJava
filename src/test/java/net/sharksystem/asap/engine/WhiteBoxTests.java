@@ -6,6 +6,7 @@ import java.util.Iterator;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
+import net.sharksystem.utils.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,13 +30,13 @@ public class WhiteBoxTests {
     @Test
     public void writeReadByteMessages() throws IOException, ASAPException {
         String folder = "tests/writeReadByteMessagesTest";
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
 
         String uri = "test://anURI";
         String firstMessage = "first message";
         String secondMessage = "second message";
 
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
         ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         // convert message into bytes
@@ -59,7 +60,7 @@ public class WhiteBoxTests {
     @Test
     public void writeReadStringMessages() throws IOException, ASAPException {
         String folder = "tests/writeReadStringMessagesTest";
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
 
         String uri = "test://anURI";
         String firstMessage = "first message";
@@ -81,7 +82,7 @@ public class WhiteBoxTests {
     @Test
     public void persistentMessage1() throws IOException, ASAPException {
         String folder = "tests/persistentMessage1";
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
 
         String uri = "test://anURI";
         String firstMessage = "first message";
@@ -102,11 +103,11 @@ public class WhiteBoxTests {
     @Test
     public void testExtraData() throws IOException, ASAPException {
         String folder = "tests/testExtraData";
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
 
         String uri = "test://anURI";
 
-        ASAPEngineFS.removeFolder(folder);
+        FSUtils.removeFolder(folder);
         ASAPInternalStorage storage = ASAPEngineFS.getASAPStorage(DUMMY_USER, folder, FORMAT);
 
         String key1 = "key1";

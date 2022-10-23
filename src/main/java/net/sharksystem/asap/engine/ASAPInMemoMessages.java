@@ -1,6 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.asap.ASAPHop;
+import net.sharksystem.asap.ASAPUtils;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
@@ -72,7 +72,7 @@ class ASAPInMemoMessages implements ASAPMessages {
         Collection<Integer> erasInFolder = Utils.getErasInFolder(this.chunkStorage.getRootDirectory());
         if(erasInFolder.isEmpty()) return;
 
-        Collection<Integer> erasToUse = Utils.getErasInRange(erasInFolder, this.fromEra, this.toEra);
+        Collection<Integer> erasToUse = ASAPUtils.getErasInRange(erasInFolder, this.fromEra, this.toEra);
         if(erasToUse.isEmpty()) return;
 
         /*

@@ -1,4 +1,4 @@
-package net.sharksystem.streams;
+package net.sharksystem.utils.streams;
 
 import net.sharksystem.utils.AlarmClock;
 import net.sharksystem.utils.AlarmClockListener;

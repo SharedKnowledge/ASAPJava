@@ -4,9 +4,10 @@ import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.*;
-import net.sharksystem.asap.utils.Helper;
+import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.asap.cmdline.TCPStream;
 import net.sharksystem.asap.cmdline.TCPStreamCreatedListener;
+import net.sharksystem.utils.SerializationHelper;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -75,7 +76,7 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
             String myMessage = "message from " + this.peerName + " at " + df.format(new Date());
 
             // convert to bytes
-            byte[] byteMessage = Helper.str2bytes(myMessage);
+            byte[] byteMessage = SerializationHelper.str2bytes(myMessage);
             this.println("add message");
             exampleApp.add("exampleChannel", byteMessage);
 
@@ -101,14 +102,14 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
                             List<ASAPHop> asapHop) throws IOException {
 
         ASAPMessages receivedMessages =
-                Helper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolderName, era);
+                ASAPLogHelper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolderName, era);
 
         this.println("messages received: " + format + " | " + senderE2E + " | " + uri);
 
         Iterator<byte[]> messages = receivedMessages.getMessages();
         while(messages.hasNext()) {
             byte[] msgBytes = messages.next();
-            String receivedMessage = Helper.bytes2str(msgBytes);
+            String receivedMessage = SerializationHelper.bytes2str(msgBytes);
             this.println("message received: " + receivedMessage);
         };
     }
@@ -119,7 +120,7 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
         Iterator<byte[]> messages = asapMessages.getMessages();
         while(messages.hasNext()) {
             byte[] msgBytes = messages.next();
-            String receivedMessage = Helper.bytes2str(msgBytes);
+            String receivedMessage = SerializationHelper.bytes2str(msgBytes);
             this.println("message received: " + receivedMessage);
         };
     }
