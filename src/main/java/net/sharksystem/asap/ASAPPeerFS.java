@@ -47,7 +47,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         }
 
         sb = new StringBuilder();
-        sb.append("\n+++++++++++++++++++++++++++++++++++++++ chunkAssimilated +++++++++++++++++++++++++++++++++++++++++\n");
+        sb.append("\n+++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++\n");
         sb.append("E2E|P2P: " + senderE2E +  " | " + asapHopList.get(asapHopList.size()-1).sender() + " | uri: " + uri);
         sb.append(" | era: ");
         if(era == ASAP.TRANSIENT_ERA) sb.append("transient");

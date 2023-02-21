@@ -31,14 +31,9 @@ public class ASAPInMemoTransientMessages implements ASAPMessages, MessagesContai
         this.asapHop = asapHop;
     }
 
-    private void checkStatus() throws IOException {
-        if(this.size < 0) throw new IOException("transient message container not yet filled");
-    }
-
     @Override
     public int size() throws IOException {
-        this.checkStatus();
-        return this.size;
+        return this.messageList.size();
     }
 
     @Override
