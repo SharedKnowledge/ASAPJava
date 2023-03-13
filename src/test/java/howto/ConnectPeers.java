@@ -1,6 +1,8 @@
 package howto;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.asap.apps.TCPServerSocketAcceptor;
+import net.sharksystem.utils.streams.StreamPairImpl;
 import net.sharksystem.utils.tcp.SocketFactory;
 import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.utils.testsupport.TestHelper;
@@ -88,5 +90,54 @@ public class ConnectPeers {
 
         // give it some time to run an encounter.
         Thread.sleep(5);
+    }
+
+    @Test
+    public void connectAliceAndBobWithEncounterManager_Preferred() throws IOException, ASAPException, InterruptedException {
+        // supported formats
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(EXAMPLE_APP_FORMAT);
+
+        // test folder for this test run
+        String rootFolder = TestHelper.getFullTempFolderName(TEST_FOLDER, true);
+
+        ////////////////////////// set up peers
+        // set up alice
+        String aliceFolder = rootFolder + "/" + TestConstants.ALICE_ID;
+        ASAPConnectionHandler alice = new ASAPPeerFS(TestConstants.ALICE_ID, aliceFolder, formats);
+        // set up bob
+        String bobFolder = rootFolder + "/" + TestConstants.BOB_ID;
+        ASAPConnectionHandler bob = new ASAPPeerFS(TestConstants.BOB_ID, bobFolder, formats);
+
+        ////////////////////////// encounter manager
+        ASAPEncounterManager aliceEncounterManager = new ASAPEncounterManagerImpl(alice);
+        ASAPEncounterManager bobEncounterManager = new ASAPEncounterManagerImpl(bob);
+
+        ////////////////////////// set up server socket and handle connection requests
+        int portNumberAlice = TestHelper.getPortNumber();
+        TCPServerSocketAcceptor aliceTcpServerSocketAcceptor =
+                new TCPServerSocketAcceptor(portNumberAlice, aliceEncounterManager);
+
+        int portNumberBob = TestHelper.getPortNumber();
+        TCPServerSocketAcceptor bobTcpServerSocketAcceptor =
+                new TCPServerSocketAcceptor(portNumberBob, bobEncounterManager);
+
+        // give it a moment to settle
+        Thread.sleep(5);
+
+        // now, both side wit for connection establishment. Example
+
+        // open connection to Bob
+        Socket socket = new Socket("localhost", portNumberBob);
+
+        // let Alice handle it
+        aliceEncounterManager.handleEncounter(
+                StreamPairImpl.getStreamPair(socket.getInputStream(), socket.getOutputStream()),
+                EncounterConnectionType.INTERNET);
+
+        // give it a moment to run ASAP session
+        Thread.sleep(5);
+
+        // There is just one peer in a real app.
     }
 }

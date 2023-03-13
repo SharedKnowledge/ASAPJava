@@ -2,6 +2,8 @@ package net.sharksystem.utils.tcp;
 
 //import net.sharksystem.asap.ASAPEncounterHelper;
 
+import net.sharksystem.utils.streams.StreamPairImpl;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,10 +13,16 @@ import java.net.Socket;
 
 public class SocketFactory implements Runnable {
     private final ServerSocket srv;
+    private StreamPairCreatedListener listener = null;
     InputStream is;
     OutputStream os;
     private Thread waitForConnectionThread = null;
     private String remoteAddress;
+
+    public SocketFactory(int portNumber, StreamPairCreatedListener listener) throws IOException {
+        this(new ServerSocket(portNumber));
+        this.listener = listener;
+    }
 
     public SocketFactory(ServerSocket srv) {
         this.srv = srv;
@@ -34,6 +42,10 @@ public class SocketFactory implements Runnable {
             if(this.waitForConnectionThread != null) {
                 //this.waitForConnectionThread.interrupt();
                 this.waitForConnectionThread.notify();
+            }
+            if(this.listener != null) {
+                this.listener.streamPairCreated(
+                        StreamPairImpl.getStreamPairWithEndpointAddress(this.is, this.os, this.remoteAddress));
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@ import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.Log;
+import net.sharksystem.utils.tcp.StreamPairCreatedListener;
 
 import java.io.*;
 import java.util.*;
@@ -294,7 +295,13 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                 utils                                                      //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public String toString() {
         return this.asapConnectionHandler.toString();
     }
+
+
 }
