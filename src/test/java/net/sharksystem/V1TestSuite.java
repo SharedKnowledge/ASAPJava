@@ -1,7 +1,9 @@
 package net.sharksystem;
 
+import howto.ConnectPeers;
 import net.sharksystem.asap.crypto.CryptoUsage;
 import junit5Tests.release_1.MultipleEncounterTests;
+import net.sharksystem.asap.encounter.EncounterManagerTests;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.helper.HelperTester;
 import net.sharksystem.asap.peer.Point2Point2Test2;
@@ -27,7 +29,9 @@ import org.junit.runners.Suite;
         MultihopTests.class,
         CommandlineTests.class,
         TransientMessages.class,
-        Point2Point2Test2.class//,
+        Point2Point2Test2.class,
+        EncounterManagerTests.class,
+        ConnectPeers.class, //
         //MultipleEncounterTests.class
         //E2EStreamPairLinkTestVersion2.class TODO
 })

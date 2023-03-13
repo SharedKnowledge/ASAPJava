@@ -1,11 +1,6 @@
 package howto;
 
-import net.sharksystem.asap.ASAPConnectionHandler;
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.ASAPPeer;
-import net.sharksystem.asap.ASAPPeerFS;
-import net.sharksystem.utils.streams.StreamPair;
-import net.sharksystem.utils.streams.StreamPairImpl;
+import net.sharksystem.asap.*;
 import net.sharksystem.utils.tcp.SocketFactory;
 import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.utils.testsupport.TestHelper;
@@ -33,8 +28,14 @@ public class ConnectPeers {
 
     private static final String TEST_FOLDER = "ConnectPeers";
     private CharSequence EXAMPLE_APP_FORMAT = "shark/x-connectPeersExample";
-    private int PORT_NUMBER = 7777;
 
+    /**
+     * A single connection is set up and two peers run an ASAP encounter. It can work in test scenarios. It is not
+     * a blueprint for a real application though - better use our encounter manager.
+     * @throws IOException
+     * @throws ASAPException
+     * @throws InterruptedException
+     */
     @Test
     public void connectAliceAndBob() throws IOException, ASAPException, InterruptedException {
         // supported formats
@@ -61,7 +62,10 @@ public class ConnectPeers {
         https://github.com/SharedKnowledge/ASAPJava/blob/master/src/main/java/net/sharksystem/asap/apps/testsupport/ASAPTestPeerFS.java
          */
 
-        ServerSocket serverSocket = new ServerSocket(PORT_NUMBER);
+        // get a port number for that test
+        int portNumber = TestHelper.getPortNumber();
+
+        ServerSocket serverSocket = new ServerSocket(portNumber);
 
         /*
             now. We need to accept incoming connection but have to create a socket at the same time...
@@ -73,7 +77,7 @@ public class ConnectPeers {
 
         // create a socket
         String addressRemotePeer = "localhost"; // change this in a real scenario
-        Socket socket = new Socket(addressRemotePeer, PORT_NUMBER);
+        Socket socket = new Socket(addressRemotePeer, portNumber);
 
         // give server side a moment to connect
         Thread.sleep(1);
@@ -84,6 +88,5 @@ public class ConnectPeers {
 
         // give it some time to run an encounter.
         Thread.sleep(5);
-
     }
 }
