@@ -2,8 +2,11 @@ package howto;
 
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.apps.TCPServerSocketAcceptor;
+import net.sharksystem.utils.Log;
+import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.streams.StreamPairImpl;
 import net.sharksystem.utils.tcp.SocketFactory;
+import net.sharksystem.utils.tcp.StreamPairCreatedListener;
 import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.utils.testsupport.TestHelper;
 import org.junit.Test;
@@ -90,6 +93,75 @@ public class ConnectPeers {
 
         // give it some time to run an encounter.
         Thread.sleep(5);
+    }
+
+    @Test
+    public void connectAliceAndBob_2() throws IOException, ASAPException, InterruptedException {
+        // supported formats
+        Collection<CharSequence> formats = new ArrayList<>();
+        formats.add(EXAMPLE_APP_FORMAT);
+
+        // test folder for this test run
+        String rootFolder = TestHelper.getFullTempFolderName(TEST_FOLDER, true);
+
+        // set up alice
+        String aliceFolder = rootFolder + "/" + TestConstants.ALICE_ID;
+        ASAPPeerFS alicePeerFS = new ASAPPeerFS(TestConstants.ALICE_ID, aliceFolder, formats);
+        // we only need connection handler capabilities in this scenario
+        ASAPConnectionHandler alice = alicePeerFS;
+
+        // set up bob
+        String bobFolder = rootFolder + "/" + TestConstants.BOB_ID;
+        ASAPConnectionHandler bob = new ASAPPeerFS(TestConstants.BOB_ID, bobFolder, formats);
+
+        /* create a TCP connection. What we do here:
+        We create a just single connection. We need a ServerSocket first and a Socket that connects to.
+
+        A bit more complex but maybe more convenient solution can be found here:
+        https://github.com/SharedKnowledge/ASAPJava/blob/master/src/main/java/net/sharksystem/asap/apps/testsupport/ASAPTestPeerFS.java
+         */
+
+        // get a port number for that test
+        int portNumber = TestHelper.getPortNumber();
+
+        /*
+            now. We need to accept incoming connection but have to create a socket at the same time...
+            We need threads or a helper class.
+         */
+        StreamPairCreatedListenerImpl aliceStreamPairCreatedListener = new StreamPairCreatedListenerImpl(alice);
+        SocketFactory socketFactory = new SocketFactory(portNumber, aliceStreamPairCreatedListener);
+        Thread socketFactoryThread = new Thread(socketFactory);
+        socketFactoryThread.start();
+
+        // create a socket
+        String addressRemotePeer = "localhost"; // change this in a real scenario
+        Socket socket = new Socket(addressRemotePeer, portNumber);
+
+        // give server side a moment to connect
+        Thread.sleep(1);
+
+        // it is an arbitrary choice - Alice takes socket side pairs
+        bob.handleConnection(socket.getInputStream(), socket.getOutputStream());
+
+        // give it some time to run an encounter.
+        Thread.sleep(5);
+    }
+
+    private class StreamPairCreatedListenerImpl implements StreamPairCreatedListener {
+        private final ASAPConnectionHandler connectionHandler;
+
+        StreamPairCreatedListenerImpl(ASAPConnectionHandler connectionHandler) {
+            this.connectionHandler = connectionHandler;
+        }
+
+        @Override
+        public void streamPairCreated(StreamPair streamPair) {
+            try {
+                this.connectionHandler.handleConnection(streamPair.getInputStream(), streamPair.getOutputStream());
+            } catch (IOException | ASAPException e) {
+                Log.writeLog(this, "problems handling connection: " + e.getLocalizedMessage());
+            }
+        }
     }
 
     @Test
