@@ -153,7 +153,7 @@ public class ASAPInternalPeerFS implements
 
     private void setupEngine(CharSequence folderName, CharSequence formatName) throws IOException, ASAPException {
         String fileName = this.rootFolderName + "/" + folderName;
-        System.out.println(this.getLogStart() + "set up: " + formatName + " in folder " + fileName);
+        Log.writeLog(this, "set up: " + formatName + " in folder " + fileName);
         ASAPEngine asapEngine = ASAPEngineFS.getASAPStorage(this.getOwner().toString(),
                 fileName, formatName);
 
@@ -171,12 +171,12 @@ public class ASAPInternalPeerFS implements
         this.folderMap = new HashMap<>();
         File rootFolder = new File(rootFolderName.toString());
 
-        System.out.println(this.getLogStart() + "setting up ASAPEngine based on subfolders in " + this.rootFolderName);
+        Log.writeLog(this, "setting up ASAPEngine based on sub folders in " + this.rootFolderName);
         File[] files = rootFolder.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 String fileName = file.getCanonicalPath();
-                System.out.println(this.getLogStart() + "setup engine for " + fileName);
+                Log.writeLog(this, "setup engine for " + fileName);
                 ASAPEngine engine = ASAPEngineFS.getExistingASAPEngineFS(fileName);
                 EngineSetting setting = new EngineSetting(
                         rootFolderName + "/" + fileName, // folder
