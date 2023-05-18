@@ -1,12 +1,10 @@
 package net.sharksystem.asap;
 
-import com.sun.istack.NotNull;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.Log;
-import net.sharksystem.utils.tcp.StreamPairCreatedListener;
 
 import java.io.*;
 import java.util.*;
@@ -41,11 +39,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
     /** remember remote address of peers (they can have more than one): peerID -> remote address */
     private Map<CharSequence, Set<CharSequence>> peerRemoteAddresses = new HashMap<>();
 
-    public ASAPEncounterManagerImpl(@NotNull ASAPConnectionHandler asapConnectionHandler) {
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler) {
         this(asapConnectionHandler, DEFAULT_WAIT_BEFORE_RECONNECT_TIME);
     }
 
-    public ASAPEncounterManagerImpl(@NotNull ASAPConnectionHandler asapConnectionHandler, long waitingPeriod) {
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, long waitingPeriod) {
         this.asapConnectionHandler = asapConnectionHandler;
         this.randomValue = new Random(System.currentTimeMillis()).nextInt();
         this.waitBeforeReconnect = waitingPeriod;

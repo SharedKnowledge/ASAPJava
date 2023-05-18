@@ -1,6 +1,19 @@
 package net.sharksystem.utils;
 
+import java.io.PrintStream;
+
 public class Log {
+    private static PrintStream outStream = System.out;
+    private static PrintStream errStream = System.err;
+
+    public static void setOutStream(PrintStream outStream) {
+        Log.outStream = outStream;
+    }
+
+    public static void setErrStream(PrintStream errStream) {
+        Log.errStream = errStream;
+    }
+
     public static StringBuilder startLog(Object o, String parameter) {
         return startLog(o.getClass(), parameter);
     }
@@ -26,7 +39,7 @@ public class Log {
     }
 
     public static void writeLog(Object o, String parameter, String message) {
-        System.out.println(Log.startLog(o, parameter) + message);
+        Log.outStream.println(Log.startLog(o, parameter) + message);
     }
 
     public static void writeLog(Object o, String message) {
@@ -34,7 +47,7 @@ public class Log {
     }
 
     public static void writeLog(Class c, String parameter, String message) {
-        System.out.println(Log.startLog(c, parameter) + message);
+        Log.outStream.println(Log.startLog(c, parameter) + message);
     }
 
     public static void writeLog(Class c, String message) {
@@ -42,7 +55,7 @@ public class Log {
     }
 
     public static void writeLogErr(Object o, String parameter, String message) {
-        System.err.println(Log.startLog(o, parameter) + message);
+        Log.errStream.println(Log.startLog(o, parameter) + message);
     }
 
     public static void writeLogErr(Object o, String message) {
@@ -50,7 +63,7 @@ public class Log {
     }
 
     public static void writeLogErr(Class c, String parameter, String message) {
-        System.err.println(Log.startLog(c, parameter) + message);
+        Log.errStream.println(Log.startLog(c, parameter) + message);
     }
 
     public static void writeLogErr(Class c, String message) {

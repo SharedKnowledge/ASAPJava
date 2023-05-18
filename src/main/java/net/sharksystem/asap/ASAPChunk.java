@@ -1,6 +1,5 @@
 package net.sharksystem.asap;
 
-import com.sun.xml.internal.ws.wsdl.writer.document.Message;
 import net.sharksystem.asap.engine.MessagesContainer;
 
 import java.io.IOException;
