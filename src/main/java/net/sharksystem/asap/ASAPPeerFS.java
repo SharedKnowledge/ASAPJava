@@ -26,9 +26,6 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         this.chunkReceivedListener = listener;
     }
 
-    private ASAPEncounterManager ASAPEncounterManager = null;
-
-
     private void chunkAssimilated(ASAPMessages receivedMessages, CharSequence format,
                                   CharSequence senderE2E, CharSequence uri, int era,
                                   List<ASAPHop> asapHopList, boolean callListener) {
