@@ -234,7 +234,7 @@ public class ASAPInternalPeerFS implements
     public void setAsapRoutingAllowed(CharSequence applicationFormat, boolean allowed)
             throws IOException, ASAPException {
 
-        this.getEngineByFormat(applicationFormat).routingAllowed();
+        this.getEngineByFormat(applicationFormat).setBehaviourAllowRouting(allowed);
     }
 
     @Override
