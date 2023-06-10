@@ -52,17 +52,4 @@ public abstract class ASAPListenerManagingPeer implements ASAPPeer {
     public void removeASAPEnvironmentChangesListener(ASAPEnvironmentChangesListener changesListener) {
         this.environmentChangesListenerManager.removeASAPEnvironmentChangesListener(changesListener);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                             util                                                   //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    protected void log(String msg) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getPeerID());
-        sb.append(": ");
-        sb.append(msg);
-
-        System.out.println(sb.toString());
-    }
 }

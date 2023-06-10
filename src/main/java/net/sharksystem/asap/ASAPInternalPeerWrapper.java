@@ -5,6 +5,7 @@ import net.sharksystem.asap.engine.ASAPInternalOnlinePeersChangedListener;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.utils.PeerIDHelper;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +21,7 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
         this.peer = peer;
         this.peer.addOnlinePeersChangedListener(this);
 
-        this.log("activate online messages on that peer");
+        Log.writeLog(this, "activate online messages on that peer");
         this.peer.activateOnlineMessages();
     }
 

@@ -42,6 +42,10 @@ public class Log {
         Log.outStream.println(Log.startLog(o, parameter) + message);
     }
 
+    public static void writeLog(Object o, CharSequence parameter, String message) {
+        Log.outStream.println(Log.startLog(o, String.valueOf(parameter)) + message);
+    }
+
     public static void writeLog(Object o, String message) {
         writeLog(o, null, message);
     }
@@ -56,6 +60,10 @@ public class Log {
 
     public static void writeLogErr(Object o, String parameter, String message) {
         Log.errStream.println(Log.startLog(o, parameter) + message);
+    }
+
+    public static void writeLogErr(Object o, CharSequence parameter, String message) {
+        Log.errStream.println(Log.startLog(o, String.valueOf(parameter)) + message);
     }
 
     public static void writeLogErr(Object o, String message) {

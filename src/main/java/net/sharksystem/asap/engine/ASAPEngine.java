@@ -470,11 +470,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             //>>>>>>>>>>>>>>>>>>>debug
 
         if(listener != null) {
-            /////// notify listeners - if any and do it in a separate thread
-            // no extra thread required - it is handled by ASAPPeer Wrapper
-//            NotifyListenerThread notifyListenerThread = new NotifyListenerThread(listener);
             if(eraSender != ASAP.TRANSIENT_ERA) {
-//                notifyListenerThread.chunkStored(this.format,
                     listener.chunkStored(this.format,
                         senderE2E,
                         uri,
@@ -482,7 +478,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                         asapHopList
                 );
             } else {
-//                notifyListenerThread.transientMessagesReceived(transientMessages, lastHop);
                 listener.transientMessagesReceived(transientMessages, lastHop);
             }
 
@@ -490,51 +485,6 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
             Log.writeLog(this, this.toString(), "no chunk assimilated listener found");
         }
     }
-/*
-    private class NotifyListenerThread extends Thread {
-        private final ASAPChunkAssimilatedListener listener;
-        private String format;
-        private String senderE2E;
-        private int eraSender;
-        private List<ASAPHop> asapHopList;
-        private ASAPInMemoTransientMessages transientMessages;
-        private ASAPHop lastHop;
-        private String uri;
-
-        private NotifyListenerThread(ASAPChunkAssimilatedListener listener) {
-            this.listener = listener;
-        }
-
-        public void chunkStored(String format, String senderE2E, String uri, int eraSender, List<ASAPHop> asapHopList) {
-            this.format = format;
-            this.senderE2E = senderE2E;
-            this.uri = uri;
-            this.eraSender = eraSender;
-            this.asapHopList = asapHopList;
-            this.start();
-        }
-
-        public void transientMessagesReceived(ASAPInMemoTransientMessages transientMessages, ASAPHop lastHop) {
-            this.transientMessages = transientMessages;
-            this.lastHop = lastHop;
-            this.start();
-        }
-
-        public void run() {
-            Log.writeLog(this, "thread notifies listener about received messages");
-            try {
-                if(this.transientMessages != null) {
-                    this.listener.transientMessagesReceived(this.transientMessages, this.lastHop);
-                } else {
-                    this.listener.chunkStored(this.format, this.senderE2E, this.uri, this.eraSender, this.asapHopList);
-                }
-            } catch (IOException e) {
-                Log.writeLogErr(this, "problems notifying listener about received messages: "
-                        + e.getLocalizedMessage());
-            }
-        }
-    }
- */
     private ASAPInternalChunk getIncomingChunk(String encounteredPeer, ASAP_AssimilationPDU_1_0 asapAssimilationPDU)
             throws IOException, ASAPException {
 

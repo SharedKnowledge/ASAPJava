@@ -22,7 +22,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     }
 
     public void overwriteChuckReceivedListener(ASAPChunkAssimilatedListener listener) {
-        Log.writeLogErr(this, "do not use chunk received listener - message received listener is better");
+        Log.writeLogErr(this, this.getPeerID(), "do not use chunk received listener - message received listener is better");
         this.chunkReceivedListener = listener;
     }
 
@@ -53,11 +53,16 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         sb.append("\n");
         sb.append(hopListString);
         sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        this.log(sb.toString());
+        Log.writeLog(this, this.getPeerID(), sb.toString());
 
         if(callListener) {
             // call listener
-            this.log("notify listener");
+            String numberListeners = "null";
+            if(this.asapMessageReceivedListenerManager != null) {
+                numberListeners = String.valueOf(this.asapMessageReceivedListenerManager.getNumberListener());
+            }
+
+            Log.writeLog(this, this.getPeerID(), "notify listeners; number: " + numberListeners);
             if (this.asapMessageReceivedListenerManager.getNumberListener() > 0) {
                 this.asapMessageReceivedListenerManager.notifyReceived(
                         format, receivedMessages, true,
@@ -65,7 +70,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             }
 
             if (this.asapChannelContentChangedListenerManager.getNumberListener() > 0) {
-                this.log("notify channel content changed listener");
+                Log.writeLog(this, this.getPeerID(),"notify channel content changed listener");
                 this.asapChannelContentChangedListenerManager.notifyChanged(format, uri, era, true);
             }
         }
@@ -86,11 +91,11 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     public void chunkStored(String format, String senderE2E, String uri, int era,
                             List<ASAPHop> asapHopList) throws IOException {
         if(this.chunkReceivedListener != null) {
-            this.log("chunk received listener set - call this one");
+            Log.writeLog(this, this.getPeerID(),"chunk received listener set - call this one");
             this.chunkReceivedListener.chunkStored(format, senderE2E, uri, era, asapHopList);
             this.chunkAssimilated(null, format, senderE2E, uri, era, asapHopList, false);
         } else {
-            this.log("extract messages from chunk and notify listener");
+            Log.writeLog(this, this.getPeerID(),"extract messages from chunk and notify listener");
             ASAPMessages receivedMessages =
                     ASAPLogHelper.getMessagesByChunkReceivedInfos(format, senderE2E, uri, this.rootFolder, era);
 
@@ -123,7 +128,7 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
             }
              */
         } catch (IOException e) {
-            this.log(e.getLocalizedMessage());
+            Log.writeLog(this, this.getPeerID(),e.getLocalizedMessage());
             throw new ASAPException("problems getting asap engine", e);
         }
     }
