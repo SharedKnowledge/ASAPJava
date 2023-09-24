@@ -9,7 +9,9 @@ import net.sharksystem.utils.Log;
 import java.io.*;
 import java.util.*;
 
-public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConnectionListener {
+public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
+        EncounterManagerAdmin,
+        ASAPConnectionListener {
     public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 1000; // a second - debugging
     public static final long DEFAULT_WAIT_TO_AVOID_RACE_CONDITION = 500; // milliseconds - worked fine with BT.
 
@@ -47,6 +49,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
         this.asapConnectionHandler = asapConnectionHandler;
         this.randomValue = new Random(System.currentTimeMillis()).nextInt();
         this.waitBeforeReconnect = waitingPeriod;
+        this.restoreDenyList();
     }
 
     private boolean coolDownOver(CharSequence id, EncounterConnectionType connectionType) {
@@ -294,12 +297,59 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPConne
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                          EncounterManagerAdmin                                             //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private Set<CharSequence> denyList;
+
+    //// housekeeping
+    private void restoreDenyList() {
+        // TODO
+        this.denyList = new HashSet<>();
+        Log.writeLog(this, "need to implement restoreDenyList");
+    }
+
+    private void saveDenyList() {
+        // TODO
+        Log.writeLog(this, "need to implement saveDenyList");
+    }
+
+    ///// manage deny list
+    @Override
+    public void addToDenyList(CharSequence peerID) {
+        this.denyList.add(peerID);
+        this.saveDenyList();
+    }
+
+    @Override
+    public void removeFromDenyList(CharSequence peerID) {
+        this.denyList.remove(peerID);
+        this.saveDenyList();
+    }
+
+    @Override
+    public Set<CharSequence> getDenyList() {
+        return this.denyList;
+    }
+
+    @Override
+    public Set<CharSequence> getConnectedPeerIDs() {
+        return this.openStreamPairs.keySet();
+    }
+    @Override
+    public void cancelConnection(CharSequence peerID) {
+        StreamPair stream2Close = this.openStreamPairs.get(peerID);
+        if(stream2Close != null) {
+            stream2Close.close();
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                 utils                                                      //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public String toString() {
         return this.asapConnectionHandler.toString();
     }
-
 
 }
