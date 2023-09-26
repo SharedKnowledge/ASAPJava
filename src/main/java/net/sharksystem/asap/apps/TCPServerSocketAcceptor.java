@@ -1,7 +1,7 @@
 package net.sharksystem.asap.apps;
 
 import net.sharksystem.asap.ASAPEncounterManager;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.utils.Log;
 import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.tcp.SocketFactory;
@@ -24,7 +24,7 @@ public class TCPServerSocketAcceptor implements StreamPairCreatedListener {
     public void streamPairCreated(StreamPair streamPair) {
         Log.writeLog(this, "new stream pair created");
         try {
-            this.encounterManager.handleEncounter(streamPair, EncounterConnectionType.INTERNET);
+            this.encounterManager.handleEncounter(streamPair, ASAPEncounterConnectionType.INTERNET);
         } catch (IOException e) {
             Log.writeLogErr(this, "exception when asking for new connection handling: "
                     + e.getLocalizedMessage());

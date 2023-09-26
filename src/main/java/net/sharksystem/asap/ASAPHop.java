@@ -17,7 +17,7 @@ public interface ASAPHop {
      * Internet, onion networks etc. This method describes the connection type of this hop.
      * @return
      */
-    EncounterConnectionType getConnectionType();
+    ASAPEncounterConnectionType getConnectionType();
 
     /**
      * A sender could have signed the point-to-point message transfer. This message returns true if the receiver was

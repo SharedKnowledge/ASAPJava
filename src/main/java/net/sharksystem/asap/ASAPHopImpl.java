@@ -1,15 +1,12 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
-
 public class ASAPHopImpl implements ASAPHop {
     private final CharSequence sender;
     private final boolean verified;
     private final boolean encrypted;
-    private final EncounterConnectionType connectionType;
+    private final ASAPEncounterConnectionType connectionType;
 
-    public ASAPHopImpl(CharSequence sender, boolean verified, boolean encrypted, EncounterConnectionType connectionType) {
+    public ASAPHopImpl(CharSequence sender, boolean verified, boolean encrypted, ASAPEncounterConnectionType connectionType) {
         this.sender = sender;
         this.verified = verified;
         this.encrypted = encrypted;
@@ -22,7 +19,7 @@ public class ASAPHopImpl implements ASAPHop {
     }
 
     @Override
-    public EncounterConnectionType getConnectionType() {
+    public ASAPEncounterConnectionType getConnectionType() {
         return this.connectionType;
     }
 

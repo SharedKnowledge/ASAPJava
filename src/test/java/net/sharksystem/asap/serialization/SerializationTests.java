@@ -3,7 +3,7 @@ package net.sharksystem.asap.serialization;
 import net.sharksystem.asap.ASAPHopImpl;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.asap.utils.PeerIDHelper;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class SerializationTests {
     public void serializeASAPHopListLen1() throws IOException, ASAPException {
         List<ASAPHop> exampleList = new ArrayList<>();
 
-        exampleList.add(new ASAPHopImpl("Alice", true, true, EncounterConnectionType.ASAP_HUB));
+        exampleList.add(new ASAPHopImpl("Alice", true, true, ASAPEncounterConnectionType.ASAP_HUB));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASAPSerialization.writeASAPHopList(exampleList, baos);
@@ -56,11 +56,11 @@ public class SerializationTests {
     public void serializeASAPHopListLen5() throws IOException, ASAPException {
         List<ASAPHop> exampleList = new ArrayList<>();
 
-        exampleList.add(new ASAPHopImpl("Alice", true, true, EncounterConnectionType.ASAP_HUB));
-        exampleList.add(new ASAPHopImpl("Bob", false, true, EncounterConnectionType.INTERNET));
-        exampleList.add(new ASAPHopImpl("Clara", false, false, EncounterConnectionType.AD_HOC_LAYER_2_NETWORK));
-        exampleList.add(new ASAPHopImpl("David", true, false, EncounterConnectionType.ONION_NETWORK));
-        exampleList.add(new ASAPHopImpl("Eveline", true, false, EncounterConnectionType.UNKNOWN));
+        exampleList.add(new ASAPHopImpl("Alice", true, true, ASAPEncounterConnectionType.ASAP_HUB));
+        exampleList.add(new ASAPHopImpl("Bob", false, true, ASAPEncounterConnectionType.INTERNET));
+        exampleList.add(new ASAPHopImpl("Clara", false, false, ASAPEncounterConnectionType.AD_HOC_LAYER_2_NETWORK));
+        exampleList.add(new ASAPHopImpl("David", true, false, ASAPEncounterConnectionType.ONION_NETWORK));
+        exampleList.add(new ASAPHopImpl("Eveline", true, false, ASAPEncounterConnectionType.UNKNOWN));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASAPSerialization.writeASAPHopList(exampleList, baos);

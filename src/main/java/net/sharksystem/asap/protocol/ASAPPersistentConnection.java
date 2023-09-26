@@ -1,6 +1,6 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.engine.ASAPUndecryptableMessageHandler;
@@ -20,7 +20,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
     private final ThreadFinishedListener threadFinishedListener;
     private final boolean encrypt;
     private final boolean sign;
-    private final EncounterConnectionType connectionType;
+    private final ASAPEncounterConnectionType connectionType;
     private Thread managementThread = null;
     private final long maxExecutionTime;
     private String encounteredPeer;
@@ -34,7 +34,7 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
                                     ASAPKeyStore ASAPKeyStore,
                                     long maxExecutionTime, ASAPConnectionListener asapConnectionListener,
                                     ThreadFinishedListener threadFinishedListener,
-                                    boolean encrypt, boolean sign, EncounterConnectionType connectionType) {
+                                    boolean encrypt, boolean sign, ASAPEncounterConnectionType connectionType) {
 
         super(is, os, protocol, unencryptableMessageHandler, ASAPKeyStore);
 
@@ -369,11 +369,11 @@ public class ASAPPersistentConnection extends ASAPProtocolEngine
         private final ASAP_1_0 protocol;
         private final ThreadFinishedListener threadFinishedListener;
         private final String encounteredPeer;
-        private final EncounterConnectionType connectionType;
+        private final ASAPEncounterConnectionType connectionType;
 
         public ASAPPDUExecutor(ASAP_PDU_1_0 asapPDU, String encounteredPeer, InputStream is, OutputStream os,
-                EngineSetting engineSetting, ASAP_1_0 protocol,
-                EncounterConnectionType connectionType, ThreadFinishedListener threadFinishedListener) {
+                               EngineSetting engineSetting, ASAP_1_0 protocol,
+                               ASAPEncounterConnectionType connectionType, ThreadFinishedListener threadFinishedListener) {
             this.asapPDU = asapPDU;
             this.encounteredPeer = encounteredPeer;
             this.is = is;

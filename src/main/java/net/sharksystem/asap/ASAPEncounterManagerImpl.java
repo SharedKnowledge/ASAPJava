@@ -10,13 +10,13 @@ import java.io.*;
 import java.util.*;
 
 public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
-        EncounterManagerAdmin,
+        ASAPEncounterManagerAdmin,
         ASAPConnectionListener {
     public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 1000; // a second - debugging
     public static final long DEFAULT_WAIT_TO_AVOID_RACE_CONDITION = 500; // milliseconds - worked fine with BT.
 
-    private final int randomValue;
-    private final long waitBeforeReconnect;
+    private int randomValue;
+    private long waitBeforeReconnect;
     private ASAPConnectionHandler asapConnectionHandler; // object that will eventually run the ASAP session
 
     /*
@@ -52,7 +52,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
         this.restoreDenyList();
     }
 
-    private boolean coolDownOver(CharSequence id, EncounterConnectionType connectionType) {
+    private boolean coolDownOver(CharSequence id, ASAPEncounterConnectionType connectionType) {
         Date now = new Date();
         Date lastEncounter = this.encounterDate.get(id);
 
@@ -87,7 +87,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     }
 
     @Override
-    public boolean shouldCreateConnectionToPeer(CharSequence remoteAdressOrPeerID, EncounterConnectionType connectionType) {
+    public boolean shouldCreateConnectionToPeer(CharSequence remoteAdressOrPeerID, ASAPEncounterConnectionType connectionType) {
         // do we have a connection under a peerID?
         StreamPair streamPair = this.openStreamPairs.get(remoteAdressOrPeerID);
         if(streamPair != null) {
@@ -118,19 +118,19 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     }
 
     @Override
-    public void handleEncounter(StreamPair streamPair, EncounterConnectionType connectionType) throws IOException {
+    public void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType) throws IOException {
         this.handleEncounter(streamPair, connectionType, false, false);
     }
 
     @Override
-    public void handleEncounter(StreamPair streamPair, EncounterConnectionType connectionType, boolean initiator)
+    public void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType, boolean initiator)
             throws IOException {
 
         this.handleEncounter(streamPair, connectionType, initiator, true);
     }
 
-    private void handleEncounter(StreamPair streamPair, EncounterConnectionType connectionType, boolean initiator,
-                                boolean raceCondition) throws IOException {
+    private void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType, boolean initiator,
+                                 boolean raceCondition) throws IOException {
 
         CharSequence streamPairID = streamPair.getSessionID();
 
@@ -300,12 +300,12 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     //                                          EncounterManagerAdmin                                             //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private Set<CharSequence> denyList;
+    private Set<CharSequence> denyList = new HashSet<>();
 
     //// housekeeping
     private void restoreDenyList() {
         // TODO
-        this.denyList = new HashSet<>();
+        //this.denyList = new HashSet<>();
         Log.writeLog(this, "need to implement restoreDenyList");
     }
 

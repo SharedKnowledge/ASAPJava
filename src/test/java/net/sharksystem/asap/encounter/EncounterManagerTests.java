@@ -50,8 +50,8 @@ public class EncounterManagerTests {
                 a2bRemoteAddress);
 
         // tell encounter manager
-        aliceASAPEncounterManager.handleEncounter(alice2BobStreamPair, EncounterConnectionType.INTERNET);
-        bobASAPEncounterManager.handleEncounter(bob2AliceStreamPair, EncounterConnectionType.INTERNET);
+        aliceASAPEncounterManager.handleEncounter(alice2BobStreamPair, ASAPEncounterConnectionType.INTERNET);
+        bobASAPEncounterManager.handleEncounter(bob2AliceStreamPair, ASAPEncounterConnectionType.INTERNET);
 
     }
 }

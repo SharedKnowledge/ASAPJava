@@ -205,7 +205,7 @@ public class ConnectPeers {
         // let Alice handle it
         aliceEncounterManager.handleEncounter(
                 StreamPairImpl.getStreamPair(socket.getInputStream(), socket.getOutputStream()),
-                EncounterConnectionType.INTERNET);
+                ASAPEncounterConnectionType.INTERNET);
 
         // give it a moment to run ASAP session
         Thread.sleep(5);

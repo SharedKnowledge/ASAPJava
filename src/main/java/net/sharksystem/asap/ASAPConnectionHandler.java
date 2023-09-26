@@ -1,7 +1,5 @@
 package net.sharksystem.asap;
 
-import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.protocol.ASAPConnection;
 
 import java.io.IOException;
@@ -30,7 +28,7 @@ public interface ASAPConnectionHandler {
     ) throws IOException, ASAPException;
 
     ASAPConnection handleConnection(
-            InputStream is, OutputStream os, boolean encrypt, boolean sign,EncounterConnectionType connectionType,
+            InputStream is, OutputStream os, boolean encrypt, boolean sign, ASAPEncounterConnectionType connectionType,
             Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList
     ) throws IOException, ASAPException;
 
@@ -47,5 +45,5 @@ public interface ASAPConnectionHandler {
     ASAPConnection handleConnection(InputStream is, OutputStream os) throws IOException, ASAPException;
 
     ASAPConnection handleConnection(InputStream inputStream, OutputStream outputStream,
-                                    EncounterConnectionType connectionType) throws IOException, ASAPException;
+                                    ASAPEncounterConnectionType connectionType) throws IOException, ASAPException;
 }

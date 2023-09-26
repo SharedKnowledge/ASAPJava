@@ -2,7 +2,7 @@ package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPPeerFS;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class ASAPTestPeerFS extends ASAPPeerFS {
                     ASAPTestPeerFS.this.handleConnection(
                             ASAPTestPeerFS.this.socket.getInputStream(),
                             ASAPTestPeerFS.this.socket.getOutputStream(),
-                            EncounterConnectionType.INTERNET);
+                            ASAPEncounterConnectionType.INTERNET);
                 } catch (IOException | ASAPException e) {
                     Log.writeLog(ASAPTestPeerFS.this,"fatal while connecting: " + e.getLocalizedMessage());
                 }

@@ -48,9 +48,9 @@ public interface ASAPEncounterManager {
      *                      There will be no attempts to establish a connection.
      * @param connectionType Describes the connection that is planned to be established.
      * @return true: a connection should be established or not.
-     * @see EncounterConnectionType
+     * @see ASAPEncounterConnectionType
      */
-    boolean shouldCreateConnectionToPeer(CharSequence addressOrPeerID, EncounterConnectionType connectionType);
+    boolean shouldCreateConnectionToPeer(CharSequence addressOrPeerID, ASAPEncounterConnectionType connectionType);
 
     /**
      * A connection to another device was established. This method can be called to handle this new connection.
@@ -62,7 +62,7 @@ public interface ASAPEncounterManager {
      * @param streamPair most likely a socket that is can be used for an ASAP session.
      * @throws IOException something can go wrong when sending data. This object has no obligation to deal with this.
      */
-    void handleEncounter(StreamPair streamPair, EncounterConnectionType connectionType) throws IOException;
+    void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType) throws IOException;
 
     /**
      * This method is a variant of the one with less parameters.
@@ -115,7 +115,7 @@ public interface ASAPEncounterManager {
      * @param streamPair
      * @param initiator
      * @throws IOException
-     * @see ASAPEncounterManager#handleEncounter(StreamPair, EncounterConnectionType)
+     * @see ASAPEncounterManager#handleEncounter(StreamPair, ASAPEncounterConnectionType)
      */
-    void handleEncounter(StreamPair streamPair, EncounterConnectionType connectionType, boolean initiator) throws IOException;
+    void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType, boolean initiator) throws IOException;
 }

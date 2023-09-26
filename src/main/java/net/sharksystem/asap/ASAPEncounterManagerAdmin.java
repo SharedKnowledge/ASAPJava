@@ -13,7 +13,7 @@ import java.util.Set;
  * <ul><li>define a point to point encryption policy.</li>
  * <li>define what connections types are acceptable (Internet, Hub, Ad-hoc, Onion)</li></ul>
  */
-public interface EncounterManagerAdmin {
+public interface ASAPEncounterManagerAdmin {
     /**
      * @return set of ID to which an open connection exists right now.
      */

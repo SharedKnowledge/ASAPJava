@@ -1,7 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPHopImpl;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.ASAPMessages;
@@ -376,7 +376,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
     // extract those algorithms to another class (ASAPDefaultProtocolEngine) ?!
     public void handleASAPAssimilate(ASAP_AssimilationPDU_1_0 asapAssimilationPDU, ASAP_1_0 protocolModem,
-         String encounteredPeer, InputStream is, OutputStream os, EncounterConnectionType connectionType,
+         String encounteredPeer, InputStream is, OutputStream os, ASAPEncounterConnectionType connectionType,
          ASAPChunkAssimilatedListener listener) throws ASAPException, IOException {
 
         // before we start - lets crypto
@@ -598,7 +598,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
     }
 
     public void handleASAPInterest(ASAP_Interest_PDU_1_0 asapInterest, ASAP_1_0 protocol,
-               String encounteredPeer, OutputStream os, EncounterConnectionType connectionType)
+               String encounteredPeer, OutputStream os, ASAPEncounterConnectionType connectionType)
             throws ASAPException, IOException {
 
         // before we start - lets crypto: TODO can be removed - do it on communication not engine level

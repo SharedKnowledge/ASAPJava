@@ -64,13 +64,13 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
     }
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os,
-                                           EncounterConnectionType connectionType) throws IOException, ASAPException {
+                                           ASAPEncounterConnectionType connectionType) throws IOException, ASAPException {
 
         return this.peer.handleConnection(is, os, connectionType);
     }
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
-                                           EncounterConnectionType connectionType) throws IOException, ASAPException {
+                                           ASAPEncounterConnectionType connectionType) throws IOException, ASAPException {
 
         return this.peer.handleConnection(is, os, encrypt, sign, connectionType,
                 (Set<CharSequence>)null, (Set<CharSequence>)null);
@@ -86,7 +86,7 @@ public abstract class ASAPInternalPeerWrapper extends ASAPListenerManagingPeer
 
 
     public ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign,
-                   EncounterConnectionType connectionType,
+                   ASAPEncounterConnectionType connectionType,
                    Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
         return this.peer.handleConnection(is, os, encrypt, sign, connectionType, appsWhiteList, appsBlackList);
     }

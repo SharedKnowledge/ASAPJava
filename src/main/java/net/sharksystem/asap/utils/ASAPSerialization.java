@@ -327,21 +327,21 @@ public class ASAPSerialization {
         return charSet;
     }
 
-    public static EncounterConnectionType readEncounterConnectionType(InputStream is) throws IOException, ASAPException {
+    public static ASAPEncounterConnectionType readEncounterConnectionType(InputStream is) throws IOException, ASAPException {
         byte readByte = ASAPSerialization.readByte(is);
         switch(readByte) {
-            case 1: return EncounterConnectionType.ASAP_HUB;
-            case 2: return EncounterConnectionType.AD_HOC_LAYER_2_NETWORK;
-            case 3: return EncounterConnectionType.ONION_NETWORK;
-            case 4: return EncounterConnectionType.INTERNET;
+            case 1: return ASAPEncounterConnectionType.ASAP_HUB;
+            case 2: return ASAPEncounterConnectionType.AD_HOC_LAYER_2_NETWORK;
+            case 3: return ASAPEncounterConnectionType.ONION_NETWORK;
+            case 4: return ASAPEncounterConnectionType.INTERNET;
             default:
                 Log.writeLogErr(ASAPSerialization.class, "unknown encounter connection type: " + readByte);
         }
         // default
-        return EncounterConnectionType.UNKNOWN;
+        return ASAPEncounterConnectionType.UNKNOWN;
     }
 
-    public static void writeEncounterConnectionType(EncounterConnectionType connectionType, OutputStream os) throws IOException {
+    public static void writeEncounterConnectionType(ASAPEncounterConnectionType connectionType, OutputStream os) throws IOException {
         switch(connectionType) {
             case ASAP_HUB: ASAPSerialization.writeByteParameter((byte) 1, os); break;
             case AD_HOC_LAYER_2_NETWORK: ASAPSerialization.writeByteParameter((byte) 2, os); break;
@@ -384,7 +384,7 @@ public class ASAPSerialization {
         CharSequence sender = ASAPSerialization.readCharSequenceParameter(is);
         boolean verified = ASAPSerialization.readBooleanParameter(is);
         boolean encrypted = ASAPSerialization.readBooleanParameter(is);
-        EncounterConnectionType connectionType = ASAPSerialization.readEncounterConnectionType(is);
+        ASAPEncounterConnectionType connectionType = ASAPSerialization.readEncounterConnectionType(is);
 
         return new ASAPHopImpl(sender, verified, encrypted, connectionType);
     }

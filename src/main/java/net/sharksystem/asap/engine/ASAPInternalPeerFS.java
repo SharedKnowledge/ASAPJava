@@ -1,7 +1,7 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.SharkException;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
 import net.sharksystem.asap.fs.ExtraData;
 import net.sharksystem.asap.fs.ExtraDataFS;
@@ -319,7 +319,7 @@ public class ASAPInternalPeerFS implements
         return this.handleConnection(is, os,false, false,null, null);
     }
 
-    public ASAPConnection handleConnection(InputStream is, OutputStream os, EncounterConnectionType connectionType)
+    public ASAPConnection handleConnection(InputStream is, OutputStream os, ASAPEncounterConnectionType connectionType)
             throws IOException, ASAPException {
 
         return this.handleConnection(is, os,false, false, connectionType, null, null);
@@ -335,11 +335,11 @@ public class ASAPInternalPeerFS implements
     ) throws IOException, ASAPException {
 
         return this.handleConnection(is, os, encrypt, sign,
-                EncounterConnectionType.UNKNOWN, appsWhiteList, appsBlackList);
+                ASAPEncounterConnectionType.UNKNOWN, appsWhiteList, appsBlackList);
     }
 
     public ASAPConnection handleConnection(
-            InputStream is, OutputStream os, boolean encrypt, boolean sign, EncounterConnectionType connectionType,
+            InputStream is, OutputStream os, boolean encrypt, boolean sign, ASAPEncounterConnectionType connectionType,
             Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
 
         if(appsWhiteList == null) appsWhiteList = new HashSet<>(); // empty set no null

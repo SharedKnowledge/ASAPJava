@@ -21,6 +21,11 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         this.rootFolder = rootFolder.toString();
     }
 
+    public ASAPPeerFS(CharSequence owner, CharSequence rootFolder) throws IOException, ASAPException {
+        super.setInternalPeer(ASAPInternalPeerFS.createASAPPeer(owner, rootFolder, null, this));
+        this.rootFolder = rootFolder.toString();
+    }
+
     public void overwriteChuckReceivedListener(ASAPChunkAssimilatedListener listener) {
         Log.writeLogErr(this, this.getPeerID(), "do not use chunk received listener - message received listener is better");
         this.chunkReceivedListener = listener;

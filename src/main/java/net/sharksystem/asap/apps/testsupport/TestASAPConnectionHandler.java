@@ -2,7 +2,7 @@ package net.sharksystem.asap.apps.testsupport;
 
 import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.EncounterConnectionType;
+import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
@@ -19,7 +19,7 @@ public class TestASAPConnectionHandler implements ASAPConnectionHandler {
     }
 
     @Override
-    public ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign, EncounterConnectionType connectionType, Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
+    public ASAPConnection handleConnection(InputStream is, OutputStream os, boolean encrypt, boolean sign, ASAPEncounterConnectionType connectionType, Set<CharSequence> appsWhiteList, Set<CharSequence> appsBlackList) throws IOException, ASAPException {
         return this.dummyHandleConnection();
     }
 
@@ -29,7 +29,7 @@ public class TestASAPConnectionHandler implements ASAPConnectionHandler {
     }
 
     @Override
-    public ASAPConnection handleConnection(InputStream inputStream, OutputStream outputStream, EncounterConnectionType connectionType) throws IOException, ASAPException {
+    public ASAPConnection handleConnection(InputStream inputStream, OutputStream outputStream, ASAPEncounterConnectionType connectionType) throws IOException, ASAPException {
         return this.dummyHandleConnection();
     }
 
