@@ -20,9 +20,14 @@ public class ExtraDataFS implements ExtraData {
 
     }
 
-    public ExtraDataFS(CharSequence rootFolderName, CharSequence fileExtension) throws IOException, SharkException {
-        this.rootFolderName = rootFolderName;
-        this.fileExtension = fileExtension;
+    public ExtraDataFS(CharSequence rootFolder, CharSequence fileName) throws IOException, SharkException {
+        this.rootFolderName = rootFolder;
+        this.fileExtension = fileName;
+        File rootFolderFile = new File(rootFolder.toString());
+        if(!rootFolderFile.exists()) {
+            // create
+            rootFolderFile.mkdirs();
+        }
         this.restoreExtraData();
     }
 
@@ -76,7 +81,8 @@ public class ExtraDataFS implements ExtraData {
             // write key
             ASAPSerialization.writeCharSequenceParameter(key, os);
             // value
-            ASAPSerialization.writeByteArray(this.extraData.get(key), os);
+            byte[] v = this.extraData.get(key);
+            ASAPSerialization.writeByteArray(v, os);
         }
 
         os.close();

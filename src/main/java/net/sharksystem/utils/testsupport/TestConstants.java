@@ -11,6 +11,7 @@ public interface TestConstants {
     String DAVID_ID = "David_45";
     String DAVID_NAME = "David";
 
+    String TEST_APP_FORMAT = "application/sn2";
     String URI = "shark://testUri";
     byte[] MESSAGE_1 = "1st message".getBytes();
     byte[] MESSAGE_2 = "2nd message".getBytes();

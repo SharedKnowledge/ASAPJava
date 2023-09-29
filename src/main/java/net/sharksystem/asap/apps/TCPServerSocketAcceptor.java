@@ -16,7 +16,7 @@ public class TCPServerSocketAcceptor implements StreamPairCreatedListener {
         this.encounterManager = encounterManager;
         SocketFactory socketFactory = new SocketFactory(portNumber, this);
 
-        Log.writeLog(this, "start socket factory");
+        Log.writeLog(this, "start socket factory - no race condition assumed");
         new Thread(socketFactory).start();
     }
 

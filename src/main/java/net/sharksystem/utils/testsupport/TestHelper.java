@@ -1,6 +1,5 @@
 package net.sharksystem.utils.testsupport;
 
-import net.sharksystem.asap.engine.ASAPEngineFS;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.utils.fs.FSUtils;
 
@@ -23,6 +22,15 @@ public class TestHelper {
         return testClass.getSimpleName()
                 + "/"
                 + peerID;
+    }
+
+    public static final String getUniqueFolderName(String foldername) {
+        System.out.println("test number == " + testNumber);
+        return foldername + "_" + testNumber;
+    }
+
+    public static void incrementTestNumber() {
+        testNumber++;
     }
 
     public static String produceTestAppName(Class testClass) {

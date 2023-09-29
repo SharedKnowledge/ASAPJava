@@ -1,7 +1,10 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.SharkException;
+import net.sharksystem.asap.fs.ExtraDataFS;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
+import net.sharksystem.asap.utils.ASAPSerialization;
 import net.sharksystem.asap.utils.PeerIDHelper;
 import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.Log;
@@ -9,11 +12,14 @@ import net.sharksystem.utils.Log;
 import java.io.*;
 import java.util.*;
 
-public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
-        ASAPEncounterManagerAdmin,
+public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncounterManagerAdmin,
         ASAPConnectionListener {
     public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 1000; // a second - debugging
     public static final long DEFAULT_WAIT_TO_AVOID_RACE_CONDITION = 500; // milliseconds - worked fine with BT.
+    public static final String DATASTORAGE_FILE_EXTENSION = "em";
+    private static final CharSequence ENCOUNTER_MANAGER_DENY_LIST_KEY = "denylist";
+    private final CharSequence peerID;
+    private ExtraDataFS extraDataStorage = null;
 
     private int randomValue;
     private long waitBeforeReconnect;
@@ -41,15 +47,27 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     /** remember remote address of peers (they can have more than one): peerID -> remote address */
     private Map<CharSequence, Set<CharSequence>> peerRemoteAddresses = new HashMap<>();
 
-    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler) {
-        this(asapConnectionHandler, DEFAULT_WAIT_BEFORE_RECONNECT_TIME);
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, CharSequence peerID) throws SharkException, IOException {
+        this(asapConnectionHandler, peerID, DEFAULT_WAIT_BEFORE_RECONNECT_TIME);
     }
 
-    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, long waitingPeriod) {
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, CharSequence peerID,
+                                    long waitingPeriod, CharSequence rootFolder) throws SharkException, IOException {
         this.asapConnectionHandler = asapConnectionHandler;
+        this.peerID = peerID;
         this.randomValue = new Random(System.currentTimeMillis()).nextInt();
         this.waitBeforeReconnect = waitingPeriod;
-        this.restoreDenyList();
+
+        if(rootFolder != null && rootFolder.length() > 0) {
+            // create folder
+            this.extraDataStorage = new ExtraDataFS(rootFolder + "/" + ENCOUNTER_MANAGER_DENY_LIST_KEY, DATASTORAGE_FILE_EXTENSION);
+            this.restoreDenyList();
+        }
+    }
+
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, CharSequence peerID,
+                                    long waitingPeriod) throws SharkException, IOException {
+        this(asapConnectionHandler, peerID, waitingPeriod, null);
     }
 
     private boolean coolDownOver(CharSequence id, ASAPEncounterConnectionType connectionType) {
@@ -57,7 +75,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
         Date lastEncounter = this.encounterDate.get(id);
 
         if(lastEncounter == null) {
-            Log.writeLog(this, this.toString(), "device/peer not in encounteredDevices - should connect");
+            Log.writeLog(this, this.toString(), "device/peer not in encounteredDevices");
             this.encounterDate.put(id, now);
             return true;
         }
@@ -87,7 +105,13 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     }
 
     @Override
-    public boolean shouldCreateConnectionToPeer(CharSequence remoteAdressOrPeerID, ASAPEncounterConnectionType connectionType) {
+    public boolean shouldCreateConnectionToPeer(CharSequence remoteAdressOrPeerID,
+                                                ASAPEncounterConnectionType connectionType) {
+        Log.writeLog(this, this.toString(), "should connect to " + remoteAdressOrPeerID + " ?");
+        // on deny list?
+        if(this.denyList.contains(remoteAdressOrPeerID)) return false;
+        Log.writeLog(this, this.toString(), remoteAdressOrPeerID + " not on deny list");
+
         // do we have a connection under a peerID?
         StreamPair streamPair = this.openStreamPairs.get(remoteAdressOrPeerID);
         if(streamPair != null) {
@@ -131,14 +155,26 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
 
     private void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType, boolean initiator,
                                  boolean raceCondition) throws IOException {
+        // always exchange peerIDs
+        DataOutputStream dos = new DataOutputStream(streamPair.getOutputStream());
+        dos.writeUTF(this.peerID.toString());
+        DataInputStream dis = new DataInputStream(streamPair.getInputStream());
+        String remotePeerID = dis.readUTF();
 
-        CharSequence streamPairID = streamPair.getSessionID();
+        if(remotePeerID != null && remotePeerID.length() > 0) {
+            streamPair.setEndpointID(remotePeerID);
+        }
 
-        Log.writeLog(this, this.toString(), "socket called: handle new encounter" + streamPair);
+        CharSequence connectionID = streamPair.getEndpointID();
+        if(connectionID == null || connectionID.length() == 0) connectionID = streamPair.getSessionID();
+
+        Log.writeLog(this, this.toString(), "decide whether to pursue this new encounter: " + streamPair);
 
         // should we connect in the first place
-        if (!this.shouldCreateConnectionToPeer(streamPairID, connectionType)) {
+        if (!this.shouldCreateConnectionToPeer(connectionID, connectionType)) {
             // no - than shut it down.
+            Log.writeLog(this, this.toString(),
+                    "close connection (on deny list or in cool down)");
             streamPair.close();
             return;
         }
@@ -146,14 +182,12 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
         // new stream pair is ok. Is there a race condition expected ?
         if(raceCondition) {
             // avoid the nasty race condition
-            boolean waited = this.waitBeforeASAPSessionLaunch(
-                    streamPair.getInputStream(),
-                    streamPair.getOutputStream(),
-                    initiator, DEFAULT_WAIT_TO_AVOID_RACE_CONDITION);
+            Log.writeLog(this, this.toString(), "solve race condition");
+            boolean waited = this.solveRaceCondition(streamPair, initiator, DEFAULT_WAIT_TO_AVOID_RACE_CONDITION);
 
             // ask again?
             if (waited) {
-                if (!this.shouldCreateConnectionToPeer(streamPairID, connectionType)) {
+                if (!this.shouldCreateConnectionToPeer(connectionID, connectionType)) {
                     streamPair.close();
                     return;
                 }
@@ -162,7 +196,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
 
         // we a through with it - remember that new stream pair
         Log.writeLog(this, this.toString(), "remember streamPair: " + streamPair);
-        this.openStreamPairs.put(streamPairID, streamPair);
+        this.openStreamPairs.put(connectionID, streamPair);
 
         Log.writeLog(this, this.toString(), "going to launch a new asap connection");
 
@@ -174,7 +208,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
 
             asapConnection.addASAPConnectionListener(this);
 
-            this.openASAPConnections.put(asapConnection, streamPairID);
+            this.openASAPConnections.put(asapConnection, connectionID);
 
         } catch (IOException | ASAPException e) {
             Log.writeLog(this, this.toString(), "while launching asap connection: "
@@ -182,27 +216,38 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
         }
     }
 
-    private boolean waitBeforeASAPSessionLaunch(InputStream is, OutputStream os, boolean connectionInitiator,
-                           long waitInMillis) throws IOException {
+    private boolean solveRaceCondition(StreamPair streamPair, boolean connectionInitiator,
+                                       long waitInMillis) throws IOException {
         // run a little negotiation before we start
-        DataOutputStream dos = new DataOutputStream(os);
+        DataOutputStream dos = new DataOutputStream(streamPair.getOutputStream());
         int remoteValue = 0;
+        String remotePeerID = null;
 
         try {
+            // write protocol unit
             dos.writeInt(this.randomValue);
-            DataInputStream dis = new DataInputStream(is);
+            dos.writeUTF(this.peerID.toString());
+
+            // read it
+            DataInputStream dis = new DataInputStream(streamPair.getInputStream());
             remoteValue = dis.readInt();
+            remotePeerID = dis.readUTF();
+
+            if(remotePeerID != null && remotePeerID.length() > 0) streamPair.setEndpointID(remotePeerID);
         } catch (IOException e) {
             // decision is made - this connection is dead
-            os.close();
-            is.close();
+            streamPair.close();
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("try to solve race condition: localValue == ");
+        sb.append("try to solve race condition: random (local/remote) == ");
         sb.append(this.randomValue);
-        sb.append(" | remoteValue == ");
+        sb.append("/");
         sb.append(remoteValue);
+        sb.append(" | peerID == ");
+        sb.append(this.peerID);
+        sb.append("/");
+        sb.append(remotePeerID);
         sb.append(" | initiator == ");
         sb.append(connectionInitiator);
 
@@ -301,30 +346,59 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Set<CharSequence> denyList = new HashSet<>();
-
-    //// housekeeping
-    private void restoreDenyList() {
-        // TODO
-        //this.denyList = new HashSet<>();
-        Log.writeLog(this, "need to implement restoreDenyList");
+    
+    //// housekeeping deny list
+    public void clearDenyList() {
+        this.denyList = new HashSet<>();
+        try {
+            this.saveDenyList();
+        } catch (IOException | SharkException e) {
+            Log.writeLogErr(this, this.toString(), "cannot persist deny list: " + e.getLocalizedMessage());
+        }
+    }
+    private void restoreDenyList() throws SharkException, IOException {
+        if(this.extraDataStorage == null) {
+            Log.writeLog(this, this.toString(), "no persistent storage for deny list");
+        } else {
+            byte[] denyListBytes = this.extraDataStorage.getExtra(ENCOUNTER_MANAGER_DENY_LIST_KEY);
+            if(denyListBytes != null && denyListBytes.length > 0) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(denyListBytes);
+                this.denyList = ASAPSerialization.readCharSequenceSetParameter(bais);
+            } else {
+                this.clearDenyList();
+            }
+        }
     }
 
-    private void saveDenyList() {
-        // TODO
-        Log.writeLog(this, "need to implement saveDenyList");
+    private void saveDenyList() throws IOException, SharkException {
+        if(this.extraDataStorage == null) {
+            Log.writeLog(this, this.toString(), "no persistent storage for deny list");
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ASAPSerialization.writeCharSequenceSetParameter(this.denyList, baos);
+            this.extraDataStorage.putExtra(ENCOUNTER_MANAGER_DENY_LIST_KEY, baos.toByteArray());
+        }
     }
 
     ///// manage deny list
     @Override
     public void addToDenyList(CharSequence peerID) {
         this.denyList.add(peerID);
-        this.saveDenyList();
+        try {
+            this.saveDenyList();
+        } catch (IOException | SharkException e) {
+            Log.writeLogErr(this, this.toString(), "cannot persist deny list: " + e.getLocalizedMessage());
+        }
     }
 
     @Override
     public void removeFromDenyList(CharSequence peerID) {
         this.denyList.remove(peerID);
-        this.saveDenyList();
+        try {
+            this.saveDenyList();
+        } catch (IOException | SharkException e) {
+            Log.writeLogErr(this, this.toString(), "cannot persist deny list: " + e.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -349,7 +423,8 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager,
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public String toString() {
-        return this.asapConnectionHandler.toString();
+        if(this.asapConnectionHandler != null) return this.asapConnectionHandler.toString();
+        else return "null";
     }
 
 }

@@ -17,7 +17,7 @@ public interface ASAPEncounterManagerAdmin {
     /**
      * @return set of ID to which an open connection exists right now.
      */
-    public abstract Set<CharSequence> getConnectedPeerIDs();
+    Set<CharSequence> getConnectedPeerIDs();
 
     /**
      * Add a peerID to what no connection should be established.
@@ -25,24 +25,29 @@ public interface ASAPEncounterManagerAdmin {
      * existing connection to that peer.
      * @param peerID
      */
-    public abstract void addToDenyList(CharSequence peerID);
+    void addToDenyList(CharSequence peerID);
 
     /**
      * Remove a peerID from deny list
      * @param peerID
      */
-    public abstract void removeFromDenyList(CharSequence peerID);
+    void removeFromDenyList(CharSequence peerID);
 
     /**
      * Get PeerID set to which no connection should be established
      * @return
      */
-    public abstract Set<CharSequence> getDenyList();
+    Set<CharSequence> getDenyList();
+
+    /**
+     * remove all entries from deny list
+     */
+    void clearDenyList();
 
     /**
      * Cancel a connection to a peer. This method call does not change the deny list.
      * @param peerID
      */
-    public abstract void cancelConnection(CharSequence peerID);
+    void cancelConnection(CharSequence peerID);
 
 }

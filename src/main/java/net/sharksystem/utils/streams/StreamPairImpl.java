@@ -8,7 +8,7 @@ public class StreamPairImpl extends StreamPairListenerManager implements StreamP
     private final InputStream is;
     private final OutputStream os;
     private final CharSequence sessionID;
-    private CharSequence endpointAddress;
+    private CharSequence endpointID;
 
     public static final String NO_ID = "no ID";
 
@@ -39,7 +39,7 @@ public class StreamPairImpl extends StreamPairListenerManager implements StreamP
      */
     private StreamPairImpl(InputStream is, OutputStream os, CharSequence sessionID, CharSequence endpointAddress) {
         this.sessionID = sessionID;
-        this.endpointAddress = endpointAddress;
+        this.endpointID = endpointAddress;
         this.is = is;
         this.os = os;
     }
@@ -54,8 +54,12 @@ public class StreamPairImpl extends StreamPairListenerManager implements StreamP
         return this.sessionID;
     }
 
-    public CharSequence getEndpointAddress() {
-        return this.endpointAddress;
+    public CharSequence getEndpointID() {
+        return this.endpointID;
+    }
+
+    public void setEndpointID(CharSequence endpointID) {
+        this.endpointID = endpointID;
     }
 
     @Override
@@ -71,10 +75,10 @@ public class StreamPairImpl extends StreamPairListenerManager implements StreamP
             // ignore
         }
 
-        this.notifyAllListenerClosed(this, this.sessionID.toString());
+        if(this.sessionID != null) this.notifyAllListenerClosed(this, this.sessionID.toString());
     }
 
     public String toString() {
-        return "StreamPair (" + this.sessionID + ")";
+        return "StreamPair (session: " + this.sessionID + " | endpoint: " + this.endpointID + ")";
     }
 }

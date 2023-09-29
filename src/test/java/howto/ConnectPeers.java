@@ -1,5 +1,6 @@
 package howto;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.apps.TCPServerSocketAcceptor;
 import net.sharksystem.utils.Log;
@@ -165,7 +166,7 @@ public class ConnectPeers {
     }
 
     @Test
-    public void connectAliceAndBobWithEncounterManager_Preferred() throws IOException, ASAPException, InterruptedException {
+    public void connectAliceAndBobWithEncounterManager_Preferred() throws IOException, SharkException, InterruptedException {
         // supported formats
         Collection<CharSequence> formats = new ArrayList<>();
         formats.add(EXAMPLE_APP_FORMAT);
@@ -182,8 +183,8 @@ public class ConnectPeers {
         ASAPConnectionHandler bob = new ASAPPeerFS(TestConstants.BOB_ID, bobFolder, formats);
 
         ////////////////////////// encounter manager
-        ASAPEncounterManager aliceEncounterManager = new ASAPEncounterManagerImpl(alice);
-        ASAPEncounterManager bobEncounterManager = new ASAPEncounterManagerImpl(bob);
+        ASAPEncounterManager aliceEncounterManager = new ASAPEncounterManagerImpl(alice, TestConstants.ALICE_ID);
+        ASAPEncounterManager bobEncounterManager = new ASAPEncounterManagerImpl(bob, TestConstants.BOB_ID);
 
         ////////////////////////// set up server socket and handle connection requests
         int portNumberAlice = TestHelper.getPortNumber();

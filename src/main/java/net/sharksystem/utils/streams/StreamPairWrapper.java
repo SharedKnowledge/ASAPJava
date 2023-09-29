@@ -9,7 +9,7 @@ import java.io.OutputStream;
 public class StreamPairWrapper extends StreamPairListenerManager implements StreamPair {
     private final InputStreamWrapper is;
     private final OutputStreamWrapper os;
-    private final String endpointAddress;
+    private String endpointAddress;
 
     /**
      * @param is
@@ -56,8 +56,13 @@ public class StreamPairWrapper extends StreamPairListenerManager implements Stre
     }
 
     @Override
-    public CharSequence getEndpointAddress() {
+    public CharSequence getEndpointID() {
         return this.endpointAddress;
+    }
+
+    @Override
+    public void setEndpointID(CharSequence peerID) {
+        this.endpointAddress = peerID.toString();
     }
 
     @Override

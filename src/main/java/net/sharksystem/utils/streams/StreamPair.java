@@ -16,5 +16,7 @@ public interface StreamPair {
 
     CharSequence getSessionID();
 
-    CharSequence getEndpointAddress();
+    CharSequence getEndpointID();
+
+    void setEndpointID(CharSequence peerID);
 }
