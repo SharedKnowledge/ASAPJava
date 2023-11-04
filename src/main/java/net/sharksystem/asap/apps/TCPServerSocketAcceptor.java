@@ -11,13 +11,18 @@ import java.io.IOException;
 
 public class TCPServerSocketAcceptor implements StreamPairCreatedListener {
     private final ASAPEncounterManager encounterManager;
+    private final SocketFactory socketFactory;
 
     public TCPServerSocketAcceptor(int portNumber, ASAPEncounterManager encounterManager) throws IOException {
         this.encounterManager = encounterManager;
-        SocketFactory socketFactory = new SocketFactory(portNumber, this);
+        this.socketFactory = new SocketFactory(portNumber, this);
 
         Log.writeLog(this, "start socket factory - no race condition assumed");
         new Thread(socketFactory).start();
+    }
+
+    public void close() throws IOException {
+        this.socketFactory.close();
     }
 
     @Override

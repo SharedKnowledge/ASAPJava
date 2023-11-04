@@ -2,6 +2,7 @@ package net.sharksystem.utils.tcp;
 
 //import net.sharksystem.asap.ASAPEncounterHelper;
 
+import net.sharksystem.utils.Log;
 import net.sharksystem.utils.streams.StreamPairImpl;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.net.Socket;
 
 public class SocketFactory implements Runnable {
     private final ServerSocket srv;
+    private int port = 0;
     private StreamPairCreatedListener listener = null;
     InputStream is;
     OutputStream os;
@@ -21,6 +23,7 @@ public class SocketFactory implements Runnable {
 
     public SocketFactory(int portNumber, StreamPairCreatedListener listener) throws IOException {
         this(new ServerSocket(portNumber));
+        this.port = portNumber;
         this.listener = listener;
     }
 
@@ -28,17 +31,25 @@ public class SocketFactory implements Runnable {
         this.srv = srv;
     }
 
+    /**
+     * Close server socket - kills thread already running
+     */
+    public void close() throws IOException {
+        Log.writeLog(this, "close TCP server socket - do long longer accept connection attempts on port: " + this.port);
+        this.srv.close();
+    }
+
     private boolean running = false;
     @Override
     public void run() {
         this.running = true;
-        System.out.println("socket factory running");
+        Log.writeLog(this,"socket factory running - accept connections on port: " + this.port);
         try {
             Socket socket = srv.accept();
             this.is = socket.getInputStream();
             this.os = socket.getOutputStream();
             this.remoteAddress = SocketFactory.getRemoteAddress(socket);
-            System.out.println("socket created");
+            Log.writeLog(this,"connection attempt accepted: socket created");
             if(this.waitForConnectionThread != null) {
                 //this.waitForConnectionThread.interrupt();
                 this.waitForConnectionThread.notify();
