@@ -146,8 +146,9 @@ public class UsageExamples {
         // setup alice peer
         ASAPInternalPeer alicePeer = ASAPInternalPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, null);
 
+        String string1 = "TestString";
         String key1 = "testKey";
-        byte[] value1 = "TestString".getBytes();
+        byte[] value1 = string1.getBytes();
 
         String key2 = "testKey2";
         byte[] value2 = "TestString2".getBytes();
@@ -163,5 +164,8 @@ public class UsageExamples {
 
         byte[] valueR2 = alicePeer2.getExtra(key2);
         Assert.assertTrue(SerializationHelper.sameByteArray(value2, valueR2));
+
+        String r1String = new String(valueR1);
+        Assert.assertTrue(r1String.equals(string1));
     }
 }
