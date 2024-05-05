@@ -132,7 +132,8 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 if(this.memento != null) this.memento.save(this);
 
                 // drop very very old chunks - if available
-                this.getChunkStorage().dropChunks(nextEra);
+                // This seems is a bug. We are dropping the next chunk and not old ones
+                // this.getChunkStorage().dropChunks(nextEra);
 
                 // setup new era - copy all chunks
                 for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(oldEra)) {

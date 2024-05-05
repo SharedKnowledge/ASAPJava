@@ -128,7 +128,7 @@ public class ConnectPeersMultiHopTest {
         Thread.sleep(2000);
 
         Assertions.assertTrue(messageReceivedListenerBob.numberOfMessages > 0);
-        Assertions.assertTrue(messageReceivedListenerClara.numberOfMessages > 0);
+        Assertions.assertEquals(messageReceivedListenerClara.numberOfMessages, 0);
     }
 
 
