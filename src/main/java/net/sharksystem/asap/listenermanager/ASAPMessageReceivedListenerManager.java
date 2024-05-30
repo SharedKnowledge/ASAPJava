@@ -1,6 +1,7 @@
 package net.sharksystem.asap.listenermanager;
 
 import net.sharksystem.asap.*;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,6 +76,7 @@ public class ASAPMessageReceivedListenerManager implements ASAPMessageReceivedLi
 
         public void doNotify(ASAPMessageReceivedListener listener) {
             try {
+                //Log.writeLog(this, "notify: " + listener.getClass().getSimpleName());
                 listener.asapMessagesReceived(this.asapMessage, this.senderE2E, this.asapHopList);
             } catch (IOException e) {
                 System.err.println("error when notifying about received asap message: "
