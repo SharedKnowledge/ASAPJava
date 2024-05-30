@@ -67,13 +67,6 @@ public class ASAPSerialization {
         byte[] bytes = parameter.toString().getBytes();
         writeNonNegativeIntegerParameter(bytes.length, os);
         os.write(bytes);
-
-        /*
-        String lenString = printBitsToString(bytes.length);
-        String readBytesString = printByteArrayToString(bytes);
-        String log = "writeCharSequenceParameter\nlen: " + lenString + "\nbytes: " + readBytesString;
-        System.out.println(log);
-         */
     }
 
     public static void writeByteParameter(byte parameter, OutputStream os) throws IOException {
@@ -138,16 +131,17 @@ public class ASAPSerialization {
         long mask = 1;
         mask = mask << bits-1;
         short byteBitCounter = 4;
+        StringBuffer stringBuffer = new StringBuffer();
         while(mask != 0) {
-            if((l & mask) != 0) System.out.print("1");
-            else System.out.print("0");
+            if((l & mask) != 0) stringBuffer.append("1");
+            else stringBuffer.append("0");
             if(--byteBitCounter == 0) {
                 byteBitCounter = 4;
-                System.out.print(" ");
+                stringBuffer.append(" ");
             }
             mask = mask >> 1;
         }
-        System.out.print(" ");
+        Log.writeLog(ASAPSerialization.class, stringBuffer.toString() + " ");
     }
 
     public static String printBitsToString(long l, int bits) {
@@ -259,12 +253,6 @@ public class ASAPSerialization {
 
         value += right;
 
-        /*
-        System.out.println("readLongParameter");
-        printBits(value);
-        System.out.print("\n");
-         */
-
         return value;
     }
 
@@ -274,11 +262,6 @@ public class ASAPSerialization {
         String lenString = null;
 //        try {
             length = readIntegerParameter(is);
-/*
-            lenString = printBitsToString(length);
-            System.out.println("readCharSequenceParameter length = " + lenString);
-
- */
             parameterBytes = new byte[length];
 /*
         }
@@ -289,12 +272,6 @@ public class ASAPSerialization {
  */
 
         is.read(parameterBytes);
-
-        /*
-        String readBytesString = printByteArrayToString(parameterBytes);
-        String log = "readCharSequenceParameter\nlen: " + lenString + "\nbytes: " + readBytesString;
-        System.out.println(log);
-         */
 
         return new String(parameterBytes);
     }

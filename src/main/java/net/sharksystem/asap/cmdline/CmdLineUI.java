@@ -637,7 +637,7 @@ public class CmdLineUI {
 
                 for (CharSequence format : asapInternalPeer.getFormats()) {
                     ASAPEngine asapStorage = asapInternalPeer.getEngineByFormat(format);
-                    System.out.println("storage: " + format);
+                    this.standardOut.println("storage: " + format);
                     for (CharSequence uri : asapStorage.getChannelURIs()) {
                         this.printChannelInfo(asapStorage, uri, format);
                     }
@@ -660,7 +660,7 @@ public class CmdLineUI {
             // first - get storage
             ASAPInternalStorage asapStorage = this.getEngine(peername, appName);
             if(asapStorage == null) {
-                System.err.println("storage does not exist: " + peername + ":" + appName);
+                this.standardError.println("storage does not exist: " + peername + ":" + appName);
                 return;
             }
 

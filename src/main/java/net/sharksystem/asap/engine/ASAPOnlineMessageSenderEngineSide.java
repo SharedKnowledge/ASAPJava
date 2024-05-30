@@ -39,14 +39,14 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
 
         Set<CharSequence> onlinePeers = this.multiEngine.getOnlinePeers();
         if(onlinePeers == null || onlinePeers.size() < 1) {
-            System.out.println(this.getLogStart() + "no online peers");
+            Log.writeLog(this, "no online peers");
             throw new ASAPException("no online peers");
         }
 
         Set<CharSequence> onlinePeerList = new HashSet<>();
         for(CharSequence peerName : onlinePeers) {
             onlinePeerList.add(peerName);
-            System.out.println(this.getLogStart() + peerName  + " is online");
+            Log.writeLog(this, peerName  + " is online");
         }
 
         this.sendASAPAssimilateMessage(format, uri, onlinePeerList, messageAsBytes, era);
@@ -75,7 +75,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         sb.append("| length: ");
         sb.append(messageAsBytes.length);
         sb.append(")");
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
 
         // each message can have multiple receiver. Iterate
 
@@ -85,12 +85,12 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             sb = Log.startLog(this);
             sb.append("try to find connection for recipient: ");
             sb.append(recipient);
-            System.out.println(sb.toString());
+            Log.writeLog(this, sb.toString());
             if(multiEngine.existASAPConnection(recipient)) {
                 ASAPConnection asapConnection = multiEngine.getASAPConnection(recipient);
                 sb = Log.startLog(this);
                 sb.append("got asap connection, subscribe and store message");
-                System.out.println(sb.toString());
+                Log.writeLog(this, sb.toString());
 
                 // serialize message for this recipient
                 ByteArrayOutputStream asapPDUBytes = new ByteArrayOutputStream();
@@ -112,7 +112,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
             } else {
                 sb = Log.startLog(this);
                 sb.append("no connection found");
-                System.out.println(sb.toString());
+                Log.writeLog(this, sb.toString());
                 foundAll = false; // at least to one recipient is not open line
             }
         }
@@ -132,7 +132,7 @@ public class ASAPOnlineMessageSenderEngineSide extends ASAPAbstractOnlineMessage
         while(!messageList.isEmpty()) {
             byte[] messageBytes = messageList.remove(0);
             os.write(messageBytes);
-            System.out.println(this.getLogStart() + "wrote pure bytes: " + messageBytes.length);
+            Log.writeLog(this, "wrote pure bytes: " + messageBytes.length);
         }
 
         this.messages.remove(recipient);

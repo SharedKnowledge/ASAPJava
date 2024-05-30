@@ -3,6 +3,7 @@ package net.sharksystem.asap.cmdline;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.ASAPChunkAssimilatedListener;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class ExampleASAPChunkReceivedListener implements ASAPChunkAssimilatedLis
 
     @Override
     public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
-        System.out.println("transient message received - TODO?");
+        Log.writeLog(this, "transient message received - TODO?");
     }
 
     public List<ASAPChunkReceivedParameters> getReceivedList() { return this.receivedList; }
@@ -40,7 +41,7 @@ public class ExampleASAPChunkReceivedListener implements ASAPChunkAssimilatedLis
         private final int era;
 
         private ASAPChunkReceivedParameters(String format, String sender, String uri, int era) {
-            System.out.println("ASAPChunkReceivedParameters: chunk received: " + format + " | " + sender + " | " + uri);
+            Log.writeLog(this, "ASAPChunkReceivedParameters: chunk received: " + format + " | " + sender + " | " + uri);
             this.format = format;
             this.sender = sender;
             this.uri = uri;

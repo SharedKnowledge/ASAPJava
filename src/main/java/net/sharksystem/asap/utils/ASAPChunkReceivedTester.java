@@ -4,6 +4,7 @@ import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPMessages;
 import net.sharksystem.asap.engine.ASAPChunkAssimilatedListener;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class ASAPChunkReceivedTester implements ASAPChunkAssimilatedListener {
     }
 
     private void chunkAssimilated(CharSequence format, CharSequence senderE2E, CharSequence uri, int era, List<ASAPHop> asapHop) {
-        System.out.println("chunk assimilated called: (format|sender|uri|era) " +
+        Log.writeLog(this, "chunk assimilated called: (format|sender|uri|era) " +
                 format +
                 " | " +
                 senderE2E +

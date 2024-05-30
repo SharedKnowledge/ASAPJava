@@ -3,6 +3,7 @@ package net.sharksystem.asap.utils;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalPeer;
 import net.sharksystem.asap.cmdline.CmdLineUI;
+import net.sharksystem.utils.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +24,7 @@ public class Batchprocessor implements Runnable {
 
     public Batchprocessor(boolean cleanup) {
         if(cleanup) {
-            System.out.println("clean asap peers folders");
+            Log.writeLog(this, "clean asap peers folders");
             this.cmdLineUI = new CmdLineUI();
         }
     }

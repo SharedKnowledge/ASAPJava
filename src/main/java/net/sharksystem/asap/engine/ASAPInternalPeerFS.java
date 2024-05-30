@@ -121,7 +121,7 @@ public class ASAPInternalPeerFS implements
         // check if management engine running
         /*
         if(!this.isASAPManagementEngineRunning()) {
-            System.out.println(this.getLogStart() + "no asap management engine yet - set it up.");
+            Log.writeLog(this, "no asap management engine yet - set it up.");
 
             this.setupEngine(DEFAULT_ASAP_MANAGEMENT_ENGINE_ROOTFOLDER, ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
         }
@@ -148,7 +148,7 @@ public class ASAPInternalPeerFS implements
 
         //this.restoreExtraData();
 
-//        System.out.println(this.getLogStart() + "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
+//        Log.writeLog(this, "SHOULD also set up engine " + FORMAT_UNDECRYPTABLE_MESSAGES);
     }
 
     private void setupEngine(CharSequence folderName, CharSequence formatName) throws IOException, ASAPException {
@@ -280,10 +280,10 @@ public class ASAPInternalPeerFS implements
             }
         }
         catch(ASAPException e) {
-            System.out.println(this.getLogStart() + "engine does not yet exist. folder " + foldername);
+            Log.writeLog(this, "engine does not yet exist. folder " + foldername);
         }
 
-        System.out.println(this.getLogStart() + "setup engine with folder" + foldername);
+        Log.writeLog(this, "setup engine with folder" + foldername);
         ASAPEngine asapEngine = ASAPEngineFS.getASAPEngine(this.getOwner().toString(), foldername, format);
         // add to folderMap
         EngineSetting setting = new EngineSetting(foldername, this.listener);
@@ -354,7 +354,7 @@ public class ASAPInternalPeerFS implements
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
         sb.append("handleConnection");
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
 
         this.announceNewEra(); // announce when connection is actually established
 
@@ -368,13 +368,13 @@ public class ASAPInternalPeerFS implements
         sb.append(this.getLogStart());
         sb.append("launched new asapConnection thread, total number is now: ");
         sb.append(this.runningThreads.size());
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
 
         return asapConnection;
     }
 
     public void announceNewEra() throws IOException, ASAPException {
-        System.out.println(this.getLogStart() + "announce new era");
+        Log.writeLog(this, "announce new era");
         for(CharSequence format : this.folderMap.keySet()) {
             ASAPInternalStorage asapStorage = this.getEngineByFormat(format);
             asapStorage.newEra();
@@ -390,7 +390,7 @@ public class ASAPInternalPeerFS implements
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
             sb.append("finished thread cannot be null - do nothing");
-            System.err.println(sb.toString());
+            Log.writeLogErr(this, sb.toString());
             return;
         }
 
@@ -400,7 +400,7 @@ public class ASAPInternalPeerFS implements
         sb.append(this.getLogStart());
         sb.append("thread terminated - number of running threads is now: ");
         sb.append(this.runningThreads.size());
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
     }
 
     // threads connected to a peer
@@ -432,11 +432,11 @@ public class ASAPInternalPeerFS implements
 
     private void notifyOnlinePeersChangedListener() {
         if(!this.connectedThreads.isEmpty()) {
-            System.out.println(this.getLogStart()
-                    + "#online peers: " + this.connectedThreads.keySet().size()
+            Log.writeLog(this,
+                    "#online peers: " + this.connectedThreads.keySet().size()
                     + " | " + SerializationHelper.collection2String(this.connectedThreads.keySet()));
         } else {
-            System.out.println(this.getLogStart() + "no (more) peers: ");
+            Log.writeLog(this, "no (more) peers: ");
         }
 
         if(this.onlinePeersChangedListeners != null) {
@@ -450,11 +450,11 @@ public class ASAPInternalPeerFS implements
 
     public Set<CharSequence> getOnlinePeers() {
         if(!this.connectedThreads.isEmpty()) {
-            System.out.println(this.getLogStart()
-                    + "getOnlinePeers called | #online peers: " + this.connectedThreads.keySet().size()
+            Log.writeLog(this,
+                    "getOnlinePeers called | #online peers: " + this.connectedThreads.keySet().size()
                     + " | " + SerializationHelper.collection2String(this.connectedThreads.keySet()));
         } else {
-            System.out.println(this.getLogStart() + "getOnlinePeers called | no (more) peers: ");
+            Log.writeLog(this, "getOnlinePeers called | no (more) peers: ");
         }
 
         return this.connectedThreads.keySet();
@@ -466,7 +466,7 @@ public class ASAPInternalPeerFS implements
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
             sb.append("asap connection started but thread terminated cannot be null - do nothing");
-            System.err.println(sb.toString());
+            Log.writeLogErr(this,sb.toString());
             return;
         }
 
@@ -474,7 +474,7 @@ public class ASAPInternalPeerFS implements
         try {
             this.announceNewEra();
         } catch (IOException | ASAPException e) {
-            System.err.println(this.getLogStart() + "could not announce new era: " + e.getLocalizedMessage());
+            Log.writeLogErr(this, "could not announce new era: " + e.getLocalizedMessage());
         }
          */
 
@@ -482,7 +482,7 @@ public class ASAPInternalPeerFS implements
         sb.append(this.getLogStart());
         sb.append("asap connection started, got a peername: ");
         sb.append(remotePeerName);
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
 
         this.connectedThreads.put(remotePeerName, thread);
         this.threadPeerNames.put(thread, remotePeerName);
@@ -495,7 +495,7 @@ public class ASAPInternalPeerFS implements
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
             sb.append("terminated connection cannot be null - do nothing");
-            System.err.println(sb.toString());
+            Log.writeLogErr(this, sb.toString());
             return;
         }
 
@@ -513,19 +513,19 @@ public class ASAPInternalPeerFS implements
             sb.append("null");
         }
 
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
 
         if(peerName != null) {
             try {
                 this.announceNewEra();
             } catch (IOException | ASAPException e) {
-                System.err.println(this.getLogStart() + "error when announcing new era: " + e.getLocalizedMessage());
+                Log.writeLogErr(this,"error when announcing new era: " + e.getLocalizedMessage());
             }
 
             this.notifyOnlinePeersChangedListener();
         } else {
-            System.out.println(this.getLogStart()
-                    + "asap connection terminated connected to nobody: don't change era / don't notify listeners");
+            Log.writeLog(this,
+                    "asap connection terminated connected to nobody: don't change era / don't notify listeners");
         }
     }
 
@@ -547,20 +547,20 @@ public class ASAPInternalPeerFS implements
         ASAP_1_0 protocol = new ASAP_Modem_Impl();
 /*
         // in any case: issue an interest for management information first
-        System.out.println(this.getLogStart() + "send interest on " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+        Log.writeLog(this, "send interest on " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
         protocol.interest(this.owner, null, ASAP_1_0.ASAP_MANAGEMENT_FORMAT,null, -1, -1, os, false);
 */
         if(this.folderMap.size() > 0) {
-            System.out.println(this.getLogStart() + "start sending interest for apps/formats");
+            Log.writeLog(this, "start sending interest for apps/formats");
         } else {
-            System.out.println(this.getLogStart() + "no more apps/formats on that engine - no interests to be sent");
+            Log.writeLog(this, "no more apps/formats on that engine - no interests to be sent");
         }
 
         // management messages must be sent first - if any
         try {
             // exists?
             ASAPEngine managementEngine = this.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
-            System.out.println(this.getLogStart() + "send interest for app/format: " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
+            Log.writeLog(this, "send interest for app/format: " + ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
             protocol.interest(this.owner, null,
                     ASAP_1_0.ASAP_MANAGEMENT_FORMAT,
                     null, ASAP_1_0.ERA_NOT_DEFINED, ASAP_1_0.ERA_NOT_DEFINED,
@@ -624,7 +624,7 @@ public class ASAPInternalPeerFS implements
             era = this.getASAPEngine(format).getEra();
         } catch (ASAPException e) {
             // no engine.. ok
-            System.out.println(this.getLogStart() + "send message with format but no engine exists (yet): " + format);
+            Log.writeLog(this, "send message with format but no engine exists (yet): " + format);
         }
          */
 
@@ -668,7 +668,7 @@ public class ASAPInternalPeerFS implements
             ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedMessagePackage,
             CharSequence receiver) {
 
-        System.out.println(this.getLogStart() + "handle undecryptable messages from " + receiver);
+        Log.writeLog(this, "handle undecryptable messages from " + receiver);
 
         try {
             ASAPEngine undecryptEngine =
@@ -678,7 +678,7 @@ public class ASAPInternalPeerFS implements
                     URI_UNDECRYPTABLE_MESSAGES,
                     ASAPCryptoAlgorithms.getEncryptedMessagePackageAsBytes(encryptedMessagePackage));
         } catch (IOException | ASAPException e) {
-            System.out.println(this.getLogStart() + "cannot handle undecrypted messages - no engine present");
+            Log.writeLog(this, "cannot handle undecrypted messages - no engine present");
         }
     }
 

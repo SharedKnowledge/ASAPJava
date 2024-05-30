@@ -1,5 +1,7 @@
 package net.sharksystem.asap.cmdline;
 
+import net.sharksystem.utils.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,7 +60,7 @@ public class TCPStream extends Thread {
                     this.tcpServer.kill();
             }
         } catch (IOException e) {
-            System.err.println("TCPChannel: problems while killing: " + e.getLocalizedMessage());
+            Log.writeLogErr(this, "TCPChannel: problems while killing: " + e.getLocalizedMessage());
         }
     }
     
@@ -67,8 +69,8 @@ public class TCPStream extends Thread {
         this.createThread = Thread.currentThread();
         try {
             if(this.asServer) {
-                System.out.println(
-                        "TCPChannel: note: this implementation will only accept *one* connection attempt as server");
+                Log.writeLog(this,
+                    "TCPChannel: note: this implementation will only accept *one* connection attempt as server");
                 this.tcpServer = new TCPServer();
                 this.socket = tcpServer.getSocket();
             } else {
@@ -83,7 +85,7 @@ public class TCPStream extends Thread {
         } catch (IOException ex) {
             //<<<<<<<<<<<<<<<<<<debug
             String s = "couldn't establish connection";
-            System.out.println(s);
+            Log.writeLog(this, s);
             this.fatalError = true;
         }
     }
@@ -92,7 +94,7 @@ public class TCPStream extends Thread {
         if(this.socket != null) {
             this.socket.close();
             //<<<<<<<<<<<<<<<<<<debug
-            System.out.println("socket closed");
+            Log.writeLog(this, "socket closed");
         }
     }
 
@@ -142,7 +144,7 @@ public class TCPStream extends Thread {
         if(this.socket == null) {
             //<<<<<<<<<<<<<<<<<<debug
             String s = "no socket yet - should call connect first";
-            System.out.println(s);
+            Log.writeLog(this, s);
             //>>>>>>>>>>>>>>>>>>>debug
             throw new IOException(s);
         }
@@ -174,7 +176,7 @@ public class TCPStream extends Thread {
             b.append("opened port ");
             b.append(port);
             b.append(" on localhost and wait");
-            System.out.println(b.toString());
+            Log.writeLog(this, b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
 
             Socket socket = this.srvSocket.accept();
@@ -184,7 +186,7 @@ public class TCPStream extends Thread {
             b.append(name);
             b.append("): ");
             b.append("connected");
-            System.out.println(b.toString());
+            Log.writeLog(this, b.toString());
             //>>>>>>>>>>>>>>>>>>>debug
             
             return socket;
@@ -212,7 +214,7 @@ public class TCPStream extends Thread {
                     b.append("): ");
                     b.append("try to connect localhost port ");
                     b.append(port);
-                    System.out.println(b.toString());
+                    Log.writeLog(this, b.toString());
                     //>>>>>>>>>>>>>>>>>>>debug
                     Socket socket = new Socket("localhost", port);
                     return socket;
@@ -225,7 +227,7 @@ public class TCPStream extends Thread {
                     b.append("): ");
                     b.append("failed / wait and re-try");
                     b.append(port);
-                    System.out.println(b.toString());
+                    Log.writeLog(this, b.toString());
                     try {
                         Thread.sleep(waitInMillis);
                     } catch (InterruptedException ex) {

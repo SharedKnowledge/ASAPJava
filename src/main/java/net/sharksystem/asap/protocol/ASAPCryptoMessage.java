@@ -5,6 +5,7 @@ import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.utils.ASAPSerialization;
+import net.sharksystem.utils.Log;
 
 import java.io.*;
 
@@ -187,7 +188,7 @@ class ASAPCryptoMessage {
         //        ASAPCryptoAlgorithms.parseEncryptedMessagePackage(copyStream);
 
         if(this.ASAPKeyStore == null) {
-            System.out.println(this.getLogStart() + "no keystore set: cannot handle encrypted messages");
+            Log.writeLog(this, "no keystore set: cannot handle encrypted messages");
             return false;
         }
 

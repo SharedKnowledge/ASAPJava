@@ -1,6 +1,5 @@
 package net.sharksystem.asap.protocol;
 
-import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPHop;
 import net.sharksystem.asap.ASAPSecurityException;
@@ -9,6 +8,7 @@ import net.sharksystem.asap.crypto.ASAPCryptoAlgorithms;
 import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
 import net.sharksystem.asap.utils.ASAPSerialization;
+import net.sharksystem.utils.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -222,11 +222,11 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                 // we cannot decrypt this message - we are not recipient - but we can keep and redistribute it
                 ASAPCryptoAlgorithms.EncryptedMessagePackage encryptedASAPMessage = cryptoMessage.getEncryptedMessage();
                 if(this.undecryptableMessageHandler != null) {
-                    System.out.println(this.getLogStart() + "call handler to handle undecryptable message");
+                    Log.writeLog(this, "cannot decrypt message - call specific handler");
                     this.undecryptableMessageHandler.handleUndecryptableMessage(
                             encryptedASAPMessage, cryptoMessage.getReceiver());
                 } else {
-                    System.out.println(this.getLogStart() + "no handler for undecryptable messages found");
+                    Log.writeLog(this, "no handler for undecryptable messages found");
                 }
                 // throw exception anyway - could not create PDU
                 throw new ASAPSecurityException("unable to decrypt message - most probably not receiver");
@@ -261,7 +261,7 @@ public class ASAP_Modem_Impl implements ASAP_1_0 {
                     pdu.setVerified(verifyCryptoMessage.verify(sender, realIS));
                 }
                 catch(ASAPException e) {
-                    System.out.println(this.getLogStart() + " cannot verify message");
+                    Log.writeLog(this, " cannot verify message");
                 }
             }
         }

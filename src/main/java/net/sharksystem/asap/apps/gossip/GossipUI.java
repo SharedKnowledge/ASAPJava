@@ -7,6 +7,7 @@ import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.asap.cmdline.TCPStream;
 import net.sharksystem.asap.cmdline.TCPStreamCreatedListener;
+import net.sharksystem.utils.Log;
 import net.sharksystem.utils.SerializationHelper;
 
 import java.io.IOException;
@@ -29,14 +30,14 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
         this.portnumber = portnumber;
         this.remotePortNumber = portnumberlist;
 
-        System.out.println("start peer " + this.peerName);
-        System.out.println("local port " + this.portnumber);
-        System.out.println("try to connect to ports " + this.remotePortNumber);
+        Log.writeLog(this, "start peer " + this.peerName);
+        Log.writeLog(this, "local port " + this.portnumber);
+        Log.writeLog(this, "try to connect to ports " + this.remotePortNumber);
     }
 
     public static void main(String args[]) throws InterruptedException {
         if(args.length < 3) {
-            System.err.println("Peer name, local port and least one port required to establish a network");
+            Log.writeLogErr(GossipUI.class, "Peer name, local port and least one port required to establish a network");
             System.exit(0);
         }
 
@@ -57,9 +58,9 @@ public class GossipUI implements ASAPChunkAssimilatedListener {
     }
 
     private void println(String msg) {
-        System.out.println("///////////////////////////////////////////////////");
-        System.out.println("Example: " + msg);
-        System.out.println("///////////////////////////////////////////////////");
+        Log.writeLog(this, "///////////////////////////////////////////////////");
+        Log.writeLog(this, "Example: " + msg);
+        Log.writeLog(this, "///////////////////////////////////////////////////");
     }
 
     private void go() {

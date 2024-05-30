@@ -3,6 +3,7 @@ package net.sharksystem.asap.engine;
 import net.sharksystem.asap.protocol.ASAP_AssimilationPDU_1_0;
 import net.sharksystem.asap.protocol.ASAP_PDU_1_0;
 import net.sharksystem.asap.crypto.ASAPPoint2PointCryptoSettings;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 
@@ -62,19 +63,17 @@ public class DefaultSecurityAdministrator implements ASAPCommunicationSetting,
     @Override
     public boolean allowed2Process(ASAP_PDU_1_0 pdu) {
         if(this.receivedMessagesMustBeSigned && !pdu.signed()) {
-            System.out.println(this);
-            System.out.println(this.getLogStart() + "checked: " + pdu);
-            System.out.println(this.getLogStart() + "not signed");
+            Log.writeLog(this, "checked: " + pdu);
+            Log.writeLog(this, "not signed");
             return false;
         }
         if(this.receivedMessageMustBeEncrypted && !pdu.encrypted()) {
-            System.out.println(this);
-            System.out.println(this.getLogStart() + "checked: " + pdu);
-            System.out.println(this.getLogStart() + "not encrypted");
+            Log.writeLog(this, "checked: " + pdu);
+            Log.writeLog(this, "not encrypted");
             return false;
         }
 
-        System.out.println(this.getLogStart() + "ok");
+        Log.writeLog(this, "ok");
         return true;
     }
 

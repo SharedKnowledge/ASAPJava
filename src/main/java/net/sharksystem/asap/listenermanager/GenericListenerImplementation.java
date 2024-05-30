@@ -41,7 +41,7 @@ public class GenericListenerImplementation<L> {
         sb.append(": ");
         sb.append(msg);
 
-        System.out.println(sb.toString());
+        Log.writeLog(this, sb.toString());
     }
 
 }

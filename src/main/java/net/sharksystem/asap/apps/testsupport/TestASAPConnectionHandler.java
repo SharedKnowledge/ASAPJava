@@ -6,6 +6,7 @@ import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.protocol.ASAPOnlineMessageSource;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +35,7 @@ public class TestASAPConnectionHandler implements ASAPConnectionHandler {
     }
 
     private ASAPConnection dummyHandleConnection() {
-        System.out.println("handleConnection");
+        Log.writeLog(this, "handleConnection");
         return new ASAPConnection() {
             @Override
             public CharSequence getEncounteredPeer() {

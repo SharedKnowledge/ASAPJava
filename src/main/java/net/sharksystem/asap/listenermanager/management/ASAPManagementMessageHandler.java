@@ -8,6 +8,7 @@ import net.sharksystem.asap.engine.ASAPInternalStorage;
 import net.sharksystem.asap.ASAPChunkStorage;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.protocol.ASAP_1_0;
+import net.sharksystem.utils.Log;
 
 import java.io.IOException;
 import java.util.*;
@@ -46,15 +47,15 @@ public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListene
     public void chunkStored(String format, String senderE2E, String uri, int era,
                             List<ASAPHop> asapHop) throws IOException {
 
-        System.out.println(this.getLogStart()
-                + "handle received chunk (format|senderE2E|uri|era) " + format + senderE2E + "|" + uri + "|" + era);
+        Log.writeLog(this,
+                "handle received chunk (format|senderE2E|uri|era) " + format + senderE2E + "|" + uri + "|" + era);
         try {
             ASAPEngine asapManagementEngine = multiASAPEngine.getEngineByFormat(ASAP_1_0.ASAP_MANAGEMENT_FORMAT);
 
             ASAPChunkStorage incomingChunkStorage = asapManagementEngine.getReceivedChunksStorage(senderE2E);
             ASAPInternalChunk chunk = incomingChunkStorage.getChunk(uri, era);
             Iterator<byte[]> messageIter = chunk.getMessages();
-            System.out.println(this.getLogStart() + "iterate management messages");
+            Log.writeLog(this, "iterate management messages");
             while(messageIter.hasNext()) {
                 byte[] message = messageIter.next();
                 Set<CharSequence> recipients = this.handleASAPManagementMessage(message);
@@ -66,7 +67,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListene
                     sendUri = createUniqueUri();
                 }
                 // write message
-                System.out.println(this.getLogStart() + "add received message locally: ");
+                Log.writeLog(this, "add received message locally: ");
                 asapManagementEngine.add(sendUri, message);
 
                 if(setUpRecipients) {
@@ -74,25 +75,25 @@ public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListene
                     this.recipientUris.put(recipients, sendUri);
                 }
             }
-            System.out.println(this.getLogStart() + "done iterating management messages");
+            Log.writeLog(this, "done iterating management messages");
             // remove incoming messages - handled
             asapManagementEngine.getReceivedChunksStorage(senderE2E).dropChunks(era);
-            System.out.println(this.getLogStart() + "incoming asap management messages dropped");
+            Log.writeLog(this, "incoming asap management messages dropped");
         } catch (ASAPException | IOException e) {
-            System.out.println("could get asap management engine but received chunk - looks like a bug");
+            Log.writeLog(this, "could get asap management engine but received chunk - looks like a bug");
         }
     }
 
     @Override
     public void transientMessagesReceived(ASAPMessages transientMessages, ASAPHop asapHop) throws IOException {
-        System.err.println("transientChunkReceived not yet implement");
+        Log.writeLogErr(this, "transientChunkReceived not yet implement");
     }
 
     private Set<CharSequence> handleASAPManagementMessage(byte[] message) throws ASAPException, IOException {
         StringBuilder b = new StringBuilder();
         b.append(this.getLogStart());
         b.append("start processing asap management pdu");
-        System.out.println(b.toString());
+        Log.writeLog(this, b.toString());
 
         ASAPManagementCreateASAPStorageMessage asapManagementCreateASAPStorageMessage =
                 ASAPManagementMessage.parseASAPManagementMessage(message);
@@ -154,7 +155,7 @@ public class ASAPManagementMessageHandler implements ASAPChunkAssimilatedListene
         }
 
         // else - channel does not exist - create by setting recipients
-        System.out.println(this.getLogStart() + "create channel: " + b.toString());
+        Log.writeLog(this, "create channel: " + b.toString());
         asapStorage.createChannel(owner, channelUri, recipients);
 
         return receivedRecipients;

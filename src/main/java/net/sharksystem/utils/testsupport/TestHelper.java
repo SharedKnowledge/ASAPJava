@@ -1,5 +1,6 @@
 package net.sharksystem.utils.testsupport;
 
+import net.sharksystem.utils.Log;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.utils.fs.FSUtils;
 
@@ -25,7 +26,7 @@ public class TestHelper {
     }
 
     public static final String getUniqueFolderName(String foldername) {
-        System.out.println("test number == " + testNumber);
+        Log.writeLog(TestHelper.class, "test number == " + testNumber);
         return foldername + "_" + testNumber;
     }
 
