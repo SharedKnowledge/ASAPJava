@@ -25,9 +25,9 @@ public class TestHelper {
                 + peerID;
     }
 
-    public static final String getUniqueFolderName(String foldername) {
+    public static final String getUniqueFolderName(String prefix) {
         Log.writeLog(TestHelper.class, "test number == " + testNumber);
-        return foldername + "_" + testNumber;
+        return prefix + "_" + testNumber;
     }
 
     public static void incrementTestNumber() {

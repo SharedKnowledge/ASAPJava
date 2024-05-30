@@ -75,15 +75,16 @@ class ASAPChunkStorageFS implements ASAPChunkStorage {
     String setupChunkFolder(int era, String targetUrl) {
         String eraFolderString = this.getPath(era);
         File eraFolder = new File(eraFolderString);
-        Log.writeLog(this, "setup chunk folder: " + eraFolderString);
-        Log.writeLog(this, "setup chunk folder-file: " + eraFolder);
+        Log.writeLog(this, "produced chunk folder name: " + eraFolderString);
         if(!eraFolder.exists()) {
             Log.writeLog(this, "folder does not exist - create: " + eraFolderString);
             eraFolder.mkdirs();
         }
-        
-        String fileName = eraFolderString + "/" + Utils.url2FileName(targetUrl);
-        return fileName;
+
+        Log.writeLog(this, "chunk folder exists: " + eraFolder);
+        String fileNameWithoutExtension = eraFolderString + "/" + Utils.url2FileName(targetUrl);
+        Log.writeLog(this, "use this file name to store chunk (meta)data: " + fileNameWithoutExtension);
+        return fileNameWithoutExtension;
     }
 
     /**

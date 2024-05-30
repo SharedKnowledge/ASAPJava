@@ -113,11 +113,14 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         
         // init meta file - message file keeps untouched (good idea?)
         if(!this.metaFile.exists()) {
+            Log.writeLog(this, "meta file does not exist / set up: " + this.metaFile);
             if(!this.metaFile.getParentFile().exists()) {
                 this.metaFile.getParentFile().mkdirs();
                 Log.writeLog(this, "parent folder created: " + this.messageFile.getParentFile().exists());
             }
             this.metaFile.createNewFile();
+        } else {
+            Log.writeLog(this, "meta file does already exists: " + this.metaFile);
         }
 
         // try to read existing meta data
