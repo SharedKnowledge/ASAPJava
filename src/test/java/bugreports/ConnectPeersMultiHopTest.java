@@ -23,13 +23,13 @@ import java.util.Collection;
  * This class is a bug report for sending multi-hop messages.
  * There are three peers: Alice, Bob, and Clara. Alice and Clara are connected to Bob,
  * but Alice and Clara aren't connected to each other directly.
- * <p>
+ *
  * Alice sends a message to Bob, and Bob forwards it to Clara.
- * <p>
+ *
  * The first test demonstrates the bug:
  * If the message is sent after Alice and Clara have established connections to Bob and handled the encounter,
  * the message is only received by Bob and is not forwarded to Clara.
- * <p>
+ *
  * At the second test, clara handles the connection to Bob after the message from Alice was received by Bob.
  * The message is received by Bob and forwarded to Clara.
  */
