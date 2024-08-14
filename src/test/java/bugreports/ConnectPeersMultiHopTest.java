@@ -20,15 +20,17 @@ import java.util.Collection;
 
 
 /**
- * This Test is a bug report for sending multi-hop messages.
- * There are three peers: Alice, Bob, and Clara. Alice and Clara are connected to Bob.
+ * This class is a bug report for sending multi-hop messages.
+ * There are three peers: Alice, Bob, and Clara. Alice and Clara are connected to Bob,
+ * but Alice and Clara aren't connected to each other directly.
  *
  * Alice sends a message to Bob, and Bob forwards it to Clara.
- * The first test shows the bug.
- * If the message is sent after alice and clara have established a connection to bob and handled it, the message is
- * only received by Bob and is not forwarded to Clara.
  *
- * At the second test, clara handles the connection after the message from alice was received by bob.
+ * The first test demonstrates the bug:
+ * If the message is sent after Alice and Clara have established connections to Bob and handled the encounter,
+ * the message is only received by Bob and is not forwarded to Clara.
+ *
+ * At the second test, clara handles the connection to Bob after the message from Alice was received by Bob.
  * The message is received by Bob and forwarded to Clara.
  */
 public class ConnectPeersMultiHopTest {
