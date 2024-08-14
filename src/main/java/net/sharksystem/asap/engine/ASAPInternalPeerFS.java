@@ -3,8 +3,8 @@ package net.sharksystem.asap.engine;
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPEncounterConnectionType;
 import net.sharksystem.asap.crypto.*;
-import net.sharksystem.asap.fs.ExtraData;
-import net.sharksystem.asap.fs.ExtraDataFS;
+import net.sharksystem.fs.ExtraData;
+import net.sharksystem.fs.ExtraDataFS;
 import net.sharksystem.utils.*;
 import net.sharksystem.asap.ASAP;
 import net.sharksystem.asap.ASAPException;
@@ -710,5 +710,10 @@ public class ASAPInternalPeerFS implements
 
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         return this.getExtraData().getExtra(key);
+    }
+
+    @Override
+    public void removeAll() throws IOException, SharkException {
+        this.getExtraData().removeAll();
     }
 }

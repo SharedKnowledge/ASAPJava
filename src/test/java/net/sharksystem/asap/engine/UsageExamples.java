@@ -9,7 +9,7 @@ import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.asap.cmdline.ExampleASAPChunkReceivedListener;
 import net.sharksystem.asap.cmdline.TCPStream;
 import net.sharksystem.utils.SerializationHelper;
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

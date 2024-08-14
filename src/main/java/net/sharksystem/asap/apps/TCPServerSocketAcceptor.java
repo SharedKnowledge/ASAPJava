@@ -13,12 +13,17 @@ public class TCPServerSocketAcceptor implements StreamPairCreatedListener {
     private final ASAPEncounterManager encounterManager;
     private final SocketFactory socketFactory;
 
-    public TCPServerSocketAcceptor(int portNumber, ASAPEncounterManager encounterManager) throws IOException {
+    public TCPServerSocketAcceptor(int portNumber, ASAPEncounterManager encounterManager, boolean remainOpen)
+            throws IOException {
         this.encounterManager = encounterManager;
-        this.socketFactory = new SocketFactory(portNumber, this);
+        this.socketFactory = new SocketFactory(portNumber, this, remainOpen);
 
         Log.writeLog(this, "start socket factory - no race condition assumed");
         new Thread(socketFactory).start();
+    }
+
+    public TCPServerSocketAcceptor(int portNumber, ASAPEncounterManager encounterManager) throws IOException {
+        this(portNumber, encounterManager, false);
     }
 
     public void close() throws IOException {

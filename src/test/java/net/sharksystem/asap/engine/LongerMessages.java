@@ -1,6 +1,6 @@
 package net.sharksystem.asap.engine;
 
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPChunkStorage;

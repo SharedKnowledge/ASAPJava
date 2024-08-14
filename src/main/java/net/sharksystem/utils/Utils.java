@@ -3,10 +3,8 @@ package net.sharksystem.utils;
 import net.sharksystem.asap.ASAP;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Utils {
     public static String url2FileName(String url) {
@@ -119,5 +117,10 @@ public class Utils {
         sb.append(")");
 
         return sb.toString();
+    }
+
+    public static String calendar2String(Calendar calendarObject) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
+        return dateFormat.format(calendarObject.getTime());
     }
 }

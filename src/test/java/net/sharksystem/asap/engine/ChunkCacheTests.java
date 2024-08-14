@@ -2,9 +2,7 @@ package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPMessages;
-import net.sharksystem.asap.engine.ASAPEngine;
-import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

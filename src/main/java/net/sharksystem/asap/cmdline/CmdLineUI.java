@@ -4,7 +4,7 @@ import net.sharksystem.asap.ASAPChannel;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.engine.ASAPInternalStorage;
 import net.sharksystem.asap.engine.*;
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 
 import java.io.*;
 import java.util.*;

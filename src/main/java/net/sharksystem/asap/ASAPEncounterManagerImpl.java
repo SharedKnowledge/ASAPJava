@@ -1,7 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.SharkException;
-import net.sharksystem.asap.fs.ExtraDataFS;
+import net.sharksystem.fs.ExtraDataFS;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
 import net.sharksystem.asap.utils.ASAPSerialization;

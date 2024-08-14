@@ -14,6 +14,7 @@ import java.net.Socket;
 
 public class SocketFactory implements Runnable {
     private final ServerSocket srv;
+    private boolean remainOpen = false;
     private int port = 0;
     private StreamPairCreatedListener listener = null;
     InputStream is;
@@ -21,10 +22,15 @@ public class SocketFactory implements Runnable {
     private Thread waitForConnectionThread = null;
     private String remoteAddress;
 
-    public SocketFactory(int portNumber, StreamPairCreatedListener listener) throws IOException {
+    public SocketFactory(int portNumber, StreamPairCreatedListener listener, boolean remainOpen) throws IOException {
         this(new ServerSocket(portNumber));
         this.port = portNumber;
         this.listener = listener;
+        this.remainOpen = remainOpen;
+    }
+
+    public SocketFactory(int portNumber, StreamPairCreatedListener listener) throws IOException {
+        this(portNumber, listener, false);
     }
 
     public SocketFactory(ServerSocket srv) {
@@ -36,6 +42,7 @@ public class SocketFactory implements Runnable {
      */
     public void close() throws IOException {
         Log.writeLog(this, "close TCP server socket - do long longer accept connection attempts on port: " + this.port);
+        this.remainOpen = false; // looks nice but killing the socket will produce an IOException anyway
         this.srv.close();
     }
 
@@ -44,20 +51,25 @@ public class SocketFactory implements Runnable {
     public void run() {
         this.running = true;
         Log.writeLog(this,"socket factory running - accept connections on port: " + this.port);
+        if(!this.remainOpen) Log.writeLog(this,"only one connection will be handled on port: " + this.port
+                + " ( set option remainOpen == true for another behaviour)");
         try {
-            Socket socket = srv.accept();
-            this.is = socket.getInputStream();
-            this.os = socket.getOutputStream();
-            this.remoteAddress = SocketFactory.getRemoteAddress(socket);
-            Log.writeLog(this,"connection attempt accepted: socket created");
-            if(this.waitForConnectionThread != null) {
-                //this.waitForConnectionThread.interrupt();
-                this.waitForConnectionThread.notify();
-            }
-            if(this.listener != null) {
-                this.listener.streamPairCreated(
-                        StreamPairImpl.getStreamPairWithEndpointAddress(this.is, this.os, this.remoteAddress));
-            }
+            do {
+                Socket socket = srv.accept();
+                this.is = socket.getInputStream();
+                this.os = socket.getOutputStream();
+                this.remoteAddress = SocketFactory.getRemoteAddress(socket);
+                Log.writeLog(this, "connection attempt accepted: socket created");
+                if (this.waitForConnectionThread != null) {
+                    //this.waitForConnectionThread.interrupt();
+                    this.waitForConnectionThread.notify();
+                }
+                if (this.listener != null) {
+                    this.listener.streamPairCreated(
+                            StreamPairImpl.getStreamPairWithEndpointAddress(this.is, this.os, this.remoteAddress));
+                }
+                Log.writeLog(this, "resume waiting for new connections on port " + this.port);
+            } while(this.remainOpen);
         } catch (IOException e) {
             e.printStackTrace();
         }

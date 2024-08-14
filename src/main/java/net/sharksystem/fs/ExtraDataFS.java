@@ -1,4 +1,4 @@
-package net.sharksystem.asap.fs;
+package net.sharksystem.fs;
 
 import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPException;
@@ -17,7 +17,6 @@ public class ExtraDataFS implements ExtraData {
 
     public ExtraDataFS(CharSequence rootFolderName) throws SharkException, IOException {
         this(rootFolderName, EXTRA_FILE_EXTENSION);
-
     }
 
     public ExtraDataFS(CharSequence rootFolder, CharSequence fileName) throws IOException, SharkException {
@@ -146,5 +145,10 @@ public class ExtraDataFS implements ExtraData {
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         this.restoreExtraData();
         return this.extraData.get(key);
+    }
+
+    @Override
+    public void removeAll() {
+        this.getExtraFile().delete();
     }
 }

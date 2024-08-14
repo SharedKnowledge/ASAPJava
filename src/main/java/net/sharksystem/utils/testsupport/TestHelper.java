@@ -2,7 +2,7 @@ package net.sharksystem.utils.testsupport;
 
 import net.sharksystem.utils.Log;
 import net.sharksystem.utils.Utils;
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 
 public class TestHelper {
     public static int testNumber = 0;

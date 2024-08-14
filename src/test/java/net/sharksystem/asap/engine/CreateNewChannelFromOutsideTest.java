@@ -1,13 +1,9 @@
 package net.sharksystem.asap.engine;
 
 import net.sharksystem.asap.ASAPException;
-import net.sharksystem.asap.engine.ASAPEngineFS;
-import net.sharksystem.asap.engine.ASAPInternalPeer;
-import net.sharksystem.asap.engine.ASAPInternalPeerFS;
-import net.sharksystem.asap.engine.ASAPInternalStorage;
 import net.sharksystem.asap.utils.ASAPPeerHandleConnectionThread;
 import net.sharksystem.asap.cmdline.TCPStream;
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

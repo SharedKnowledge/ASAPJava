@@ -1,4 +1,4 @@
-package net.sharksystem.utils.fs;
+package net.sharksystem.fs;
 
 import net.sharksystem.utils.Log;
 

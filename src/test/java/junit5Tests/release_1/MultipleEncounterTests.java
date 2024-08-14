@@ -1,6 +1,6 @@
 package junit5Tests.release_1;
 
-import net.sharksystem.utils.fs.FSUtils;
+import net.sharksystem.fs.FSUtils;
 import net.sharksystem.utils.testsupport.TestConstants;
 import net.sharksystem.utils.testsupport.TestHelper;
 import net.sharksystem.asap.ASAPException;
