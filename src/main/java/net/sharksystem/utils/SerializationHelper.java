@@ -1,5 +1,8 @@
 package net.sharksystem.utils;
 
+import net.sharksystem.asap.ASAPException;
+import net.sharksystem.asap.utils.ASAPSerialization;
+
 import java.io.*;
 import java.util.*;
 
@@ -48,14 +51,15 @@ public class SerializationHelper {
         return result;
     }
 
-    public static byte[] characterSequence2bytes(CharSequence cs) {
-        // TODO - that's ok?
-        return cs.toString().getBytes();
+    public static byte[] characterSequence2bytes(CharSequence cs) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(cs, baos);
+        return baos.toByteArray();
     }
 
-    public static CharSequence bytes2characterSequence(byte[] bytes) {
-        // TODO - that's ok?
-        return  new String(bytes);
+    public static CharSequence bytes2characterSequence(byte[] bytes) throws IOException, ASAPException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        return ASAPSerialization.readCharSequenceParameter(bais);
     }
 
     public static List<CharSequence> string2CharSequenceList(String s) {
