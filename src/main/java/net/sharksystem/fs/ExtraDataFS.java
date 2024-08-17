@@ -7,6 +7,7 @@ import net.sharksystem.asap.utils.ASAPSerialization;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ExtraDataFS implements ExtraData {
     public static final String EXTRA_FILE_EXTENSION = ".extraData";
@@ -137,6 +138,26 @@ public class ExtraDataFS implements ExtraData {
         this.saveExtraData();
     }
 
+    @Override
+    public void putExtra(CharSequence key, Integer value) throws IOException, SharkException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeIntegerParameter(value, baos);
+        this.putExtra(key, baos.toByteArray());
+    }
+
+    @Override
+    public void putExtra(CharSequence key, String value) throws IOException, SharkException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceParameter(value, baos);
+        this.putExtra(key, baos.toByteArray());
+    }
+
+    public void putExtra(CharSequence key, Set<CharSequence> value) throws IOException, SharkException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASAPSerialization.writeCharSequenceSetParameter(value, baos);
+        this.putExtra(key, baos.toByteArray());
+    }
+
     /**
      * Return a value - can be null if null was set as value.
      * @param key
@@ -145,6 +166,23 @@ public class ExtraDataFS implements ExtraData {
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         this.restoreExtraData();
         return this.extraData.get(key);
+    }
+
+    @Override
+    public int getExtraInteger(CharSequence key) throws IOException, SharkException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
+        return ASAPSerialization.readIntegerParameter(bais);
+    }
+
+    @Override
+    public String getExtraString(CharSequence key) throws IOException, SharkException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
+        return ASAPSerialization.readCharSequenceParameter(bais);
+    }
+
+    public Set<CharSequence> getExtraCharSequenceSetParameter(CharSequence key) throws IOException, SharkException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
+        return ASAPSerialization.readCharSequenceSetParameter(bais);
     }
 
     @Override

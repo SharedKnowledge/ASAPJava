@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.SharkException;
+import net.sharksystem.asap.utils.DateTimeHelper;
 import net.sharksystem.fs.ExtraDataFS;
 import net.sharksystem.asap.protocol.ASAPConnection;
 import net.sharksystem.asap.protocol.ASAPConnectionListener;
@@ -14,7 +15,7 @@ import java.util.*;
 
 public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncounterManagerAdmin,
         ASAPConnectionListener {
-    public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 1000; // a second - debugging
+    public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 60000; // 60 seconds == 1 minute
     public static final long DEFAULT_WAIT_TO_AVOID_RACE_CONDITION = 500; // milliseconds - worked fine with BT.
     public static final String DATASTORAGE_FILE_EXTENSION = "em";
     private static final CharSequence ENCOUNTER_MANAGER_DENY_LIST_KEY = "denylist";
@@ -75,28 +76,41 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
         Date lastEncounter = this.encounterDate.get(id);
 
         if(lastEncounter == null) {
-            Log.writeLog(this, this.toString(), "device/peer not in encounteredDevices");
-            this.encounterDate.put(id, now);
+            Log.writeLog(this, this.toString(),
+                    "device/peer not in encounteredDevices - add "
+                            + DateTimeHelper.long2ExactTimeString(now.getTime()));
+            // this.encounterDate.put(id, now); do not enter it into that list before (!!) a connection is established
             return true;
         }
 
         // calculate reconnection time
+        Log.writeLog(this, this.toString(), "this.waitBeforeReconnect == " + this.waitBeforeReconnect);
 
         // get current time, in its incarnation as date
-        long nowInMillis = System.currentTimeMillis();
-        long reconnectedBeforeInMillis = nowInMillis - this.waitBeforeReconnect;
-        Date reconnectBefore = new Date(reconnectedBeforeInMillis);
+        long nowInMillis = now.getTime();
+        long shouldReconnectIfBeforeInMillis = nowInMillis - this.waitBeforeReconnect;
+        Date shouldReconnectIfBefore = new Date(shouldReconnectIfBeforeInMillis);
 
-        Log.writeLog(this, this.toString(), "now: " + now.toString());
-        Log.writeLog(this, this.toString(), "connectBefore: " + reconnectBefore.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append(DateTimeHelper.long2ExactTimeString(nowInMillis));
+        sb.append(" == now\n");
+        sb.append(DateTimeHelper.long2ExactTimeString(shouldReconnectIfBeforeInMillis));
+        sb.append(" == should reconnect if met before that moment\n");
+        sb.append(DateTimeHelper.long2ExactTimeString(lastEncounter.getTime()));
+        sb.append(" == last encounter");
+        Log.writeLog(this, this.toString(), sb.toString());
 
         // known peer
         Log.writeLog(this, this.toString(), "device/peer (" + id + ") in encounteredDevices list?");
         // it was in the list
-        if(lastEncounter.before(reconnectBefore)) {
+        if(lastEncounter.before(shouldReconnectIfBefore)) {
             Log.writeLog(this, this.toString(),  "yes - should connect: " + id);
             // remember that and overwrite previous entry
-            this.encounterDate.put(id, now);
+            /* that was a nasty bug since this method is called before establishing a connection
+            * AND after connection establishment and before lauching an ASAP session
+            */
+            // this.encounterDate.put(id, now);
             return true;
         }
 
@@ -116,9 +130,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
         StreamPair streamPair = this.openStreamPairs.get(remoteAdressOrPeerID);
         if(streamPair != null) {
             return false;
+        } else {
+            Log.writeLog(this, this.toString(), remoteAdressOrPeerID + " no parallel open connection");
         }
 
-        // we know this peer and we are still in cool down period
+        // we know this peer and it is still in cool down period
         if(!this.coolDownOver(remoteAdressOrPeerID, connectionType)) return false;
 
         // is this id a remote adress?
@@ -139,6 +155,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
 
         // no open connection and cool down period over for any known address - connect
         return true;
+    }
+
+    @Override
+    public void forgetPreviousEncounter() {
+        this.encounterDate = new HashMap<>();
     }
 
     @Override
@@ -194,9 +215,11 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
             }
         }
 
-        // we a through with it - remember that new stream pair
+        // we are through with it - remember that new stream pair
         Log.writeLog(this, this.toString(), "remember streamPair: " + streamPair);
         this.openStreamPairs.put(connectionID, streamPair);
+        Log.writeLog(this, this.toString(), "remember encounter: " + streamPair.getEndpointID());
+        this.encounterDate.put(streamPair.getEndpointID(), new Date());
 
         Log.writeLog(this, this.toString(), "going to launch a new asap connection");
 

@@ -53,6 +53,12 @@ public interface ASAPEncounterManager {
     boolean shouldCreateConnectionToPeer(CharSequence addressOrPeerID, ASAPEncounterConnectionType connectionType);
 
     /**
+     * Encounter manager forgets about its previous encounter. It will re-connect whenever possible.
+     * Gives peers a chance enforce reconnection if something changed o their side.
+     */
+    void forgetPreviousEncounter();
+
+    /**
      * A connection to another device was established. This method can be called to handle this new connection.
      * It can lead to an immediate shutdown, e.g. the other device already made a successful attempt to connect e.g.
      * over another protocol.

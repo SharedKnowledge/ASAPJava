@@ -29,4 +29,8 @@ public class DateTimeHelper {
 
         return df.format(date);
     }
+
+    public static String nowAsStringMostSpecific() {
+        return long2ExactTimeString(System.currentTimeMillis());
+    }
 }
