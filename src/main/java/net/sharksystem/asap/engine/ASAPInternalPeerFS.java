@@ -610,25 +610,29 @@ public class ASAPInternalPeerFS implements
 
     public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes)
             throws IOException, ASAPException {
-        this.sendTransientASAPAssimilateMessage(format, uri, null, messageAsBytes);
+        this.sendTransientASAPAssimilateMessage(format, uri, (Set<CharSequence>)null, messageAsBytes);
     }
 
     public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri,
-                                                   Set<CharSequence> receiver, byte[] messageAsBytes)
-            throws IOException, ASAPException {
+                                                   Set<CharSequence> nextHopPeerIDs, byte[] messageAsBytes) throws IOException, ASAPException {
 
-//        int era = ASAP.TRANSIENT_ERA; // init
+        this.sendOnlineASAPAssimilateMessage(format, uri, ASAP.TRANSIENT_ERA, nextHopPeerIDs, messageAsBytes);
+    }
 
-        /*
-        try {
-            era = this.getASAPEngine(format).getEra();
-        } catch (ASAPException e) {
-            // no engine.. ok
-            Log.writeLog(this, "send message with format but no engine exists (yet): " + format);
+    public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri,
+                       CharSequence nextHopPeerID, byte[] messageAsBytes) throws IOException, ASAPException {
+
+        if(nextHopPeerID == null) throw new ASAPException("next hop peer id must not be null");
+
+        if(!this.existASAPConnection(nextHopPeerID)) {
+            String log = "cannot send transient message. No open connection to peer with id: " + nextHopPeerID;
+            Log.writeLog(this, log);
+            throw new ASAPException(log);
         }
-         */
 
-        this.sendOnlineASAPAssimilateMessage(format, uri, ASAP.TRANSIENT_ERA, receiver, messageAsBytes);
+        Set<CharSequence> nextHopPeerIDs = new HashSet<>();
+        nextHopPeerIDs.add(nextHopPeerID);
+        this.sendOnlineASAPAssimilateMessage(format, uri, ASAP.TRANSIENT_ERA, nextHopPeerIDs, messageAsBytes);
     }
 
     public void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence uri, int era, byte[] messageAsBytes)

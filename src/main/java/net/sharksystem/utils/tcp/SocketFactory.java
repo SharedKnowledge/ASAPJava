@@ -71,7 +71,13 @@ public class SocketFactory implements Runnable {
                 Log.writeLog(this, "resume waiting for new connections on port " + this.port);
             } while(this.remainOpen);
         } catch (IOException e) {
-            e.printStackTrace();
+            if(!remainOpen) {
+                Log.writeLog(this, "socket factory terminated, closed port " + this.port);
+            } else {
+                Log.writeLogErr(this, "socket factory terminated but not from an app(?): "
+                        + e.getLocalizedMessage());
+            }
+
         }
     }
 

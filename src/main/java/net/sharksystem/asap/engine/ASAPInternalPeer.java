@@ -92,21 +92,57 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
     void deactivateOnlineMessages();
 
     /**
-     * This message is only transmitted with open connections. Message is not stored. Nothing happens if no open
-     * connection is present.
+     * A transient message is not stored and not meant to be forwarded. Sending a transient message has no effect
+     * without a running encounter. Despite that, it is an ordinary ASAP message - described by an application/format
+     * and an optional uri.
+     *
+     * @param nextHopPeerIDs A peer can have multiple encounter at the same time. This list - if present, names
+*                       potential message receiver. If null, message is sent to any open connection. An exception
+     *                            is <b>not thrown</b> if there is no connection to one or more peers in the list
+     * @param format message application / format
+     * @param urlTarget describe message within your app
+     * @param messageAsBytes serialized message
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+                                            Set<CharSequence> nextHopPeerIDs, byte[] messageAsBytes) throws IOException, ASAPException;
+
+    /**
+     * Send a transient message to a single peer.
+     * <b>An exception is thrown if there is no open connection the the specified peer</b>
      * @param format
      * @param urlTarget
+     * @param nextHopPeerID
+     * @param messageAsBytes
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget,
+                                            CharSequence nextHopPeerID, byte[] messageAsBytes) throws IOException, ASAPException;
+
+    /**
+     * Send a transient message to any peer we have an open connection to.
+     *
+     * @param format
+     * @param urlTarget
+     * @param messageAsBytes
+     * @throws IOException
+     * @throws ASAPException
+     */
+    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
+            throws IOException, ASAPException;
+
+    /**
+     * @deprecated use sendTransientASAPAssimilateMessage instead
+     * @param format
+     * @param urlTarget
+     * @param era
      * @param recipients
      * @param messageAsBytes
      * @throws IOException
      * @throws ASAPException
      */
-    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, Set<CharSequence> recipients,
-                                            byte[] messageAsBytes) throws IOException, ASAPException;
-
-    void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, byte[] messageAsBytes)
-            throws IOException, ASAPException;
-
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, int era,
          Set<CharSequence> recipients, byte[] messageAsBytes) throws IOException, ASAPException;
 

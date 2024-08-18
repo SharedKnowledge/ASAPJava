@@ -4,6 +4,7 @@ import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.utils.Log;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,6 +146,14 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
                 "try sending transient message over existing connections ");
         this.getInternalPeer().sendTransientASAPAssimilateMessage(appName, uri, message);
 
+    }
+
+    public void sendTransientASAPMessage(CharSequence nextHopPeerID,
+                 CharSequence appName, CharSequence uri, byte[] message) throws ASAPException, IOException {
+
+        Log.writeLog(this, this.getInternalPeer().getOwner().toString(),
+                "try sending transient message over existing connections to peerID: " + nextHopPeerID);
+        this.getInternalPeer().sendTransientASAPAssimilateMessage(appName, uri, nextHopPeerID, message);
     }
 
     public String toString() {
