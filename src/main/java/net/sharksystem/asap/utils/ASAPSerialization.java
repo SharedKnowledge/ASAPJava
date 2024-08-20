@@ -17,6 +17,17 @@ public class ASAPSerialization {
     public static final short BLANK_LEFT_SHORT = 0x00FF;
     public static final short BLANK_RIGHT_SHORT = (short) 0xFF00;
 
+    public static String byteArray2String(byte[] serializedString) throws IOException, ASAPException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(serializedString);
+        return readCharSequenceParameter(bais);
+    }
+
+    public static byte[] string2byteArray(CharSequence charSequence2Serialize) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writeCharSequenceParameter(charSequence2Serialize, baos);
+        return baos.toByteArray();
+    }
+
     public static void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
         if(bytes2Write == null) {
             writeNonNegativeIntegerParameter(0, os);

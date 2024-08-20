@@ -1,5 +1,6 @@
 package net.sharksystem.asap.engine;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.ASAPConnectionHandler;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
@@ -154,6 +155,8 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
     ASAPCommunicationSetting getASAPCommunicationControl();
 
     ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
+
+    ExtraData getExtraData() throws SharkException, IOException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
 }

@@ -123,4 +123,19 @@ public class Utils {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
         return dateFormat.format(calendarObject.getTime());
     }
+
+    public static String getStringByStringList(List<String> list) {
+        if(list == null || list.isEmpty()) return "empty list";
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        boolean first = true;
+        for(String o : list) {
+            if(first) first = false;
+            else sb.append(", ");
+            sb.append(i++);
+            sb.append(": ");
+            sb.append(o);
+        }
+        return sb.toString();
+    }
 }

@@ -1,7 +1,9 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.SharkException;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.ASAPLogHelper;
+import net.sharksystem.fs.ExtraData;
 import net.sharksystem.utils.Log;
 
 import javax.swing.*;
@@ -158,5 +160,10 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
     public String toString() {
         return this.getInternalPeer().getOwner().toString();
+    }
+
+    @Override
+    public ExtraData getExtraData() throws SharkException, IOException {
+        return this.getInternalPeer().getExtraData();
     }
 }

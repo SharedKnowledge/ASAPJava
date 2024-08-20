@@ -1,5 +1,8 @@
 package net.sharksystem.asap;
 
+import net.sharksystem.SharkException;
+import net.sharksystem.fs.ExtraData;
+
 import java.io.IOException;
 
 public interface ASAPPeer extends
@@ -67,4 +70,6 @@ public interface ASAPPeer extends
      * @throws ASAPException key never used in putExtra
      */
     byte[] getExtra(CharSequence key) throws ASAPException, IOException;
+
+    ExtraData getExtraData() throws SharkException, IOException;
 }

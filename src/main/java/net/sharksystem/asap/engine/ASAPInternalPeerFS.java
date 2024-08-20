@@ -700,7 +700,7 @@ public class ASAPInternalPeerFS implements
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     private ExtraData extraData = null;
 
-    private ExtraData getExtraData() throws SharkException, IOException {
+    public ExtraData getExtraData() throws SharkException, IOException {
         if(this.extraData == null) {
             this.extraData = new ExtraDataFS(this.rootFolderName);
         }
