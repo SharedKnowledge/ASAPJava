@@ -702,7 +702,7 @@ public class ASAPInternalPeerFS implements
 
     public ExtraData getExtraData() throws SharkException, IOException {
         if(this.extraData == null) {
-            this.extraData = new ExtraDataFS(this.rootFolderName);
+            this.extraData = new ExtraDataFS(this.rootFolderName, "asapPeerExtraData");
         }
 
         return this.extraData;
@@ -718,7 +718,7 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public void putExtra(CharSequence key, String value) throws IOException, SharkException {
+    public void putExtra(CharSequence key, CharSequence value) throws IOException, SharkException {
         this.getExtraData().putExtra(key, value);
     }
 

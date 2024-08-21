@@ -1,18 +1,25 @@
 package net.sharksystem.asap.crypto;
 
+import net.sharksystem.SharkException;
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.asap.utils.ASAPSerialization;
+import net.sharksystem.fs.ExtraData;
 import net.sharksystem.utils.Log;
 
 import javax.crypto.SecretKey;
 import java.io.*;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
 public class InMemoASAPKeyStore implements ASAPKeyStore {
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
     private KeyPair keyPair;
-    private final CharSequence ownerID;
+    private CharSequence ownerID;
     private long keyPairCreationTime = 0;
 
     // for debugging only - we don't have private key in real apps
@@ -35,10 +42,16 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
      * Setup key store with a key pair
      * @param ownerID
      * @param ownerKeyPair
+     * @deprecated
      */
     public InMemoASAPKeyStore(CharSequence ownerID, KeyPair ownerKeyPair, long keyPairCreationTime) {
         this.ownerID = ownerID;
         this.keyPair = ownerKeyPair;
+        if(ownerKeyPair != null) {
+            this.privateKey = ownerKeyPair.getPrivate();
+            this.publicKey = ownerKeyPair.getPublic();
+        }
+
         this.keyPairCreationTime = keyPairCreationTime;
     }
 
@@ -73,13 +86,12 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return ASAPKeyStore.DEFAULT_SYMMETRIC_KEY_SIZE;
     }
 
-    private String getLogStart() {
-        return this.getClass().getSimpleName() + ": ";
-    }
-
     public void generateKeyPair() throws ASAPSecurityException {
         this.setKeyPair(this.generateNewKeyPair());
+        this.privateKey = this.keyPair.getPrivate();
+        this.publicKey = this.keyPair.getPublic();
         this.keyPairCreationTime = System.currentTimeMillis();
+        this.save();
     }
 
     private KeyPair generateNewKeyPair() throws ASAPSecurityException {
@@ -107,15 +119,22 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return keyPair;
     }
 
+    private void checkKeyPairExistence() throws ASAPSecurityException {
+        if(this.keyPair == null) {
+            Log.writeLog(this, "create new keypair since requested but missing");
+            this.generateKeyPair();
+        }
+    }
+
     @Override
     public PrivateKey getPrivateKey() throws ASAPSecurityException {
-        if(this.keyPair == null) throw new ASAPSecurityException("private key does not exist");
+        this.checkKeyPairExistence();
         return this.keyPair.getPrivate();
     }
 
     @Override
     public PublicKey getPublicKey() throws ASAPSecurityException {
-        if(this.keyPair == null) throw new ASAPSecurityException("private key does not exist");
+        this.checkKeyPairExistence();
         return this.keyPair.getPublic();
     }
 
@@ -184,7 +203,6 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     }
 
     public void addKeyPair(String peerID, KeyPair keyPair) {
-
         this.peerKeyPairs.put(peerID, keyPair);
     }
 
@@ -241,5 +259,81 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
 
         // store it
         this.putPublicKey(peer, publicKey);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                persist                                                   //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private ExtraData mementoExtraData;
+    private CharSequence mementoKey;
+
+    public void setMementoTarget(ExtraData extraData, CharSequence key) {
+        this.mementoExtraData = extraData;
+        this.mementoKey = key;
+    }
+
+    private void save() {
+        if(this.mementoExtraData != null && this.mementoKey != null) {
+            try {
+                this.mementoExtraData.putExtra(this.mementoKey, this.createMemento());
+            } catch (IOException | SharkException e) {
+                Log.writeLogErr(this, "cannot write memento: " + e.getLocalizedMessage());
+            }
+        } else {
+            Log.writeLog(this, "cannot write data - no persistent storage");
+        }
+    }
+
+    byte[] createMemento() throws ASAPSecurityException, IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // encoded private key
+        ASAPSerialization.writeByteArray(this.getPrivateKey().getEncoded(), baos);
+        // private key algorithm
+        ASAPSerialization.writeCharSequenceParameter(this.getPrivateKey().getAlgorithm(), baos);
+        // private key format
+        ASAPSerialization.writeCharSequenceParameter(this.getPrivateKey().getFormat(), baos);
+
+        // public key encoded
+        ASAPSerialization.writeByteArray(this.getPublicKey().getEncoded(), baos);
+        // public key algorithm
+        ASAPSerialization.writeCharSequenceParameter(this.getPublicKey().getAlgorithm(), baos);
+        // public key format
+        ASAPSerialization.writeCharSequenceParameter(this.getPublicKey().getFormat(), baos);
+
+        // creation time
+        ASAPSerialization.writeLongParameter(this.keyPairCreationTime, baos);
+
+        // ownerID
+        ASAPSerialization.writeCharSequenceParameter(this.ownerID, baos);
+
+        return baos.toByteArray();
+    }
+
+    public void restoreFromMemento(byte[] mementoData) throws IOException, ASAPException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(mementoData);
+
+        byte[] privateKeyBytes = ASAPSerialization.readByteArray(bais);
+        String privateKeyAlgorithm = ASAPSerialization.readCharSequenceParameter(bais);
+        String privateKeyFormat = ASAPSerialization.readCharSequenceParameter(bais);
+
+        byte[] publicKeyBytes = ASAPSerialization.readByteArray(bais);
+        String publicKeyAlgorithm = ASAPSerialization.readCharSequenceParameter(bais);
+        String publicKeyFormat = ASAPSerialization.readCharSequenceParameter(bais);
+
+        // reproduce private key
+        // as to be seen, pretty limited alg/format support yet :/
+        try {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            this.privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+            this.publicKey = kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new ASAPException("cannot restore keystore form memento: " + e.getLocalizedMessage());
+        }
+
+        // reset those simple data after that critical stuff.
+        this.keyPairCreationTime = ASAPSerialization.readLongParameter(bais);
+        this.ownerID = ASAPSerialization.readCharSequenceParameter(bais);
     }
 }

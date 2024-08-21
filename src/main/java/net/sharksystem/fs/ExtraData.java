@@ -11,11 +11,17 @@ public interface ExtraData {
 
     void putExtra(CharSequence key, Integer value) throws IOException, SharkException;
 
-    void putExtra(CharSequence key, String value) throws IOException, SharkException;
+    void putExtra(CharSequence key, CharSequence value) throws IOException, SharkException;
 
     void putExtra(CharSequence key, Set<CharSequence> value) throws IOException, SharkException;
 
-    // get a parameter by a key
+    /** get a parameter by a key
+     *
+     * @param key
+     * @return
+     * @throws IOException
+     * @throws SharkException if no such key exists
+     */
     byte[] getExtra(CharSequence key) throws IOException, SharkException;
 
     int getExtraInteger(CharSequence key) throws IOException, SharkException;

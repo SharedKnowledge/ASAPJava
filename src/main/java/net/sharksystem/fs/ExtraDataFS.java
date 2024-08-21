@@ -10,19 +10,21 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExtraDataFS implements ExtraData {
-    public static final String EXTRA_FILE_EXTENSION = ".extraData";
-    private final CharSequence fileExtension;
+    public static final String DEFAULT_FILE_NAME = ".extraData";
+    private final CharSequence fileName;
     private final CharSequence rootFolderName;
 
     private Map<CharSequence, byte[]> extraData = new HashMap<>();
 
     public ExtraDataFS(CharSequence rootFolderName) throws SharkException, IOException {
-        this(rootFolderName, EXTRA_FILE_EXTENSION);
+        this(rootFolderName, DEFAULT_FILE_NAME);
     }
 
     public ExtraDataFS(CharSequence rootFolder, CharSequence fileName) throws IOException, SharkException {
         this.rootFolderName = rootFolder;
-        this.fileExtension = fileName;
+        // hide file in any case
+        if(fileName.charAt(0) != '.') this.fileName = "." + fileName;
+        else this.fileName = fileName;
         File rootFolderFile = new File(rootFolder.toString());
         if(!rootFolderFile.exists()) {
             // create
@@ -32,7 +34,7 @@ public class ExtraDataFS implements ExtraData {
     }
 
     private File getExtraFile() {
-        String extraFileName = this.rootFolderName + "/" + EXTRA_FILE_EXTENSION;
+        String extraFileName = this.rootFolderName + "/" + fileName;
         return new File(extraFileName);
     }
 
@@ -146,7 +148,7 @@ public class ExtraDataFS implements ExtraData {
     }
 
     @Override
-    public void putExtra(CharSequence key, String value) throws IOException, SharkException {
+    public void putExtra(CharSequence key, CharSequence value) throws IOException, SharkException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASAPSerialization.writeCharSequenceParameter(value, baos);
         this.putExtra(key, baos.toByteArray());
@@ -165,7 +167,9 @@ public class ExtraDataFS implements ExtraData {
      */
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         this.restoreExtraData();
-        return this.extraData.get(key);
+        byte[] value = this.extraData.get(key);
+        if(value == null) throw new SharkException("no value for key" + key);
+        return value;
     }
 
     @Override
