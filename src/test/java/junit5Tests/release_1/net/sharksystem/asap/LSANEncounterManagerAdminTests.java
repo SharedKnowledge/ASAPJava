@@ -4,6 +4,7 @@ import net.sharksystem.SharkException;
 import net.sharksystem.asap.*;
 import net.sharksystem.asap.apps.TCPServerSocketAcceptor;
 import net.sharksystem.asap.apps.testsupport.ASAPTestPeerFS;
+import net.sharksystem.testhelper.ASAPTesthelper;
 import net.sharksystem.utils.streams.StreamPair;
 import net.sharksystem.utils.streams.StreamPairImpl;
 import net.sharksystem.utils.testsupport.ASAPMessageReceivedStorage;
@@ -34,8 +35,8 @@ public class LSANEncounterManagerAdminTests {
         this.supportedFormats = new HashSet<>();
         this.supportedFormats.add(TestConstants.TEST_APP_FORMAT);
 
-        String aliceFolder = TestHelper.getUniqueFolderName(ALICE_ROOTFOLDER.toString());
-        String bobFolder = TestHelper.getUniqueFolderName(BOB_ROOTFOLDER.toString());
+        String aliceFolder = ASAPTesthelper.getUniqueFolderName(ALICE_ROOTFOLDER.toString());
+        String bobFolder = ASAPTesthelper.getUniqueFolderName(BOB_ROOTFOLDER.toString());
         TestHelper.incrementTestNumber();
 
         //////////////////////////////// setup Alice

@@ -18,7 +18,7 @@ public class PersistInMemoKeystore {
         InMemoASAPKeyStore imKeystore = new InMemoASAPKeyStore("TestPeer");
         imKeystore.generateKeyPair();
 
-        byte[] memento = imKeystore.createMemento();
-        imKeystore.restoreFromMemento(memento);
+        byte[] memento = imKeystore.getMemento();
+        imKeystore.restoreMemento(memento);
     }
 }

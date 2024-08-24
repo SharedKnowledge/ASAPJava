@@ -1,6 +1,5 @@
 package net.sharksystem.utils.testsupport;
 
-import net.sharksystem.utils.Log;
 import net.sharksystem.utils.Utils;
 import net.sharksystem.fs.FSUtils;
 
@@ -23,11 +22,6 @@ public class TestHelper {
         return testClass.getSimpleName()
                 + "/"
                 + peerID;
-    }
-
-    public static final String getUniqueFolderName(String prefix) {
-        Log.writeLog(TestHelper.class, "test number == " + testNumber);
-        return prefix + "_" + testNumber;
     }
 
     public static void incrementTestNumber() {

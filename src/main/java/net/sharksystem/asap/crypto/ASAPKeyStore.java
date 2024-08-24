@@ -1,7 +1,10 @@
 package net.sharksystem.asap.crypto;
 
+import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
+import net.sharksystem.fs.ExtraData;
 
+import java.io.IOException;
 import java.security.PublicKey;
 
 /**
@@ -28,4 +31,6 @@ public interface ASAPKeyStore extends ASAPCryptoParameterStorage {
      * A new key pair is created
      */
     void generateKeyPair() throws ASAPSecurityException;
+
+//    void setMementoTarget(ExtraData extraData);
 }

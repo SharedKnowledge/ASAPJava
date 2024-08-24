@@ -4,6 +4,7 @@ import net.sharksystem.asap.ASAPEnvironmentChangesListener;
 import net.sharksystem.asap.ASAPEnvironmentChangesListenerManagement;
 import net.sharksystem.utils.Log;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ASAPEnvironmentChangesListenerManager
@@ -23,8 +24,9 @@ public class ASAPEnvironmentChangesListenerManager
     public void notifyListeners(Set<CharSequence> peerList) {
         if(peerList == null || peerList.isEmpty()) return;
         if(this.listenerList == null || this.listenerList.isEmpty()) return;
+        // make a copy of that list
         for(ASAPEnvironmentChangesListener listener : this.listenerList) {
-            if(listener != null) listener.onlinePeersChanged(peerList);
+            if(listener != null) listener.onlinePeersChanged(new HashSet<>(peerList));
         }
     }
 }

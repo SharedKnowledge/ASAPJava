@@ -16,6 +16,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
 public class InMemoASAPKeyStore implements ASAPKeyStore {
+    private static final CharSequence ASAP_KEYSTORE_MEMENTO_KEY = "asapKeyStoreMemento";
     private PrivateKey privateKey;
     private PublicKey publicKey;
     private KeyPair keyPair;
@@ -123,19 +124,25 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         if(this.keyPair == null) {
             Log.writeLog(this, "create new keypair since requested but missing");
             this.generateKeyPair();
+            this.privateKey = this.keyPair.getPrivate();
+            this.publicKey = this.keyPair.getPublic();
         }
     }
 
     @Override
     public PrivateKey getPrivateKey() throws ASAPSecurityException {
-        this.checkKeyPairExistence();
-        return this.keyPair.getPrivate();
+        if(this.privateKey == null) {
+            this.checkKeyPairExistence();
+        }
+        return this.privateKey;
     }
 
     @Override
     public PublicKey getPublicKey() throws ASAPSecurityException {
-        this.checkKeyPairExistence();
-        return this.keyPair.getPublic();
+        if(this.publicKey == null) {
+            this.checkKeyPairExistence();
+        }
+        return this.publicKey;
     }
 
     @Override
@@ -266,17 +273,21 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private ExtraData mementoExtraData;
-    private CharSequence mementoKey;
 
-    public void setMementoTarget(ExtraData extraData, CharSequence key) {
+    public void setMementoTarget(ExtraData extraData) {
         this.mementoExtraData = extraData;
-        this.mementoKey = key;
+        try {
+            byte[] memento = this.mementoExtraData.getExtra(ASAP_KEYSTORE_MEMENTO_KEY);
+            this.restoreMemento(memento);
+        } catch (IOException | SharkException e) {
+            // no memento - okay
+        }
     }
 
     private void save() {
-        if(this.mementoExtraData != null && this.mementoKey != null) {
+        if(this.mementoExtraData != null) {
             try {
-                this.mementoExtraData.putExtra(this.mementoKey, this.createMemento());
+                this.mementoExtraData.putExtra(ASAP_KEYSTORE_MEMENTO_KEY, this.getMemento());
             } catch (IOException | SharkException e) {
                 Log.writeLogErr(this, "cannot write memento: " + e.getLocalizedMessage());
             }
@@ -285,7 +296,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         }
     }
 
-    byte[] createMemento() throws ASAPSecurityException, IOException {
+    public byte[] getMemento() throws ASAPException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         // encoded private key
@@ -311,7 +322,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return baos.toByteArray();
     }
 
-    public void restoreFromMemento(byte[] mementoData) throws IOException, ASAPException {
+    public void restoreMemento(byte[] mementoData) throws IOException, ASAPException {
         ByteArrayInputStream bais = new ByteArrayInputStream(mementoData);
 
         byte[] privateKeyBytes = ASAPSerialization.readByteArray(bais);
@@ -335,5 +346,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         // reset those simple data after that critical stuff.
         this.keyPairCreationTime = ASAPSerialization.readLongParameter(bais);
         this.ownerID = ASAPSerialization.readCharSequenceParameter(bais);
+
+        Log.writeLog(this, "restored keys");
     }
 }
