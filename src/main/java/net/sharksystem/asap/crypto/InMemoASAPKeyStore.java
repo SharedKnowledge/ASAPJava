@@ -280,7 +280,8 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
             byte[] memento = this.mementoExtraData.getExtra(ASAP_KEYSTORE_MEMENTO_KEY);
             this.restoreMemento(memento);
         } catch (IOException | SharkException e) {
-            // no memento - okay
+            // no memento - hm, maybe was set when this keystore was already running - better save
+            this.save();
         }
     }
 

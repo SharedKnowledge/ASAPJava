@@ -32,5 +32,5 @@ public interface ASAPKeyStore extends ASAPCryptoParameterStorage {
      */
     void generateKeyPair() throws ASAPSecurityException;
 
-//    void setMementoTarget(ExtraData extraData);
+    void setMementoTarget(ExtraData extraData);
 }

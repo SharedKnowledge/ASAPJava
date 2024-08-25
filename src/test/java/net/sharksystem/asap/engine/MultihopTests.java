@@ -139,7 +139,10 @@ public class MultihopTests {
         System.out.println("**************************************************************************");
 
         // kill connections
-        ui.doKill("all");
+        try { ui.doKill("all"); }
+        catch(Exception e) {
+            System.out.println("exception - but we called kill(); what would we expect? + " + e.getLocalizedMessage());
+        }
     }
 
 //    @Test

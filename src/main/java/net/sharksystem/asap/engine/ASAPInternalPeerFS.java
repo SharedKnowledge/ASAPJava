@@ -294,7 +294,7 @@ public class ASAPInternalPeerFS implements
     }
 
     public EngineSetting getEngineSettings(CharSequence format) throws ASAPException {
-        EngineSetting folderAndListener = folderMap.get(format);
+        EngineSetting folderAndListener = this.folderMap.get(format);
         if(folderAndListener == null)
             throw new ASAPException("no folder for owner / format: " + owner + "/" + format);
 
@@ -346,7 +346,7 @@ public class ASAPInternalPeerFS implements
         if(appsBlackList == null) appsBlackList = new HashSet<>(); // empty set no null
 
         // TODO add white / black list.
-        ASAPPersistentConnection asapConnection = new ASAPPersistentConnection(
+        ASAPSessionImpl asapConnection = new ASAPSessionImpl(
                 is, os, this, new ASAP_Modem_Impl(),
                 this, this.ASAPKeyStore,
                 maxExecutionTime, this, this, encrypt, sign, connectionType);
