@@ -4,6 +4,9 @@ public class ASAPSecurityException extends ASAPException {
     public ASAPSecurityException() {
         super();
     }
+    public ASAPSecurityException(Throwable cause) {
+        super(cause);
+    }
     public ASAPSecurityException(String message) {
         super(message);
     }
