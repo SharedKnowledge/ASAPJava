@@ -48,7 +48,8 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
     /** remember remote address of peers (they can have more than one): peerID -> remote address */
     private Map<CharSequence, Set<CharSequence>> peerRemoteAddresses = new HashMap<>();
 
-    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, CharSequence peerID) throws SharkException, IOException {
+    public ASAPEncounterManagerImpl(ASAPConnectionHandler asapConnectionHandler, CharSequence peerID)
+            throws SharkException, IOException {
         this(asapConnectionHandler, peerID, DEFAULT_WAIT_BEFORE_RECONNECT_TIME);
     }
 

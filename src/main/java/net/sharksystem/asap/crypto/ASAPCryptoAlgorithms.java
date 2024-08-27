@@ -8,6 +8,7 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
+import java.util.Base64;
 
 public class ASAPCryptoAlgorithms {
     /**
@@ -249,5 +250,18 @@ public class ASAPCryptoAlgorithms {
             e.printStackTrace();
             throw new ASAPSecurityException("verifying failed: " + ASAPKeyStore.getAsymmetricSigningAlgorithm(), e);
         }
+    }
+
+    /**
+     * Produces a Base 64 fingerprint with SHA256.
+     * This fingerprint is not necessarily identical to others.
+     * It an ASAP standard, though.
+     * @param publicKey
+     * @return
+     */
+    public static String getFingerprint(PublicKey publicKey) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] result = digest.digest(publicKey.getEncoded());
+        return Base64.getEncoder().encodeToString(result);
     }
 }

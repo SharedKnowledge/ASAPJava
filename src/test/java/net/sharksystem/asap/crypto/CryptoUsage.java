@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import static net.sharksystem.utils.testsupport.TestConstants.ALICE_ID;
 import static net.sharksystem.utils.testsupport.TestConstants.BOB_ID;
@@ -24,6 +25,12 @@ public class CryptoUsage {
         this.aliceKeyStorage.addKeyPair(BOB_ID, bobKeyStorage.getKeyPair());
         this.bobKeyStorage.addKeyPair(ALICE_ID, aliceKeyStorage.getKeyPair());
     }
+
+    @Test
+    public void printFingerprint() throws ASAPSecurityException, NoSuchAlgorithmException {
+        System.out.println(ASAPCryptoAlgorithms.getFingerprint(aliceKeyStorage.getPublicKey()));
+    }
+
 
     @Test
     public void signVerifyUsage() throws ASAPSecurityException {
