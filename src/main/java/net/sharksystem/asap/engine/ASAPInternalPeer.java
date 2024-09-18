@@ -150,13 +150,15 @@ public interface ASAPInternalPeer extends ASAPConnectionHandler, ExtraData {
     void sendOnlineASAPAssimilateMessage(CharSequence format, CharSequence urlTarget, int era, byte[] messageAsBytes)
             throws IOException, ASAPException;
 
-    void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore);
+    void setASAPKeyStore(ASAPKeyStore ASAPKeyStore);
+    ASAPKeyStore getASAPKeyStore();
 
     ASAPCommunicationSetting getASAPCommunicationControl();
 
-    ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
+    ASAPKeyStore getAsapKeyStore() throws ASAPSecurityException;
 
     ExtraData getExtraData() throws SharkException, IOException;
 
     void setSecurityAdministrator(DefaultSecurityAdministrator securityAdministrator);
+
 }

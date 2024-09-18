@@ -1,12 +1,12 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.SharkException;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.asap.engine.*;
 import net.sharksystem.asap.utils.ASAPLogHelper;
 import net.sharksystem.fs.ExtraData;
 import net.sharksystem.utils.Log;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -160,6 +160,17 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
 
     public String toString() {
         return this.getInternalPeer().getOwner().toString();
+    }
+
+    @Override
+    public void setASAPKeyStore(ASAPKeyStore asapKeyStore) {
+        this.getInternalPeer().setASAPKeyStore(asapKeyStore);
+    }
+
+    public ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException {
+        ASAPKeyStore keyStore = this.getInternalPeer().getASAPKeyStore();
+        if(keyStore == null) throw new ASAPSecurityException("no keystore set");
+        return keyStore;
     }
 
     @Override

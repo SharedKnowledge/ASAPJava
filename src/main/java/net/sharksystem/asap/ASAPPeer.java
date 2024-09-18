@@ -1,6 +1,7 @@
 package net.sharksystem.asap;
 
 import net.sharksystem.SharkException;
+import net.sharksystem.asap.crypto.ASAPKeyStore;
 import net.sharksystem.fs.ExtraData;
 
 import java.io.IOException;
@@ -17,6 +18,19 @@ public interface ASAPPeer extends
     CharSequence getPeerID();
 
     ASAPStorage getASAPStorage(CharSequence format) throws IOException, ASAPException;
+
+    /**
+     * Provide an ASAP keystore to the peer. Now, point-to-point encryption is possible.
+     * @param asapKeyStore
+     */
+    void setASAPKeyStore(ASAPKeyStore asapKeyStore);
+
+    /**
+     * Get ASAP keystore. Throws an exception if not set
+     * @return ASAP keystore
+     * @throws ASAPException if no keystore present
+     */
+    ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException;
 
     /**
      * ASAP peer are both: application host and potential router. Routing can be switched on or off.

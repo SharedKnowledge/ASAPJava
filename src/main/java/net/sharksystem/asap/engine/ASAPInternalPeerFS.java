@@ -24,7 +24,7 @@ public class ASAPInternalPeerFS implements
     private CharSequence owner;
     private HashMap<CharSequence, EngineSetting> folderMap;
     private final long maxExecutionTime;
-    private ASAPKeyStore ASAPKeyStore;
+    private ASAPKeyStore asapKeyStore;
     private DefaultSecurityAdministrator defaultSecurityAdministrator = new DefaultSecurityAdministrator();
     private InMemoASAPKeyStore inMemoASAPKeyStore;
 
@@ -348,7 +348,7 @@ public class ASAPInternalPeerFS implements
         // TODO add white / black list.
         ASAPSessionImpl asapConnection = new ASAPSessionImpl(
                 is, os, this, new ASAP_Modem_Impl(),
-                this, this.ASAPKeyStore,
+                this, this.asapKeyStore,
                 maxExecutionTime, this, this, encrypt, sign, connectionType);
 
         StringBuilder sb = new StringBuilder();
@@ -604,8 +604,12 @@ public class ASAPInternalPeerFS implements
 
 
     @Override
-    public void setASAPBasicKeyStorage(ASAPKeyStore ASAPKeyStore) {
-        this.ASAPKeyStore = ASAPKeyStore;
+    public void setASAPKeyStore(ASAPKeyStore asapKeyStore) {
+        this.asapKeyStore = asapKeyStore;
+    }
+
+    public ASAPKeyStore getASAPKeyStore() {
+        return this.asapKeyStore;
     }
 
     public void sendTransientASAPAssimilateMessage(CharSequence format, CharSequence uri, byte[] messageAsBytes)
@@ -688,7 +692,7 @@ public class ASAPInternalPeerFS implements
 
     ///////////////////////////////// SharkNet
     @Override
-    public ASAPKeyStore getASAPKeyStore() throws ASAPSecurityException {
+    public ASAPKeyStore getAsapKeyStore() throws ASAPSecurityException {
         if(this.inMemoASAPKeyStore == null) {
             this.inMemoASAPKeyStore = new InMemoASAPKeyStore(this.getOwner().toString());
         }

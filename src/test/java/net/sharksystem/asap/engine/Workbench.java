@@ -115,7 +115,7 @@ public class Workbench {
         String aliceFolder = WORKING_SUB_DIRECTORY + ALICE_PEER_NAME;
         ExampleASAPChunkReceivedListener aliceChunkListener = new ExampleASAPChunkReceivedListener(aliceFolder);
         ASAPInternalPeer alicePeer = ASAPInternalPeerFS.createASAPPeer(ALICE_PEER_NAME, aliceFolder, aliceChunkListener);
-        alicePeer.setASAPBasicKeyStorage(keyStorageAlice); // set keystore
+        alicePeer.setASAPKeyStore(keyStorageAlice); // set keystore
         alicePeer.getASAPCommunicationControl().setSendEncryptedMessages(true); // send encrypted messages
         ASAPEngine aliceChatEngine = alicePeer.createEngineByFormat(APPNAME); // create engine
 
