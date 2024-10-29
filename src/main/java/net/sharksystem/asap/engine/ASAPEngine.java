@@ -108,6 +108,11 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         this.newEra(false, -1);
     }
 
+    /**
+     * Set a new ear in this storage - if forced: set newEra as specified without questioning
+     * @param force
+     * @param nextEra
+     */
     private void newEra(boolean force, int nextEra) {
         try {
             this.syncMemento();
@@ -116,14 +121,18 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
         }
 
         if(force || this.contentChanged) {
-            if(this.contentChanged) Log.writeLog(this, this.toString(), "content changed - increment era...");
-            if(force) Log.writeLog(this, this.toString(), "increment era to add new chunks");
+            // set as fast as possible to make race conditions less likely
+            this.contentChanged = false;
+
+            if(force) {
+                Log.writeLog(this, this.toString(), "forced setting era to " + nextEra);
+            } else {
+                // calculate new era
+                nextEra = nextEra < 0 ? this.getNextEra(this.era) : nextEra;
+                Log.writeLog(this, this.toString(), "era not forced - incremented era to " + nextEra);
+            }
             try {
                 int oldEra = this.era;
-                nextEra = nextEra < 0 ? this.getNextEra(this.era) : nextEra;
-
-                // set as fast as possible to make race conditions less likely
-                this.contentChanged = false;
 
                 // we are done here - we are in a new era.
                 this.era = nextEra;
@@ -131,13 +140,29 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 // persistent values
                 if(this.memento != null) this.memento.save(this);
 
-                // drop very very old chunks - if available
-                this.getChunkStorage().dropChunks(nextEra);
+                /* now:
+                oldEra .. era that was used a few milliseconds before. Keep it.
+                this.era .. era we are going to work with
 
-                // setup new era - copy all chunks
-                for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(oldEra)) {
-                    ASAPInternalChunk copyChunk = this.getChunkStorage().getChunk(chunk.getUri(), nextEra);
-                    copyChunk.clone(chunk);
+                Now, there could be a very old version with same number as this.era - remove it before you set up
+                fresh era
+                 */
+
+                if(this.era == oldEra) {
+                    Log.writeLog(this, this.toString(), "this.era == oldEra - nothing to do");
+                } else {
+                    Log.writeLog(this, this.toString(), "old era is going to be overwritten: " + this.era);
+                    // drop very very old chunks - if available
+                    this.getChunkStorage().dropChunks(this.era);
+
+                    Log.writeLog(this, this.toString(),
+                            "setup new era by cloning previous chunk meta data: "
+                                    + this.era + " | " + oldEra);
+                    // setup new era - copy all chunks
+                    for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(oldEra)) {
+                        ASAPInternalChunk copyChunk = this.getChunkStorage().getChunk(chunk.getUri(), this.era);
+                        copyChunk.clone(chunk);
+                    }
                 }
 
                 Log.writeLog(this, this.toString(), "era incremented");
