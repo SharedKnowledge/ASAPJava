@@ -34,7 +34,7 @@ public class FSUtils {
         }
 
         dir.delete();
-        dir.deleteOnExit();
+        //dir.deleteOnExit();
         try {
             Thread.sleep(1); // give file system a moment
         } catch (InterruptedException e) {
