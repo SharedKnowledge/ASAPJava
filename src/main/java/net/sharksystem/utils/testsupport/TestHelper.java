@@ -8,7 +8,9 @@ public class TestHelper {
     public static int portNumber = 4444;
 
     public static int getPortNumber() {
-        return portNumber++;
+        portNumber++;
+        //System.out.println(">>>>>>>>>>>>>>>> portnumber: " + portNumber);
+        return portNumber;
     }
 
     public static String getFullTempFolderName(String fullRootFolderName, boolean increment) {

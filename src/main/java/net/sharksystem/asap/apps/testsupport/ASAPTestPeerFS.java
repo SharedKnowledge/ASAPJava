@@ -3,6 +3,7 @@ package net.sharksystem.asap.apps.testsupport;
 import net.sharksystem.asap.ASAPPeerFS;
 import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPEncounterConnectionType;
+import net.sharksystem.testhelper.ASAPTesthelper;
 import net.sharksystem.utils.Log;
 
 import java.io.IOException;
