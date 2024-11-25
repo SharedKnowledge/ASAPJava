@@ -132,7 +132,7 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 Log.writeLog(this, this.toString(), "era not forced - incremented era to " + nextEra);
             }
             try {
-                int oldEra = this.era;
+                int previousEra = this.era;
 
                 // we are done here - we are in a new era.
                 this.era = nextEra;
@@ -141,25 +141,24 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
                 if(this.memento != null) this.memento.save(this);
 
                 /* now:
-                oldEra .. era that was used a few milliseconds before. Keep it.
+                previousEra .. era that was used a few milliseconds before. Keep it.
                 this.era .. era we are going to work with
 
                 Now, there could be a very old version with same number as this.era - remove it before you set up
                 fresh era
                  */
 
-                if(this.era == oldEra) {
-                    Log.writeLog(this, this.toString(), "this.era == oldEra - nothing to do");
+                if(this.era == previousEra) {
+                    Log.writeLog(this, this.toString(), "this.era == previousEra - nothing to do");
                 } else {
-                    Log.writeLog(this, this.toString(), "old era is going to be overwritten: " + this.era);
-                    // drop very very old chunks - if available
+                    // drop very very old chunks - if available - if not - don't care
                     this.getChunkStorage().dropChunks(this.era);
 
                     Log.writeLog(this, this.toString(),
                             "setup new era by cloning previous chunk meta data: "
-                                    + this.era + " | " + oldEra);
+                                    + this.era + " | " + previousEra);
                     // setup new era - copy all chunks
-                    for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(oldEra)) {
+                    for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(previousEra)) {
                         ASAPInternalChunk copyChunk = this.getChunkStorage().getChunk(chunk.getUri(), this.era);
                         copyChunk.clone(chunk);
                     }
