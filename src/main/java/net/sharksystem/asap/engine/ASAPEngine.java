@@ -156,16 +156,19 @@ public abstract class ASAPEngine extends ASAPStorageImpl implements ASAPInternal
 
                     Log.writeLog(this, this.toString(),
                             "setup new era by cloning previous chunk meta data: "
-                                    + this.era + " | " + previousEra);
+                                    + this.era + " <- " + previousEra);
                     // setup new era - copy all chunks
                     for(ASAPInternalChunk chunk : this.getChunkStorage().getChunks(previousEra)) {
+                        Log.writeLog(this, this.toString(),"going to clone: " + chunk);
                         ASAPInternalChunk copyChunk = this.getChunkStorage().getChunk(chunk.getUri(), this.era);
                         copyChunk.clone(chunk);
+                        Log.writeLog(this, this.toString(),"done cloning: " + copyChunk);
                     }
                 }
 
                 Log.writeLog(this, this.toString(), "era incremented");
             } catch (IOException ex) {
+                ex.printStackTrace();
                 Log.writeLogErr(this, this.toString(),
                         "IOException while incrementing era: " + ex.getLocalizedMessage());
             }

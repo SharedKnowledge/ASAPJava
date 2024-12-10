@@ -37,6 +37,10 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
 
     @Override
     public void clone(ASAPInternalChunk chunkSource) throws IOException {
+        if(metaFile.getAbsolutePath().contains("ultihopTests/Alice_42/1/sha")) {
+            Log.writeLog(this, this.toString(), "DEBUGGING_Multihop_Bug #2: " + metaFile.exists());
+        }
+
         this.uri = chunkSource.getUri();
         this.recipients = chunkSource.getRecipients();
         this.extraData = chunkSource.getExtraData();
@@ -116,7 +120,7 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
             Log.writeLog(this, "meta file does not exist / set up: " + this.metaFile);
             if(!this.metaFile.getParentFile().exists()) {
                 this.metaFile.getParentFile().mkdirs();
-                Log.writeLog(this, "parent folder created: " + this.messageFile.getParentFile().exists());
+                //Log.writeLog(this, "parent folder created: " + this.messageFile.getParentFile().exists());
             }
             this.metaFile.createNewFile();
         } else {
@@ -361,22 +365,83 @@ public class ASAPInternalChunkFS implements ASAPInternalChunk {
         return true;
     }
 
-    private void writeMetaData(File metaFile) throws IOException {
+    private void writeMetaData(File file2writeMetaData) throws IOException {
         // write data to metafile
-        DataOutputStream dos = new DataOutputStream(new FileOutputStream(metaFile));
+            /*
+        if(file2writeMetaData.exists()) {
+            if(file2writeMetaData.getAbsolutePath().contains("ultihopTests/Alice_42/1/sha")) {
+                Log.writeLog(this, this.toString(), "\nDEBUGGING_Multihop_Bug #1: " +
+                        "\nfile2WriteMetaData:" + file2writeMetaData.getAbsolutePath() +
+                        "\nexists:" + file2writeMetaData.exists() +
+                        "\ncanWrite:" + file2writeMetaData.canWrite()
+                );
+            }
+            this.metaFile.delete();
+            this.metaFile.createNewFile();
+        }
+             */
 
-        // do it as first element - shure how many bytes we read..
-        ASAPSerialization.writeASAPHopList(this.hopList, dos);
-        
-        dos.writeUTF(this.uri);
-        dos.writeUTF(this.getExtraAsString());
-        dos.writeUTF(SerializationHelper.collection2String(this.recipients));
-        dos.writeUTF(SerializationHelper.collection2String(this.deliveredTo));
+        try {
+            /*
+            if(file2writeMetaData.getAbsolutePath().contains("ultihopTests/Alice_42/1/sha")) {
+                Log.writeLog(this, this.toString(), "\nDEBUGGING_Multihop_Bug #1: open:" +
+                        "\nfile2WriteMetaData:" + file2writeMetaData.getAbsolutePath() +
+                        "\nexists:" + file2writeMetaData.exists() +
+                        "\ncanWrite:" + file2writeMetaData.canWrite()
+                );
+            }
+             */
+            FileOutputStream fos = new FileOutputStream(file2writeMetaData);
+            Log.writeLog(this, this.toString(), "\\nDEBUGGING_Multihop_Bug: write meta data to:" +
+                    "\nfile2WriteMetaData:" + file2writeMetaData.getAbsolutePath() +
+                    "\nexists:" + file2writeMetaData.exists() +
+                    "\ncanWrite:" + file2writeMetaData.canWrite()
+            );
+            DataOutputStream dos = new DataOutputStream(fos);
 
-        // write offsetList
-        dos.writeUTF(this.messageStartOffsetListAsString());
-        
-        dos.close();
+            // do it as first element - shure how many bytes we read..
+            ASAPSerialization.writeASAPHopList(this.hopList, dos);
+
+            dos.writeUTF(this.uri);
+            dos.writeUTF(this.getExtraAsString());
+            dos.writeUTF(SerializationHelper.collection2String(this.recipients));
+            dos.writeUTF(SerializationHelper.collection2String(this.deliveredTo));
+
+            // write offsetList
+            dos.writeUTF(this.messageStartOffsetListAsString());
+
+            fos.close();
+            dos.close();
+        }
+        catch(IOException ioe) {
+            // TODO: debugging code
+            Log.writeLog(this, this.toString(), "\nDEBUGGING_Multihop_Bug #3: file2WriteMetaData:" +
+                    "\nfile2WriteMetaData:" + file2writeMetaData.getAbsolutePath() +
+                    "\nexists:" + file2writeMetaData.exists() +
+                    "\ncanWrite:" + file2writeMetaData.canWrite());
+            String fname = new StringTokenizer(ioe.getLocalizedMessage()).nextToken();
+            Log.writeLog(this, this.toString(), "\nDEBUGGING_Multihop_Bug #4: not found" +
+                    "\nfile2WriteMetaData:" + file2writeMetaData.getAbsolutePath());
+            File fNotFound = new File(fname);
+            Log.writeLog(this, this.toString(), "\nDEBUGGING_Multihop_Bug #5: file not found" +
+                    "\nfile2WriteMetaData:" + fNotFound.getAbsolutePath() +
+                    "\nexists:" + fNotFound.exists() +
+                    "\ncanWrite:" + fNotFound.canWrite());
+            System.out.flush();
+            try {
+                // debugging output
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                //throw new RuntimeException(e);
+            }
+            Log.writeLog(this, this.toString(), "DEBUGGING_Multihop_Bug - try write again");
+            FileOutputStream fos = new FileOutputStream(fNotFound);
+            fos.write(42);
+            // never reaches that point
+            Log.writeLog(this, this.toString(), "DEBUGGING_Multihop_Bug - wrote");
+
+            throw ioe;
+        }
     }
 
     private String messageStartOffsetListAsString() {
