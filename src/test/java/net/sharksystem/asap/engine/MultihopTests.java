@@ -419,9 +419,10 @@ public class MultihopTests {
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         alicePeer.startEncounter(TestHelper.getPortNumber(), claraPeer);
         // give your app a moment to process
-        Thread.sleep(1000);
+        Thread.sleep(500);
         alicePeer.stopEncounter(claraPeer);
-        Thread.sleep(1000);
+        Thread.sleep(500);
+        //Thread.sleep(60*1000);
         Assert.assertEquals(1, claraListener.numberOfMessages);
 
         // Alice:1->2 new connection after new data added to channel.

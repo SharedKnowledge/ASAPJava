@@ -31,6 +31,7 @@ import org.junit.runners.Suite;
         ConnectPeers.class, //
         //MultipleEncounterTests.class
         //E2EStreamPairLinkTestVersion2.class TODO
+
 })
 public class V1TestSuite {
 
