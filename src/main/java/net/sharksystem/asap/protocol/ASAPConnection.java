@@ -1,5 +1,7 @@
 package net.sharksystem.asap.protocol;
 
+import net.sharksystem.asap.ASAPEncounterConnectionType;
+
 public interface ASAPConnection {
     CharSequence getEncounteredPeer();
 
@@ -11,6 +13,8 @@ public interface ASAPConnection {
     void removeASAPConnectionListener(ASAPConnectionListener asapConnectionListener);
 
     boolean isSigned();
+
+    ASAPEncounterConnectionType getASAPEncounterConnectionType();
 
     // terminate that connection - does not effect the underlying connections established e.g. with Bluetooth
     void kill();

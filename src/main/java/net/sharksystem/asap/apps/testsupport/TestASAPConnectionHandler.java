@@ -68,6 +68,11 @@ public class TestASAPConnectionHandler implements ASAPConnectionHandler {
             }
 
             @Override
+            public ASAPEncounterConnectionType getASAPEncounterConnectionType() {
+                return ASAPEncounterConnectionType.UNKNOWN;
+            }
+
+            @Override
             public void kill() {
 
             }

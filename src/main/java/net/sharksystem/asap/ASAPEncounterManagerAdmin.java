@@ -20,6 +20,14 @@ public interface ASAPEncounterManagerAdmin {
     Set<CharSequence> getConnectedPeerIDs();
 
     /**
+     *
+     * @param peerID peerID
+     * @return connection type of existing connection with given peer
+     * @throws ASAPException if no connection to that peer exists
+     */
+    ASAPEncounterConnectionType getConnectionType(CharSequence peerID) throws ASAPException;
+
+    /**
      * Add a peerID to what no connection should be established.
      * Note: Adding a peer to the deny list does not necessarily terminate an
      * existing connection to that peer.

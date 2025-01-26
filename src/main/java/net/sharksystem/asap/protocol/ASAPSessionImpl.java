@@ -99,6 +99,11 @@ public class ASAPSessionImpl extends ASAPProtocolEngine
     }
 
     @Override
+    public ASAPEncounterConnectionType getASAPEncounterConnectionType() {
+        return this.connectionType;
+    }
+
+    @Override
     public void kill() {
         this.kill(new ASAPException("kill called from outside asap connection"));
     }
@@ -532,5 +537,19 @@ public class ASAPSessionImpl extends ASAPProtocolEngine
                 }
             }
         }
+    }
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.asapInternalPeer.getOwner());
+        sb.append(" <--> ");
+        if(this.encounteredPeer == null) sb.append("<unkown yet>");
+        else sb.append(this.encounteredPeer);
+        sb.append(" | type: ");
+        sb.append(this.connectionType);
+        sb.append(" | encrypted: ");
+        sb.append(this.encrypt);
+        sb.append(" | sign: ");
+        sb.append(this.sign);
+        return sb.toString();
     }
 }

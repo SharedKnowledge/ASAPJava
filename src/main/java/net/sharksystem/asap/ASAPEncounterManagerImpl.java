@@ -13,8 +13,8 @@ import net.sharksystem.utils.Log;
 import java.io.*;
 import java.util.*;
 
-public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncounterManagerAdmin,
-        ASAPConnectionListener {
+public class ASAPEncounterManagerImpl implements
+        ASAPEncounterManager, ASAPEncounterManagerAdmin, ASAPConnectionListener {
     public static final long DEFAULT_WAIT_BEFORE_RECONNECT_TIME = 60000; // 60 seconds == 1 minute
     public static final long DEFAULT_WAIT_TO_AVOID_RACE_CONDITION = 500; // milliseconds - worked fine with BT.
     public static final String DATASTORAGE_FILE_EXTENSION = "em";
@@ -221,9 +221,6 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
         this.openStreamPairs.put(connectionID, streamPair);
         Log.writeLog(this, this.toString(), "remember encounter: " + streamPair.getEndpointID());
         this.encounterDate.put(streamPair.getEndpointID(), new Date());
-
-        Log.writeLog(this, this.toString(), "going to launch a new asap connection");
-
         try {
             Log.writeLog(this, this.toString(), "call asap peer to handle connection");
             ASAPConnection asapConnection =
@@ -232,6 +229,8 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
 
             asapConnection.addASAPConnectionListener(this);
 
+            Log.writeLog(this, this.toString(),
+                    "asap peers is handling session: " + asapConnection.toString());
             this.openASAPConnections.put(asapConnection, connectionID);
 
         } catch (IOException | ASAPException e) {
@@ -315,7 +314,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
     @Override
     public synchronized void asapConnectionStarted(String remotePeerName, ASAPConnection connection) {
         CharSequence peerID = connection.getEncounteredPeer();
-        Log.writeLog(this, this.toString(), "new ASAP session started with peerID " + peerID);
+        Log.writeLog(this, this.toString(), "new ASAP session: " + connection);
 
         CharSequence streamPairID = this.openASAPConnections.get(connection);
         if(PeerIDHelper.sameID(streamPairID, peerID)) {
@@ -336,6 +335,7 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
 
     @Override
     public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection connection) {
+        Log.writeLog(this, this.toString(), "terminated: " + connection);
         CharSequence peerID = connection.getEncounteredPeer();
 
         CharSequence peerIDOrAddress = this.openASAPConnections.get(connection);
@@ -434,6 +434,17 @@ public class ASAPEncounterManagerImpl implements ASAPEncounterManager, ASAPEncou
     public Set<CharSequence> getConnectedPeerIDs() {
         return this.openStreamPairs.keySet();
     }
+
+    public ASAPEncounterConnectionType getConnectionType(CharSequence peerID) throws ASAPException {
+        for(ASAPConnection connection : this.openASAPConnections.keySet()) {
+            if(PeerIDHelper.sameID(connection.getEncounteredPeer(), peerID)) {
+                // found our connection
+                return connection.getASAPEncounterConnectionType();
+            }
+        }
+        throw new ASAPException("there is no connection to peer " + peerID);
+    }
+
     @Override
     public void cancelConnection(CharSequence peerID) {
         StreamPair stream2Close = this.openStreamPairs.get(peerID);
