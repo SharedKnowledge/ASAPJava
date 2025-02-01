@@ -1,13 +1,18 @@
 package net.sharksystem.asap;
 
 public enum ASAPEncounterConnectionType {
-    UNKNOWN (0), AD_HOC_LAYER_2_NETWORK (1), ASAP_HUB (2), INTERNET (3), ONION_NETWORK (4);
+    UNKNOWN ((byte) 0),
+    AD_HOC_LAYER_2_NETWORK ((byte) 1),
+    ASAP_HUB ((byte) 2),
+    INTERNET ((byte) 3),
+    ONION_NETWORK ((byte) 4);
 
-    private final int type;
+    private final byte type;
 
-    ASAPEncounterConnectionType(int type) {
+    ASAPEncounterConnectionType(byte type) {
         this.type = type;
     }
+
     public String toString() {
         switch(this.type) {
             case 0: return "unknown";

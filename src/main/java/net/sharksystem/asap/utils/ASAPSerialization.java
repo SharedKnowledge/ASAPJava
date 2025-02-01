@@ -29,7 +29,7 @@ public class ASAPSerialization {
     }
 
     public static void writeByteArray(byte[] bytes2Write, OutputStream os) throws IOException {
-        if(bytes2Write == null) {
+        if (bytes2Write == null) {
             writeNonNegativeIntegerParameter(0, os);
         } else {
             writeNonNegativeIntegerParameter(bytes2Write.length, os);
@@ -40,7 +40,7 @@ public class ASAPSerialization {
     public static byte[] readByteArray(InputStream is) throws IOException, ASAPException {
         // read len
         int len = readIntegerParameter(is);
-        if(len == 0) return new byte[0];
+        if (len == 0) return new byte[0];
 
         byte[] messageBytes = new byte[len];
         // read encrypted bytes from stream
@@ -50,11 +50,11 @@ public class ASAPSerialization {
     }
 
     public static void writeByteArray(byte[][] bytes2Dim, OutputStream os) throws IOException {
-        if(bytes2Dim == null) {
+        if (bytes2Dim == null) {
             writeNonNegativeIntegerParameter(0, os);
         } else {
             writeNonNegativeIntegerParameter(bytes2Dim.length, os);
-            for(int i = 0; i < bytes2Dim.length; i++) {
+            for (int i = 0; i < bytes2Dim.length; i++) {
                 ASAPSerialization.writeByteArray(bytes2Dim[i], os);
             }
         }
@@ -63,10 +63,10 @@ public class ASAPSerialization {
     public static byte[][] readByte2DimArray(InputStream is) throws IOException, ASAPException {
         // read len
         int len = readIntegerParameter(is);
-        if(len == 0) return new byte[0][];
+        if (len == 0) return new byte[0][];
 
         byte[][] messageBytes = new byte[len][];
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             messageBytes[i] = ASAPSerialization.readByteArray(is);
         }
 
@@ -74,18 +74,19 @@ public class ASAPSerialization {
     }
 
     public static void writeCharSequenceParameter(CharSequence parameter, OutputStream os) throws IOException {
-        if(parameter == null || parameter.length() < 1) return;
+        if (parameter == null || parameter.length() < 1) return;
         byte[] bytes = parameter.toString().getBytes();
         writeNonNegativeIntegerParameter(bytes.length, os);
         os.write(bytes);
     }
 
     public static void writeByteParameter(byte parameter, OutputStream os) throws IOException {
-        os.write(new byte[] { parameter} );
+        os.write(new byte[]{parameter});
     }
 
     /**
      * Return a byte from an int - position starts with 0 at least significant bit
+     *
      * @param source
      * @param position
      * @return
@@ -101,13 +102,13 @@ public class ASAPSerialization {
         short left = (short) (shortValue & BLANK_RIGHT_SHORT);
         left = (short) (left >> 8);
         short right = (short) (shortValue & BLANK_LEFT_SHORT);
-        writeByteParameter( (byte)left, os);
+        writeByteParameter((byte) left, os);
         // cut left part
-        writeByteParameter( (byte)right, os);
+        writeByteParameter((byte) right, os);
     }
 
     public static void writeNonNegativeIntegerParameter(int parameter, OutputStream os) throws IOException {
-        if(parameter < 0) return; // non negative!
+        if (parameter < 0) return; // non negative!
 
         // Integer == 32 bit == 4 Byte
         int left = parameter >> 16;
@@ -125,7 +126,7 @@ public class ASAPSerialization {
     }
 
     public static void writeNonNegativeLongParameter(long longValue, OutputStream os) throws IOException {
-        if(longValue > -1) writeLongParameter(longValue, os);
+        if (longValue > -1) writeLongParameter(longValue, os);
         else throw new IOException("negative value");
     }
 
@@ -134,19 +135,19 @@ public class ASAPSerialization {
         long left = longValue & BLANK_RIGHT_LONG;
         left = left >> 32;
         long right = longValue & BLANK_LEFT_LONG;
-        writeIntegerParameter((int)left, os);
-        writeIntegerParameter((int)right, os);
+        writeIntegerParameter((int) left, os);
+        writeIntegerParameter((int) right, os);
     }
 
     public static void printBits(long l, int bits) {
         long mask = 1;
-        mask = mask << bits-1;
+        mask = mask << bits - 1;
         short byteBitCounter = 4;
         StringBuffer stringBuffer = new StringBuffer();
-        while(mask != 0) {
-            if((l & mask) != 0) stringBuffer.append("1");
+        while (mask != 0) {
+            if ((l & mask) != 0) stringBuffer.append("1");
             else stringBuffer.append("0");
-            if(--byteBitCounter == 0) {
+            if (--byteBitCounter == 0) {
                 byteBitCounter = 4;
                 stringBuffer.append(" ");
             }
@@ -159,12 +160,12 @@ public class ASAPSerialization {
         StringBuilder sb = new StringBuilder();
 
         long mask = 1;
-        mask = mask << bits-1;
+        mask = mask << bits - 1;
         short byteBitCounter = 4;
-        while(mask != 0) {
-            if((l & mask) != 0) sb.append("1");
+        while (mask != 0) {
+            if ((l & mask) != 0) sb.append("1");
             else sb.append("0");
-            if(--byteBitCounter == 0) {
+            if (--byteBitCounter == 0) {
                 byteBitCounter = 4;
                 sb.append(" ");
             }
@@ -177,7 +178,7 @@ public class ASAPSerialization {
 
     public static String printByteArrayToString(byte[] byteArray) {
         StringBuilder sb = new StringBuilder();
-        for(int index = byteArray.length - 1; index >= 0; index--) {
+        for (int index = byteArray.length - 1; index >= 0; index--) {
             sb.append("[");
             sb.append(index);
             sb.append("]: ");
@@ -186,18 +187,32 @@ public class ASAPSerialization {
         return sb.toString();
     }
 
-    public static String printByteToString(short s) { return printBitsToString(s, 8); }
-    public static String printBitsToString(int i) { return printBitsToString(i, 16); }
+    public static String printByteToString(short s) {
+        return printBitsToString(s, 8);
+    }
+
+    public static String printBitsToString(int i) {
+        return printBitsToString(i, 16);
+    }
 
     public static void printByteArray(byte[] byteArray) {
-        for(int index = byteArray.length - 1; index >= 0; index--) {
+        for (int index = byteArray.length - 1; index >= 0; index--) {
             printByte(byteArray[index]);
         }
     }
 
-    public static void printByte(short s) { printBits(s, 8); }
-    public static void printBits(short s) { printBits(s, 16); }
-    public static void printBits(int i) { printBits(i, 32); }
+    public static void printByte(short s) {
+        printBits(s, 8);
+    }
+
+    public static void printBits(short s) {
+        printBits(s, 16);
+    }
+
+    public static void printBits(int i) {
+        printBits(i, 32);
+    }
+
     public static void printBits(long l) {
         long left = l & BLANK_RIGHT_LONG;
         left = left >> 32;
@@ -213,12 +228,11 @@ public class ASAPSerialization {
     public static byte readByte(InputStream is) throws IOException, ASAPException {
         try {
             int value = is.read();
-            if(value < 0) {
+            if (value < 0) {
                 throw new ASAPException("read -1: no more data in stream");
             }
             return (byte) value;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.writeLog(ASAPSerialization.class, "caught IOException during readByte(): "
                     + e.getClass().getSimpleName() + ": "
                     + e.getLocalizedMessage());
@@ -272,8 +286,8 @@ public class ASAPSerialization {
         byte[] parameterBytes = null;
         String lenString = null;
 //        try {
-            length = readIntegerParameter(is);
-            parameterBytes = new byte[length];
+        length = readIntegerParameter(is);
+        parameterBytes = new byte[length];
 /*
         }
         catch(OutOfMemoryError e) {
@@ -288,7 +302,7 @@ public class ASAPSerialization {
     }
 
     public static void writeCharSequenceSetParameter(Set<CharSequence> charSet, OutputStream os) throws IOException {
-        if(charSet == null || charSet.size() == 0) {
+        if (charSet == null || charSet.size() == 0) {
             ASAPSerialization.writeNonNegativeIntegerParameter(0, os);
             return;
         }
@@ -299,7 +313,7 @@ public class ASAPSerialization {
         ASAPSerialization.writeNonNegativeIntegerParameter(charSet.size(), os);
 
         // write entries
-        for(CharSequence entry : charSet) {
+        for (CharSequence entry : charSet) {
             ASAPSerialization.writeCharSequenceParameter(entry, os);
         }
     }
@@ -308,7 +322,7 @@ public class ASAPSerialization {
         Set<CharSequence> charSet = new HashSet<>();
         int len = ASAPSerialization.readIntegerParameter(is);
 
-        while(len-- > 0) {
+        while (len-- > 0) {
             charSet.add(ASAPSerialization.readCharSequenceParameter(is));
         }
 
@@ -317,11 +331,15 @@ public class ASAPSerialization {
 
     public static ASAPEncounterConnectionType readEncounterConnectionType(InputStream is) throws IOException, ASAPException {
         byte readByte = ASAPSerialization.readByte(is);
-        switch(readByte) {
-            case 1: return ASAPEncounterConnectionType.ASAP_HUB;
-            case 2: return ASAPEncounterConnectionType.AD_HOC_LAYER_2_NETWORK;
-            case 3: return ASAPEncounterConnectionType.ONION_NETWORK;
-            case 4: return ASAPEncounterConnectionType.INTERNET;
+        switch (readByte) {
+            case 1:
+                return ASAPEncounterConnectionType.ASAP_HUB;
+            case 2:
+                return ASAPEncounterConnectionType.AD_HOC_LAYER_2_NETWORK;
+            case 3:
+                return ASAPEncounterConnectionType.ONION_NETWORK;
+            case 4:
+                return ASAPEncounterConnectionType.INTERNET;
             default:
                 Log.writeLogErr(ASAPSerialization.class, "unknown encounter connection type: " + readByte);
         }
@@ -330,18 +348,27 @@ public class ASAPSerialization {
     }
 
     public static void writeEncounterConnectionType(ASAPEncounterConnectionType connectionType, OutputStream os) throws IOException {
-        switch(connectionType) {
-            case ASAP_HUB: ASAPSerialization.writeByteParameter((byte) 1, os); break;
-            case AD_HOC_LAYER_2_NETWORK: ASAPSerialization.writeByteParameter((byte) 2, os); break;
-            case ONION_NETWORK: ASAPSerialization.writeByteParameter((byte) 3, os); break;
-            case INTERNET: ASAPSerialization.writeByteParameter((byte) 4, os); break;
+        switch (connectionType) {
+            case ASAP_HUB:
+                ASAPSerialization.writeByteParameter((byte) 1, os);
+                break;
+            case AD_HOC_LAYER_2_NETWORK:
+                ASAPSerialization.writeByteParameter((byte) 2, os);
+                break;
+            case ONION_NETWORK:
+                ASAPSerialization.writeByteParameter((byte) 3, os);
+                break;
+            case INTERNET:
+                ASAPSerialization.writeByteParameter((byte) 4, os);
+                break;
             case UNKNOWN:
-            default: ASAPSerialization.writeByteParameter((byte) 0, os);
+            default:
+                ASAPSerialization.writeByteParameter((byte) 0, os);
         }
     }
 
     public static void writeBooleanParameter(boolean value, OutputStream os) throws IOException {
-        if(value) ASAPSerialization.writeByteParameter((byte) 1, os);
+        if (value) ASAPSerialization.writeByteParameter((byte) 1, os);
         else ASAPSerialization.writeByteParameter((byte) 0, os);
     }
 
@@ -388,7 +415,7 @@ public class ASAPSerialization {
     }
 
     public static void writeASAPHopList(List<ASAPHop> asapHopList, OutputStream os) throws IOException {
-        if(asapHopList == null || asapHopList.isEmpty()) {
+        if (asapHopList == null || asapHopList.isEmpty()) {
             // no hops
             ASAPSerialization.writeIntegerParameter(0, os);
             return;
@@ -396,7 +423,7 @@ public class ASAPSerialization {
 
         // write number of hops
         ASAPSerialization.writeIntegerParameter(asapHopList.size(), os);
-        for(ASAPHop asapHop : asapHopList) {
+        for (ASAPHop asapHop : asapHopList) {
             ASAPSerialization.writeASAPHop(asapHop, os);
         }
     }
@@ -405,7 +432,7 @@ public class ASAPSerialization {
         List<ASAPHop> asapHopList = new ArrayList<>();
 
         int number = ASAPSerialization.readIntegerParameter(is);
-        while(number-- > 0) {
+        while (number-- > 0) {
             asapHopList.add(ASAPSerialization.readASAPHop(is));
         }
 
