@@ -3,6 +3,8 @@ package net.sharksystem.asap;
 import net.sharksystem.utils.streams.StreamPair;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * An ASAP peer can handle ASAP encounter as they come. It takes in- and output stream and runs an ASAP session.

@@ -175,6 +175,16 @@ public class ASAPEncounterManagerImpl implements
         this.handleEncounter(streamPair, connectionType, initiator, true);
     }
 
+    @Override
+    public Map<CharSequence, Date> getEncounterTime() {
+        return this.encounterDate;
+    }
+
+    @Override
+    public long getTimeBeforeReconnect() {
+        return this.waitBeforeReconnect;
+    }
+
     private void handleEncounter(StreamPair streamPair, ASAPEncounterConnectionType connectionType, boolean initiator,
                                  boolean raceCondition) throws IOException {
         // always exchange peerIDs

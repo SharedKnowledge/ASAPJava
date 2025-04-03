@@ -1,5 +1,7 @@
 package net.sharksystem.asap;
 
+import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,4 +60,20 @@ public interface ASAPEncounterManagerAdmin {
      */
     void cancelConnection(CharSequence peerID);
 
+
+    /**
+     *
+     * @return information about last enocunter of a certain peer (described by its id)
+     */
+    Map<CharSequence, Date> getEncounterTime();
+
+    /**
+     * Peers exchange data during an encounter. In certain circumstances, ad-hoc networks show a feature that can be
+     * described es flickering. Devices might have reached communication range. A little shift can lead to connection
+     * lost. A little move backwards can bring them back in range. Connection establishment is a time-consuming task,
+     * though. Each encounter manager waits a while before it re-connects to a peer.
+     *
+     * @return time in milliseconds (aka 'cool down periode')
+     */
+    long getTimeBeforeReconnect();
 }
