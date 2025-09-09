@@ -120,7 +120,7 @@ public class LSANEncounterManagerAdminTests {
         this.runAliceBobEncounter();
 
         // kill connection via encounter manager
-        aliceEncounterManager.cancelConnection(TestConstants.BOB_ID);
+        aliceEncounterManager.closeEncounter(TestConstants.BOB_ID);
         // try to send another message
         aliceASAPPeerFS.sendASAPMessage(TestConstants.TEST_APP_FORMAT, TestConstants.URI, TestConstants.MESSAGE_2);
         Thread.sleep(200);

@@ -324,7 +324,7 @@ public class ASAPEncounterManagerImpl implements
     @Override
     public synchronized void asapConnectionStarted(String remotePeerName, ASAPConnection connection) {
         CharSequence peerID = connection.getEncounteredPeer();
-        Log.writeLog(this, this.toString(), "new ASAP session: " + connection);
+        Log.writeLog(this, this.toString(), "new ASAP encounter: " + connection);
 
         CharSequence streamPairID = this.openASAPConnections.get(connection);
         if(PeerIDHelper.sameID(streamPairID, peerID)) {
@@ -345,7 +345,7 @@ public class ASAPEncounterManagerImpl implements
 
     @Override
     public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection connection) {
-        Log.writeLog(this, this.toString(), "terminated: " + connection);
+        Log.writeLog(this, this.toString(), "encounter terminated: " + connection);
         CharSequence peerID = connection.getEncounteredPeer();
 
         CharSequence peerIDOrAddress = this.openASAPConnections.get(connection);
@@ -456,7 +456,7 @@ public class ASAPEncounterManagerImpl implements
     }
 
     @Override
-    public void cancelConnection(CharSequence peerID) {
+    public void closeEncounter(CharSequence peerID) {
         StreamPair stream2Close = this.openStreamPairs.get(peerID);
         if(stream2Close != null) {
             stream2Close.close();

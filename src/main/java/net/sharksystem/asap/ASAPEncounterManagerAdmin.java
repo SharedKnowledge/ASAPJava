@@ -58,7 +58,7 @@ public interface ASAPEncounterManagerAdmin {
      * Cancel a connection to a peer. This method call does not change the deny list.
      * @param peerID
      */
-    void cancelConnection(CharSequence peerID);
+    void closeEncounter(CharSequence peerID);
 
 
     /**

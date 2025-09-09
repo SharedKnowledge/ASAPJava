@@ -111,7 +111,7 @@ public class ASAPSessionImpl extends ASAPProtocolEngine
     public void kill(Exception e) {
         if(!this.terminated) {
             this.terminated = true;
-            // kill reader - proofed to be useful in a bluetooth environment
+            // kill reader - proved to be useful in a bluetooth environment
             if(this.pduReader != null && this.pduReader.isAlive()) {
                 this.pduReader.interrupt();
             }
@@ -312,6 +312,8 @@ public class ASAPSessionImpl extends ASAPProtocolEngine
                 }
             }
         }
+
+        // asap session ended
     }
 
     private Thread threadUsingStreams = null;

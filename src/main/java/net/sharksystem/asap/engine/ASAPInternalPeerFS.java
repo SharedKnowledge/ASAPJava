@@ -461,11 +461,11 @@ public class ASAPInternalPeerFS implements
     }
 
     @Override
-    public void asapConnectionStarted(String remotePeerName, ASAPConnection thread) {
-        if(thread == null) {
+    public void asapConnectionStarted(String remotePeerName, ASAPConnection asapConnection) {
+        if(asapConnection == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
-            sb.append("asap connection started but thread terminated cannot be null - do nothing");
+            sb.append("asap connection started but asapConnection terminated cannot be null - do nothing");
             Log.writeLogErr(this,sb.toString());
             return;
         }
@@ -484,14 +484,14 @@ public class ASAPInternalPeerFS implements
         sb.append(remotePeerName);
         Log.writeLog(this, sb.toString());
 
-        this.connectedThreads.put(remotePeerName, thread);
-        this.threadPeerNames.put(thread, remotePeerName);
+        this.connectedThreads.put(remotePeerName, asapConnection);
+        this.threadPeerNames.put(asapConnection, remotePeerName);
         this.notifyOnlinePeersChangedListener();
     }
 
     @Override
-    public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection thread) {
-        if(thread == null) {
+    public synchronized void asapConnectionTerminated(Exception terminatingException, ASAPConnection asapConnection) {
+        if(asapConnection == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(this.getLogStart());
             sb.append("terminated connection cannot be null - do nothing");
@@ -499,13 +499,13 @@ public class ASAPInternalPeerFS implements
             return;
         }
 
-        // get thread name
-        CharSequence peerName = this.threadPeerNames.remove(thread);
+        // get asapConnection name
+        CharSequence peerName = this.threadPeerNames.remove(asapConnection);
         this.connectedThreads.remove(peerName);
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("thread terminated connected to: ");
+        sb.append("asapConnection terminated connected to: ");
 
         if(peerName != null) {
             sb.append(peerName);
