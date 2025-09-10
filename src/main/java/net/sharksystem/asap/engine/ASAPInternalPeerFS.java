@@ -439,7 +439,7 @@ public class ASAPInternalPeerFS implements
             Log.writeLog(this, "no (more) peers: ");
         }
 
-        if(this.onlinePeersChangedListeners != null) {
+        if(this.onlinePeersChangedListeners != null && !this.onlinePeersChangedListeners.isEmpty()) {
             for(ASAPInternalOnlinePeersChangedListener listener: this.onlinePeersChangedListeners) {
                 listener.notifyOnlinePeersChanged(this);
             }
@@ -505,7 +505,7 @@ public class ASAPInternalPeerFS implements
 
         StringBuilder sb = new StringBuilder();
         sb.append(this.getLogStart());
-        sb.append("asapConnection terminated connected to: ");
+        sb.append("asapConnection terminated; was connected to: ");
 
         if(peerName != null) {
             sb.append(peerName);

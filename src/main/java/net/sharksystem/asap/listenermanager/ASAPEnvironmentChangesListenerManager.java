@@ -22,8 +22,10 @@ public class ASAPEnvironmentChangesListenerManager
     }
 
     public void notifyListeners(Set<CharSequence> peerList) {
-        if(peerList == null || peerList.isEmpty()) return;
+        if(peerList == null) peerList = new HashSet<>();
+
         if(this.listenerList == null || this.listenerList.isEmpty()) return;
+
         // make a copy of that list
         for(ASAPEnvironmentChangesListener listener : this.listenerList) {
             if(listener != null) listener.onlinePeersChanged(new HashSet<>(peerList));
