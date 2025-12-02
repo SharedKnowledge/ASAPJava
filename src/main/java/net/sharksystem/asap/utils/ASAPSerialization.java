@@ -74,7 +74,7 @@ public class ASAPSerialization {
     }
 
     public static void writeCharSequenceParameter(CharSequence parameter, OutputStream os) throws IOException {
-        if (parameter == null || parameter.length() < 1) return;
+        if (parameter == null || parameter.length() < 1) return; //parameter = "";
         byte[] bytes = parameter.toString().getBytes();
         writeNonNegativeIntegerParameter(bytes.length, os);
         os.write(bytes);
