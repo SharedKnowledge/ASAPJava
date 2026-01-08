@@ -4,6 +4,11 @@ import net.sharksystem.asap.ASAP;
 
 public class PeerIDHelper {
     public static boolean sameID(CharSequence idA, CharSequence idB) {
+        if(idA == null && idB == null) return true; // both null - consider that same
+
+        if(idA == null) return false; // obviously B is not null - not the same
+        if(idB == null) return false; // obviously A is not null - not the same
+
         if(idA.length() != idB.length()) return false;
 
         // same length - I take A
