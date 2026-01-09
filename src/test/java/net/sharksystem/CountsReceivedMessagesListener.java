@@ -15,7 +15,7 @@ public class CountsReceivedMessagesListener implements ASAPMessageReceivedListen
         this.peerName = peerName;
     }
 
-    CountsReceivedMessagesListener() {
+    public CountsReceivedMessagesListener() {
         this(null);
     }
 
@@ -29,6 +29,6 @@ public class CountsReceivedMessagesListener implements ASAPMessageReceivedListen
             System.out.print(peerName);
         }
 
-        this.numberOfMessages++;
+        this.numberOfMessages += messages.size();
     }
 }

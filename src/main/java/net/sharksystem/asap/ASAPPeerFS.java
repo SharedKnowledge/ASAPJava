@@ -37,6 +37,14 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
     private void chunkAssimilated(ASAPMessages receivedMessages, CharSequence format,
                                   CharSequence senderE2E, CharSequence uri, int era,
                                   List<ASAPHop> asapHopList, boolean callListener) {
+
+        int nrMessages = -1;
+        try {
+            nrMessages = receivedMessages.size();
+        } catch (IOException e) {
+            // go ahead
+        }
+
         StringBuilder sb = new StringBuilder();
         String hopListString = "hoplist == null";
         if(asapHopList != null) {
@@ -52,12 +60,13 @@ public class ASAPPeerFS extends ASAPInternalPeerWrapper implements ASAPPeerServi
         }
 
         sb = new StringBuilder();
-        sb.append("\n+++++++++++++++++++++++++++++++++++++++ chunkReceived +++++++++++++++++++++++++++++++++++++++++\n");
+        sb.append("\n+++++++++++++++++++++++++++++++++++++++ chunkReceived ++++++++++++++++++++++++++++++++++++++++++++\n");
         sb.append("E2E|P2P: " + senderE2E +  " | " + asapHopList.get(asapHopList.size()-1).sender() + " | uri: " + uri);
         sb.append(" | era: ");
         if(era == ASAP.TRANSIENT_ERA) sb.append("transient");
         else sb.append(era);
-        sb.append(" | appFormat: " + format);
+        sb.append(" | app: " + format);
+        sb.append(" | #msgs: " + nrMessages);
         sb.append("\n");
         sb.append(hopListString);
         sb.append("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
