@@ -1,36 +1,45 @@
 package net.sharksystem.asap.crypto;
 
-import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.ASAPSecurityException;
 import net.sharksystem.fs.ExtraData;
 
-import java.io.IOException;
 import java.security.PublicKey;
 
 /**
- * Basic requirement to encrypt / decrypt and sign/verify messages.
+ * A key store provides access to local key pairs as well as utilities for managing
+ * the key pair of the store's owner.
+ * <p>
+ * Key stores are required for encryption/ decryption as well as creating
+ * and verifying signatures, see e.g. {@link ASAPCryptoAlgorithms}.
  */
 public interface ASAPKeyStore extends ASAPCryptoParameterStorage {
     /**
-     * @param subjectID
-     * @return public key of recipient - to encrypt
-     * @throws ASAPSecurityException if key cannot be found
+     * Returns the public key of the specified peer.
+     * @param subjectID ID of the peer
+     * @return public key of the peer whose ID matches the given ID
+     * @throws ASAPSecurityException if the requested key is not present in the key store
      */
     PublicKey getPublicKey(CharSequence subjectID) throws ASAPSecurityException;
 
     /**
-     *
-     * @param peerID
-     * @return true if peerID is owners' id.
+     * Determines if a peer is the owner of this key store.
+     * @param peerID ID of the peer to test
+     * @return true if and only if the specified ID matches this key store's owner's ID
      */
     boolean isOwner(CharSequence peerID);
 
     CharSequence getOwner();
 
     /**
-     * A new key pair is created
+     * Generates a new key pair for this key store's owner and stores it.
+     * @throws ASAPSecurityException if key generation fails, e.g. this key store's cryptographic algorithm
+     *                                  is not available in the current environment or an invalid key size is used
      */
     void generateKeyPair() throws ASAPSecurityException;
 
+    /**
+     * Updates the persistence backend for this key store.
+     * @param extraData the persistence interface to use
+     */
     void setMementoTarget(ExtraData extraData);
 }

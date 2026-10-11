@@ -225,6 +225,13 @@ public class ASAPSerialization {
         return readByte(is);
     }
 
+    /**
+     * Reads a byte from the given stream.
+     * @param is the stream to read from
+     * @return the next byte
+     * @throws IOException if an I/O error occurs
+     * @throws ASAPException if the end of the stream is reached
+     */
     public static byte readByte(InputStream is) throws IOException, ASAPException {
         try {
             int value = is.read();

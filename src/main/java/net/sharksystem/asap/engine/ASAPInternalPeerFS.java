@@ -704,6 +704,7 @@ public class ASAPInternalPeerFS implements
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     private ExtraData extraData = null;
 
+    @Override
     public ExtraData getExtraData() throws SharkException, IOException {
         if(this.extraData == null) {
             this.extraData = new ExtraDataFS(this.rootFolderName, "asapPeerExtraData");
@@ -712,42 +713,14 @@ public class ASAPInternalPeerFS implements
         return this.extraData;
     }
 
+    @Override
     public void putExtra(CharSequence key, byte[] value) throws IOException, SharkException {
         this.getExtraData().putExtra(key, value);
     }
 
     @Override
-    public void putExtra(CharSequence key, Integer value) throws IOException, SharkException {
-        this.getExtraData().putExtra(key, value);
-    }
-
-    @Override
-    public void putExtra(CharSequence key, CharSequence value) throws IOException, SharkException {
-        this.getExtraData().putExtra(key, value);
-    }
-
-    @Override
-    public void putExtra(CharSequence key, Set<CharSequence> value) throws IOException, SharkException {
-        this.getExtraData().putExtra(key, value);
-    }
-
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         return this.getExtraData().getExtra(key);
-    }
-
-    @Override
-    public int getExtraInteger(CharSequence key) throws IOException, SharkException {
-        return this.getExtraData().getExtraInteger(key);
-    }
-
-    @Override
-    public Set<CharSequence> getExtraCharSequenceSetParameter(CharSequence key) throws IOException, SharkException {
-        return this.getExtraData().getExtraCharSequenceSetParameter(key);
-    }
-
-    @Override
-    public String getExtraString(CharSequence key) throws IOException, SharkException {
-        return this.getExtraData().getExtraString(key);
     }
 
     @Override

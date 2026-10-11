@@ -7,7 +7,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 /**
- * Defines basic methods we need to implement signing and verification and to get information how to encrypt
+ * Basic methods and constants necessary for encryption/ decryption and signing/ verification.
  */
 public interface ASAPCryptoParameterStorage {
     String DEFAULT_ASYMMETRIC_ENCRYPTION_ALGORITHM = "RSA/ECB/PKCS1Padding";
@@ -18,9 +18,10 @@ public interface ASAPCryptoParameterStorage {
     String DEFAULT_ASYMMETRIC_SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     /**
-     *
-     * @return private key of local device - for signing
-     * @throws ASAPSecurityException
+     * Returns this device's private key, generating a key pair if none is available yet.
+     * @return the private key
+     * @throws ASAPSecurityException if no key is available and key generation fails
+     * @see ASAPKeyStore#generateKeyPair()
      */
     PrivateKey getPrivateKey() throws ASAPSecurityException;
 
@@ -28,8 +29,10 @@ public interface ASAPCryptoParameterStorage {
 //    PrivateKey getPrivateKey(CharSequence subjectID) throws ASAPSecurityException;
 
     /**
-     * @return public key of local device - for signing
-     * @throws ASAPSecurityException
+     * Returns this device's public key, generating a key pair if none is available yet.
+     * @return the public key
+     * @throws ASAPSecurityException if no key is available and key generation fails
+     * @see ASAPKeyStore#generateKeyPair()
      */
     PublicKey getPublicKey() throws ASAPSecurityException;
 
@@ -39,6 +42,11 @@ public interface ASAPCryptoParameterStorage {
 
     String getAsymmetricSigningAlgorithm();
 
+    /**
+     * Generates a symmetric key using this store's default symmetric encryption algorithm
+     * @return the symmetric key
+     * @throws ASAPSecurityException if the default encryption algorithm is not available in the current environment
+     */
     SecretKey generateSymmetricKey() throws ASAPSecurityException;
 
     String getSymmetricEncryptionAlgorithm();

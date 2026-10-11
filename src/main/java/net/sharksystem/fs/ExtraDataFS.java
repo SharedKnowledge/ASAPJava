@@ -1,14 +1,15 @@
 package net.sharksystem.fs;
 
 import net.sharksystem.SharkException;
-import net.sharksystem.asap.ASAPException;
 import net.sharksystem.asap.utils.ASAPSerialization;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+/**
+ * An ExtraData implementation backed by the filesystem.
+ */
 public class ExtraDataFS implements ExtraData {
     public static final String DEFAULT_FILE_NAME = ".extraData";
     private final CharSequence fileName;
@@ -16,15 +17,32 @@ public class ExtraDataFS implements ExtraData {
 
     private Map<CharSequence, byte[]> extraData = new HashMap<>();
 
+    /**
+     * Constructs a new ExtraDataFS object, configured to use the default file name and given folder.
+     * @param rootFolderName the folder that will contain the data file
+     * @throws SharkException if the data file already exists and EOF is reached while reading from it
+     * @throws IOException if the data file already exists and an I/O error occurs while reading from it
+     */
     public ExtraDataFS(CharSequence rootFolderName) throws SharkException, IOException {
         this(rootFolderName, DEFAULT_FILE_NAME);
     }
 
+    /**
+     * Constructs a new ExtraDataFS object, configured to use the given file name and folder.
+     * @param rootFolder the folder that will contain the data file
+     * @param fileName the name of the data file. If not already done, a period will be appended to hide the file.
+     * @throws IOException if the data file already exists and an I/O error occurs while reading from it
+     * @throws SharkException if the data file already exists and EOF is reached while reading from it
+     */
     public ExtraDataFS(CharSequence rootFolder, CharSequence fileName) throws IOException, SharkException {
         this.rootFolderName = rootFolder;
         // hide file in any case
-        if(fileName.charAt(0) != '.') this.fileName = "." + fileName;
-        else this.fileName = fileName;
+        if(fileName.charAt(0) != '.') {
+            this.fileName = "." + fileName;
+        }
+        else {
+            this.fileName = fileName;
+        }
         File rootFolderFile = new File(rootFolder.toString());
         if(!rootFolderFile.exists()) {
             // create
@@ -50,31 +68,18 @@ public class ExtraDataFS implements ExtraData {
     private long timeStampSyncExtraData = -1; // never saved anything
 
     private void extraDataSync() throws IOException, SharkException {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(this.getExtraFile());
-        }
-        catch(IOException ioEx) {
-            // no such file - save it instead - there is no conflict
+        if (!this.getExtraFile().exists()) {
             this.saveExtraData();
-            return;
+        } else {
+            this.restoreExtraData();
         }
-
-        // read time stamp
-        long timeStampSaved = ASAPSerialization.readLongParameter(is);
-
-        if(this.timeStampSyncExtraData < timeStampSaved) {
-            // there is an external copy that was created after our last sync
-        }
-
-        // discard local changes and read from file
-        this.restoreExtraData();
     }
 
+    // FIXME: This probably shouldn't be public? It doesn't perform syncing, which might result in data races.
     public void saveExtraData() throws IOException {
         OutputStream os = new FileOutputStream(this.getExtraFile());
 
-        // write time stamp
+        // write metadata
         this.timeStampSyncExtraData = System.currentTimeMillis();
         ASAPSerialization.writeLongParameter(this.timeStampSyncExtraData, os);
         ASAPSerialization.writeNonNegativeIntegerParameter(this.extraData.size(), os);
@@ -91,12 +96,12 @@ public class ExtraDataFS implements ExtraData {
     }
 
     /**
-     * Always restore. If there is no such file - write it.
-     * @throws IOException
-     * @throws ASAPException
+     * Ensures that this ExtraData holds the most recent data from the file system.
+     * @throws IOException if an I/O error occurs
+     * @throws SharkException if EOF is reached
      */
     public void restoreExtraData() throws IOException, SharkException {
-        InputStream is = null;
+        InputStream is;
         try {
             is = new FileInputStream(this.getExtraFile());
         }
@@ -106,18 +111,19 @@ public class ExtraDataFS implements ExtraData {
         }
 
         long timeStampSaved = ASAPSerialization.readLongParameter(is);
+        // false if the data file contains more recent data than this ExtraData,
+        // true if this ExtraData is up-to-date
         if(timeStampSaved == this.timeStampSyncExtraData) {
             is.close();
             return;
         }
 
-        // something changed - get a fresh copy
         this.timeStampSyncExtraData = timeStampSaved;
 
         this.extraData = new HashMap<>();
         int counter = ASAPSerialization.readIntegerParameter(is);
 
-        while(counter-- > 0) {
+        for (int i = 0; i < counter; i++) {
             // read key
             CharSequence key = ASAPSerialization.readCharSequenceParameter(is);
             // value
@@ -129,11 +135,7 @@ public class ExtraDataFS implements ExtraData {
         is.close();
     }
 
-    /**
-     * Make a value persistent with key
-     * @param key
-     * @param value
-     */
+    @Override
     public void putExtra(CharSequence key, byte[] value) throws IOException, SharkException {
         this.extraDataSync();
         this.extraData.put(key, value);
@@ -141,52 +143,13 @@ public class ExtraDataFS implements ExtraData {
     }
 
     @Override
-    public void putExtra(CharSequence key, Integer value) throws IOException, SharkException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeIntegerParameter(value, baos);
-        this.putExtra(key, baos.toByteArray());
-    }
-
-    @Override
-    public void putExtra(CharSequence key, CharSequence value) throws IOException, SharkException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeCharSequenceParameter(value, baos);
-        this.putExtra(key, baos.toByteArray());
-    }
-
-    public void putExtra(CharSequence key, Set<CharSequence> value) throws IOException, SharkException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASAPSerialization.writeCharSequenceSetParameter(value, baos);
-        this.putExtra(key, baos.toByteArray());
-    }
-
-    /**
-     * Return a value - can be null if null was set as value.
-     * @param key
-     * @throws ASAPException key never used in putExtra
-     */
     public byte[] getExtra(CharSequence key) throws IOException, SharkException {
         this.restoreExtraData();
         byte[] value = this.extraData.get(key);
-        if(value == null) throw new SharkException("no value for key" + key);
+        if (value == null) {
+            throw new SharkException("no value for key " + key);
+        }
         return value;
-    }
-
-    @Override
-    public int getExtraInteger(CharSequence key) throws IOException, SharkException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
-        return ASAPSerialization.readIntegerParameter(bais);
-    }
-
-    @Override
-    public String getExtraString(CharSequence key) throws IOException, SharkException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
-        return ASAPSerialization.readCharSequenceParameter(bais);
-    }
-
-    public Set<CharSequence> getExtraCharSequenceSetParameter(CharSequence key) throws IOException, SharkException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(this.getExtra(key));
-        return ASAPSerialization.readCharSequenceSetParameter(bais);
     }
 
     @Override

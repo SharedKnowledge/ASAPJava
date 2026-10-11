@@ -15,6 +15,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
+/**
+ * A key store that lives entirely in memory.
+ * Key pair generation for the owner is performed lazily and currently limited to RSA with a key size of 2048 bits.
+ */
 public class InMemoASAPKeyStore implements ASAPKeyStore {
     private static final CharSequence ASAP_KEYSTORE_MEMENTO_KEY = "asapKeyStoreMemento";
     private PrivateKey privateKey;
@@ -29,20 +33,19 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     private HashMap<CharSequence, PublicKey> peerPublicKeys = new HashMap<CharSequence, PublicKey>();
 
     /**
-     * Setup key store, A key pair will be generated
-     * @param ownerID
-     * @throws ASAPSecurityException
+     * Constructs a new key store for the given owner.
+     * @param ownerID ID of this key store's owner
      */
-    public InMemoASAPKeyStore(CharSequence ownerID) throws ASAPSecurityException {
-        // generate owners key pair;
+    public InMemoASAPKeyStore(CharSequence ownerID) {
         this.ownerID = ownerID;
-        //this.generateKeyPair();
     }
 
     /**
-     * Setup key store with a key pair
-     * @param ownerID
-     * @param ownerKeyPair
+     * Constructs a new key store for the given owner with the specified key pair.
+     * @param ownerID ID of this key store's owner
+     * @param ownerKeyPair key pair of the owner
+     * @param keyPairCreationTime a timestamp representing the date the given key pair was created on, in milliseconds
+     *                            since epoch (January 1, 1970 UTC).
      * @deprecated
      */
     public InMemoASAPKeyStore(CharSequence ownerID, KeyPair ownerKeyPair, long keyPairCreationTime) {
@@ -60,6 +63,12 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         this.keyPair = keyPair;
     }
 
+    /**
+     * Returns the key pair of this store's owner.
+     * If this pair does not exist yet, the store attempts to generate and store one.
+     * @return the key pair. null if no pair exists and generation fails.
+     * @see ASAPKeyStore#generateKeyPair()
+     */
     public KeyPair getKeyPair() {
         if(this.keyPair == null) {
             Log.writeLog(this, "key pair not yet generated - do it now");
@@ -74,19 +83,23 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return this.keyPair;
     }
 
+    @Override
     public SecretKey generateSymmetricKey() throws ASAPSecurityException {
         return ASAPCryptoAlgorithms.generateSymmetricKey(
                 DEFAULT_SYMMETRIC_KEY_TYPE, DEFAULT_SYMMETRIC_KEY_SIZE);
     }
 
+    @Override
     public long getKeysCreationTime() throws ASAPSecurityException {
         return this.keyPairCreationTime;
     }
 
+    @Override
     public int getSymmetricKeyLen() {
         return ASAPKeyStore.DEFAULT_SYMMETRIC_KEY_SIZE;
     }
 
+    @Override
     public void generateKeyPair() throws ASAPSecurityException {
         this.setKeyPair(this.generateNewKeyPair());
         this.privateKey = this.keyPair.getPrivate();
@@ -97,7 +110,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
 
     private KeyPair generateNewKeyPair() throws ASAPSecurityException {
         Log.writeLog(this, "create key pair");
-        KeyPairGenerator keyGen = null;
+        KeyPairGenerator keyGen;
         try {
             keyGen = KeyPairGenerator.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
@@ -214,8 +227,14 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     }
 
     /**
-     * Write storage owners' public key to stream
-     * @param os
+     * Writes this store's owner's public key to the given output stream.
+     * If no key exists yet, the store attempts to generate it.
+     * The key's metadata is written as well to enable the reader to reconstruct it.
+     * @param os the stream to write to
+     * @throws ASAPSecurityException if no key exists and key generation fails
+     * @throws IOException if an I/O error occurs
+     * @see ASAPKeyStore#generateKeyPair()
+     * @see InMemoASAPKeyStore#readPublicKey(CharSequence, InputStream)
      */
     public void writePublicKey(OutputStream os) throws ASAPSecurityException, IOException {
         PublicKey publicKey = this.getPublicKey();
@@ -223,7 +242,6 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         String format = publicKey.getFormat();
         String algorithm = publicKey.getAlgorithm();
         byte[] byteEncodedPublicKey = publicKey.getEncoded();
-        int length = byteEncodedPublicKey.length;
 
         // makes it much easier to serialize simple data
         DataOutputStream dos = new DataOutputStream(os);
@@ -238,11 +256,14 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
     }
 
     /**
-     * Read public key from another peer from an extern source (input stream)
-     * @param peer
-     * @param is
+     * Reads a public key from the given input stream and adds it to this store.
+     * @param peer ID of the public key's owner
+     * @param is the stream to read from
+     * @throws IOException if an I/O error occurs
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
      */
-    public void readPublicKey(CharSequence peer, InputStream is) throws ASAPSecurityException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public void readPublicKey(CharSequence peer, InputStream is) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         DataInputStream dis = new DataInputStream(is);
 
         // read in same order as written
@@ -253,7 +274,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         // allocate memory
         byte[] byteEncodedPublicKey = new byte[len];
 
-        // read encoded key directly from stream
+        // FIXME: Method currently doesn't store the received key as per the specification.
         is.read(byteEncodedPublicKey);
 
         // create key object
@@ -297,22 +318,33 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         }
     }
 
+    /**
+     * Returns a byte representation of this store's owner's key pair and related metadata.
+     * If no key pair exists yet, the store attempts to create one.
+     * @return a byte array holding the owner's key pair
+     * @throws ASAPException if no key pair exists and key generation fails
+     * @throws IOException if an I/O error occurs
+     * @see ASAPKeyStore#generateKeyPair()
+     * @see InMemoASAPKeyStore#restoreMemento(byte[])
+     */
     public byte[] getMemento() throws ASAPException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+        PrivateKey privateKey = this.getPrivateKey();
         // encoded private key
-        ASAPSerialization.writeByteArray(this.getPrivateKey().getEncoded(), baos);
+        ASAPSerialization.writeByteArray(privateKey.getEncoded(), baos);
         // private key algorithm
-        ASAPSerialization.writeCharSequenceParameter(this.getPrivateKey().getAlgorithm(), baos);
+        ASAPSerialization.writeCharSequenceParameter(privateKey.getAlgorithm(), baos);
         // private key format
-        ASAPSerialization.writeCharSequenceParameter(this.getPrivateKey().getFormat(), baos);
+        ASAPSerialization.writeCharSequenceParameter(privateKey.getFormat(), baos);
 
+        PublicKey publicKey = this.getPublicKey();
         // public key encoded
-        ASAPSerialization.writeByteArray(this.getPublicKey().getEncoded(), baos);
+        ASAPSerialization.writeByteArray(publicKey.getEncoded(), baos);
         // public key algorithm
-        ASAPSerialization.writeCharSequenceParameter(this.getPublicKey().getAlgorithm(), baos);
+        ASAPSerialization.writeCharSequenceParameter(publicKey.getAlgorithm(), baos);
         // public key format
-        ASAPSerialization.writeCharSequenceParameter(this.getPublicKey().getFormat(), baos);
+        ASAPSerialization.writeCharSequenceParameter(publicKey.getFormat(), baos);
 
         // creation time
         ASAPSerialization.writeLongParameter(this.keyPairCreationTime, baos);
@@ -323,6 +355,14 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
         return baos.toByteArray();
     }
 
+    /**
+     * Constructs a key pair from the given byte array and stores it as this key store's owner's.
+     * Currently, only the RSA cryptosystem is supported.
+     * @param mementoData the byte representation of the key pair
+     * @throws IOException if an I/O error occurs
+     * @throws ASAPException if the array's end is reached or constructing the key pair fails
+     * @see InMemoASAPKeyStore#getMemento()
+     */
     public void restoreMemento(byte[] mementoData) throws IOException, ASAPException {
         ByteArrayInputStream bais = new ByteArrayInputStream(mementoData);
 
@@ -341,7 +381,7 @@ public class InMemoASAPKeyStore implements ASAPKeyStore {
             this.privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
             this.publicKey = kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new ASAPException("cannot restore keystore form memento: " + e.getLocalizedMessage());
+            throw new ASAPException("cannot restore keystore from memento: " + e.getLocalizedMessage());
         }
 
         // reset those simple data after that critical stuff.
